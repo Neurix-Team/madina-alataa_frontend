@@ -1,0 +1,195 @@
+﻿import React, { useState, useEffect, useCallback, memo } from 'react';
+import CityBuilderService from '../../services/CityBuilderService';
+import AudioManager       from '../../services/AudioManager';
+
+const CITY_W = 800;
+const CITY_H = 300;
+
+const SvgBuilding = memo(({ b, onClick }) => {
+  if (b.type === 'road') {
+    return <rect x={b.x} y={b.y} width={b.w} height={b.h} fill={b.color} rx={2} />;
+  }
+  const iconSize = Math.min(b.w, b.h) * 0.42;
+  return (
+    <g className={`city-building city-building--${b.built ? 'unlocked' : 'locked'}`} onClick={() => onClick(b)}>
+      <rect x={b.x} y={b.y} width={b.w} height={b.h}
+        fill={b.built ? b.color : '#cbd5e1'} rx={6}
+        stroke={b.built ? b.color + '99' : '#94a3b8'} strokeWidth={2}
+      />
+      <text x={b.x + b.w / 2} y={b.y + b.h / 2 + iconSize * 0.35}
+        textAnchor="middle" fontSize={iconSize} style={{ pointerEvents: 'none' }}>
+        {b.built ? b.emoji : '🔒'}
+      </text>
+    </g>
+  );
+});
+
+const BuildingTooltip = memo(({ b, onClose }) => (
+  <>
+    <div className="city-overlay" onClick={onClose} />
+    <div className="city-tooltip">
+      <button className="city-tooltip__close" onClick={onClose}>✕</button>
+      <div className="city-tooltip__emoji">{b.emoji || '🏗️'}</div>
+      <h3 className="city-tooltip__title">{b.label}</h3>
+      {b.built
+        ? <span className="city-tooltip__badge city-tooltip__badge--built">✅ تم بناؤه!</span>
+        : <p className="city-tooltip__locked">🔒 أكمل المهمة المرتبطة لفتح هذا المبنى</p>
+      }
+    </div>
+  </>
+));
+
+const CityMapTab = ({ completedQuests }) => {
+  const svc = CityBuilderService.getInstance();
+
+  const [buildings, setBuildings] = useState(() => {
+    svc.syncCompleted(completedQuests ?? new Set());
+    return svc.getSlots();
+  });
+  const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    svc.syncCompleted(completedQuests ?? new Set());
+    setBuildings([...svc.getSlots()]);
+  }, [completedQuests]);
+
+  const progress      = svc.getCityProgress();
+  const questBuildings = buildings.filter((b) => b.questId !== null);
+  const builtCount    = questBuildings.filter((b) => b.built).length;
+  const totalCount    = questBuildings.length;
+  const cityLevel     = Math.max(1, Math.floor(progress / 20) + 1);
+
+  const handleClick = useCallback((b) => {
+    AudioManager.getInstance().play('click');
+    setSelected(b);
+  }, []);
+
+  return (
+    <div className="city-tab">
+
+      {/* Header */}
+      <div className="city-header">
+        <div>
+          <h2 className="city-header__title">🏙️ مدينتي</h2>
+          <p className="city-header__subtitle">كل مهمة تبني مبنى جديداً في مدينتك!</p>
+        </div>
+        <div className="city-header__stats">
+          <div className="city-stat">
+            <span className="city-stat__value">{builtCount}</span>
+            <span className="city-stat__label">مبنى</span>
+          </div>
+          <div className="city-stat city-stat--accent">
+            <span className="city-stat__value">{progress}%</span>
+            <span className="city-stat__label">مكتمل</span>
+          </div>
+          <div className="city-stat city-stat--gold">
+            <span className="city-stat__value">Lv.{cityLevel}</span>
+            <span className="city-stat__label">مستوى المدينة</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="city-progress">
+        <div className="city-progress__bar">
+          <div className="city-progress__fill" style={{ width: `${progress}%` }} />
+        </div>
+        <span className="city-progress__text">{builtCount} / {totalCount} مبنى</span>
+      </div>
+
+      {/* SVG City */}
+      <div className="city-map-wrap">
+        <svg viewBox={`0 0 ${CITY_W} ${CITY_H}`} className="city-svg">
+          <defs>
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#bfdbfe" />
+              <stop offset="100%" stopColor="#eff6ff" />
+            </linearGradient>
+            <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#86efac" />
+              <stop offset="100%" stopColor="#4ade80" />
+            </linearGradient>
+          </defs>
+
+          {/* Sky */}
+          <rect x={0} y={0} width={CITY_W} height={CITY_H} fill="url(#skyGrad)" />
+
+          {/* Sun */}
+          <circle cx={740} cy={44} r={30} fill="#fde68a" />
+          <circle cx={740} cy={44} r={22} fill="#fbbf24" />
+
+          {/* Clouds */}
+          <text x={60}  y={50} fontSize={26} opacity={0.5} className="city-cloud">☁️</text>
+          <text x={290} y={36} fontSize={20} opacity={0.4} className="city-cloud city-cloud--2">☁️</text>
+          <text x={490} y={58} fontSize={16} opacity={0.35} className="city-cloud city-cloud--3">☁️</text>
+
+          {/* Ground */}
+          <rect x={0} y={228} width={CITY_W} height={CITY_H - 228} fill="url(#groundGrad)" />
+          <rect x={0} y={228} width={CITY_W} height={5} fill="#4ade80" />
+
+          {/* Road */}
+          <rect x={0} y={200} width={CITY_W} height={28} fill="#94a3b8" />
+          <rect x={0} y={213} width={CITY_W} height={2} fill="#e2e8f0" opacity={0.6} />
+
+          {/* Buildings */}
+          {buildings.map((b) => (
+            <SvgBuilding key={b.id} b={b} onClick={handleClick} />
+          ))}
+
+          {/* Labels for built buildings */}
+          {buildings.filter((b) => b.built && b.type !== 'road').map((b) => (
+            <text key={`lbl-${b.id}`}
+              x={b.x + b.w / 2} y={b.y + b.h + 13}
+              textAnchor="middle" fontSize={7} fontWeight="900"
+              fill="#1e293b" fontFamily="Cairo,sans-serif"
+              style={{ pointerEvents: 'none' }}>
+              {b.label}
+            </text>
+          ))}
+
+          {/* Decorative trees */}
+          {[45, 170, 430, 545, 695].map((x, i) => (
+            <text key={i} x={x} y={226} fontSize={18} opacity={0.75}>🌲</text>
+          ))}
+
+          {/* Pond */}
+          <ellipse cx={660} cy={262} rx={52} ry={16} fill="#93c5fd" opacity={0.55} />
+          <text x={645} y={267} fontSize={12} opacity={0.8}>🌊</text>
+        </svg>
+      </div>
+
+      {/* Legend */}
+      <div className="city-legend">
+        {[
+          { color: '#cbd5e1', label: 'مقفل 🔒' },
+          { color: '#34d399', label: 'مبنى مفتوح ✅' },
+          { color: '#c4b5fd', label: 'معلم رئيسي 🕌' },
+        ].map(({ color, label }) => (
+          <div key={label} className="city-legend__item">
+            <div className="city-legend__dot" style={{ background: color }} />
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Building cards */}
+      <div className="city-buildings-grid">
+        {questBuildings.map((b) => (
+          <div
+            key={b.id}
+            className={`city-building-card${b.built ? ' city-building-card--built' : ''}`}
+            onClick={() => handleClick(b)}
+          >
+            <span className="city-building-card__icon">{b.built ? b.emoji : '🔒'}</span>
+            <div className="city-building-card__name">{b.label}</div>
+            {b.built && <span className="city-building-card__badge">✅</span>}
+          </div>
+        ))}
+      </div>
+
+      {selected && <BuildingTooltip b={selected} onClose={() => setSelected(null)} />}
+    </div>
+  );
+};
+
+export default memo(CityMapTab);

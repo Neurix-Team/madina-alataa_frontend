@@ -1,0 +1,108 @@
+// src/data/geoQuestsData.js
+/**
+ * Geo-quests: each links a real-world place type to an existing quest.
+ * lat/lng are example Cairo coordinates — in production the player's
+ * city would be used, or parents configure their own locations.
+ *
+ * @typedef {{ id:string, questId:string, placeName:string, placeType:string,
+ *             lat:number, lng:number, radius:number, radiusM:number,
+ *             hint:string, emoji:string, title:string, desc:string,
+ *             difficulty:string, kp:number, xp:number, impact:number }} GeoTarget
+ */
+
+/** @type {GeoTarget[]} */
+const GEO_QUESTS = [
+  {
+    id:         'geo_q1',
+    questId:    'q1',
+    placeName:  'دار المسنين القريبة',
+    placeType:  'nursing_home',
+    lat:        30.0444,
+    lng:        31.2357,
+    radius:     300,
+    radiusM:    300,
+    hint:       'توجه إلى أقرب دار للمسنين في حيك',
+    emoji:      '🏠',
+    title:      'زيارة دار المسنين',
+    desc:       'توجه إلى دار المسنين القريبة وأسعد أحد المقيمين بزيارتك',
+    difficulty: 'متوسط',
+    kp:         50,
+    xp:         100,
+    impact:     5,
+  },
+  {
+    id:         'geo_q5',
+    questId:    'q5',
+    placeName:  'المدرسة',
+    placeType:  'school',
+    lat:        30.0500,
+    lng:        31.2400,
+    radius:     250,
+    radiusM:    250,
+    hint:       'اذهب إلى مدرستك أو مدرسة قريبة',
+    emoji:      '🏫',
+    title:      'مساعدة في المدرسة',
+    desc:       'اذهب إلى المدرسة وساعد زميلاً في دروسه أو نظّف الفصل',
+    difficulty: 'سهل',
+    kp:         60,
+    xp:         120,
+    impact:     8,
+  },
+  {
+    id:         'geo_q8',
+    questId:    'q8',
+    placeName:  'الحديقة العامة',
+    placeType:  'park',
+    lat:        30.0480,
+    lng:        31.2320,
+    radius:     200,
+    radiusM:    200,
+    hint:       'توجه إلى أقرب حديقة عامة في حيك',
+    emoji:      '🌳',
+    title:      'تنظيف الحديقة',
+    desc:       'توجه إلى الحديقة العامة وساعد في تنظيفها وجمع القمامة',
+    difficulty: 'متوسط',
+    kp:         120,
+    xp:         240,
+    impact:     25,
+  },
+  {
+    id:         'geo_q11',
+    questId:    'q11',
+    placeName:  'المستشفى',
+    placeType:  'hospital',
+    lat:        30.0420,
+    lng:        31.2380,
+    radius:     350,
+    radiusM:    350,
+    hint:       'توجه إلى أقرب مستشفى أو مركز صحي',
+    emoji:      '🏥',
+    title:      'إسعاد مريض',
+    desc:       'زر المستشفى وأسعد أحد المرضى برسمة أو هدية بسيطة',
+    difficulty: 'متوسط',
+    kp:         100,
+    xp:         200,
+    impact:     20,
+  },
+  {
+    id:         'geo_q7',
+    questId:    'q7',
+    placeName:  'المسجد',
+    placeType:  'mosque',
+    lat:        30.0460,
+    lng:        31.2340,
+    radius:     200,
+    radiusM:    200,
+    hint:       'اذهب إلى المسجد القريب من بيتك',
+    emoji:      '🕌',
+    title:      'خدمة المسجد',
+    desc:       'اذهب إلى المسجد وساعد في تنظيفه أو توزيع سلة الخير',
+    difficulty: 'سهل',
+    kp:         100,
+    xp:         200,
+    impact:     20,
+  },
+];
+
+export { GEO_QUESTS };
+export default GEO_QUESTS;

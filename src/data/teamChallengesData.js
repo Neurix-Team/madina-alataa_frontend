@@ -1,0 +1,90 @@
+// src/data/teamChallengesData.js
+/**
+ * Team challenges — quests that require multiple players to complete.
+ *
+ * @typedef {{ id:string, title:string, desc:string, story:string, emoji:string,
+ *             required:number, requiredMembers:number,
+ *             kpEach:number, rewardKP:number,
+ *             xpEach:number, rewardXP:number,
+ *             impact:number, steps:string[],
+ *             difficulty:string, color:string, rewardTitle:string }} TeamChallenge
+ */
+
+/** @type {TeamChallenge[]} */
+const TEAM_CHALLENGES = [
+  {
+    id:              'tc1',
+    title:           'حفلة الحديقة الكبرى',
+    desc:            'الحديقة تحتاج فريقاً كاملاً! كل واحد ينظف جزءاً مختلفاً وفي الآخر تحتفلوا معاً.',
+    story:           'الحديقة تحتاج فريقاً كاملاً! كل واحد ينظف جزءاً مختلفاً وفي الآخر تحتفلوا معاً.',
+    emoji:           '🌳',
+    required:        2,
+    requiredMembers: 2,
+    kpEach:          120,
+    rewardKP:        120,
+    xpEach:          250,
+    rewardXP:        250,
+    impact:          40,
+    steps:           ['جمع القمامة', 'تنظيف الممرات', 'زرع الأزهار', 'الاحتفال معاً'],
+    difficulty:      'متوسط',
+    color:           '#10b981',
+    rewardTitle:     '🌿 حارس الطبيعة',
+  },
+  {
+    id:              'tc2',
+    title:           'مطبخ الخير الجماعي',
+    desc:            'أبطالنا يجهزون وجبات دافئة للأسر المحتاجة. كل واحد يطبخ طبقاً مختلفاً!',
+    story:           'أبطالنا يجهزون وجبات دافئة للأسر المحتاجة. كل واحد يطبخ طبقاً مختلفاً!',
+    emoji:           '🍲',
+    required:        3,
+    requiredMembers: 3,
+    kpEach:          150,
+    rewardKP:        150,
+    xpEach:          300,
+    rewardXP:        300,
+    impact:          60,
+    steps:           ['شراء المواد', 'الطبخ معاً', 'التعبئة والتغليف', 'التوزيع على الأسر'],
+    difficulty:      'صعب',
+    color:           '#f59e0b',
+    rewardTitle:     '🍽️ طاهي الخير',
+  },
+  {
+    id:              'tc3',
+    title:           'يوم مدرسة الفرح',
+    desc:            'فريقنا يزور مدرسة محتاجة ويوزع الأدوات والكتب على الطلاب.',
+    story:           'فريقنا يزور مدرسة محتاجة ويوزع الأدوات والكتب على الطلاب.',
+    emoji:           '📚',
+    required:        2,
+    requiredMembers: 2,
+    kpEach:          100,
+    rewardKP:        100,
+    xpEach:          200,
+    rewardXP:        200,
+    impact:          50,
+    steps:           ['جمع الأدوات والكتب', 'التنسيق مع المدرسة', 'التوزيع على الطلاب', 'قصة ملهمة'],
+    difficulty:      'متوسط',
+    color:           '#6366f1',
+    rewardTitle:     '📖 سفير التعليم',
+  },
+  {
+    id:              'tc4',
+    title:           'مشروع بئر الماء',
+    desc:            'المشروع الأكبر! فريق كامل يتعاون لتأمين المياه لقرية نائية.',
+    story:           'المشروع الأكبر! فريق كامل يتعاون لتأمين المياه لقرية نائية.',
+    emoji:           '💧',
+    required:        4,
+    requiredMembers: 4,
+    kpEach:          200,
+    rewardKP:        200,
+    xpEach:          400,
+    rewardXP:        400,
+    impact:          100,
+    steps:           ['جمع التبرعات', 'شراء المعدات', 'العمل الميداني', 'تشغيل المضخة', 'الاحتفال بالإنجاز'],
+    difficulty:      'صعب جداً',
+    color:           '#3b82f6',
+    rewardTitle:     '💧 بطل المياه',
+  },
+];
+
+export { TEAM_CHALLENGES };
+export default TEAM_CHALLENGES;

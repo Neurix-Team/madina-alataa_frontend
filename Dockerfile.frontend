@@ -1,0 +1,76 @@
+# ═════════════════════════════════════════════════════════════════
+# 🎯 Multi-Stage Dockerfile for React Frontend (Production-Ready)
+# ═════════════════════════════════════════════════════════════════
+# Project: بطل العطاء (Madina Al-Ataa)
+# Type: Frontend - React + Vite
+# Optimized for: Production deployment with Nginx
+# ═════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────
+# 📦 Stage 1: Build Stage (Dependencies + Build)
+# ─────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Add metadata labels
+LABEL maintainer="Your Team <team@example.com>"
+LABEL description="Frontend container for بطل العطاء project"
+LABEL version="1.0.0"
+
+# Install dependencies for better caching
+# Copy only package files first to leverage Docker cache
+COPY package.json package-lock.json ./
+
+# Install dependencies with clean install
+# --frozen-lockfile ensures exact versions from lock file
+RUN npm ci --only=production=false && \
+    npm cache clean --force
+
+# Copy the rest of the application
+COPY . .
+
+# Build the application for production
+# Vite will create optimized production build in /dist
+RUN npm run build
+
+# Optional: List build output for verification
+RUN ls -la /app/dist
+
+
+# ─────────────────────────────────────────────────────────────────
+# 🚀 Stage 2: Production Stage (Nginx Server)
+# ─────────────────────────────────────────────────────────────────
+FROM nginx:1.25-alpine AS production
+
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+# Remove default Nginx configuration
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy built assets from builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Add non-root user for security (optional but recommended)
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /var/log/nginx && \
+    chmod -R 755 /usr/share/nginx/html
+
+# Switch to non-root user (commented out by default, uncomment if needed)
+# USER nginx
+
+# Expose port 80 for HTTP traffic
+EXPOSE 80
+
+# Health check to ensure container is running properly
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
+
+# Start Nginx server in foreground mode
+CMD ["nginx", "-g", "daemon off;"]
