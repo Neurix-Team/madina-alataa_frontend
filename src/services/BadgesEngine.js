@@ -1,12 +1,4 @@
-// src/services/BadgesEngine.js
-/**
- * BadgesEngine — Pure stateless service that computes which badges
- * a user has earned based on their current game state.
- *
- * Domain Relationship: Content → gives → Rewards (Badge, Level, Points)
- *
- * All methods are pure functions — no side effects, no state.
- */
+
 
 import zonesData from '../data/zonesData';
 
@@ -23,46 +15,33 @@ zonesData.forEach((zone) => {
  * Returns: boolean
  */
 const BADGE_CONDITIONS = {
-  // قلب الذهب — أكمل 5 مهام
   badge1: (cq) => cq.size >= 5,
 
-  // نجم الخير — احصل على 500 KP
   badge2: (_, stats) => stats.kp >= 500,
 
-  // صديق الجميع — زيارة 3 مناطق مختلفة
   badge3: (cq) => BadgesEngine.uniqueZonesVisited(cq) >= 3,
 
-  // عاشق القراءة — أكمل 2 مهمة قراءة (q1 رسالة من حفيد, q4 صندوق الألعاب)
   badge4: (cq) => {
     const readingQuests = ['q1', 'q4', 'q12'];
     return readingQuests.filter((id) => cq.has(id)).length >= 2;
   },
 
-  // صديق البيئة — نظف الحديقة العامة (q8)
   badge5: (cq) => cq.has('q8'),
 
-  // طبيب الروح — زيارة المستشفى (q11)
   badge6: (cq) => cq.has('q11'),
 
-  // حفيد بار — ساعد في دار المسنين (أي مهمة في z1)
   badge7: (cq) => ['q1', 'q2', 'q3'].some((id) => cq.has(id)),
 
-  // بطل صاعد — ارتق للمستوى 5
   badge8: (_, stats) => stats.level >= 5,
 
-  // ── Extra badges (يمكن إضافتها لـ badgesData لاحقاً) ──────────────────
 
-  // متبرع كريم — تبرع مرة واحدة على الأقل
   badge_donor: (_, __, orders) =>
     orders.some((o) => o.type === 'DonationOrder'),
 
-  // بطل الأطفال — أكمل مهمة في دار الأيتام (z2)
   badge_orphans: (cq) => cq.has('q4'),
 
-  // محارب الفقر — أكمل مهمة صعبة جداً (q13)
   badge_hard: (cq) => cq.has('q13'),
 
-  // متطوع نشيط — أكمل 10 مهام
   badge_active: (cq) => cq.size >= 10,
 };
 

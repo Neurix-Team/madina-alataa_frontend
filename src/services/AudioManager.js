@@ -1,12 +1,4 @@
-// src/services/AudioManager.js
-/**
- * AudioManager — Singleton OOP service for all in-game sounds.
- * Uses Web Audio API only; no external assets required.
- *
- * Usage:
- *   AudioManager.getInstance().play('click');
- *   AudioManager.getInstance().play('win');
- */
+
 
 class AudioManager {
   /** @type {AudioManager|null} */
