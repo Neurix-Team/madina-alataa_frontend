@@ -1,8 +1,10 @@
-# TODO - Profile V2 Enhancements (Map Embed + Nearby Donations)
+# TODO - Cases Page + Map Navbar
 
-- [ ] Embed Google Maps inside Profile V2 settings (no new tab)
-- [ ] Place "Save changes" button below the embedded map
-- [ ] Show nearby donation places inside page after save
-- [ ] Prevent repeated navigation/reload behavior when clicking profile avatar
-- [ ] Keep logout behavior: navigate `/auth` without clearing localStorage
+- [x] Add Cases route handling in `src/App.jsx` without breaking tab/url sync
+- [x] Create `UrgencyBadge` component
+- [x] Create `CaseCard` component with progress + CTAs + hover/mount animations
+- [x] Create `CasesFilter` component with urgency/category/location/funded controls
+- [x] Create `src/pages/CasesPage/CasesPage.jsx` with static data + realtime filtering
+- [x] Integrate `/cases` page into existing authenticated app layout flow
+- [x] Update `src/components/tabs/MapTab.jsx` to include top mini navbar links (الخريطة | الحالات | بروفايل)
 - [ ] Run build and validate

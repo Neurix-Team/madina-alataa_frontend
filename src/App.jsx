@@ -40,6 +40,9 @@ import DailyTasksTab      from './components/tabs/DailyTasksTab';
 import OrdersTab          from './components/tabs/OrdersTab';
 import AdminTab           from './components/tabs/AdminTab';
 import ProfileV2Page      from './pages/ProfileV2Page';
+import CasesPage          from './pages/CasesPage/CasesPage';
+import CaseDetailsPage    from './pages/CaseDetailsPage';
+import DonationCheckoutPage from './pages/DonationCheckoutPage';
 
 // ── Theme service singleton ───────────────────────────────────────────────
 const themeSvc = ThemeService.getInstance();
@@ -229,7 +232,12 @@ function AppContent() {
   // Sync URL -> activeTab
   useEffect(() => {
     if (appState === 'auth') return;
-    if (location.pathname === '/profile-v2') return;
+    if (
+      location.pathname === '/profile-v2' ||
+      location.pathname === '/cases' ||
+      location.pathname.startsWith('/cases/') ||
+      location.pathname.startsWith('/donate/')
+    ) return;
 
     const tabFromPath = PATH_TO_TAB[location.pathname];
     if (tabFromPath && tabFromPath !== activeTab) {
@@ -240,7 +248,12 @@ function AppContent() {
   // Sync activeTab -> URL (skip while landing on explicit tab routes to avoid visual bounce)
   useEffect(() => {
     if (appState === 'auth') return;
-    if (location.pathname === '/profile-v2') return;
+    if (
+      location.pathname === '/profile-v2' ||
+      location.pathname === '/cases' ||
+      location.pathname.startsWith('/cases/') ||
+      location.pathname.startsWith('/donate/')
+    ) return;
 
     const tabFromPath = PATH_TO_TAB[location.pathname];
     if (tabFromPath && tabFromPath === activeTab) return;
@@ -381,6 +394,45 @@ function AppContent() {
           appState === 'auth'
             ? <Navigate to="/auth" replace />
             : <ProfileV2Page />
+        }
+      />
+      <Route
+        path="/cases"
+        element={
+          appState === 'auth'
+            ? <Navigate to="/auth" replace />
+            : (
+              <>
+                <style>{GLOBAL_CSS}</style>
+                <CasesPage />
+              </>
+            )
+        }
+      />
+      <Route
+        path="/cases/:id"
+        element={
+          appState === 'auth'
+            ? <Navigate to="/auth" replace />
+            : (
+              <>
+                <style>{GLOBAL_CSS}</style>
+                <CaseDetailsPage />
+              </>
+            )
+        }
+      />
+      <Route
+        path="/donate/:id"
+        element={
+          appState === 'auth'
+            ? <Navigate to="/auth" replace />
+            : (
+              <>
+                <style>{GLOBAL_CSS}</style>
+                <DonationCheckoutPage />
+              </>
+            )
         }
       />
       <Route

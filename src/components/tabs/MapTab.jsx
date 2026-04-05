@@ -106,31 +106,41 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
         textAlign: 'center', direction: 'rtl',
         border: '1.5px solid var(--border)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 4 }}>
-          <button
-            onClick={() => navigate('/profile-v2')}
-            title="الذهاب للبروفايل الجديد"
-            style={{
-              border: '1.5px solid #fcd34d',
-              background: 'linear-gradient(135deg,#fef3c7,#fde68a)',
-              color: '#92400e',
-              borderRadius: 12,
-              padding: '6px 10px',
-              fontSize: 18,
-              fontWeight: 900,
-              cursor: 'pointer',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
-            }}
-          >
-            ⭐
-          </button>
-          <h2 style={{ fontSize: 24, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 0 }}>🗺️ خريطة المهام</h2>
-          <div style={{ width: 40 }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 0 }}>🗺️ خريطة المهام</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              {[
+                { label: '🗺️ الخريطة', path: '/map' },
+                { label: '📋 الحالات', path: '/cases' },
+                { label: '👤 بروفايل', path: '/profile-v2' },
+              ].map((item) => (
+                <button
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  style={{
+                    border: '1.5px solid #93c5fd',
+                    background: item.path === '/map'
+                      ? 'linear-gradient(135deg,#1d4ed8,#2563eb)'
+                      : 'rgba(37,99,235,0.08)',
+                    color: item.path === '/map' ? '#ffffff' : '#1e3a8a',
+                    borderRadius: 999,
+                    padding: '7px 12px',
+                    fontSize: 12,
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    boxShadow: item.path === '/map' ? '0 6px 14px rgba(37,99,235,0.34)' : 'none',
+                    fontFamily: "'Cairo', sans-serif",
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <p style={{ color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600 }}>
-          اختر منطقة وابدأ مهمة خيرية — {doneQuests} من {totalQuests} مهمة مكتملة
-        </p>
+      
         {/* Overall progress */}
         <div style={{ height: 8, background: 'var(--border)', borderRadius: 99, overflow: 'hidden', marginTop: 10 }}>
           <div style={{
