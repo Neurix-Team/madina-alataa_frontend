@@ -12,6 +12,13 @@ export default function DonationCheckoutPage() {
   const [selectedAmount, setSelectedAmount] = useState(500);
   const [customAmount, setCustomAmount] = useState('');
   const [donationType, setDonationType] = useState('one_time');
+  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [cardForm, setCardForm] = useState({
+    holderName: '',
+    cardNumber: '',
+    expiry: '',
+    cvv: '',
+  });
 
   const finalAmount = useMemo(() => {
     const custom = Number(customAmount);
@@ -171,6 +178,74 @@ export default function DonationCheckoutPage() {
                 </div>
               </Section>
 
+              <Section title="وسيلة الدفع" icon="💳">
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+                  <TypeButton
+                    active={paymentMethod === 'card'}
+                    onClick={() => setPaymentMethod('card')}
+                    title="Visa / MasterCard"
+                    subtitle="الدفع بالبطاقة البنكية"
+                  />
+                  <TypeButton
+                    active={paymentMethod === 'paypal'}
+                    onClick={() => setPaymentMethod('paypal')}
+                    title="PayPal"
+                    subtitle="تحويل عبر حساب PayPal"
+                  />
+                  <TypeButton
+                    active={paymentMethod === 'applepay'}
+                    onClick={() => setPaymentMethod('applepay')}
+                    title="Apple Pay"
+                    subtitle="دفع سريع عبر Apple Pay"
+                  />
+                  <TypeButton
+                    active={paymentMethod === 'wallet'}
+                    onClick={() => setPaymentMethod('wallet')}
+                    title="Wallet / InstaPay"
+                    subtitle="محفظة إلكترونية أو InstaPay"
+                  />
+                </div>
+
+                {paymentMethod === 'card' && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <input
+                      placeholder="اسم صاحب البطاقة"
+                      value={cardForm.holderName}
+                      onChange={(e) => setCardForm((p) => ({ ...p, holderName: e.target.value }))}
+                      style={inputStyle}
+                    />
+                    <input
+                      placeholder="رقم البطاقة"
+                      value={cardForm.cardNumber}
+                      onChange={(e) => setCardForm((p) => ({ ...p, cardNumber: e.target.value }))}
+                      style={inputStyle}
+                    />
+                    <input
+                      placeholder="MM/YY"
+                      value={cardForm.expiry}
+                      onChange={(e) => setCardForm((p) => ({ ...p, expiry: e.target.value }))}
+                      style={inputStyle}
+                    />
+                    <input
+                      placeholder="CVV"
+                      value={cardForm.cvv}
+                      onChange={(e) => setCardForm((p) => ({ ...p, cvv: e.target.value }))}
+                      style={inputStyle}
+                    />
+                  </div>
+                )}
+
+                {paymentMethod === 'paypal' && (
+                  <div style={noticeStyle}>سيتم تحويلك لبوابة PayPal الآمنة لإتمام الدفع.</div>
+                )}
+                {paymentMethod === 'applepay' && (
+                  <div style={noticeStyle}>سيتم فتح نافذة Apple Pay لتأكيد العملية.</div>
+                )}
+                {paymentMethod === 'wallet' && (
+                  <div style={noticeStyle}>اختر رقم المحفظة/InstaPay في الخطوة التالية (محاكاة واجهة).</div>
+                )}
+              </Section>
+
               <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
                 <button
                   onClick={() => navigate('/cases')}
@@ -202,6 +277,18 @@ export default function DonationCheckoutPage() {
                   <ConfirmRow
                     label="نوع التبرع"
                     value={donationType === 'one_time' ? 'One-time (مرة واحدة)' : 'Recurring (شهري)'}
+                  />
+                  <ConfirmRow
+                    label="وسيلة الدفع"
+                    value={
+                      paymentMethod === 'card'
+                        ? 'Visa / MasterCard'
+                        : paymentMethod === 'paypal'
+                          ? 'PayPal'
+                          : paymentMethod === 'applepay'
+                            ? 'Apple Pay'
+                            : 'Wallet / InstaPay'
+                    }
                   />
                   <ConfirmRow label="رسوم المنصة" value="0 EGP" />
                 </div>
@@ -308,6 +395,26 @@ const primaryBtn = {
   cursor: 'pointer',
   fontFamily: "'Cairo', sans-serif",
   boxShadow: '0 10px 22px rgba(22,163,74,0.32)',
+};
+
+const inputStyle = {
+  border: '1.5px solid #cbd5e1',
+  borderRadius: 12,
+  padding: '10px 12px',
+  fontSize: 14,
+  fontWeight: 700,
+  fontFamily: "'Cairo', sans-serif",
+  outline: 'none',
+};
+
+const noticeStyle = {
+  background: '#eff6ff',
+  border: '1px solid #bfdbfe',
+  borderRadius: 12,
+  color: '#1e3a8a',
+  padding: '10px 12px',
+  fontSize: 13,
+  fontWeight: 800,
 };
 
 const secondaryBtn = {
