@@ -4,6 +4,7 @@
  * Tapping a zone opens the ZoneDetailModal.
  */
 import React, { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import zonesData from '../../data/zonesData';
 import AudioManager from '../../services/AudioManager';
 
@@ -92,6 +93,7 @@ const ZoneCard = memo(({ zone, completedQuests, onOpenZone }) => {
 });
 
 const MapTab = ({ completedQuests, onOpenZone }) => {
+  const navigate = useNavigate();
   const totalQuests = zonesData.reduce((s, z) => s + z.quests.length, 0);
   const doneQuests  = zonesData.reduce((s, z) => s + z.quests.filter((q) => completedQuests.has(q.id)).length, 0);
 
@@ -104,7 +106,28 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
         textAlign: 'center', direction: 'rtl',
         border: '1.5px solid var(--border)',
       }}>
-        <h2 style={{ fontSize: 24, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 4 }}>🗺️ خريطة المهام</h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 4 }}>
+          <button
+            onClick={() => navigate('/profile-v2')}
+            title="الذهاب للبروفايل الجديد"
+            style={{
+              border: '1.5px solid #fcd34d',
+              background: 'linear-gradient(135deg,#fef3c7,#fde68a)',
+              color: '#92400e',
+              borderRadius: 12,
+              padding: '6px 10px',
+              fontSize: 18,
+              fontWeight: 900,
+              cursor: 'pointer',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
+            }}
+          >
+            ⭐
+          </button>
+          <h2 style={{ fontSize: 24, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 0 }}>🗺️ خريطة المهام</h2>
+          <div style={{ width: 40 }} />
+        </div>
+
         <p style={{ color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600 }}>
           اختر منطقة وابدأ مهمة خيرية — {doneQuests} من {totalQuests} مهمة مكتملة
         </p>

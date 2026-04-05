@@ -1,5 +1,6 @@
 // src/App.jsx
 import React, { useState, useEffect, useCallback } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import useGameState       from './hooks/useGameState';
 import GameEngine         from './services/GameEngine';
 import AudioManager       from './services/AudioManager';
@@ -38,6 +39,7 @@ import CityExplorationTab from './components/tabs/CityExplorationTab';
 import DailyTasksTab      from './components/tabs/DailyTasksTab';
 import OrdersTab          from './components/tabs/OrdersTab';
 import AdminTab           from './components/tabs/AdminTab';
+import ProfileV2Page      from './pages/ProfileV2Page';
 
 // ── Theme service singleton ───────────────────────────────────────────────
 const themeSvc = ThemeService.getInstance();
@@ -149,7 +151,28 @@ const MobileNavBar = ({ activeTab, setActiveTab }) => (
 );
 
 // ── App ───────────────────────────────────────────────────────────────────
-export default function App() {
+const TAB_TO_PATH = {
+  map: '/map',
+  daily: '/daily',
+  explore: '/explore',
+  city: '/city',
+  geo: '/geo',
+  team: '/team',
+  badges: '/badges',
+  leaderboard: '/leaderboard',
+  impact: '/impact',
+  profile: '/profile',
+  parents: '/parents',
+  orders: '/orders',
+  admin: '/admin',
+};
+
+const PATH_TO_TAB = Object.entries(TAB_TO_PATH).reduce((acc, [tab, path]) => {
+  acc[path] = tab;
+  return acc;
+}, {});
+
+function AppContent() {
   const { state, actions } = useGameState();
   const {
     appState, activeTab, activeZone, activeQuest,
@@ -200,22 +223,39 @@ export default function App() {
     setSidebarOpen(false);
   }, [setActiveTab]);
 
-  // ── Auth screen ───────────────────────────────────────────────────────
-  if (appState === 'auth') {
-    return (
-      <>
-        <style>{GLOBAL_CSS}</style>
-        <AuthScreen onLogin={login} />
-      </>
-    );
-  }
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Sync URL -> activeTab
+  useEffect(() => {
+    if (appState === 'auth') return;
+    if (location.pathname === '/profile-v2') return;
+
+    const tabFromPath = PATH_TO_TAB[location.pathname];
+    if (tabFromPath && tabFromPath !== activeTab) {
+      setActiveTab(tabFromPath);
+    }
+  }, [location.pathname, activeTab, setActiveTab, appState]);
+
+  // Sync activeTab -> URL (skip while landing on explicit tab routes to avoid visual bounce)
+  useEffect(() => {
+    if (appState === 'auth') return;
+    if (location.pathname === '/profile-v2') return;
+
+    const tabFromPath = PATH_TO_TAB[location.pathname];
+    if (tabFromPath && tabFromPath === activeTab) return;
+
+    const expectedPath = TAB_TO_PATH[activeTab] || '/profile-v2';
+    if (location.pathname !== expectedPath) {
+      navigate(expectedPath, { replace: true });
+    }
+  }, [activeTab, location.pathname, navigate, appState]);
 
   const completedCount = completedQuests instanceof Set
     ? completedQuests.size
     : (completedQuests?.length ?? 0);
 
-  // ── Game screen ───────────────────────────────────────────────────────
-  return (
+  const gameScreen = (
     <>
       <style>{GLOBAL_CSS}</style>
 
@@ -318,5 +358,47 @@ export default function App() {
         <Notification message={notification} />
       </div>
     </>
+  );
+
+  return (
+    <Routes>
+      <Route
+        path="/auth"
+        element={
+          appState === 'auth'
+            ? (
+              <>
+                <style>{GLOBAL_CSS}</style>
+                <AuthScreen onLogin={login} />
+              </>
+            )
+            : <Navigate to={TAB_TO_PATH[activeTab] || '/profile-v2'} replace />
+        }
+      />
+      <Route
+        path="/profile-v2"
+        element={
+          appState === 'auth'
+            ? <Navigate to="/auth" replace />
+            : <ProfileV2Page />
+        }
+      />
+      <Route
+        path="*"
+        element={
+          appState === 'auth'
+            ? <Navigate to="/auth" replace />
+            : gameScreen
+        }
+      />
+    </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }

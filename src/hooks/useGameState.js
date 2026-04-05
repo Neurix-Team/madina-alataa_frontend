@@ -68,6 +68,7 @@ function reducer(state, action) {
       return {
         ...state,
         appState:        'game',
+        activeTab:       'map',
         showTutorial:    !hasVisited,
         showDailyReward: showReward && !!hasVisited,
       };

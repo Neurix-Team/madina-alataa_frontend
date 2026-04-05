@@ -233,4 +233,4 @@ const zonesData = [
   },
 ];
 
-export default zonesData,
+export default zonesData;
