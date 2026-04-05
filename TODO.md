@@ -1,10 +1,7 @@
-# TODO - Cases Page + Map Navbar
+# TODO - Cases Details Enhancement
 
-- [x] Add Cases route handling in `src/App.jsx` without breaking tab/url sync
-- [x] Create `UrgencyBadge` component
-- [x] Create `CaseCard` component with progress + CTAs + hover/mount animations
-- [x] Create `CasesFilter` component with urgency/category/location/funded controls
-- [x] Create `src/pages/CasesPage/CasesPage.jsx` with static data + realtime filtering
-- [x] Integrate `/cases` page into existing authenticated app layout flow
-- [x] Update `src/components/tabs/MapTab.jsx` to include top mini navbar links (الخريطة | الحالات | بروفايل)
+- [ ] Redesign `CaseDetailsPage.jsx` to match project visual identity
+- [ ] Add static case details data map by id with fallback
+- [ ] Add sections: case data, verification/docs, description, funding ratio, location/hospital, case type, updates
+- [ ] Add animated donate CTA button and keep navigation to `/donate/:id`
 - [ ] Run build and validate
