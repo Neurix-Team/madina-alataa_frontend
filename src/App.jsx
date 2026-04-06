@@ -1,52 +1,115 @@
-// src/App.jsx
+// // src/App.jsx
+// import React, { useState, useEffect, useCallback } from 'react';
+// import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+// import useGameState       from './hooks/useGameState';
+// import GameEngine         from './services/GameEngine';
+// import AudioManager       from './services/AudioManager';
+// import ThemeService       from './services/ThemeService';
+// import OrderService       from './services/OrderService';
+
+// // Layout & common
+// import Sidebar            from './components/layout/Sidebar';
+// import DashboardCards     from './components/common/DashboardCards';
+// import Notification       from './components/common/Notification';
+// import RocketBackground   from './components/common/RocketBackground';
+// import CanvasBackground   from './components/common/CanvasBackground';
+// import ConfettiOverlay    from './components/common/ConfettiOverlay';
+
+// // Auth
+// import AuthScreen         from './components/auth/AuthScreen';
+
+// // Modals
+// import LevelUpModal       from './components/modals/LevelUpModal';
+// import TutorialModal      from './components/modals/TutorialModal';
+// import DailyRewardModal   from './components/modals/DailyRewardModal';
+// import ZoneDetailModal    from './components/modals/ZoneDetailModal';
+// import QuestModal         from './components/modals/QuestModal';
+
+// // Tabs
+// import MapTab             from './components/tabs/MapTab';
+// import BadgesTab          from './components/tabs/BadgesTab';
+// import LeaderboardTab     from './components/tabs/LeaderboardTab';
+// import ImpactTab          from './components/tabs/ImpactTab';
+// import ProfileTab         from './components/tabs/ProfileTab';
+// // import ParentsTab         from './components/tabs/ParentsTab';
+// import MyDonationsPage from './pages/MyDonationsPage';
+// import MyChildrenPage from './pages/MyChildrenPage';
+// import ParentsPage from './pages/ParentsPage';
+// import ParentsTab from './components/tabs/ParentsTab';
+// // import MyChildrenPage from './pages/MyChildrenPage';
+// import CityMapTab         from './components/tabs/CityMapTab';
+// import GeoQuestsTab       from './components/tabs/GeoQuestsTab';
+// import TeamChallengesTab  from './components/tabs/TeamChallengesTab';
+// import CityExplorationTab from './components/tabs/CityExplorationTab';
+// import DailyTasksTab      from './components/tabs/DailyTasksTab';
+// import OrdersTab          from './components/tabs/OrdersTab';
+// import AdminTab           from './components/tabs/AdminTab';
+// import ProfileV2Page      from './pages/ProfileV2Page';
+// import CasesPage          from './pages/CasesPage/CasesPage';
+// import CaseDetailsPage    from './pages/CaseDetailsPage';
+// import DonationCheckoutPage from './pages/DonationCheckoutPage';
 import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import useGameState       from './hooks/useGameState';
-import GameEngine         from './services/GameEngine';
-import AudioManager       from './services/AudioManager';
-import ThemeService       from './services/ThemeService';
-import OrderService       from './services/OrderService';
+import useGameState from './hooks/useGameState';
+import GameEngine from './services/GameEngine';
+import AudioManager from './services/AudioManager';
+import ThemeService from './services/ThemeService';
+import OrderService from './services/OrderService';
 
 // Layout & common
-import Sidebar            from './components/layout/Sidebar';
-import DashboardCards     from './components/common/DashboardCards';
-import Notification       from './components/common/Notification';
-import RocketBackground   from './components/common/RocketBackground';
-import CanvasBackground   from './components/common/CanvasBackground';
-import ConfettiOverlay    from './components/common/ConfettiOverlay';
+import Sidebar from './components/layout/Sidebar';
+import DashboardCards from './components/common/DashboardCards';
+import Notification from './components/common/Notification';
+import RocketBackground from './components/common/RocketBackground';
+import CanvasBackground from './components/common/CanvasBackground';
+import ConfettiOverlay from './components/common/ConfettiOverlay';
 
 // Auth
-import AuthScreen         from './components/auth/AuthScreen';
+import AuthScreen from './components/auth/AuthScreen';
 
 // Modals
-import LevelUpModal       from './components/modals/LevelUpModal';
-import TutorialModal      from './components/modals/TutorialModal';
-import DailyRewardModal   from './components/modals/DailyRewardModal';
-import ZoneDetailModal    from './components/modals/ZoneDetailModal';
-import QuestModal         from './components/modals/QuestModal';
+import LevelUpModal from './components/modals/LevelUpModal';
+import TutorialModal from './components/modals/TutorialModal';
+import DailyRewardModal from './components/modals/DailyRewardModal';
+import ZoneDetailModal from './components/modals/ZoneDetailModal';
+import QuestModal from './components/modals/QuestModal';
+// import ThemeService from './services/ThemeService';
 
 // Tabs
-import MapTab             from './components/tabs/MapTab';
-import BadgesTab          from './components/tabs/BadgesTab';
-import LeaderboardTab     from './components/tabs/LeaderboardTab';
-import ImpactTab          from './components/tabs/ImpactTab';
-import ProfileTab         from './components/tabs/ProfileTab';
-import ParentsTab         from './components/tabs/ParentsTab';
-import CityMapTab         from './components/tabs/CityMapTab';
-import GeoQuestsTab       from './components/tabs/GeoQuestsTab';
-import TeamChallengesTab  from './components/tabs/TeamChallengesTab';
+import MapTab from './components/tabs/MapTab';
+import BadgesTab from './components/tabs/BadgesTab';
+import LeaderboardTab from './components/tabs/LeaderboardTab';
+import ImpactTab from './components/tabs/ImpactTab';
+import ProfileTab from './components/tabs/ProfileTab';
+import ParentsTab from './components/tabs/ParentsTab';
+import CityMapTab from './components/tabs/CityMapTab';
+import GeoQuestsTab from './components/tabs/GeoQuestsTab';
+import TeamChallengesTab from './components/tabs/TeamChallengesTab';
 import CityExplorationTab from './components/tabs/CityExplorationTab';
-import DailyTasksTab      from './components/tabs/DailyTasksTab';
-import OrdersTab          from './components/tabs/OrdersTab';
-import AdminTab           from './components/tabs/AdminTab';
-import ProfileV2Page      from './pages/ProfileV2Page';
-import CasesPage          from './pages/CasesPage/CasesPage';
-import CaseDetailsPage    from './pages/CaseDetailsPage';
+import DailyTasksTab from './components/tabs/DailyTasksTab';
+import OrdersTab from './components/tabs/OrdersTab';
+import AdminTab from './components/tabs/AdminTab';
+
+// Pages
+import ProfileV2Page from './pages/ProfileV2Page';
+import CasesPage from './pages/CasesPage/CasesPage';
+import CaseDetailsPage from './pages/CaseDetailsPage';
 import DonationCheckoutPage from './pages/DonationCheckoutPage';
+import MyDonationsPage from './pages/MyDonationsPage';
+import MyChildrenPage from './pages/MyChildrenPage';
+
+
+const isStandalonePage = (pathname) =>
+  pathname === '/profile-v2' ||
+  pathname === '/my-donations' ||
+  pathname === '/my-children' ||
+  pathname === '/parents' ||
+  pathname === '/cases' ||
+  pathname.startsWith('/cases/') ||
+  pathname.startsWith('/donate/');
 
 // ── Theme service singleton ───────────────────────────────────────────────
 const themeSvc = ThemeService.getInstance();
-
 // ── Global CSS ────────────────────────────────────────────────────────────
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
@@ -165,7 +228,6 @@ const TAB_TO_PATH = {
   leaderboard: '/leaderboard',
   impact: '/impact',
   profile: '/profile',
-  parents: '/parents',
   orders: '/orders',
   admin: '/admin',
 };
@@ -231,42 +293,32 @@ function AppContent() {
 
   // Sync URL -> activeTab
   useEffect(() => {
-    if (appState === 'auth') return;
-    if (
-      location.pathname === '/profile-v2' ||
-      location.pathname === '/cases' ||
-      location.pathname.startsWith('/cases/') ||
-      location.pathname.startsWith('/donate/')
-    ) return;
+    if (appState === 'auth' || isStandalonePage(location.pathname)) return;
 
-    const tabFromPath = PATH_TO_TAB[location.pathname];
-    if (tabFromPath && tabFromPath !== activeTab) {
-      setActiveTab(tabFromPath);
-    }
+    // const tabFromPath = PATH_TO_TAB[location.pathname];
+    // if (tabFromPath && tabFromPath !== activeTab) {
+    //   setActiveTab(tabFromPath);
+    // }
   }, [location.pathname, activeTab, setActiveTab, appState]);
 
   // Sync activeTab -> URL (skip while landing on explicit tab routes to avoid visual bounce)
   useEffect(() => {
-    if (appState === 'auth') return;
-    if (
-      location.pathname === '/profile-v2' ||
-      location.pathname === '/cases' ||
-      location.pathname.startsWith('/cases/') ||
-      location.pathname.startsWith('/donate/')
-    ) return;
+    if (appState === 'auth' || isStandalonePage(location.pathname)) return;
 
-    const tabFromPath = PATH_TO_TAB[location.pathname];
-    if (tabFromPath && tabFromPath === activeTab) return;
+    // const tabFromPath = PATH_TO_TAB[location.pathname];
+    // if (tabFromPath && tabFromPath === activeTab) return;
 
-    const expectedPath = TAB_TO_PATH[activeTab] || '/profile-v2';
-    if (location.pathname !== expectedPath) {
-      navigate(expectedPath, { replace: true });
-    }
+    // const expectedPath = TAB_TO_PATH[activeTab] || '/map';
+    // if (location.pathname !== expectedPath) {
+    //   navigate(expectedPath, { replace: true });
+    // }
   }, [activeTab, location.pathname, navigate, appState]);
 
   const completedCount = completedQuests instanceof Set
     ? completedQuests.size
     : (completedQuests?.length ?? 0);
+
+const isGameRoute = !isStandalonePage(location.pathname);
 
   const gameScreen = (
     <>
@@ -279,8 +331,8 @@ function AppContent() {
         transition: 'background 0.4s ease',
       }}>
         {/* Background layers */}
-        <CanvasBackground />
-        <RocketBackground />
+        {isGameRoute && <CanvasBackground />}
+        {isGameRoute && <RocketBackground />}
 
         <div style={{
           position: 'relative',
@@ -290,14 +342,16 @@ function AppContent() {
           alignItems: 'flex-start',
         }}>
           {/* Sidebar */}
-          <Sidebar
-            activeTab={activeTab}
-            setActiveTab={setActiveTabWithClose}
-            userStats={userStats}
-            avatarTheme={avatarTheme}
-            sidebarOpen={sidebarOpen}
-            setSidebarOpen={setSidebarOpen}
-          />
+          {isGameRoute && (
+            <Sidebar
+              activeTab={activeTab}
+              setActiveTab={setActiveTabWithClose}
+              userStats={userStats}
+              avatarTheme={avatarTheme}
+              sidebarOpen={sidebarOpen}
+              setSidebarOpen={setSidebarOpen}
+            />
+          )}
 
           {/* Main content */}
           <main
@@ -310,10 +364,10 @@ function AppContent() {
             }}
           >
             {/* Dashboard stat cards */}
-            <DashboardCards userStats={userStats} completedCount={completedCount} />
+            {isGameRoute && <DashboardCards userStats={userStats} completedCount={completedCount} />}
 
             {/* XP progress bar */}
-            <XpBar userStats={userStats} />
+            {isGameRoute && <XpBar userStats={userStats} />}
 
             {/* Tab content */}
             <div className="tab-enter" key={activeTab}>
@@ -327,7 +381,7 @@ function AppContent() {
               {activeTab === 'leaderboard' && <LeaderboardTab     userKP={userStats.kp} />}
               {activeTab === 'impact'      && <ImpactTab          userStats={userStats} completedCount={completedCount} onDonate={handleDonateWithOrder} />}
               {activeTab === 'profile'     && <ProfileTab         avatarTheme={avatarTheme} onSetColor={setAvatarColor} onSetAccessory={setAvatarAccessory} />}
-              {activeTab === 'parents'     && <ParentsTab         userStats={userStats} />}
+              {/* {activeTab === 'parents'     && <ParentsTab         userStats={userStats} />} */}
               {activeTab === 'orders'      && <OrdersTab          orders={orders} userStats={userStats} onAddOrder={addOrder} />}
               {activeTab === 'admin'       && <AdminTab           orders={orders} userStats={userStats} />}
             </div>
@@ -335,7 +389,7 @@ function AppContent() {
         </div>
 
         {/* Mobile bottom nav */}
-        <MobileNavBar activeTab={activeTab} setActiveTab={setActiveTabWithClose} />
+        {isGameRoute && <MobileNavBar activeTab={activeTab} setActiveTab={setActiveTabWithClose} />}
 
         {/* ── Modals ── */}
         {showTutorial && (
@@ -435,6 +489,61 @@ function AppContent() {
             )
         }
       />
+      {/* <Route
+  path="/parents"
+  element={
+    appState === 'auth'
+      ? <Navigate to="/auth" replace />
+      : (
+        <>
+          <style>{GLOBAL_CSS}</style>
+          <ParentsTab userStats={userStats} />
+        </>
+      )
+  }
+/> */}
+
+<Route
+  path="/parents"
+  element={
+    appState === 'auth'
+      ? <Navigate to="/auth" replace />
+      : (
+        <>
+          <style>{GLOBAL_CSS}</style>
+          <ParentsTab userStats={userStats} />
+        </>
+      )
+  }
+/>
+
+<Route
+  path="/my-children"
+  element={
+    appState === 'auth'
+      ? <Navigate to="/auth" replace />
+      : (
+        <>
+          <style>{GLOBAL_CSS}</style>
+          <MyChildrenPage />
+        </>
+      )
+  }
+/>
+
+<Route
+  path="/my-donations"
+  element={
+    appState === 'auth'
+      ? <Navigate to="/auth" replace />
+      : (
+        <>
+          <style>{GLOBAL_CSS}</style>
+          <MyDonationsPage />
+        </>
+      )
+  }
+/>
       <Route
         path="*"
         element={

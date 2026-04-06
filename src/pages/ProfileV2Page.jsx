@@ -336,6 +336,10 @@ export default function ProfileV2Page() {
         @keyframes starFloat { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-8px);} }
         @keyframes rocketFly { 0%,100% { transform: translateY(0) rotate(-8deg);} 50% { transform: translateY(-10px) rotate(-2deg);} }
         @keyframes panelSlide { from {opacity:0; transform: translateY(14px);} to {opacity:1; transform: translateY(0);} }
+        @keyframes emojiFloat {
+          0%, 100% { transform: translateY(0) rotate(0deg); opacity: .25; }
+          50% { transform: translateY(-10px) rotate(7deg); opacity: .55; }
+        }
       `}</style>
 
       <aside style={styles.sidebar}>
@@ -359,7 +363,18 @@ export default function ProfileV2Page() {
           return (
             <button
               key={item.id}
-              onClick={() => setActivePanel(item.id)}
+              onClick={() => {
+                if (item.id === 'donations') {
+                  navigate('/my-donations', { replace: false });
+                  return;
+                }
+
+                setActivePanel(item.id);
+
+                if (item.id === 'profile') {
+                  navigate('/profile-v2', { replace: false });
+                }
+              }}
               style={{
                 ...styles.navBtn,
                 background: active ? 'rgba(74,144,217,0.16)' : 'transparent',
@@ -374,8 +389,13 @@ export default function ProfileV2Page() {
         })}
       </aside>
 
-      <main style={styles.main}>
-        <div style={{ ...styles.topRow, animation: mounted ? 'slideUp .5s ease both' : 'none' }}>
+      <main style={{ ...styles.main, position: 'relative', overflow: 'hidden' }}>
+        <span style={{ position: 'absolute', top: 16, left: 18, fontSize: 24, animation: 'emojiFloat 4.2s ease-in-out infinite', zIndex: 1 }}>💙</span>
+        <span style={{ position: 'absolute', top: 64, left: 90, fontSize: 20, animation: 'emojiFloat 5s ease-in-out infinite', zIndex: 1 }}>✨</span>
+        <span style={{ position: 'absolute', top: 130, right: 18, fontSize: 22, animation: 'emojiFloat 4.6s ease-in-out infinite', zIndex: 1 }}>🌟</span>
+        <span style={{ position: 'absolute', bottom: 40, left: 42, fontSize: 24, animation: 'emojiFloat 5.4s ease-in-out infinite', zIndex: 1 }}>🤲</span>
+
+        <div style={{ ...styles.topRow, animation: mounted ? 'slideUp .5s ease both' : 'none', position: 'relative', zIndex: 2 }}>
           <div style={{ ...styles.card, ...styles.heroCard }}>
             <FaStar style={{ position: 'absolute', top: 16, left: 20, color: '#facc15', animation: 'starFloat 2.4s ease-in-out infinite' }} />
             <FaStar style={{ position: 'absolute', top: 52, right: 24, color: '#fcd34d', animation: 'starFloat 2.8s ease-in-out infinite' }} />

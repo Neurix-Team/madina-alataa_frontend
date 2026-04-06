@@ -116,8 +116,11 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
                 { label: '👤 بروفايل', path: '/profile-v2' },
               ].map((item) => (
                 <button
+                  type="button"
                   key={item.path}
-                  onClick={() => navigate(item.path)}
+                  onClick={() => {
+                    navigate(item.path);
+                  }}
                   style={{
                     border: '1.5px solid #93c5fd',
                     background: item.path === '/map'

@@ -100,6 +100,10 @@ export default function CasesPage() {
           from { opacity: 0; transform: translateY(10px) scale(0.98); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
+        @keyframes emojiFloat {
+          0%, 100% { transform: translateY(0) rotate(0deg); opacity: .22; }
+          50% { transform: translateY(-12px) rotate(6deg); opacity: .5; }
+        }
       `}</style>
 
       <section
@@ -111,9 +115,14 @@ export default function CasesPage() {
           boxShadow: '0 16px 34px rgba(15, 23, 42, 0.35)',
           border: '1px solid rgba(148, 163, 184, 0.28)',
           animation: 'casesTitleDown 380ms ease-out both',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <h1 style={{ margin: 0, color: '#fff', fontSize: 30, fontWeight: 900 }}>📋 الحالات</h1>
+        <span style={{ position: 'absolute', top: 10, left: 14, fontSize: 24, animation: 'emojiFloat 4s ease-in-out infinite' }}>💙</span>
+        <span style={{ position: 'absolute', top: 44, right: 20, fontSize: 22, animation: 'emojiFloat 5s ease-in-out infinite' }}>🤲</span>
+        <span style={{ position: 'absolute', bottom: 12, left: 80, fontSize: 20, animation: 'emojiFloat 4.4s ease-in-out infinite' }}>✨</span>
+        <h1 style={{ margin: 0, color: '#fff', fontSize: 30, fontWeight: 900, position: 'relative', zIndex: 1 }}>📋 الحالات</h1>
         <p style={{ margin: '6px 0 0', color: '#dbeafe', fontSize: 14, fontWeight: 700 }}>
           تصفح الحالات وساهم في تغيير حياة الأسر المحتاجة
         </p>

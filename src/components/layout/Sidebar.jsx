@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import GameEngine   from '../../services/GameEngine';
 import ThemeService from '../../services/ThemeService';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 // ── Injected CSS (keyframes + class-based styles) ─────────────────────────
 const SIDEBAR_CSS = `
@@ -177,7 +178,7 @@ const NAV_ITEMS = [
   { id: 'leaderboard', label: 'المتصدرون',        icon: '📊' },
   { id: 'impact',      label: 'أثري',             icon: '💚' },
   { id: 'profile',     label: 'ملفي',             icon: '👤' },
-  { id: 'parents',     label: 'للوالدين',         icon: '👨‍👩‍👧', dividerBefore: true },
+  { id: 'parents',     label: '👤 الاباء',         icon: '👨‍👩‍👧', dividerBefore: true },
   { id: 'orders',      label: 'الأوامر',           icon: '📦' },
   { id: 'admin',       label: 'الإدارة',           icon: '⚙️' },
 ];
@@ -230,6 +231,7 @@ const AvatarSVG = ({ bg, accessory }) => {
 // ── NavBtn ────────────────────────────────────────────────────────────────
 const NavBtn = ({ item, active, onClick }) => (
   <button
+  type='button'
     onClick={() => onClick(item.id)}
     title={item.label}
     className={`sb-nav-btn${active ? ' sb-nav-btn--active' : ''}`}
@@ -336,6 +338,20 @@ export default function Sidebar({
 }) {
   const xpPct = GameEngine.xpPercent(userStats.xp, userStats.xpNeeded);
 
+  const navigate = useNavigate();
+const location = useLocation();
+
+const handleNavClick = (id) => {
+  if (id === 'parents') {
+    setSidebarOpen(false);
+    navigate('/parents');
+    return;
+  }
+
+  setActiveTab(id);
+  setSidebarOpen(false);
+};
+
   return (
     <>
       <style>{SIDEBAR_CSS}</style>
@@ -358,6 +374,7 @@ export default function Sidebar({
 
       {/* Hamburger (mobile) */}
       <button
+       type="button"
         onClick={() => setSidebarOpen(!sidebarOpen)}
         className="sb-hamburger"
         style={{
@@ -645,7 +662,7 @@ export default function Sidebar({
           </div>
 
           {/* ── Nav items ── */}
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+          {/* <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
             {NAV_ITEMS.map((item) => (
               <React.Fragment key={item.id}>
                 {item.dividerBefore && (
@@ -656,13 +673,33 @@ export default function Sidebar({
                   }} />
                 )}
                 <NavBtn
+                 type="button"
                   item={item}
                   active={activeTab === item.id}
                   onClick={setActiveTab}
                 />
               </React.Fragment>
             ))}
-          </nav>
+          </nav> */}
+
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+  {NAV_ITEMS.map((item) => (
+    <React.Fragment key={item.id}>
+      {item.dividerBefore && (
+        <div style={{
+          height: 1,
+          background: 'linear-gradient(90deg, transparent, rgba(29,110,216,0.3), transparent)',
+          margin: '8px 4px',
+        }} />
+      )}
+      <NavBtn
+        item={item}
+        active={item.id === 'parents' ? location.pathname === '/parents' : activeTab === item.id}
+        onClick={handleNavClick}
+      />
+    </React.Fragment>
+  ))}
+</nav>
 
           {/* ── Dark Mode Toggle ── */}
           <DarkModeToggle />
