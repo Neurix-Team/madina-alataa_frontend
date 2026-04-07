@@ -201,6 +201,20 @@ const saveDoneToday = (set) => {
   } catch {}
 };
 
+const loadRewardClaimed = () => {
+  try {
+    return localStorage.getItem('dt_reward_claimed_' + getTodayKey()) === '1';
+  } catch {
+    return false;
+  }
+};
+
+const saveRewardClaimed = () => {
+  try {
+    localStorage.setItem('dt_reward_claimed_' + getTodayKey(), '1');
+  } catch {}
+};
+
 const loadStreak = () => {
   try { return parseInt(localStorage.getItem('dt_streak') || '0', 10); } catch { return 0; }
 };
@@ -219,6 +233,68 @@ const loadReminderSettings = () => {
 const saveReminderSettings = (s) => {
   try { localStorage.setItem('dt_reminder', JSON.stringify(s)); } catch {}
 };
+
+const RESPONSIVE_CSS = `
+  .dt-tab {
+    padding: 24px 24px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .dt-reward-panel {
+    padding: 18px;
+  }
+  .dt-task-card {
+    min-height: auto;
+  }
+  .dt-chain-links,
+  .dt-chain-stats,
+  .dt-form-row,
+  .dt-sound-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .dt-form-group {
+    min-width: 240px;
+  }
+  @media (max-width: 900px) {
+    .dt-tab {
+      padding: 18px 16px 32px;
+    }
+    .dt-chain-links,
+    .dt-chain-stats,
+    .dt-form-row,
+    .dt-sound-grid {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .dt-form-group {
+      min-width: auto;
+      width: 100%;
+    }
+    .dt-task-card {
+      padding: 18px 16px;
+    }
+  }
+  @media (max-width: 640px) {
+    .dt-tab {
+      padding: 14px 12px 28px;
+    }
+    .dt-section-title {
+      font-size: 16px;
+    }
+    .dt-progress-card__row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .dt-task-card {
+      padding: 16px 14px;
+    }
+    .dt-reward-panel {
+      padding: 14px;
+    }
+  }
+`;
 
 // ── Achievement Chain Card ────────────────────────────────────────────────
 
@@ -548,11 +624,14 @@ const AllDoneCelebration = memo(() => (
 const DailyTasksTab = () => {
   const [doneIds,  setDoneIds]  = useState(loadDoneToday);
   const [streak,   setStreak]   = useState(loadStreak);
+  const [rewardClaimed, setRewardClaimed] = useState(loadRewardClaimed);
   const [showCelebration, setShowCelebration] = useState(false);
   const prevDoneCount = useRef(doneIds.size);
 
   const totalTasks = DAILY_TASKS.length;
   const doneCount  = doneIds.size;
+  const todayXp   = DAILY_TASKS.filter((task) => doneIds.has(task.id)).reduce((sum, task) => sum + task.xp, 0);
+  const todayKp   = DAILY_TASKS.filter((task) => doneIds.has(task.id)).reduce((sum, task) => sum + task.kp, 0);
 
   // Load total done from localStorage
   const [totalDone, setTotalDone] = useState(() => {
@@ -597,8 +676,19 @@ const DailyTasksTab = () => {
     });
   }, []);
 
+  const handleClaimReward = useCallback(() => {
+    if (rewardClaimed || doneCount === 0) return;
+    AudioManager.getInstance().unlock();
+    AudioManager.getInstance().play('reward');
+    saveRewardClaimed();
+    setRewardClaimed(true);
+    setShowCelebration(true);
+    setTimeout(() => setShowCelebration(false), 4000);
+  }, [doneCount, rewardClaimed]);
+
   return (
     <div className="dt-tab">
+      <style>{RESPONSIVE_CSS}</style>
 
       {/* ── Achievement Chain Card ── */}
       <AchievementChainCard
@@ -613,6 +703,48 @@ const DailyTasksTab = () => {
 
       {/* ── All Done Celebration ── */}
       {showCelebration && <AllDoneCelebration />}
+
+      {/* ── Daily Reward Summary ── */}
+      <div className="dt-reward-panel" style={{ display: 'grid', gap: 12, marginBottom: 18, padding: 18, borderRadius: 24, background: '#f8fafc', border: '1px solid rgba(148,163,184,0.24)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 900 }}>🎁 مكافأتك اليومية</div>
+            <div style={{ color: '#64748b', fontSize: 13 }}>جمع النقاط وأكمل المهام لتحصل على XP و KP.</div>
+          </div>
+          <button
+            type="button"
+            onClick={handleClaimReward}
+            disabled={rewardClaimed || doneCount === 0}
+            style={{
+              border: 'none',
+              borderRadius: 16,
+              padding: '12px 18px',
+              fontSize: 14,
+              fontWeight: 900,
+              cursor: rewardClaimed || doneCount === 0 ? 'not-allowed' : 'pointer',
+              background: rewardClaimed ? '#94a3b8' : '#2563eb',
+              color: '#fff',
+              minWidth: 170,
+            }}
+          >
+            {rewardClaimed ? '✅ تمت المطالبة' : `Claim ${todayXp} XP / ${todayKp} KP`}
+          </button>
+        </div>
+        <div style={{ display: 'grid', gap: 8, gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))' }}>
+          <div style={{ padding: 14, borderRadius: 18, background: '#fff', border: '1px solid rgba(148,163,184,0.18)' }}>
+            <div style={{ fontSize: 12, color: '#475569', fontWeight: 800 }}>نقاط XP اليوم</div>
+            <div style={{ marginTop: 8, fontSize: 22, fontWeight: 900 }}>{todayXp}</div>
+          </div>
+          <div style={{ padding: 14, borderRadius: 18, background: '#fff', border: '1px solid rgba(148,163,184,0.18)' }}>
+            <div style={{ fontSize: 12, color: '#475569', fontWeight: 800 }}>نقاط KP اليوم</div>
+            <div style={{ marginTop: 8, fontSize: 22, fontWeight: 900 }}>{todayKp}</div>
+          </div>
+          <div style={{ padding: 14, borderRadius: 18, background: '#fff', border: '1px solid rgba(148,163,184,0.18)' }}>
+            <div style={{ fontSize: 12, color: '#475569', fontWeight: 800 }}>الحالة</div>
+            <div style={{ marginTop: 8, fontSize: 22, fontWeight: 900 }}>{doneCount === totalTasks ? 'مكتمل' : 'قيد الإنجاز'}</div>
+          </div>
+        </div>
+      </div>
 
       {/* ── Daily Tasks ── */}
       <div className="dt-section-title">

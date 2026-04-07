@@ -344,7 +344,7 @@ export default function ProfileV2Page() {
   };
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page} className="profile-v2-page">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         @keyframes slideUp { from { opacity:0; transform: translateY(18px);} to { opacity:1; transform: translateY(0);} }
@@ -357,9 +357,102 @@ export default function ProfileV2Page() {
           0%, 100% { transform: translateY(0) rotate(0deg); opacity: .25; }
           50% { transform: translateY(-10px) rotate(7deg); opacity: .55; }
         }
+
+        .profile-v2-page {
+          padding: 20px 24px 40px;
+        }
+
+        .profile-v2-sidebar {
+          transition: all .25s ease;
+        }
+
+        .profile-v2-main {
+          transition: all .25s ease;
+        }
+
+        .profile-v2-top-row {
+          transition: all .25s ease;
+        }
+
+        .profile-v2-badge-grid {
+          grid-template-columns: repeat(6, minmax(0,1fr));
+        }
+
+        @media (max-width: 1100px) {
+          .profile-v2-page {
+            padding: 18px 18px 30px;
+          }
+          .profile-v2-sidebar {
+            width: 220px;
+            padding: 18px 10px;
+          }
+          .profile-v2-main {
+            margin-right: 220px;
+            padding: 18px;
+          }
+          .profile-v2-top-row {
+            gap: 14px;
+          }
+        }
+
+        @media (max-width: 900px) {
+          .profile-v2-page {
+            padding: 14px 12px 22px;
+          }
+          .profile-v2-sidebar {
+            position: relative !important;
+            width: 100% !important;
+            min-height: auto !important;
+            top: auto !important;
+            right: auto !important;
+            margin-bottom: 18px;
+            border-radius: 22px;
+          }
+          .profile-v2-main {
+            margin-right: 0 !important;
+            padding: 16px 0 0 0 !important;
+          }
+          .profile-v2-top-row {
+            grid-template-columns: 1fr !important;
+          }
+          .profile-v2-hero-card {
+            min-height: auto !important;
+          }
+          .profile-v2-badge-grid {
+            grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+          }
+          .profile-v2-main span[style*="position: absolute"] {
+            display: none !important;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .profile-v2-page {
+            padding: 12px 10px 18px;
+          }
+          .profile-v2-sidebar {
+            padding: 16px 12px;
+          }
+          .profile-v2-sidebar button,
+          .profile-v2-sidebar .profile-v2-mini-profile {
+            font-size: 13px;
+          }
+          .profile-v2-top-row {
+            gap: 12px;
+          }
+          .profile-v2-badge-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .profile-v2-main {
+            padding: 0 !important;
+          }
+          .profile-v2-sidebar {
+            border-radius: 18px;
+          }
+        }
       `}</style>
 
-      <aside style={styles.sidebar}>
+      <aside style={styles.sidebar} className="profile-v2-sidebar">
         <div style={styles.logoWrap}>
           <div style={{ fontSize: 30, filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.5))' }}><FaStar /></div>
           <div style={styles.logo}>بطل العطاء</div>
@@ -432,14 +525,14 @@ export default function ProfileV2Page() {
         })}
       </aside>
 
-      <main style={{ ...styles.main, position: 'relative', overflow: 'hidden' }}>
+      <main style={{ ...styles.main, position: 'relative', overflow: 'hidden' }} className="profile-v2-main">
         <span style={{ position: 'absolute', top: 16, left: 18, fontSize: 24, animation: 'emojiFloat 4.2s ease-in-out infinite', zIndex: 1 }}><FaHeart /></span>
         <span style={{ position: 'absolute', top: 64, left: 90, fontSize: 20, animation: 'emojiFloat 5s ease-in-out infinite', zIndex: 1 }}><FaStar /></span>
         <span style={{ position: 'absolute', top: 130, right: 18, fontSize: 22, animation: 'emojiFloat 4.6s ease-in-out infinite', zIndex: 1 }}><FaStarAndCrescent /></span>
         <span style={{ position: 'absolute', bottom: 40, left: 42, fontSize: 24, animation: 'emojiFloat 5.4s ease-in-out infinite', zIndex: 1 }}><FaHandsHelping /></span>
 
-        <div style={{ ...styles.topRow, animation: mounted ? 'slideUp .5s ease both' : 'none', position: 'relative', zIndex: 2 }}>
-          <div style={{ ...styles.card, ...styles.heroCard }}>
+        <div style={{ ...styles.topRow, animation: mounted ? 'slideUp .5s ease both' : 'none', position: 'relative', zIndex: 2 }} className="profile-v2-top-row">
+          <div style={{ ...styles.card, ...styles.heroCard }} className="profile-v2-hero-card">
             <FaStar style={{ position: 'absolute', top: 16, left: 20, color: '#facc15', animation: 'starFloat 2.4s ease-in-out infinite' }} />
             <FaStar style={{ position: 'absolute', top: 52, right: 24, color: '#fcd34d', animation: 'starFloat 2.8s ease-in-out infinite' }} />
             <FaStar style={{ position: 'absolute', bottom: 72, left: 30, color: '#fde68a', animation: 'starFloat 2.2s ease-in-out infinite' }} />
@@ -539,7 +632,7 @@ export default function ProfileV2Page() {
             <FaMedal style={{ color: '#fbbf24' }} />
             <span>الشارات والإنجازات</span>
           </div>
-          <div style={styles.badgeGrid}>
+          <div style={styles.badgeGrid} className="profile-v2-badge-grid">
             {badges.map((b, idx) => {
               const Icon = b.icon;
               return (

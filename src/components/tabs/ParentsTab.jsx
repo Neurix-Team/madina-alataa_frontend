@@ -384,6 +384,35 @@ const CSS = `
       grid-template-columns: 1fr;
     }
   }
+
+  @media (max-width: 640px) {
+    .parents-layout {
+      gap: 12px;
+    }
+    .parents-sidebar {
+      position: relative;
+      top: auto;
+      min-height: auto;
+      width: 100%;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .parents-sidebar-logo {
+      font-size: 14px;
+    }
+    .parents-side-btn {
+      font-size: 12px;
+      padding: 10px 10px;
+    }
+    .parents-card,
+    .parents-analytics-card,
+    .parents-form {
+      padding: 14px;
+    }
+    .parents-analytics {
+      grid-template-columns: 1fr;
+    }
+  }
 `;
 
 function getSavedParentInfo() {
@@ -464,7 +493,8 @@ const ParentsTab = ({ userStats }) => {
         </div>
 
         <div className="parents-sidebar-list">
-          <button className="parents-side-btn parents-side-btn--primary" onClick={() => navigate('/my-children')}>متابعة اطفالي</button>
+          <button className="parents-side-btn parents-side-btn--primary" onClick={() => navigate('/create-request')}>إنشاء طلب جديد</button>
+          <button className="parents-side-btn" onClick={() => navigate('/my-children')}>متابعة اطفالي</button>
           <button className="parents-side-btn" onClick={() => navigate('/map')}>الرجوع للرئيسية</button>
           <button className="parents-side-btn" onClick={() => navigate('/profile-v2')}>البروفايل</button>
           <button className="parents-side-btn" onClick={() => setSettingsOpen((s) => !s)}>الإعدادات</button>

@@ -411,6 +411,35 @@ const CSS = `
       grid-template-columns: 1fr;
     }
   }
+
+  @media (max-width: 640px) {
+    .children-layout {
+      gap: 12px;
+    }
+    .children-sidebar {
+      position: relative;
+      top: auto;
+      min-height: auto;
+      width: 100%;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .children-sidebar-logo {
+      font-size: 14px;
+    }
+    .children-side-btn {
+      font-size: 12px;
+      padding: 10px 10px;
+    }
+    .children-card,
+    .children-analytics-card,
+    .children-settings-card {
+      padding: 14px;
+    }
+    .children-analytics {
+      grid-template-columns: 1fr;
+    }
+  }
 `;
 
 function loadChildren() {

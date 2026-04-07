@@ -185,9 +185,25 @@ const AuthScreen = ({ onLogin }) => {
           border-color:#3ba2f8 !important;
           box-shadow:0 0 0 3px rgba(59,162,248,0.15) !important;
         }
+        @media (max-width: 900px) {
+          .auth-container { padding: 1rem !important; }
+          .auth-box { flex-direction: row !important; }
+          .auth-form { padding: 2rem 1.5rem !important; }
+          .auth-hero { flex: 0 0 38% !important; padding: 1.8rem 1.2rem !important; }
+        }
+        @media (max-width: 640px) {
+          .auth-container { padding: 0.8rem !important; }
+          .auth-box { flex-direction: column !important; min-height: auto !important; }
+          .auth-form { padding: 1.8rem 1.2rem !important; }
+          .auth-hero { flex: 1 !important; padding: 1.4rem 1rem !important; min-height: 240px; }
+          .auth-hero h3 { font-size: 1.4rem !important; }
+          .auth-hero-icon { font-size: 3.2rem !important; }
+          .auth-form input, .auth-form select { font-size: 15px; padding: 11px 14px; }
+          input::placeholder { color: #cbd5e1; }
+        }
       `}</style>
 
-      <div dir="rtl" style={{
+      <div dir="rtl" className="auth-container" style={{
         minHeight: '100vh',
         background: 'linear-gradient(135deg,#3ba2f8 0%,#1d6ed8 100%)',
         display: 'flex',
@@ -246,7 +262,7 @@ const AuthScreen = ({ onLogin }) => {
           </div>
         ))}
 
-        <div style={{
+        <div className="auth-box" style={{
           display: 'flex',
           flexDirection: heroOnRight ? 'row' : 'row-reverse',
           width: '100%',
@@ -267,7 +283,7 @@ const AuthScreen = ({ onLogin }) => {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-          }}>
+          }} className="auth-form">
             <div style={{ textAlign: 'center', marginBottom: '1.2rem' }}>
               <div style={{
                 width: 64, height: 64,
@@ -388,15 +404,15 @@ const AuthScreen = ({ onLogin }) => {
             position: 'relative',
             overflow: 'hidden',
             transition: 'opacity 0.35s ease',
-          }}>
+          }} className="auth-hero">
             <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
             <div style={{ position: 'absolute', width: 200, height: 200, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.12)', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
 
-            <div style={{ animation: 'heroFloat 3.5s ease-in-out infinite', zIndex: 1, fontSize: '5rem', color: '#fff' }}>
+            <div className="auth-hero-icon" style={{ animation: 'heroFloat 3.5s ease-in-out infinite', zIndex: 1, fontSize: '5rem', color: '#fff' }}>
               <FaUserAstronaut size={92} />
             </div>
             <div style={{ textAlign: 'center', zIndex: 1, marginTop: '0.7rem', color: '#fff' }}>
-              <h3 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '0.45rem' }}>
+              <h3 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '0.45rem', lineHeight: 1.2 }}>
                 {isLogin ? 'مرحباً بك!' : 'مرحباً بالبطل!'}
               </h3>
               <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>

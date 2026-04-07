@@ -97,6 +97,8 @@ import CaseDetailsPage from './pages/CaseDetailsPage';
 import DonationCheckoutPage from './pages/DonationCheckoutPage';
 import MyDonationsPage from './pages/MyDonationsPage';
 import MyChildrenPage from './pages/MyChildrenPage';
+import CreateRequestPage from './pages/CreateRequestPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 
 const isStandalonePage = (pathname) =>
@@ -105,6 +107,8 @@ const isStandalonePage = (pathname) =>
   pathname === '/my-children' ||
   pathname === '/parents' ||
   pathname === '/cases' ||
+  pathname === '/notifications' ||
+  pathname === '/create-request' ||
   pathname.startsWith('/cases/') ||
   pathname.startsWith('/donate/');
 
@@ -335,7 +339,7 @@ const isGameRoute = !isStandalonePage(location.pathname);
         {isGameRoute && <CanvasBackground />}
         {isGameRoute && <RocketBackground />}
 
-        <div style={{
+        <div className="app-layout" style={{
           position: 'relative',
           zIndex: 1,
           display: 'flex',
@@ -541,6 +545,34 @@ const isGameRoute = !isStandalonePage(location.pathname);
         <>
           <style>{GLOBAL_CSS}</style>
           <MyDonationsPage />
+        </>
+      )
+  }
+/>
+
+<Route
+  path="/create-request"
+  element={
+    appState === 'auth'
+      ? <Navigate to="/auth" replace />
+      : (
+        <>
+          <style>{GLOBAL_CSS}</style>
+          <CreateRequestPage />
+        </>
+      )
+  }
+/>
+
+<Route
+  path="/notifications"
+  element={
+    appState === 'auth'
+      ? <Navigate to="/auth" replace />
+      : (
+        <>
+          <style>{GLOBAL_CSS}</style>
+          <NotificationsPage />
         </>
       )
   }

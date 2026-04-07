@@ -1,9 +1,11 @@
-﻿import React, { useState, useEffect, useCallback, memo } from 'react';
+﻿import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import CityBuilderService from '../../services/CityBuilderService';
 import AudioManager       from '../../services/AudioManager';
+import { caseMarkers, hospitalMarkers, CITIES } from '../../data/mapLocations';
 
 const CITY_W = 800;
 const CITY_H = 300;
+const ALL_MARKERS = [...caseMarkers, ...hospitalMarkers];
 
 const SvgBuilding = memo(({ b, onClick }) => {
   if (b.type === 'road') {
@@ -47,6 +49,18 @@ const CityMapTab = ({ completedQuests }) => {
     return svc.getSlots();
   });
   const [selected, setSelected] = useState(null);
+  const [cityFocus, setCityFocus] = useState('all');
+
+  const focusedMarkers = useMemo(() => ALL_MARKERS.filter((marker) => cityFocus === 'all' || marker.city === cityFocus), [cityFocus]);
+  const focusClusters = useMemo(() => ({
+    cases: focusedMarkers.filter((marker) => marker.type === 'case').length,
+    hospitals: focusedMarkers.filter((marker) => marker.type === 'hospital').length,
+    cities: new Set(focusedMarkers.map((marker) => marker.city)).size,
+  }), [focusedMarkers]);
+  const cityGroups = useMemo(() => CITIES.map((city) => ({
+    city,
+    count: ALL_MARKERS.filter((marker) => marker.city === city).length,
+  })), []);
 
   useEffect(() => {
     svc.syncCompleted(completedQuests ?? new Set());
@@ -86,6 +100,38 @@ const CityMapTab = ({ completedQuests }) => {
             <span className="city-stat__value">Lv.{cityLevel}</span>
             <span className="city-stat__label">مستوى المدينة</span>
           </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gap: 12, marginBottom: 18, padding: '18px 20px', borderRadius: 22, border: '1px solid rgba(148,163,184,0.2)', background: 'rgba(255,255,255,0.9)', boxShadow: '0 24px 60px rgba(15,23,42,0.06)' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', justifyContent: 'space-between', direction: 'rtl' }}>
+          <div>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#334155' }}>تركيز المدينة</span>
+            <div style={{ marginTop: 8 }}>
+              <select value={cityFocus} onChange={(e) => setCityFocus(e.target.value)} style={{ minWidth: 180, padding: '12px 14px', borderRadius: 14, border: '1px solid #cbd5e1', fontSize: 14 }}>
+                <option value="all">كل المدن</option>
+                {CITIES.map((city) => <option key={city} value={city}>{city}</option>)}
+              </select>
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+            <div style={{ padding: '10px 14px', borderRadius: 16, background: '#f8fafc', color: '#334155', fontWeight: 700, minWidth: 110, textAlign: 'center' }}>
+              حالات: {focusClusters.cases}
+            </div>
+            <div style={{ padding: '10px 14px', borderRadius: 16, background: '#ecfdf5', color: '#115e59', fontWeight: 700, minWidth: 110, textAlign: 'center' }}>
+              مستشفيات: {focusClusters.hospitals}
+            </div>
+            <div style={{ padding: '10px 14px', borderRadius: 16, background: '#eef2ff', color: '#1d4ed8', fontWeight: 700, minWidth: 110, textAlign: 'center' }}>
+              لتوزيع: {focusClusters.cities}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))' }}>
+          {cityGroups.map((item) => (
+            <div key={item.city} style={{ padding: 14, borderRadius: 18, background: item.city === cityFocus ? '#eef2ff' : '#fff', border: item.city === cityFocus ? '1px solid #93c5fd' : '1px solid rgba(148,163,184,0.18)', fontWeight: 700, color: '#334155' }}>
+              {item.city}: {item.count}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -134,6 +180,29 @@ const CityMapTab = ({ completedQuests }) => {
           {/* Buildings */}
           {buildings.map((b) => (
             <SvgBuilding key={b.id} b={b} onClick={handleClick} />
+          ))}
+
+          {/* Focus markers (حالات/مستشفيات) */}
+          {focusedMarkers.map((marker) => (
+            <g key={marker.id} opacity={marker.city === cityFocus || cityFocus === 'all' ? 1 : 0.6}>
+              <circle
+                cx={(marker.x / 100) * CITY_W}
+                cy={(marker.y / 100) * CITY_H}
+                r={16}
+                fill={marker.type === 'hospital' ? 'rgba(251,146,60,0.95)' : 'rgba(59,130,246,0.95)'}
+                stroke="#ffffff"
+                strokeWidth={3}
+              />
+              <text
+                x={(marker.x / 100) * CITY_W}
+                y={(marker.y / 100) * CITY_H + 6}
+                textAnchor="middle"
+                fontSize={14}
+                style={{ pointerEvents: 'none' }}
+              >
+                {marker.icon}
+              </text>
+            </g>
           ))}
 
           {/* Labels for built buildings */}

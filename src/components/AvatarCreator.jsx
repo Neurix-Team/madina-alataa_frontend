@@ -89,6 +89,29 @@ export default function AvatarCreator({ onComplete, onSkip }) {
   const [isProcessingAI, setIsProcessingAI] = useState(false);
   const [aiProgress, setAiProgress] = useState(0);
   const fileInputRef = useRef(null);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isNarrow = windowWidth <= 900;
+  const isMobile = windowWidth <= 640;
+  const responsiveStyles = {
+    card: { ...styles.card, padding: isNarrow ? 24 : 40 },
+    cardWide: { ...styles.cardWide, padding: isNarrow ? 24 : 30 },
+    methodGrid: { ...styles.methodGrid, gridTemplateColumns: isNarrow ? '1fr' : '1fr 1fr', gap: isMobile ? 14 : 20 },
+    splitLayout: { ...styles.splitLayout, gridTemplateColumns: isNarrow ? '1fr' : '1fr 1.5fr', gap: isMobile ? 18 : 30 },
+    previewSection: { ...styles.previewSection, alignItems: isMobile ? 'stretch' : 'center' },
+    customSection: { ...styles.customSection, maxHeight: isMobile ? 'none' : styles.customSection.maxHeight },
+    actionButtons: { ...styles.actionButtons, flexDirection: isMobile ? 'column' : 'row' },
+    photoCard: { ...styles.photoCard, padding: isMobile ? 24 : styles.photoCard.padding },
+    photoActions: { ...styles.photoActions, flexDirection: isMobile ? 'column' : 'row' },
+    optionGrid: { ...styles.optionGrid, gridTemplateColumns: isMobile ? 'repeat(2, minmax(0,1fr))' : styles.optionGrid.gridTemplateColumns },
+    nameInput: { ...styles.nameInput, fontSize: isMobile ? 16 : styles.nameInput.fontSize, padding: isMobile ? '12px 14px' : styles.nameInput.padding },
+  };
 
   // Validation
   const [nameError, setNameError] = useState('');
@@ -236,7 +259,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
   if (step === 1) {
     return (
       <div style={styles.container}>
-        <div style={styles.card}>
+        <div style={responsiveStyles.card}>
           {/* Header */}
           <div style={styles.header}>
             <h1 style={styles.title}>🎨 أنشئ بطلك الخاص</h1>
@@ -244,7 +267,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
           </div>
 
           {/* Method Selection */}
-          <div style={styles.methodGrid}>
+          <div style={responsiveStyles.methodGrid}>
             {/* AI Photo Method */}
             <button
               style={{
@@ -280,7 +303,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
 
           {/* Next Button */}
           {creationMethod && (
-            <div style={styles.actionButtons}>
+            <div style={responsiveStyles.actionButtons}>
               <button
                 style={styles.btnPrimary}
                 onClick={() => {
@@ -315,7 +338,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
         {/* Photo Preview & AI Processing */}
         {photoPreview && (
           <div style={styles.overlay}>
-            <div style={styles.photoCard}>
+            <div style={responsiveStyles.photoCard}>
               <h2 style={styles.photoTitle}>
                 {isProcessingAI ? '🎨 جاري إنشاء الأفاتار...' : '📸 صورتك'}
               </h2>
@@ -332,7 +355,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
               </div>
 
               {!isProcessingAI && (
-                <div style={styles.photoActions}>
+                <div style={responsiveStyles.photoActions}>
                   <button style={styles.btnSecondary} onClick={handleRetakePhoto}>
                     🔄 إعادة التقاط
                   </button>
@@ -355,15 +378,15 @@ export default function AvatarCreator({ onComplete, onSkip }) {
   if (step === 2) {
     return (
       <div style={styles.container}>
-        <div style={styles.cardWide}>
+        <div style={responsiveStyles.cardWide}>
           {/* Progress Indicator */}
           <div style={styles.progressBar}>
             <div style={{ ...styles.progressFill, width: '66%' }} />
           </div>
 
-          <div style={styles.splitLayout}>
+          <div style={responsiveStyles.splitLayout}>
             {/* Left: Preview */}
-            <div style={styles.previewSection}>
+            <div style={responsiveStyles.previewSection}>
               <h3 style={styles.sectionTitle}>👀 المعاينة</h3>
               <AvatarPreview avatar={avatarData} />
               
@@ -375,13 +398,13 @@ export default function AvatarCreator({ onComplete, onSkip }) {
             </div>
 
             {/* Right: Customization Options */}
-            <div style={styles.customSection}>
+            <div style={responsiveStyles.customSection}>
               <h3 style={styles.sectionTitle}>🎨 التخصيص</h3>
               
               <div style={styles.optionsContainer}>
                 {/* Gender */}
                 <CustomSection title="👤 الجنس">
-                  <div style={styles.optionGrid}>
+                  <div style={responsiveStyles.optionGrid}>
                     {AVATAR_OPTIONS.gender.map(opt => (
                       <button
                         key={opt.id}
@@ -401,7 +424,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
 
                 {/* Skin Tone */}
                 <CustomSection title="🎨 لون البشرة">
-                  <div style={styles.optionGrid}>
+                  <div style={responsiveStyles.optionGrid}>
                     {AVATAR_OPTIONS.skinTone.map(opt => (
                       <button
                         key={opt.id}
@@ -419,7 +442,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
 
                 {/* Hair Style */}
                 <CustomSection title="💇 تسريحة الشعر">
-                  <div style={styles.optionGrid}>
+                  <div style={responsiveStyles.optionGrid}>
                     {AVATAR_OPTIONS.hairStyle.map(opt => (
                       <button
                         key={opt.id}
@@ -438,7 +461,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
 
                 {/* Hair Color */}
                 <CustomSection title="🎨 لون الشعر">
-                  <div style={styles.optionGrid}>
+                  <div style={responsiveStyles.optionGrid}>
                     {AVATAR_OPTIONS.hairColor.map(opt => (
                       <button
                         key={opt.id}
@@ -456,7 +479,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
 
                 {/* Accessories */}
                 <CustomSection title="✨ الإكسسوارات">
-                  <div style={styles.optionGrid}>
+                  <div style={responsiveStyles.optionGrid}>
                     {AVATAR_OPTIONS.accessories.map(opt => (
                       <button
                         key={opt.id}
@@ -480,7 +503,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
               </div>
 
               {/* Navigation */}
-              <div style={styles.actionButtons}>
+              <div style={responsiveStyles.actionButtons}>
                 <button style={styles.btnSecondary} onClick={() => setStep(1)}>
                   ← رجوع
                 </button>
@@ -499,7 +522,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
   if (step === 3) {
     return (
       <div style={styles.container}>
-        <div style={styles.card}>
+        <div style={responsiveStyles.card}>
           {/* Progress Indicator */}
           <div style={styles.progressBar}>
             <div style={{ ...styles.progressFill, width: '100%' }} />
@@ -512,7 +535,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
 
           {/* Avatar Preview */}
           <div style={{ marginBottom: 30 }}>
-            <AvatarPreview avatar={avatarData} size="large" />
+            <AvatarPreview avatar={avatarData} size={isMobile ? 'medium' : 'large'} />
           </div>
 
           {/* Name Input */}
@@ -524,7 +547,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
               onChange={handleNameChange}
               placeholder="اكتب اسمك هنا..."
               style={{
-                ...styles.nameInput,
+                ...responsiveStyles.nameInput,
                 borderColor: nameError ? '#ef4444' : '#e5e7eb',
               }}
               maxLength={20}
@@ -537,7 +560,7 @@ export default function AvatarCreator({ onComplete, onSkip }) {
           </div>
 
           {/* Action Buttons */}
-          <div style={styles.actionButtons}>
+          <div style={responsiveStyles.actionButtons}>
             <button style={styles.btnSecondary} onClick={() => setStep(2)}>
               ← رجوع
             </button>

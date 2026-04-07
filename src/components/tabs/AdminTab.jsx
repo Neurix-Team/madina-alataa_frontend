@@ -14,6 +14,7 @@ import '../../styles/admin.css';
 import { beneficiariesData, partnersData } from '../../data/beneficiariesData';
 import serviceRequestsData from '../../data/ordersData';
 import OrderService from '../../services/OrderService';
+import AnimatedBackground from '../common/AnimatedBackground';
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 const URGENCY_COLORS = {
@@ -228,9 +229,10 @@ const AdminTab = ({ orders = [], userStats }) => {
 
   return (
     <div className="admin-page">
+      <AnimatedBackground />
 
       {/* ── Header ── */}
-      <div className="admin-header">
+      <div className="admin-header admin-header--animated">
         <h2>⚙️ لوحة الإدارة</h2>
         <p>إدارة المستفيدين والشركاء والطلبات</p>
       </div>

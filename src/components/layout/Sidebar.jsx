@@ -27,6 +27,8 @@ import {
   FaTimes,
   FaBars,
   FaCoins,
+  FaPlus,
+  FaBell,
 } from 'react-icons/fa';
 import { getAvatarImageUrl } from '../../utils/avatarProfile';
 
@@ -194,10 +196,10 @@ const SIDEBAR_CSS = `
 
 // ── Nav items ─────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
+  { id: 'map',         label: 'خريطة المهام',    icon: FaMapMarkedAlt },
   { id: 'profile',     label: 'البروفايل',        icon: FaUser },
   { id: 'avatar',      label: 'افاتار',           icon: FaUser },
   { id: 'cases',       label: 'الحالات',          icon: FaHeart },
-  { id: 'map',         label: 'خريطة المهام',    icon: FaMapMarkedAlt },
   { id: 'daily',       label: 'المهام اليومية',   icon: FaCheckCircle },
   { id: 'explore',     label: 'استكشاف المدينة',  icon: FaCompass },
   { id: 'city',        label: 'خريطة المدينة',    icon: FaCity },
@@ -207,6 +209,8 @@ const NAV_ITEMS = [
   { id: 'leaderboard', label: 'المتصدرون',        icon: FaChartBar },
   { id: 'impact',      label: 'أثري',             icon: FaHeart },
   { id: 'parents',     label: 'الاباء',           icon: FaUserFriends, dividerBefore: true },
+  { id: 'create-request', label: 'إنشاء طلب',    icon: FaPlus },
+  { id: 'my-donations',    label: 'تبرعاتي',        icon: FaCoins },
   { id: 'orders',      label: 'الأوامر',          icon: FaBoxOpen },
   { id: 'admin',       label: 'الإدارة',          icon: FaCog },
 ];
@@ -396,6 +400,24 @@ const handleNavClick = (id) => {
   if (id === 'profile') {
     setSidebarOpen(false);
     navigate('/profile-v2');
+    return;
+  }
+
+  if (id === 'notifications') {
+    setSidebarOpen(false);
+    navigate('/notifications');
+    return;
+  }
+
+  if (id === 'create-request') {
+    setSidebarOpen(false);
+    navigate('/create-request');
+    return;
+  }
+
+  if (id === 'my-donations') {
+    setSidebarOpen(false);
+    navigate('/my-donations');
     return;
   }
 

@@ -80,6 +80,11 @@ const CSS = `
 `;
 
 const BadgesTab = ({ completedQuests = new Set(), userStats = {}, orders = [] }) => {
+  const taskDoneCount = parseInt(localStorage.getItem('dt_total_done') || '0', 10);
+  const streakCount = parseInt(localStorage.getItem('dt_streak') || '0', 10);
+  const donationCount = orders.filter((order) => order?.type === 'DonationOrder').length;
+  const impactScore = userStats.impactScore ?? 0;
+
   // Compute earned badges dynamically via BadgesEngine
   const earnedBadgeIds = useMemo(
     () => BadgesEngine.computeEarnedBadges(completedQuests, userStats, orders),
@@ -98,10 +103,10 @@ const BadgesTab = ({ completedQuests = new Set(), userStats = {}, orders = [] })
   const overallProgress = totalCount ? Math.round((earnedCount / totalCount) * 100) : 0;
 
   const statCards = [
-    { id: 'achievements', label: 'إنجاز مكتسب',      value: earnedCount,          icon: '🏆', tone: 'orange' },
-    { id: 'badges',       label: 'شارة مكتسبة',       value: earnedCount,          icon: '🎖️', tone: 'purple' },
-    { id: 'paths',        label: 'مسار قيد التقدم',   value: inProgressCount,      icon: '🗺️', tone: 'blue'   },
-    { id: 'progress',     label: 'التقدم الكلي',       value: `${overallProgress}%`, icon: '📈', tone: 'green'  },
+    { id: 'tasks',      label: 'مهام مكتملة',       value: taskDoneCount,   icon: '✅', tone: 'blue'   },
+    { id: 'donations',  label: 'تبرعات',            value: donationCount,   icon: '🤝', tone: 'green'  },
+    { id: 'streak',     label: 'سلسلة متتالية',      value: streakCount,     icon: '🔥', tone: 'orange' },
+    { id: 'impact',     label: 'درجة الأثر',         value: impactScore,     icon: '🌍', tone: 'purple' },
   ];
 
   return (
