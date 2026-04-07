@@ -1,0 +1,5 @@
+- [x] Update CasesPage sidebar to match Sidebar.jsx look
+- [x] Update ParentsTab sidebar to match Sidebar.jsx look
+- [x] Update MyChildrenPage sidebar to match Sidebar.jsx look
+- [x] Keep existing per-page button actions unchanged
+- [x] Final static review

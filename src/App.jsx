@@ -227,7 +227,8 @@ const TAB_TO_PATH = {
   badges: '/badges',
   leaderboard: '/leaderboard',
   impact: '/impact',
-  profile: '/profile',
+  profile: '/profile-v2',
+  cases: '/cases',
   orders: '/orders',
   admin: '/admin',
 };

@@ -21,6 +21,10 @@ import {
   FaMedal,
   FaRocket,
   FaTimes,
+  FaHome,
+  FaLocationArrow,
+  FaHandsHelping,
+  FaStarAndCrescent,
 } from 'react-icons/fa';
 import { createToken, decodeToken } from '../utils/jwt';
 
@@ -36,28 +40,36 @@ const styles = {
     position: 'fixed',
     top: 0,
     right: 0,
-    width: 240,
-    height: '100vh',
-    background: 'linear-gradient(180deg, rgba(5,12,28,0.96), rgba(8,17,36,0.96))',
-    borderLeft: '1px solid rgba(255,255,255,0.08)',
-    boxShadow: '-10px 0 30px rgba(0,0,0,0.25)',
-    padding: '24px 14px',
+    width: 260,
+    minHeight: '100vh',
+    background: 'linear-gradient(180deg, #060f1e 0%, #0a1a30 20%, #0d2040 50%, #0f2744 75%, #122d52 100%)',
+    border: '1px solid rgba(29,110,216,0.22)',
+    borderRadius: 24,
+    boxShadow: '0 8px 40px rgba(0,0,0,0.45), 0 0 0 1px rgba(29,110,216,0.15), inset 0 1px 0 rgba(255,255,255,0.06)',
+    padding: '20px 12px',
     display: 'flex',
     flexDirection: 'column',
-    gap: 14,
+    gap: 10,
     zIndex: 5,
+    overflow: 'hidden',
   },
-  logoWrap: { marginBottom: 10, textAlign: 'center' },
-  logo: { fontSize: 28, fontWeight: 900, color: '#4A90D9', marginBottom: 3 },
-  subtitle: { fontSize: 11, letterSpacing: 3, color: 'rgba(255,255,255,0.72)', fontWeight: 700 },
+  logoWrap: {
+    marginBottom: 8,
+    textAlign: 'center',
+    paddingBottom: 12,
+    borderBottom: '1px solid rgba(29,110,216,0.2)',
+  },
+  logo: { fontSize: 16, fontWeight: 900, color: '#fff', marginTop: 4 },
+  subtitle: { fontSize: 10, letterSpacing: 2, color: 'rgba(14,165,233,0.8)', fontWeight: 700, textTransform: 'uppercase' },
   miniProfile: {
     borderRadius: 18,
-    border: '1px solid rgba(255,255,255,0.12)',
-    background: 'rgba(74, 144, 217, 0.08)',
+    border: '1px solid rgba(29,110,216,0.3)',
+    background: 'linear-gradient(135deg, rgba(29,110,216,0.22) 0%, rgba(14,165,233,0.12) 100%)',
     padding: 12,
     cursor: 'pointer',
     textAlign: 'center',
     transition: '0.2s ease',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)',
   },
   miniAvatar: {
     width: 56,
@@ -71,23 +83,24 @@ const styles = {
     fontWeight: 900,
   },
   miniName: { fontSize: 15, fontWeight: 800, marginBottom: 2 },
-  miniLink: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600 },
+  miniLink: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: 8 },
   navBtn: {
     width: '100%',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid transparent',
     borderRadius: 14,
     background: 'transparent',
-    color: '#e4ecff',
+    color: 'rgba(255,255,255,0.6)',
     padding: '10px 12px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     cursor: 'pointer',
     fontSize: 14,
-    fontWeight: 700,
+    fontWeight: 900,
+    transition: 'all .25s ease',
   },
   main: {
-    marginRight: 240,
+    marginRight: 260,
     padding: 24,
   },
   topRow: {
@@ -241,6 +254,8 @@ export default function ProfileV2Page() {
   };
 
   const doLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
     navigate('/auth');
   };
 
@@ -344,17 +359,42 @@ export default function ProfileV2Page() {
 
       <aside style={styles.sidebar}>
         <div style={styles.logoWrap}>
+          <div style={{ fontSize: 30, filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.5))' }}><FaStar /></div>
           <div style={styles.logo}>بطل العطاء</div>
           <div style={styles.subtitle}>MADINA AL-ATAA</div>
         </div>
 
+        <button style={styles.miniProfile} onClick={goToProfile} title="الذهاب إلى صفحة البروفايل">
+          <div style={styles.miniAvatar}>
+            <img
+              src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=madina-default-avatar"
+              alt="Default avatar"
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                objectFit: 'cover',
+              }}
+            />
+          </div>
+          <div  style={styles.miniName}>{settingsForm.fullName}</div>
+          <div  style={styles.miniLink}>فتح صفحة البروفايل</div>
+        </button>
+
         <button
-          style={{ ...styles.navBtn, marginBottom: 8, background: 'rgba(74,144,217,0.12)' }}
+          style={{
+            ...styles.navBtn,
+            marginBottom: 8,
+            background: 'linear-gradient(135deg, rgba(29,110,216,0.55) 0%, rgba(14,165,233,0.35) 100%)',
+            color: '#fff',
+            border: '1px solid rgba(14,165,233,0.4)',
+            transform: 'translateX(-2px)',
+          }}
           onClick={() => navigate('/map')}
           title="الرجوع للخريطة"
         >
           <span>الرئيسية</span>
-          <span>🏠</span>
+          <span><FaHome /></span>
         </button>
 
         {navItems.map((item) => {
@@ -377,9 +417,10 @@ export default function ProfileV2Page() {
               }}
               style={{
                 ...styles.navBtn,
-                background: active ? 'rgba(74,144,217,0.16)' : 'transparent',
-                color: active ? '#74b7ff' : '#e4ecff',
-                borderLeft: active ? '4px solid #4A90D9' : '4px solid transparent',
+                background: active ? 'linear-gradient(135deg, rgba(29,110,216,0.55) 0%, rgba(14,165,233,0.35) 100%)' : 'transparent',
+                color: active ? '#fff' : 'rgba(255,255,255,0.7)',
+                border: active ? '1px solid rgba(14,165,233,0.4)' : '1px solid transparent',
+                transform: active ? 'translateX(-2px)' : 'none',
               }}
             >
               <span>{item.label}</span>
@@ -390,10 +431,10 @@ export default function ProfileV2Page() {
       </aside>
 
       <main style={{ ...styles.main, position: 'relative', overflow: 'hidden' }}>
-        <span style={{ position: 'absolute', top: 16, left: 18, fontSize: 24, animation: 'emojiFloat 4.2s ease-in-out infinite', zIndex: 1 }}>💙</span>
-        <span style={{ position: 'absolute', top: 64, left: 90, fontSize: 20, animation: 'emojiFloat 5s ease-in-out infinite', zIndex: 1 }}>✨</span>
-        <span style={{ position: 'absolute', top: 130, right: 18, fontSize: 22, animation: 'emojiFloat 4.6s ease-in-out infinite', zIndex: 1 }}>🌟</span>
-        <span style={{ position: 'absolute', bottom: 40, left: 42, fontSize: 24, animation: 'emojiFloat 5.4s ease-in-out infinite', zIndex: 1 }}>🤲</span>
+        <span style={{ position: 'absolute', top: 16, left: 18, fontSize: 24, animation: 'emojiFloat 4.2s ease-in-out infinite', zIndex: 1 }}><FaHeart /></span>
+        <span style={{ position: 'absolute', top: 64, left: 90, fontSize: 20, animation: 'emojiFloat 5s ease-in-out infinite', zIndex: 1 }}><FaStar /></span>
+        <span style={{ position: 'absolute', top: 130, right: 18, fontSize: 22, animation: 'emojiFloat 4.6s ease-in-out infinite', zIndex: 1 }}><FaStarAndCrescent /></span>
+        <span style={{ position: 'absolute', bottom: 40, left: 42, fontSize: 24, animation: 'emojiFloat 5.4s ease-in-out infinite', zIndex: 1 }}><FaHandsHelping /></span>
 
         <div style={{ ...styles.topRow, animation: mounted ? 'slideUp .5s ease both' : 'none', position: 'relative', zIndex: 2 }}>
           <div style={{ ...styles.card, ...styles.heroCard }}>
@@ -404,7 +445,16 @@ export default function ProfileV2Page() {
             <FaRocket style={{ position: 'absolute', bottom: 28, right: 30, color: '#c4b5fd', fontSize: 12, animation: 'rocketFly 2.2s ease-in-out infinite' }} />
 
             <div style={styles.heroAvatar} onClick={goToProfile} title="عرض الملف الشخصي">
-              {safeUser.heroName?.[0] || 'ب'}
+              <img
+                src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=madina-default-avatar"
+                alt="Default avatar"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                }}
+              />
             </div>
             <div style={{ textAlign: 'center', fontSize: 24, fontWeight: 900 }}>{settingsForm.fullName}</div>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8, marginBottom: 10 }}>
@@ -745,7 +795,7 @@ function SettingsPanel({ form, setForm, onSave, onDetectLocation, onLogout, mapE
             cursor: 'pointer',
           }}
         >
-          📍 تحديد اللوكيشن
+          <FaLocationArrow style={{ marginLeft: 8 }} /> تحديد اللوكيشن
         </button>
 
         {mapEmbedUrl && (

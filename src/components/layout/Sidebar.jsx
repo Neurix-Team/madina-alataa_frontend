@@ -3,6 +3,31 @@ import React, { useState, useEffect } from 'react';
 import GameEngine   from '../../services/GameEngine';
 import ThemeService from '../../services/ThemeService';
 import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  FaMapMarkedAlt,
+  FaCheckCircle,
+  FaCompass,
+  FaCity,
+  FaMapMarkerAlt,
+  FaUsers,
+  FaTrophy,
+  FaChartBar,
+  FaHeart,
+  FaUser,
+  FaUserFriends,
+  FaBoxOpen,
+  FaCog,
+  FaCrown,
+  FaGlasses,
+  FaHatCowboy,
+  FaStar,
+  FaRibbon,
+  FaSun,
+  FaMoon,
+  FaTimes,
+  FaBars,
+  FaCoins,
+} from 'react-icons/fa';
 
 // ── Injected CSS (keyframes + class-based styles) ─────────────────────────
 const SIDEBAR_CSS = `
@@ -168,33 +193,34 @@ const SIDEBAR_CSS = `
 
 // ── Nav items ─────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { id: 'map',         label: 'خريطة المهام',    icon: '🗺️' },
-  { id: 'daily',       label: 'المهام اليومية',   icon: '✅' },
-  { id: 'explore',     label: 'استكشاف المدينة',  icon: '🧭' },
-  { id: 'city',        label: 'خريطة المدينة',    icon: '🏙️' },
-  { id: 'geo',         label: 'مهام جغرافية',     icon: '📍' },
-  { id: 'team',        label: 'تحديات الفريق',    icon: '🤝' },
-  { id: 'badges',      label: 'الأوسمة',          icon: '🏆' },
-  { id: 'leaderboard', label: 'المتصدرون',        icon: '📊' },
-  { id: 'impact',      label: 'أثري',             icon: '💚' },
-  { id: 'profile',     label: 'ملفي',             icon: '👤' },
-  { id: 'parents',     label: '👤 الاباء',         icon: '👨‍👩‍👧', dividerBefore: true },
-  { id: 'orders',      label: 'الأوامر',           icon: '📦' },
-  { id: 'admin',       label: 'الإدارة',           icon: '⚙️' },
+  { id: 'profile',     label: 'البروفايل',        icon: FaUser },
+  { id: 'cases',       label: 'الحالات',          icon: FaHeart },
+  { id: 'map',         label: 'خريطة المهام',    icon: FaMapMarkedAlt },
+  { id: 'daily',       label: 'المهام اليومية',   icon: FaCheckCircle },
+  { id: 'explore',     label: 'استكشاف المدينة',  icon: FaCompass },
+  { id: 'city',        label: 'خريطة المدينة',    icon: FaCity },
+  { id: 'geo',         label: 'مهام جغرافية',     icon: FaMapMarkerAlt },
+  { id: 'team',        label: 'تحديات الفريق',    icon: FaUsers },
+  { id: 'badges',      label: 'الأوسمة',          icon: FaTrophy },
+  { id: 'leaderboard', label: 'المتصدرون',        icon: FaChartBar },
+  { id: 'impact',      label: 'أثري',             icon: FaHeart },
+  { id: 'parents',     label: 'الاباء',           icon: FaUserFriends, dividerBefore: true },
+  { id: 'orders',      label: 'الأوامر',          icon: FaBoxOpen },
+  { id: 'admin',       label: 'الإدارة',          icon: FaCog },
 ];
 
 // ── Avatar ────────────────────────────────────────────────────────────────
 const AvatarSVG = ({ bg, accessory }) => {
   const bgColor = `#${bg || '1d6ed8'}`;
   const accessoryMap = {
-    crown:    '👑',
-    glasses:  '🕶️',
-    hat:      '🎩',
-    star:     '⭐',
-    scarf:    '🧣',
-    headband: '🎀',
+    crown:    FaCrown,
+    glasses:  FaGlasses,
+    hat:      FaHatCowboy,
+    star:     FaStar,
+    scarf:    FaRibbon,
+    headband: FaRibbon,
   };
-  const acc = accessoryMap[accessory] || '👑';
+  const AccessoryIcon = accessoryMap[accessory] || FaCrown;
 
   return (
     <div style={{
@@ -216,14 +242,25 @@ const AvatarSVG = ({ bg, accessory }) => {
       position: 'relative',
       transition: 'transform 0.3s ease',
     }}>
-      🧑
+      <img
+        src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=madina-default-avatar"
+        alt="Default avatar"
+        style={{
+          width: 38,
+          height: 38,
+          borderRadius: '50%',
+          objectFit: 'cover',
+          border: '1px solid rgba(255,255,255,0.28)',
+          background: 'rgba(255,255,255,0.08)',
+        }}
+      />
       <span style={{
         position: 'absolute',
         top: -7,
         right: -5,
         fontSize: 15,
         filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))',
-      }}>{acc}</span>
+      }}><AccessoryIcon /></span>
     </div>
   );
 };
@@ -236,8 +273,8 @@ const NavBtn = ({ item, active, onClick }) => (
     title={item.label}
     className={`sb-nav-btn${active ? ' sb-nav-btn--active' : ''}`}
   >
-    <span className="sb-nav-icon" style={{ fontSize: 18, flexShrink: 0, transition: 'filter 0.2s' }}>
-      {item.icon}
+    <span className="sb-nav-icon" style={{ fontSize: 18, flexShrink: 0, transition: 'filter 0.2s', display: 'inline-flex' }}>
+      <item.icon />
     </span>
     <span style={{ flex: 1 }}>{item.label}</span>
     {active && (
@@ -292,7 +329,7 @@ const DarkModeToggle = () => {
       }}
     >
       <span style={{ fontSize: 18, flexShrink: 0 }}>
-        {isDark ? '☀️' : '🌙'}
+        {isDark ? <FaSun /> : <FaMoon />}
       </span>
       <span style={{ flex: 1 }}>
         {isDark ? 'الوضع الفاتح' : 'الوضع الداكن'}
@@ -348,6 +385,18 @@ const handleNavClick = (id) => {
     return;
   }
 
+  if (id === 'cases') {
+    setSidebarOpen(false);
+    navigate('/cases');
+    return;
+  }
+
+  if (id === 'profile') {
+    setSidebarOpen(false);
+    navigate('/profile-v2');
+    return;
+  }
+
   setActiveTab(id);
   setSidebarOpen(false);
 };
@@ -398,7 +447,7 @@ const handleNavClick = (id) => {
           transition: 'all 0.2s',
         }}
       >
-        {sidebarOpen ? '✕' : '☰'}
+        {sidebarOpen ? <FaTimes /> : <FaBars />}
       </button>
 
       {/* ── Sidebar Panel ── */}
@@ -406,7 +455,7 @@ const handleNavClick = (id) => {
         className={`sb-aside${sidebarOpen ? ' sb-aside--open' : ''}`}
         style={{
           width: 240,
-          minHeight: 'calc(100vh - 24px)',
+          minHeight: '100vh',
           /* Rich deep-navy gradient matching the app's blue palette */
           background: 'linear-gradient(180deg, #060f1e 0%, #0a1a30 20%, #0d2040 50%, #0f2744 75%, #122d52 100%)',
           border: '1px solid rgba(29,110,216,0.22)',
@@ -419,7 +468,7 @@ const handleNavClick = (id) => {
           flexShrink: 0,
           direction: 'rtl',
           zIndex: 50,
-          margin: '12px 0 12px 12px',
+          margin: '0',
           animation: 'sidebarSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
           boxShadow: [
             '0 8px 40px rgba(0,0,0,0.45)',
@@ -506,7 +555,7 @@ const handleNavClick = (id) => {
                 display: 'inline-block',
                 filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.5))',
               }}>
-                🌟
+                <FaStar />
               </div>
             </div>
             <div style={{
@@ -565,7 +614,22 @@ const handleNavClick = (id) => {
               marginBottom: 12,
               direction: 'rtl',
             }}>
-              <AvatarSVG bg={avatarTheme.bg} accessory={avatarTheme.accessory} />
+              <button
+                type="button"
+                onClick={() => navigate('/profile-v2')}
+                title="الذهاب إلى صفحة البروفايل"
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  padding: 0,
+                  margin: 0,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  borderRadius: '50%',
+                }}
+              >
+                <AvatarSVG bg={avatarTheme.bg} accessory={avatarTheme.accessory} />
+              </button>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
                   fontSize: 13,
@@ -657,7 +721,7 @@ const handleNavClick = (id) => {
               boxShadow: '0 2px 8px rgba(251,191,36,0.1)',
               textShadow: '0 0 10px rgba(251,191,36,0.4)',
             }}>
-              🪙 {userStats.kp.toLocaleString('ar-EG')} نقطة خير
+              <FaCoins style={{ marginLeft: 6 }} /> {userStats.kp.toLocaleString('ar-EG')} نقطة خير
             </div>
           </div>
 
@@ -721,7 +785,7 @@ const handleNavClick = (id) => {
               display: 'inline-block',
               marginRight: 4,
               animation: 'starTwinkle 2s ease-in-out infinite',
-            }}>✨</span>
+            }}><FaStar /></span>
           </div>
         </div>
       </aside>
