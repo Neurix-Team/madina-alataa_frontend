@@ -1,5 +1,10 @@
-- [x] Update CasesPage sidebar to match Sidebar.jsx look
-- [x] Update ParentsTab sidebar to match Sidebar.jsx look
-- [x] Update MyChildrenPage sidebar to match Sidebar.jsx look
-- [x] Keep existing per-page button actions unchanged
-- [x] Final static review
+- [ ] Create shared avatar profile utility (`src/utils/avatarProfile.js`)
+- [ ] Upgrade avatar save flow in `src/components/tabs/ProfileTab.jsx` to persist global avatar profile
+- [ ] Improve avatar preview rendering to cartoon-style URL-based avatar
+- [ ] Add more variety options (colors/features/clothes) in avatar editor
+- [ ] Wire shared avatar rendering in `src/components/layout/Sidebar.jsx`
+- [ ] Wire shared avatar rendering in `src/pages/ProfileV2Page.jsx`
+- [ ] Wire shared avatar rendering in `src/components/tabs/ParentsTab.jsx`
+- [ ] Wire shared avatar rendering in `src/pages/CasesPage/CasesPage.jsx`
+- [ ] Wire shared avatar rendering in `src/pages/MyChildrenPage.jsx`
+- [ ] Review consistency + fallback behavior

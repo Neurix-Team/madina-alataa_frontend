@@ -27,6 +27,7 @@ import {
   FaStarAndCrescent,
 } from 'react-icons/fa';
 import { createToken, decodeToken } from '../utils/jwt';
+import { getAvatarImageUrl } from '../utils/avatarProfile';
 
 const styles = {
   page: {
@@ -189,6 +190,7 @@ export default function ProfileV2Page() {
   const [selectedDonation, setSelectedDonation] = useState(null);
   const [mapEmbedUrl, setMapEmbedUrl] = useState('');
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
+  const [avatarUrl, setAvatarUrl] = useState(getAvatarImageUrl());
 
   const safeUser = useMemo(() => {
     const user = (() => {
@@ -230,6 +232,7 @@ export default function ProfileV2Page() {
 
   useEffect(() => {
     setMounted(true);
+    setAvatarUrl(getAvatarImageUrl());
     let l = 0;
     let p = 0;
     const maxL = 5;
@@ -249,8 +252,7 @@ export default function ProfileV2Page() {
   const roleText = safeUser.role === 'parent' ? 'ولي أمر' : 'متبرع';
 
   const goToProfile = () => {
-    if (location.pathname === '/profile') return;
-    navigate('/profile');
+    navigate('/avatar');
   };
 
   const doLogout = () => {
@@ -367,8 +369,8 @@ export default function ProfileV2Page() {
         <button style={styles.miniProfile} onClick={goToProfile} title="الذهاب إلى صفحة البروفايل">
           <div style={styles.miniAvatar}>
             <img
-              src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=madina-default-avatar"
-              alt="Default avatar"
+              src={avatarUrl}
+              alt="Saved avatar"
               style={{
                 width: '100%',
                 height: '100%',
@@ -446,8 +448,8 @@ export default function ProfileV2Page() {
 
             <div style={styles.heroAvatar} onClick={goToProfile} title="عرض الملف الشخصي">
               <img
-                src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=madina-default-avatar"
-                alt="Default avatar"
+                src={avatarUrl}
+                alt="Saved avatar"
                 style={{
                   width: '100%',
                   height: '100%',

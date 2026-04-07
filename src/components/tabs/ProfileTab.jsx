@@ -14,6 +14,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import JellyButton from '../common/JellyButton';
 import AudioManager from '../../services/AudioManager';
+import {
+  getSavedAvatarProfile,
+  saveAvatarProfile,
+  buildAvatarUrlFromProfile,
+} from '../../utils/avatarProfile';
 
 // ═══════════════════════════════════════════════════════════════════════
 // 🎨 Complete Avatar Options (Same as AvatarCreator)
@@ -51,6 +56,8 @@ const AVATAR_OPTIONS = {
     { id: 'purple', color: '#7c3aed', label: 'بنفسجي' },
     { id: 'pink', color: '#ec4899', label: 'وردي' },
     { id: 'green', color: '#059669', label: 'أخضر' },
+    { id: 'silver', color: '#9ca3af', label: 'فضي' },
+    { id: 'gold', color: '#f59e0b', label: 'ذهبي' },
   ],
   accessories: [
     { id: 'glasses', label: 'نظارة', emoji: '👓', price: 0, unlocked: true },
@@ -71,6 +78,8 @@ const AVATAR_OPTIONS = {
     { id: 'dress', label: 'فستان', emoji: '👗', color: '#ec4899', price: 250, unlocked: true },
     { id: 'superhero', label: 'بطل خارق', emoji: '🦸', color: '#dc2626', price: 500, unlocked: false, level: 5 },
     { id: 'wizard', label: 'ساحر', emoji: '🧙', color: '#7c3aed', price: 600, unlocked: false, level: 7 },
+    { id: 'sport', label: 'رياضي', emoji: '🏃', color: '#0ea5e9', price: 350, unlocked: true },
+    { id: 'formal', label: 'رسمي', emoji: '🤵', color: '#111827', price: 450, unlocked: true },
   ],
   backgrounds: [
     { id: 'gradient1', label: 'تدرج أزرق', colors: ['#3b82f6', '#1d4ed8'], price: 0, unlocked: true },
@@ -92,17 +101,21 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
   // 📦 State Management
   // ─────────────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState('basic'); // basic, advanced, photo, shop, presets
-  const [avatarData, setAvatarData] = useState({
-    name: userStats?.name || 'البطل',
-    gender: 'boy',
-    skinTone: 'medium',
-    hairStyle: 'short',
-    hairColor: 'black',
-    accessories: [],
-    clothes: 'tshirt',
-    background: 'gradient1',
-    photoUrl: null,
-    aiAvatarUrl: null,
+  const [avatarData, setAvatarData] = useState(() => {
+    const saved = getSavedAvatarProfile();
+    return {
+      name: saved.name || userStats?.name || 'البطل',
+      gender: saved.gender || 'boy',
+      skinTone: saved.skinTone || 'medium',
+      hairStyle: saved.hairStyle || 'short',
+      hairColor: saved.hairColor || 'black',
+      accessories: saved.accessories || [],
+      clothes: saved.clothes || 'tshirt',
+      background: saved.background || 'gradient1',
+      photoUrl: saved.photoUrl || null,
+      aiAvatarUrl: saved.aiAvatarUrl || null,
+      seed: saved.seed || (saved.name || userStats?.name || 'madina-avatar'),
+    };
   });
 
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
@@ -114,6 +127,7 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
   const [savedPresets, setSavedPresets] = useState([]);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [presetName, setPresetName] = useState('');
+  const [toast, setToast] = useState({ open: false, text: '', tone: 'success' });
 
   // KP points from userStats
   const userKP = userStats?.kp || 0;
@@ -122,6 +136,14 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
   // ─────────────────────────────────────────────────────────────────────
   // 🎨 Avatar Update Functions
   // ─────────────────────────────────────────────────────────────────────
+
+  const showToast = (text, tone = 'success') => {
+    setToast({ open: true, text, tone });
+    window.clearTimeout(window.__avatarToastTimer);
+    window.__avatarToastTimer = window.setTimeout(() => {
+      setToast({ open: false, text: '', tone: 'success' });
+    }, 2200);
+  };
 
   const updateAvatarProp = (key, value) => {
     setAvatarData(prev => ({ ...prev, [key]: value }));
@@ -134,14 +156,14 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
     // Check if locked
     if (!accessory.unlocked && userLevel < (accessory.level || 0)) {
       AudioManager.getInstance().play('error');
-      alert(`هذا الإكسسوار مقفل! يتطلب المستوى ${accessory.level}`);
+      showToast(`هذا الإكسسوار مقفل! يتطلب المستوى ${accessory.level}`, 'error');
       return;
     }
 
     // Check if needs purchase
     if (!accessory.unlocked && accessory.price > userKP) {
       AudioManager.getInstance().play('error');
-      alert(`نقاطك غير كافية! تحتاج ${accessory.price} نقطة`);
+      showToast(`نقاطك غير كافية! تحتاج ${accessory.price} نقطة`, 'error');
       return;
     }
 
@@ -157,12 +179,12 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
   const purchaseItem = (item, category) => {
     if (userKP < item.price) {
       AudioManager.getInstance().play('error');
-      alert(`نقاطك غير كافية! تحتاج ${item.price} نقطة`);
+      showToast(`نقاطك غير كافية! تحتاج ${item.price} نقطة`, 'error');
       return;
     }
 
     AudioManager.getInstance().play('success');
-    alert(`تم الشراء بنجاح! 🎉`);
+    showToast('تم الشراء بنجاح! 🎉', 'success');
     // TODO: Deduct KP and unlock item in backend
   };
 
@@ -233,7 +255,7 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
 
   const savePreset = () => {
     if (!presetName.trim()) {
-      alert('الرجاء إدخال اسم للحفظ');
+      showToast('الرجاء إدخال اسم للحفظ', 'error');
       return;
     }
 
@@ -248,7 +270,7 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
     setShowSaveModal(false);
     setPresetName('');
     AudioManager.getInstance().play('success');
-    alert('تم حفظ التصميم بنجاح! ✨');
+    showToast('تم حفظ التصميم بنجاح! ✨', 'success');
   };
 
   const loadPreset = (preset) => {
@@ -261,6 +283,16 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
       setSavedPresets(prev => prev.filter(p => p.id !== presetId));
       AudioManager.getInstance().play('click');
     }
+  };
+
+  const handleSaveAvatarGlobal = () => {
+    const payload = saveAvatarProfile({
+      ...avatarData,
+      seed: avatarData.seed || avatarData.name || userStats?.name || 'madina-avatar',
+    });
+    setAvatarData((prev) => ({ ...prev, seed: payload.seed }));
+    AudioManager.getInstance().play('success');
+    showToast('تم حفظ الأفاتار وتطبيقه على كل الصفحات بنجاح ✅', 'success');
   };
 
   // ─────────────────────────────────────────────────────────────────────
@@ -311,11 +343,11 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
             <JellyButton
               variant="primary"
               size="md"
-              sound="click"
-              onClick={() => setShowSaveModal(true)}
+              sound="success"
+              onClick={handleSaveAvatarGlobal}
               style={{ flex: 1 }}
             >
-              💾 حفظ التصميم
+              💾 حفظ التعديلات
             </JellyButton>
             <JellyButton
               variant="secondary"
@@ -735,6 +767,31 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
         </div>
       )}
 
+      {toast.open && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 24,
+            left: 24,
+            zIndex: 1200,
+            background: toast.tone === 'error'
+              ? 'linear-gradient(135deg,#ef4444,#b91c1c)'
+              : 'linear-gradient(135deg,#10b981,#059669)',
+            color: '#fff',
+            padding: '12px 16px',
+            borderRadius: 14,
+            fontWeight: 800,
+            fontSize: 14,
+            boxShadow: '0 10px 24px rgba(0,0,0,0.25)',
+            border: '1px solid rgba(255,255,255,0.25)',
+            maxWidth: 360,
+            direction: 'rtl',
+          }}
+        >
+          {toast.text}
+        </div>
+      )}
+
       {/* Global styles for spinner animation */}
       <style>{`
         @keyframes spin {
@@ -769,7 +826,14 @@ function AvatarPreview({ avatar, size = 'medium' }) {
       {avatar.aiAvatarUrl ? (
         <img src={avatar.aiAvatarUrl} alt="AI Avatar" style={styles.aiAvatarImage} />
       ) : (
-        <div style={styles.customAvatar}>
+        <img
+          src={buildAvatarUrlFromProfile(avatar)}
+          alt="Cartoon Avatar"
+          style={styles.aiAvatarImage}
+        />
+      )}
+      {!avatar.aiAvatarUrl && (
+        <div style={styles.customAvatarOverlay}>
           <div style={{ ...styles.face, backgroundColor: skinColor }}>
             <div style={styles.eyes}>
               <div style={styles.eye} />
@@ -1093,6 +1157,11 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  customAvatarOverlay: {
+    position: 'absolute',
+    inset: 0,
+    display: 'none',
   },
   face: {
     width: 120,

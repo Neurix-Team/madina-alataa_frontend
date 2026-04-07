@@ -28,6 +28,7 @@ import {
   FaBars,
   FaCoins,
 } from 'react-icons/fa';
+import { getAvatarImageUrl } from '../../utils/avatarProfile';
 
 // ── Injected CSS (keyframes + class-based styles) ─────────────────────────
 const SIDEBAR_CSS = `
@@ -194,6 +195,7 @@ const SIDEBAR_CSS = `
 // ── Nav items ─────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
   { id: 'profile',     label: 'البروفايل',        icon: FaUser },
+  { id: 'avatar',      label: 'افاتار',           icon: FaUser },
   { id: 'cases',       label: 'الحالات',          icon: FaHeart },
   { id: 'map',         label: 'خريطة المهام',    icon: FaMapMarkedAlt },
   { id: 'daily',       label: 'المهام اليومية',   icon: FaCheckCircle },
@@ -243,8 +245,8 @@ const AvatarSVG = ({ bg, accessory }) => {
       transition: 'transform 0.3s ease',
     }}>
       <img
-        src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=madina-default-avatar"
-        alt="Default avatar"
+        src={getAvatarImageUrl()}
+        alt="Saved avatar"
         style={{
           width: 38,
           height: 38,
@@ -394,6 +396,12 @@ const handleNavClick = (id) => {
   if (id === 'profile') {
     setSidebarOpen(false);
     navigate('/profile-v2');
+    return;
+  }
+
+  if (id === 'avatar') {
+    setActiveTab('profile');
+    setSidebarOpen(false);
     return;
   }
 
@@ -758,7 +766,15 @@ const handleNavClick = (id) => {
       )}
       <NavBtn
         item={item}
-        active={item.id === 'parents' ? location.pathname === '/parents' : activeTab === item.id}
+        active={
+          item.id === 'parents'
+            ? location.pathname === '/parents'
+            : item.id === 'profile'
+              ? location.pathname === '/profile-v2'
+              : item.id === 'avatar'
+                ? activeTab === 'profile'
+                : activeTab === item.id
+        }
         onClick={handleNavClick}
       />
     </React.Fragment>
