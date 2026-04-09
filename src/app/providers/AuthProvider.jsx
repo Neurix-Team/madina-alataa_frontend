@@ -1,7 +1,10 @@
 // src/app/providers/AuthProvider.jsx
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { mockLogin, mockRegister } from '../../services/mockAuth';
+import { mockLogin, mockRegister, mockGuestLogin } from '../../services/mockAuth';
+import secureStorage from '../../utils/secureStorage';
+import { handleError, logError } from '../../utils/errorHandling';
+import { validateEmail, validatePassword, validateName, validateRole } from '../../utils/validations';
 
 const AuthContext = createContext();
 
@@ -10,42 +13,124 @@ const STORAGE_KEY = 'madina_auth_user';
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [bootstrapping, setBootstrapping] = useState(true);
+  const [authError, setAuthError] = useState(null);
 
-  // Load user from localStorage on mount
+  // Load user from secure storage on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem(STORAGE_KEY);
-    if (storedUser) {
+    const loadUser = async () => {
       try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
+        const storedUser = await secureStorage.getItem(STORAGE_KEY, null);
+        if (storedUser) {
+          setUser(storedUser);
+        }
       } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem(STORAGE_KEY);
+        logError(error, 'AuthProvider.loadUser');
+        setAuthError('فشل في تحميل بيانات المستخدم');
+      } finally {
+        setBootstrapping(false);
       }
-    }
-    setBootstrapping(false);
+    };
+
+    loadUser();
   }, []);
 
-  // Login function
+  // Login function with validation
   const login = async (payload) => {
-    const loggedInUser = await mockLogin(payload);
-    setUser(loggedInUser);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(loggedInUser));
-    return loggedInUser;
+    try {
+      setAuthError(null);
+
+      // Validate input
+      const emailError = validateEmail(payload.email);
+      if (emailError) {
+        setAuthError(emailError);
+        return null;
+      }
+
+      const passwordError = validatePassword(payload.password);
+      if (passwordError) {
+        setAuthError(passwordError);
+        return null;
+      }
+
+      const loggedInUser = await mockLogin(payload);
+      setUser(loggedInUser);
+      await secureStorage.setItem(STORAGE_KEY, loggedInUser);
+      return loggedInUser;
+    } catch (error) {
+      const errorMsg = handleError(error);
+      setAuthError(errorMsg);
+      logError(error, 'AuthProvider.login');
+      return null;
+    }
   };
 
-  // Register function
+  // Register function with validation
   const register = async (payload) => {
-    const registeredUser = await mockRegister(payload);
-    setUser(registeredUser);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(registeredUser));
-    return registeredUser;
+    try {
+      setAuthError(null);
+
+      // Validate input
+      const nameError = validateName(payload.name);
+      if (nameError) {
+        setAuthError(nameError);
+        return null;
+      }
+
+      const emailError = validateEmail(payload.email);
+      if (emailError) {
+        setAuthError(emailError);
+        return null;
+      }
+
+      const passwordError = validatePassword(payload.password);
+      if (passwordError) {
+        setAuthError(passwordError);
+        return null;
+      }
+
+      const roleError = validateRole(payload.role);
+      if (roleError) {
+        setAuthError(roleError);
+        return null;
+      }
+
+      const registeredUser = await mockRegister(payload);
+      setUser(registeredUser);
+      await secureStorage.setItem(STORAGE_KEY, registeredUser);
+      return registeredUser;
+    } catch (error) {
+      const errorMsg = handleError(error);
+      setAuthError(errorMsg);
+      logError(error, 'AuthProvider.register');
+      return null;
+    }
+  };
+
+  const guestLogin = async () => {
+    try {
+      setAuthError(null);
+      const guestUser = await mockGuestLogin();
+      setUser(guestUser);
+      await secureStorage.setItem(STORAGE_KEY, guestUser);
+      return guestUser;
+    } catch (error) {
+      const errorMsg = handleError(error);
+      setAuthError(errorMsg);
+      logError(error, 'AuthProvider.guestLogin');
+      return null;
+    }
   };
 
   // Logout function
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem(STORAGE_KEY);
+  const logout = async () => {
+    try {
+      setAuthError(null);
+      setUser(null);
+      await secureStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      logError(error, 'AuthProvider.logout');
+      setAuthError('فشل في تسجيل الخروج');
+    }
   };
 
   // Computed values
@@ -61,10 +146,12 @@ export const AuthProvider = ({ children }) => {
     isAdmin,
     hasRole,
     bootstrapping,
+    authError,
     login,
     register,
+    guestLogin,
     logout,
-  }), [user, isAuthenticated, isAdmin, bootstrapping]);
+  }), [user, isAuthenticated, isAdmin, bootstrapping, authError]);
 
   return (
     <AuthContext.Provider value={value}>

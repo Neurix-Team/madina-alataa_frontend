@@ -1,3 +1,5 @@
+import secureStorage from './secureStorage';
+
 const AVATAR_PROFILE_KEY = 'madinaAvatarProfile';
 
 const DEFAULT_AVATAR_PROFILE = {
@@ -32,15 +34,6 @@ const HAIR_MAP = {
   green: '059669',
 };
 
-// const BG_MAP = {
-//   gradient1: '3b82f6,bgf4ff',
-//   gradient2: 'ec4899,db2777',
-//   gradient3: '10b981,059669',
-//   gradient4: 'f59e0b,d97706',
-//   gradient5: '8b5cf6,7c3aed',
-//   stars: '1e293b,0f172a',
-//   rainbow: 'ec4899,8b5cf6',
-// };
 
 const BG_MAP = {
   gradient1: '3b82f6,b6e3f4',
@@ -75,14 +68,9 @@ const CLOTHES_MAP = {
 };
 
 export function getSavedAvatarProfile() {
-  try {
-    const raw = localStorage.getItem(AVATAR_PROFILE_KEY);
-    if (!raw) return { ...DEFAULT_AVATAR_PROFILE };
-    const parsed = JSON.parse(raw);
-    return { ...DEFAULT_AVATAR_PROFILE, ...parsed };
-  } catch {
-    return { ...DEFAULT_AVATAR_PROFILE };
-  }
+  const raw = secureStorage.getItem(AVATAR_PROFILE_KEY, null);
+  if (!raw) return { ...DEFAULT_AVATAR_PROFILE };
+  return { ...DEFAULT_AVATAR_PROFILE, ...raw };
 }
 
 export function saveAvatarProfile(profile) {
@@ -92,58 +80,11 @@ export function saveAvatarProfile(profile) {
     seed: profile?.seed || profile?.name || 'madina-default-avatar',
     updatedAt: new Date().toISOString(),
   };
-  localStorage.setItem(AVATAR_PROFILE_KEY, JSON.stringify(payload));
+  secureStorage.setItem(AVATAR_PROFILE_KEY, payload);
   return payload;
 }
 
-// export function buildAvatarUrlFromProfile(profile) {
-//   const p = { ...DEFAULT_AVATAR_PROFILE, ...profile };
-//   const skinColor = SKIN_MAP[p.skinTone] || SKIN_MAP.medium;
-//   const hairColor = HAIR_MAP[p.hairColor] || HAIR_MAP.black;
-//   const bgColors = BG_MAP[p.background] || BG_MAP.gradient1;
-//   const glasses = (p.accessories || [])
-//     .map((id) => ACCESSORY_MAP[id])
-//     .filter(Boolean)
-//     .slice(0, 1)
-//     .join(',');
-//   const clothing = CLOTHES_MAP[p.clothes] || CLOTHES_MAP.tshirt;
 
-//   const stableSeed = p.seed || p.name || 'madina-default-avatar';
-//   const visualSignature = [
-//     p.gender,
-//     p.skinTone,
-//     p.hairStyle,
-//     p.hairColor,
-//     p.clothes,
-//     p.background,
-//     ...(p.accessories || []),
-//   ].join('-');
-
-//   const params = new URLSearchParams({
-//     seed: `${stableSeed}-${visualSignature}`,
-//     skinColor,
-//     hairColor,
-//     backgroundColor: bgColors,
-//     clothing,
-//     mouth: 'variant01,variant02,variant03',
-//     eyes: 'variant01,variant02,variant03,variant04',
-//     eyebrows: 'variant01,variant02',
-//   });
-
-//   if (p.gender === 'girl') {
-//     params.set('longHair', 'variant01,variant02,variant03');
-//     params.set('facialHair', 'none');
-//     params.set('eyelashes', 'variant01,variant02');
-//   } else {
-//     params.set('shortHair', 'variant01,variant02,variant03');
-//     params.set('eyelashes', 'none');
-//   }
-
-//   if (glasses) {
-//     params.set('glasses', glasses);
-//   }
-
-// return `https://api.dicebear.com/9.x/open-peeps/svg?...?${params.toString()}`}
 export function buildAvatarUrlFromProfile(profile) {
   const p = { ...DEFAULT_AVATAR_PROFILE, ...profile };
 

@@ -11,8 +11,10 @@ import {
 } from 'react-icons/fa';
 import RocketBackground from '../common/RocketBackground';
 import CanvasBackground from '../common/CanvasBackground';
+import { getAvatarImageUrl } from '../../utils/avatarProfile';
 
 const STORAGE_KEY = 'parent_profile_settings_v1';
+const REQUESTS_STORAGE_KEY = 'parent_requests_v1';
 
 const CSS = `
   @keyframes parentsFadeUp {
@@ -445,17 +447,31 @@ const ParentsTab = () => {
 
   const childrenCount = 2;
 
-  const requests = [
-    { id: 'REQ-102', title: 'طلب متابعة طبية', status: 'قيد المراجعة' },
-    { id: 'REQ-115', title: 'طلب دعم تعليمي', status: 'مقبول' },
-    { id: 'REQ-131', title: 'طلب تحديث بيانات', status: 'مكتمل' },
-  ];
+  const [requests, setRequests] = useState(() => {
+    const saved = localStorage.getItem(REQUESTS_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [
+      { id: 'REQ-102', title: 'طلب متابعة طبية', status: 'قيد المراجعة' },
+      { id: 'REQ-115', title: 'طلب دعم تعليمي', status: 'مقبول' },
+      { id: 'REQ-131', title: 'طلب تحديث بيانات', status: 'مكتمل' },
+    ];
+  });
 
   const verification = {
     state: 'موثّق',
     score: 92,
     docs: 4,
     pendingDocs: 1,
+  };
+
+  const addRequest = (title) => {
+    const newRequest = {
+      id: `REQ-${Date.now()}`,
+      title,
+      status: 'قيد المراجعة',
+    };
+    const updatedRequests = [newRequest, ...requests];
+    setRequests(updatedRequests);
+    localStorage.setItem(REQUESTS_STORAGE_KEY, JSON.stringify(updatedRequests));
   };
 
   const handleLogout = () => {
@@ -485,7 +501,7 @@ const ParentsTab = () => {
         <div className="parents-user-card">
           <img
             className="parents-sidebar-avatar"
-            src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=madina-default-avatar"
+            src={getAvatarImageUrl()}
             alt="Profile avatar"
             onClick={() => navigate('/profile-v2')}
             title="الذهاب إلى صفحة البروفايل"

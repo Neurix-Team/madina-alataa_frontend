@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fa';
 import RocketBackground from '../components/common/RocketBackground';
 import CanvasBackground from '../components/common/CanvasBackground';
+import { getAvatarImageUrl } from '../utils/avatarProfile';
 
 const CHILDREN_STORAGE_KEY = 'children_settings_v1';
 
@@ -489,7 +490,7 @@ export default function MyChildrenPage() {
         <div className="children-user-card">
           <img
             className="children-sidebar-avatar"
-            src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=madina-default-avatar"
+            src={getAvatarImageUrl()}
             alt="Profile avatar"
             onClick={() => navigate('/profile-v2')}
             title="الذهاب إلى صفحة البروفايل"

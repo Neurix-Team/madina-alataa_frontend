@@ -80,6 +80,28 @@ const AVATAR_OPTIONS = {
   ],
 };
 
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+
+const isValidImageFile = (file) => {
+  if (!file) return false;
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  return (
+    ALLOWED_IMAGE_TYPES.includes(file.type) &&
+    ALLOWED_IMAGE_EXTENSIONS.includes(extension) &&
+    file.size <= 5 * 1024 * 1024
+  );
+};
+
+const getImageErrorMessage = (file) => {
+  if (!file) return 'لم يتم اختيار ملف.';
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) return 'الرجاء اختيار صورة من نوع JPG أو PNG أو WEBP.';
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  if (!ALLOWED_IMAGE_EXTENSIONS.includes(extension)) return 'الامتداد غير مدعوم. استخدم JPG أو PNG أو WEBP.';
+  if (file.size > 5 * 1024 * 1024) return 'الرجاء اختيار صورة أصغر من 5 ميجابايت.';
+  return 'الملف المختار غير صالح.';
+};
+
 // ═══════════════════════════════════════════════════════════════════════
 // 🎨 Main Component
 // ═══════════════════════════════════════════════════════════════════════
@@ -184,13 +206,8 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      alert('الرجاء اختيار صورة صحيحة');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('حجم الصورة كبير جداً. الرجاء اختيار صورة أصغر من 5 ميجابايت');
+    if (!isValidImageFile(file)) {
+      showToast(getImageErrorMessage(file), 'error');
       return;
     }
 
@@ -541,7 +558,7 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/webp"
                       capture="user"
                       style={{ display: 'none' }}
                       onChange={handlePhotoUpload}

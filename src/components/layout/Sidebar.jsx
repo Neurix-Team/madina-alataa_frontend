@@ -220,6 +220,7 @@ const NAV_ITEMS = [
   { id: 'my-donations',    label: 'تبرعاتي',        icon: FaCoins, condition: PERMISSIONS.VIEW_MY_DONATIONS },
   { id: 'orders',      label: 'الأوامر',          icon: FaBoxOpen, condition: PERMISSIONS.VIEW_ORDERS },
   { id: 'admin',       label: 'الإدارة',          icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
+  { id: 'incoming-requests', label: 'الطلبات الواردة', icon: FaBell, condition: PERMISSIONS.VIEW_ADMIN },
 ];
 
 // ── Avatar ────────────────────────────────────────────────────────────────
@@ -412,6 +413,7 @@ const handleNavClick = (id) => {
     admin: '/admin',
     cases: '/cases',
     'create-request': '/create-request',
+    'incoming-requests': '/incoming-requests',
   };
 
   const path = pathMap[id] || '/profile';
@@ -767,7 +769,15 @@ const handleNavClick = (id) => {
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
             {(() => {
               const { can } = usePermissions();
-              const visibleItems = NAV_ITEMS.filter(item => !item.condition || can(item.condition));
+              const { user } = useAuth();
+              const isAdmin = user?.roles?.includes('admin');
+              const visibleItems = NAV_ITEMS.filter(item => {
+                // Hide parents and create-request buttons for admin users
+                if (isAdmin && (item.id === 'parents' || item.id === 'create-request')) {
+                  return false;
+                }
+                return !item.condition || can(item.condition);
+              });
               return visibleItems.map((item) => (
                 <React.Fragment key={item.id}>
                   {item.dividerBefore && (

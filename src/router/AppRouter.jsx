@@ -21,6 +21,7 @@ import CasesPage from '../pages/CasesPage/CasesPage';
 import CaseDetailsPage from '../pages/CaseDetailsPage';
 import DonationCheckoutPage from '../pages/DonationCheckoutPage';
 import CreateRequestPage from '../pages/CreateRequestPage';
+import IncomingRequestsPage from '../pages/IncomingRequestsPage';
 
 // Tabs
 import ProfileTab from '../components/tabs/ProfileTab';
@@ -79,6 +80,7 @@ export const AppRouter = () => {
           {/* Admin routes */}
           <Route element={<RoleGuard allowedRoles={['admin']} />}>
             <Route path="/admin" element={<AdminTab />} />
+            <Route path="/incoming-requests" element={<IncomingRequestsPage />} />
           </Route>
         </Route>
       </Route>

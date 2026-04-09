@@ -1,14 +1,14 @@
 ﻿
 export function createToken(payload) {
-  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const header = btoa(JSON.stringify({ typ: 'CLIENT' }));
   const body = btoa(JSON.stringify(payload));
-  const sig = btoa("superhero-secret");
-  return `${header}.${body}.${sig}`;
+  const nonce = btoa(Array.from(window.crypto?.getRandomValues?.(new Uint8Array(12)) || new Uint8Array(12)).map((b) => b.toString(16).padStart(2, '0')).join(''));
+  return `${header}.${body}.${nonce}`;
 }
 
 export function decodeToken(token) {
   try {
-    const body = token.split(".")[1];
+    const body = token.split('.')[1];
     return JSON.parse(atob(body));
   } catch {
     return null;
@@ -17,7 +17,7 @@ export function decodeToken(token) {
 
 export function getAllAccounts() {
   try {
-    return JSON.parse(localStorage.getItem("accounts") || "[]");
+    return JSON.parse(localStorage.getItem('accounts') || '[]');
   } catch {
     return [];
   }
@@ -32,13 +32,13 @@ export function registerAccount(payload) {
   });
 
   if (exists) {
-    return { success: false, error: "Ù‡Ø°Ø§ Ø§Ù„Ø­Ø³Ø§Ø¨ Ù…Ø³Ø¬Ù„ Ù…Ù† Ù‚Ø¨Ù„ØŒ Ø¬Ø±Ø¨ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„" };
+    return { success: false, error: 'هذا الحساب مسجل من قبل، جرب تسجيل الدخول' };
   }
 
   const token = createToken(payload);
   accounts.push(token);
-  localStorage.setItem("accounts", JSON.stringify(accounts));
-  localStorage.setItem("token", token);
+  localStorage.setItem('accounts', JSON.stringify(accounts));
+  localStorage.setItem('token', token);
   return { success: true, token };
 }
 
@@ -52,11 +52,11 @@ export function loginAccount(email, password) {
 
   if (match) {
     const data = decodeToken(match);
-    localStorage.setItem("token", match);
-    localStorage.setItem("user", JSON.stringify({ email: data.email, heroName: data.heroName, role: data.role }));
+    localStorage.setItem('token', match);
+    localStorage.setItem('user', JSON.stringify({ email: data.email, heroName: data.heroName, role: data.role }));
     return { success: true, user: data };
   }
 
-  return { success: false, error: "Ø§Ù„Ø¥ÙŠÙ…ÙŠÙ„ Ø£Ùˆ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø®Ø·Ø£" };
+  return { success: false, error: 'الإيميل أو كلمة المرور خطأ' };
 }
 

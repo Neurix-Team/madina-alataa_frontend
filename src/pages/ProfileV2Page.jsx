@@ -27,6 +27,7 @@ import {
   FaStarAndCrescent,
 } from 'react-icons/fa';
 import { createToken, decodeToken } from '../utils/jwt';
+import secureStorage from '../utils/secureStorage';
 import { getAvatarImageUrl } from '../utils/avatarProfile';
 
 const styles = {
@@ -178,6 +179,15 @@ function buildNearbyPlaces(city, lat, lng) {
   ];
 }
 
+const buildGoogleMapEmbedUrl = (lat, lng) => {
+  if (lat == null || lng == null) return '';
+  const url = new URL('https://maps.google.com/maps');
+  url.searchParams.set('q', `${lat},${lng}`);
+  url.searchParams.set('z', '15');
+  url.searchParams.set('output', 'embed');
+  return url.toString();
+};
+
 export default function ProfileV2Page() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -194,24 +204,17 @@ export default function ProfileV2Page() {
   const [avatarKey, setAvatarKey] = useState(0);
 
   const safeUser = useMemo(() => {
-    const user = (() => {
-      try {
-        return JSON.parse(localStorage.getItem('user') || '{}');
-      } catch {
-        return {};
-      }
-    })();
-
-    const token = localStorage.getItem('token');
+    const user = secureStorage.getItem('user', {});
+    const token = secureStorage.getItem('token', null);
     const decoded = token ? decodeToken(token) : null;
     return {
       heroName: decoded?.heroName || user?.heroName || 'البطل',
       role: decoded?.role || user?.role || 'donor',
-      city: decoded?.city || 'القاهرة',
+      city: decoded?.city || user?.city || 'القاهرة',
       email: decoded?.email || user?.email || '',
       address: decoded?.address || user?.address || '',
-      lat: decoded?.lat ?? null,
-      lng: decoded?.lng ?? null,
+      lat: decoded?.lat ?? user?.lat ?? null,
+      lng: decoded?.lng ?? user?.lng ?? null,
     };
   }, []);
 
@@ -225,8 +228,8 @@ export default function ProfileV2Page() {
   });
 
   useEffect(() => {
-    if (safeUser.lat && safeUser.lng) {
-      setMapEmbedUrl(`https://maps.google.com/maps?q=${safeUser.lat},${safeUser.lng}&z=15&output=embed`);
+    if (safeUser.lat != null && safeUser.lng != null) {
+      setMapEmbedUrl(buildGoogleMapEmbedUrl(safeUser.lat, safeUser.lng));
       setNearbyPlaces(buildNearbyPlaces(safeUser.city, safeUser.lat, safeUser.lng));
     }
   }, [safeUser]);
@@ -257,8 +260,9 @@ export default function ProfileV2Page() {
   };
 
   const doLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('authToken');
+    secureStorage.removeItem('token');
+    secureStorage.removeItem('authToken');
+    secureStorage.removeItem('user');
     navigate('/auth');
   };
 
@@ -272,7 +276,7 @@ export default function ProfileV2Page() {
       (pos) => {
         const lat = Number(pos.coords.latitude.toFixed(6));
         const lng = Number(pos.coords.longitude.toFixed(6));
-        setMapEmbedUrl(`https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`);
+        setMapEmbedUrl(buildGoogleMapEmbedUrl(lat, lng));
         setSettingsForm((prev) => ({
           ...prev,
           lat,
@@ -286,7 +290,7 @@ export default function ProfileV2Page() {
   };
 
   const handleSaveSettings = () => {
-    const currentToken = localStorage.getItem('token');
+    const currentToken = secureStorage.getItem('token', null);
     if (!currentToken) {
       alert('لا يوجد جلسة مستخدم نشطة');
       return;
@@ -311,7 +315,7 @@ export default function ProfileV2Page() {
 
     let accounts = [];
     try {
-      accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+      accounts = secureStorage.getItem('accounts', []);
     } catch {
       accounts = [];
     }
@@ -320,9 +324,9 @@ export default function ProfileV2Page() {
     if (idx >= 0) accounts[idx] = newToken;
     else accounts.push(newToken);
 
-    localStorage.setItem('accounts', JSON.stringify(accounts));
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify({
+    secureStorage.setItem('accounts', accounts);
+    secureStorage.setItem('token', newToken);
+    secureStorage.setItem('user', {
       email: updatedPayload.email,
       heroName: updatedPayload.heroName,
       role: updatedPayload.role,
@@ -330,7 +334,7 @@ export default function ProfileV2Page() {
       address: updatedPayload.address,
       lat: updatedPayload.lat,
       lng: updatedPayload.lng,
-    }));
+    });
 
     setNearbyPlaces(buildNearbyPlaces(updatedPayload.city, updatedPayload.lat, updatedPayload.lng));
     alert('تم حفظ التغييرات بنجاح');
@@ -903,7 +907,8 @@ function SettingsPanel({ form, setForm, onSave, onDetectLocation, onLogout, mapE
               height="240"
               style={{ border: 0, display: 'block' }}
               loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
+              referrerPolicy="no-referrer"
+              sandbox="allow-scripts allow-popups"
             />
           </div>
         )}

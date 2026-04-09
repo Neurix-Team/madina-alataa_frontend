@@ -253,8 +253,27 @@ export default function CreateRequestPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log('Submitting request:', formData);
+    // Save request to localStorage for parents page
+    const REQUESTS_STORAGE_KEY = 'parent_requests_v1';
+    const child = CHILDREN_DATA.find(c => c.id === parseInt(formData.childId));
+    const newRequest = {
+      id: `REQ-${Date.now()}`,
+      title: `طلب ${formData.requestType} لـ ${child?.name || 'طفل'}`,
+      status: 'قيد المراجعة',
+      type: formData.requestType,
+      childName: child?.name || 'غير محدد',
+      childAge: child?.age || 0,
+      childCity: child?.city || 'غير محدد',
+      description: formData.description || 'لا توجد تفاصيل إضافية',
+      amount: formData.amount || 0,
+      urgency: formData.urgency || 'عادي',
+      createdAt: new Date().toISOString(),
+    };
+
+    const existingRequests = JSON.parse(localStorage.getItem(REQUESTS_STORAGE_KEY) || '[]');
+    const updatedRequests = [newRequest, ...existingRequests];
+    localStorage.setItem(REQUESTS_STORAGE_KEY, JSON.stringify(updatedRequests));
+
     alert('تم إرسال الطلب بنجاح! سيتم مراجعته قريباً.');
     navigate('/parents');
   };

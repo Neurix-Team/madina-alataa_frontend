@@ -170,9 +170,22 @@ export default function AvatarPage() {
     navigate('/profile-v2');
   };
 
-  const handleShare = () => {
-    // Placeholder for share functionality
-    alert('مشاركة الصورة');
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'أفاتاري المخصص',
+          text: 'شوف أفاتاري الجديد في تطبيق مدينة الأطفال!',
+          url: window.location.href,
+        });
+      } else {
+        // Fallback: copy URL to clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        alert('تم نسخ رابط الأفاتار إلى الحافظة!');
+      }
+    } catch (error) {
+      alert('حدث خطأ في المشاركة. جرب مرة أخرى.');
+    }
   };
 
   const skinToneOptions = [
@@ -511,182 +524,528 @@ export default function AvatarPage() {
           maxHeight: 'calc(-200px + 100vh)',
           overflowY: 'auto',
         }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '24px',
-          }}>
-            {/* Gender */}
-            <div style={{ marginBottom: '24px' }}>
-              <h4 style={{
-                fontSize: '16px',
-                fontWeight: '800',
-                color: 'var(--text-primary)',
-                marginBottom: '12px',
-              }}>
-                👤 الجنس
-              </h4>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '12px',
-              }}>
-                <button
-                  onClick={() => updateProfile('gender', 'boy')}
-                  style={{
-                    background: profile.gender === 'boy' ? 'rgb(237, 233, 254)' : 'var(--bg-card-2)',
-                    border: profile.gender === 'boy' ? '3px solid rgb(59, 130, 246)' : 'none',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    cursor: 'pointer',
-                    transition: '0.2s',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '8px',
-                    color: 'var(--text-primary)',
-                    transform: profile.gender === 'boy' ? 'scale(1.05)' : 'none',
-                  }}
-                >
-                  <span style={{ fontSize: '48px' }}>👦</span>
-                  <span style={{ fontSize: '14px', fontWeight: '800' }}>ولد</span>
-                </button>
-                <button
-                  onClick={() => updateProfile('gender', 'girl')}
-                  style={{
-                    background: profile.gender === 'girl' ? 'rgb(237, 233, 254)' : 'var(--bg-card-2)',
-                    border: profile.gender === 'girl' ? '3px solid rgb(236, 72, 153)' : 'none',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    cursor: 'pointer',
-                    transition: '0.2s',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '8px',
-                    color: 'var(--text-primary)',
-                  }}
-                >
-                  <span style={{ fontSize: '48px' }}>👧</span>
-                  <span style={{ fontSize: '14px', fontWeight: '800' }}>بنت</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Skin Color */}
-            <div style={{ marginBottom: '24px' }}>
-              <h4 style={{
-                fontSize: '16px',
-                fontWeight: '800',
-                color: 'var(--text-primary)',
-                marginBottom: '12px',
-              }}>
-                🎨 لون البشرة
-              </h4>
-              <div style={{
-                display: 'flex',
-                gap: '10px',
-                flexWrap: 'wrap',
-              }}>
-                {skinToneOptions.map(option => (
+          {activeTab === 'basic' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+            }}>
+              {/* Gender */}
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{
+                  fontSize: '16px',
+                  fontWeight: '800',
+                  color: 'var(--text-primary)',
+                  marginBottom: '12px',
+                }}>
+                  👤 الجنس
+                </h4>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '12px',
+                }}>
                   <button
-                    key={option.value}
-                    title={option.label}
-                    onClick={() => updateProfile('skinTone', option.value)}
+                    onClick={() => updateProfile('gender', 'boy')}
                     style={{
-                      width: '54px',
-                      height: '54px',
-                      borderRadius: '50%',
-                      border: profile.skinTone === option.value ? '3px solid rgb(255, 255, 255)' : '3px solid rgb(255, 255, 255)',
-                      cursor: 'pointer',
-                      transition: '0.2s',
-                      boxShadow: profile.skinTone === option.value ? 'rgba(0, 0, 0, 0.15) 0px 2px 8px' : 'rgba(0, 0, 0, 0.15) 0px 2px 8px',
-                      backgroundColor: option.color,
-                      transform: profile.skinTone === option.value ? 'scale(1.15)' : 'none',
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Hair Style */}
-            <div style={{ marginBottom: '24px' }}>
-              <h4 style={{
-                fontSize: '16px',
-                fontWeight: '800',
-                color: 'var(--text-primary)',
-                marginBottom: '12px',
-              }}>
-                💇 تسريحة الشعر
-              </h4>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '10px',
-              }}>
-                {hairStyleOptions.map(option => (
-                  <button
-                    key={option.value}
-                    onClick={() => updateProfile('hairStyle', option.value)}
-                    style={{
-                      background: profile.hairStyle === option.value ? 'rgb(237, 233, 254)' : 'var(--bg-card-2)',
-                      border: profile.hairStyle === option.value ? '2px solid rgb(124, 58, 237)' : '2px solid var(--border)',
-                      borderRadius: '12px',
-                      padding: '12px 8px',
+                      background: profile.gender === 'boy' ? 'rgb(237, 233, 254)' : 'var(--bg-card-2)',
+                      border: profile.gender === 'boy' ? '3px solid rgb(59, 130, 246)' : 'none',
+                      borderRadius: '16px',
+                      padding: '20px',
                       cursor: 'pointer',
                       transition: '0.2s',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      gap: '4px',
-                      position: 'relative',
+                      gap: '8px',
                       color: 'var(--text-primary)',
-                      transform: profile.hairStyle === option.value ? 'scale(1.05)' : 'none',
+                      transform: profile.gender === 'boy' ? 'scale(1.05)' : 'none',
                     }}
                   >
-                    <span style={{ fontSize: '32px' }}>{option.emoji}</span>
-                    <span style={{ fontSize: '11px', fontWeight: '700' }}>{option.label}</span>
+                    <span style={{ fontSize: '48px' }}>👦</span>
+                    <span style={{ fontSize: '14px', fontWeight: '800' }}>ولد</span>
                   </button>
-                ))}
+                  <button
+                    onClick={() => updateProfile('gender', 'girl')}
+                    style={{
+                      background: profile.gender === 'girl' ? 'rgb(237, 233, 254)' : 'var(--bg-card-2)',
+                      border: profile.gender === 'girl' ? '3px solid rgb(236, 72, 153)' : 'none',
+                      borderRadius: '16px',
+                      padding: '20px',
+                      cursor: 'pointer',
+                      transition: '0.2s',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px',
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    <span style={{ fontSize: '48px' }}>👧</span>
+                    <span style={{ fontSize: '14px', fontWeight: '800' }}>بنت</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Skin Color */}
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{
+                  fontSize: '16px',
+                  fontWeight: '800',
+                  color: 'var(--text-primary)',
+                  marginBottom: '12px',
+                }}>
+                  🎨 لون البشرة
+                </h4>
+                <div style={{
+                  display: 'flex',
+                  gap: '10px',
+                  flexWrap: 'wrap',
+                }}>
+                  {skinToneOptions.map(option => (
+                    <button
+                      key={option.value}
+                      title={option.label}
+                      onClick={() => updateProfile('skinTone', option.value)}
+                      style={{
+                        width: '54px',
+                        height: '54px',
+                        borderRadius: '50%',
+                        border: profile.skinTone === option.value ? '3px solid rgb(255, 255, 255)' : '3px solid rgb(255, 255, 255)',
+                        cursor: 'pointer',
+                        transition: '0.2s',
+                        boxShadow: profile.skinTone === option.value ? 'rgba(0, 0, 0, 0.15) 0px 2px 8px' : 'rgba(0, 0, 0, 0.15) 0px 2px 8px',
+                        backgroundColor: option.color,
+                        transform: profile.skinTone === option.value ? 'scale(1.15)' : 'none',
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Hair Style */}
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{
+                  fontSize: '16px',
+                  fontWeight: '800',
+                  color: 'var(--text-primary)',
+                  marginBottom: '12px',
+                }}>
+                  💇 تسريحة الشعر
+                </h4>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '10px',
+                }}>
+                  {hairStyleOptions.map(option => (
+                    <button
+                      key={option.value}
+                      onClick={() => updateProfile('hairStyle', option.value)}
+                      style={{
+                        background: profile.hairStyle === option.value ? 'rgb(237, 233, 254)' : 'var(--bg-card-2)',
+                        border: profile.hairStyle === option.value ? '2px solid rgb(124, 58, 237)' : '2px solid var(--border)',
+                        borderRadius: '12px',
+                        padding: '12px 8px',
+                        cursor: 'pointer',
+                        transition: '0.2s',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px',
+                        position: 'relative',
+                        color: 'var(--text-primary)',
+                        transform: profile.hairStyle === option.value ? 'scale(1.05)' : 'none',
+                      }}
+                    >
+                      <span style={{ fontSize: '32px' }}>{option.emoji}</span>
+                      <span style={{ fontSize: '11px', fontWeight: '700' }}>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Hair Color */}
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{
+                  fontSize: '16px',
+                  fontWeight: '800',
+                  color: 'var(--text-primary)',
+                  marginBottom: '12px',
+                }}>
+                  🌈 لون الشعر
+                </h4>
+                <div style={{
+                  display: 'flex',
+                  gap: '10px',
+                  flexWrap: 'wrap',
+                }}>
+                  {hairColorOptions.map(option => (
+                    <button
+                      key={option.value}
+                      title={option.label}
+                      onClick={() => updateProfile('hairColor', option.value)}
+                      style={{
+                        width: '54px',
+                        height: '54px',
+                        borderRadius: '50%',
+                        border: profile.hairColor === option.value ? '3px solid rgb(255, 255, 255)' : '3px solid rgb(255, 255, 255)',
+                        cursor: 'pointer',
+                        transition: '0.2s',
+                        boxShadow: profile.hairColor === option.value ? 'rgba(124, 58, 237, 0.4) 0px 4px 16px' : 'rgba(0, 0, 0, 0.15) 0px 2px 8px',
+                        backgroundColor: option.color,
+                        transform: profile.hairColor === option.value ? 'scale(1.15)' : 'none',
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
+          )}
 
-            {/* Hair Color */}
-            <div style={{ marginBottom: '24px' }}>
+          {activeTab === 'advanced' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+            }}>
+              {/* Clothes */}
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{
+                  fontSize: '16px',
+                  fontWeight: '800',
+                  color: 'var(--text-primary)',
+                  marginBottom: '12px',
+                }}>
+                  👕 الملابس
+                </h4>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '12px',
+                }}>
+                  {[
+                    { value: 'tshirt', label: 'تيشرت', emoji: '👕' },
+                    { value: 'hoodie', label: 'هودي', emoji: '🧥' },
+                    { value: 'jacket', label: 'جاكيت', emoji: '🧥' },
+                    { value: 'dress', label: 'فستان', emoji: '👗' },
+                    { value: 'superhero', label: 'بطل خارق', emoji: '🦸' },
+                    { value: 'wizard', label: 'ساحر', emoji: '🧙' },
+                  ].map(option => (
+                    <button
+                      key={option.value}
+                      onClick={() => updateProfile('clothes', option.value)}
+                      style={{
+                        background: profile.clothes === option.value ? 'rgb(237, 233, 254)' : 'var(--bg-card-2)',
+                        border: profile.clothes === option.value ? '2px solid rgb(34, 197, 94)' : '2px solid var(--border)',
+                        borderRadius: '12px',
+                        padding: '16px 8px',
+                        cursor: 'pointer',
+                        transition: '0.2s',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '6px',
+                        color: 'var(--text-primary)',
+                        transform: profile.clothes === option.value ? 'scale(1.05)' : 'none',
+                      }}
+                    >
+                      <span style={{ fontSize: '32px' }}>{option.emoji}</span>
+                      <span style={{ fontSize: '12px', fontWeight: '700' }}>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Background */}
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{
+                  fontSize: '16px',
+                  fontWeight: '800',
+                  color: 'var(--text-primary)',
+                  marginBottom: '12px',
+                }}>
+                  🌅 الخلفية
+                </h4>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '12px',
+                }}>
+                  {[
+                    { value: 'gradient1', label: 'أزرق', colors: '3b82f6,b6e3f4' },
+                    { value: 'gradient2', label: 'وردي', colors: 'ec4899,db2777' },
+                    { value: 'gradient3', label: 'أخضر', colors: '10b981,059669' },
+                    { value: 'gradient4', label: 'برتقالي', colors: 'f59e0b,d97706' },
+                    { value: 'gradient5', label: 'بنفسجي', colors: '8b5cf6,7c3aed' },
+                    { value: 'stars', label: 'نجوم', colors: '1e293b,0f172a' },
+                  ].map(option => (
+                    <button
+                      key={option.value}
+                      onClick={() => updateProfile('background', option.value)}
+                      style={{
+                        background: `linear-gradient(135deg, #${option.colors.split(',')[0]}, #${option.colors.split(',')[1]})`,
+                        border: profile.background === option.value ? '3px solid rgb(255, 255, 255)' : 'none',
+                        borderRadius: '12px',
+                        padding: '20px',
+                        cursor: 'pointer',
+                        transition: '0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontWeight: '800',
+                        transform: profile.background === option.value ? 'scale(1.05)' : 'none',
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Accessories */}
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{
+                  fontSize: '16px',
+                  fontWeight: '800',
+                  color: 'var(--text-primary)',
+                  marginBottom: '12px',
+                }}>
+                  🎩 الإكسسوارات
+                </h4>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '10px',
+                }}>
+                  {[
+                    { value: 'glasses', label: 'نظارات', emoji: '🕶️' },
+                    { value: 'sunglasses', label: 'نظارات شمسية', emoji: '😎' },
+                    { value: 'hat', label: 'قبعة', emoji: '🎩' },
+                    { value: 'crown', label: 'تاج', emoji: '👑' },
+                    { value: 'mask', label: 'قناع', emoji: '🎭' },
+                    { value: 'flower', label: 'وردة', emoji: '🌸' },
+                    { value: 'bow', label: 'شريط', emoji: '🎀' },
+                    { value: 'headband', label: 'عصابة رأس', emoji: '🎗️' },
+                  ].map(option => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        const currentAccessories = profile.accessories || [];
+                        const newAccessories = currentAccessories.includes(option.value)
+                          ? currentAccessories.filter(acc => acc !== option.value)
+                          : [...currentAccessories, option.value].slice(0, 2); // Max 2 accessories
+                        updateProfile('accessories', newAccessories);
+                      }}
+                      style={{
+                        background: (profile.accessories || []).includes(option.value) ? 'rgb(237, 233, 254)' : 'var(--bg-card-2)',
+                        border: (profile.accessories || []).includes(option.value) ? '2px solid rgb(251, 191, 36)' : '2px solid var(--border)',
+                        borderRadius: '12px',
+                        padding: '12px 8px',
+                        cursor: 'pointer',
+                        transition: '0.2s',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px',
+                        color: 'var(--text-primary)',
+                        transform: (profile.accessories || []).includes(option.value) ? 'scale(1.05)' : 'none',
+                      }}
+                    >
+                      <span style={{ fontSize: '24px' }}>{option.emoji}</span>
+                      <span style={{ fontSize: '10px', fontWeight: '700' }}>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'ai-photo' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              textAlign: 'center',
+            }}>
               <h4 style={{
-                fontSize: '16px',
+                fontSize: '18px',
                 fontWeight: '800',
                 color: 'var(--text-primary)',
                 marginBottom: '12px',
               }}>
-                🌈 لون الشعر
+                📸 تحميل صورة AI
               </h4>
-              <div style={{
-                display: 'flex',
-                gap: '10px',
-                flexWrap: 'wrap',
+              <p style={{
+                color: 'var(--text-secondary)',
+                fontSize: '14px',
+                marginBottom: '20px',
               }}>
-                {hairColorOptions.map(option => (
-                  <button
-                    key={option.value}
-                    title={option.label}
-                    onClick={() => updateProfile('hairColor', option.value)}
+                قم بتحميل صورة شخصية لإنشاء أفاتار مخصص باستخدام الذكاء الاصطناعي
+              </p>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    alert('سيتم تطبيق تقنية الذكاء الاصطناعي على الصورة قريباً!');
+                  }
+                }}
+                style={{
+                  padding: '12px',
+                  border: '2px dashed var(--border)',
+                  borderRadius: '12px',
+                  background: 'var(--bg-card-2)',
+                  cursor: 'pointer',
+                  color: 'var(--text-primary)',
+                }}
+              />
+              <button
+                onClick={() => alert('ميزة تحميل الصور بالذكاء الاصطناعي قيد التطوير!')}
+                style={{
+                  padding: '12px 24px',
+                  background: 'linear-gradient(135deg, rgb(59, 162, 248), rgb(29, 110, 216))',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  fontWeight: '800',
+                }}
+              >
+                🔄 توليد الأفاتار
+              </button>
+            </div>
+          )}
+
+          {activeTab === 'store' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              textAlign: 'center',
+            }}>
+              <h4 style={{
+                fontSize: '18px',
+                fontWeight: '800',
+                color: 'var(--text-primary)',
+                marginBottom: '12px',
+              }}>
+                🛍️ المتجر
+              </h4>
+              <p style={{
+                color: 'var(--text-secondary)',
+                fontSize: '14px',
+                marginBottom: '20px',
+              }}>
+                اشترِ عناصر مميزة لتخصيص أفاتارك!
+              </p>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '16px',
+              }}>
+                {[
+                  { name: 'تاج ذهبي', price: 500, emoji: '👑' },
+                  { name: 'نظارات ثلاثية الأبعاد', price: 300, emoji: '🕶️' },
+                  { name: 'معطف بطل خارق', price: 800, emoji: '🦸' },
+                  { name: 'خلفية فضائية', price: 400, emoji: '🚀' },
+                ].map(item => (
+                  <div
+                    key={item.name}
                     style={{
-                      width: '54px',
-                      height: '54px',
-                      borderRadius: '50%',
-                      border: profile.hairColor === option.value ? '3px solid rgb(255, 255, 255)' : '3px solid rgb(255, 255, 255)',
-                      cursor: 'pointer',
-                      transition: '0.2s',
-                      boxShadow: profile.hairColor === option.value ? 'rgba(124, 58, 237, 0.4) 0px 4px 16px' : 'rgba(0, 0, 0, 0.15) 0px 2px 8px',
-                      backgroundColor: option.color,
-                      transform: profile.hairColor === option.value ? 'scale(1.15)' : 'none',
+                      background: 'var(--bg-card-2)',
+                      border: '2px solid var(--border)',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      textAlign: 'center',
                     }}
-                  />
+                  >
+                    <span style={{ fontSize: '32px' }}>{item.emoji}</span>
+                    <h5 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-primary)', margin: '8px 0' }}>
+                      {item.name}
+                    </h5>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
+                      {item.price} نقطة
+                    </p>
+                    <button
+                      onClick={() => alert(`تم شراء ${item.name} بنجاح!`)}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'linear-gradient(135deg, rgb(34, 197, 94), rgb(22, 163, 74))',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: '800',
+                      }}
+                    >
+                      شراء
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
-          </div>
+          )}
+
+          {activeTab === 'saved' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              textAlign: 'center',
+            }}>
+              <h4 style={{
+                fontSize: '18px',
+                fontWeight: '800',
+                color: 'var(--text-primary)',
+                marginBottom: '12px',
+              }}>
+                💾 الأفاتار المحفوظة
+              </h4>
+              <p style={{
+                color: 'var(--text-secondary)',
+                fontSize: '14px',
+                marginBottom: '20px',
+              }}>
+                اختر من أفاتارك المحفوظة سابقاً
+              </p>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '16px',
+              }}>
+                {/* Placeholder for saved avatars */}
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                  <div
+                    key={i}
+                    style={{
+                      background: 'var(--bg-card-2)',
+                      border: '2px solid var(--border)',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => alert(`تم تحميل الأفاتار ${i}`)}
+                  >
+                    <div style={{
+                      width: '60px',
+                      height: '60px',
+                      borderRadius: '50%',
+                      background: `linear-gradient(135deg, rgb(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}), rgb(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}))`,
+                      margin: '0 auto 8px',
+                    }} />
+                    <span style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
+                      أفاتار {i}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

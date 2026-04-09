@@ -7,6 +7,7 @@ import RocketBackground from '../../components/common/RocketBackground';
 import CanvasBackground from '../../components/common/CanvasBackground';
 import { usePermissions } from '../../hooks/usePermissions';
 import { PERMISSIONS } from '../../utils/permissions';
+import { getAvatarImageUrl } from '../../utils/avatarProfile';
 
 const CASES_DATA = [
   {
@@ -294,7 +295,7 @@ export default function CasesPage() {
           <div className="cases-user-card">
             <img
               className="cases-sidebar-avatar"
-              src="https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=madina-default-avatar"
+              src={getAvatarImageUrl()}
               alt="Profile avatar"
               onClick={() => navigate('/profile-v2')}
               title="الذهاب إلى صفحة البروفايل"
