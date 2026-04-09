@@ -1,4 +1,3 @@
-// src/data/notificationsData.js
 
 // Notification types and their configurations
 export const NOTIFICATION_TYPES = {

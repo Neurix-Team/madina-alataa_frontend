@@ -8,11 +8,14 @@
  *  2. VolunteerOrders  — created when user completes quests
  *  3. DonationOrders   — created when user donates
  */
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import '../../styles/orders.css';
 import OrderService from '../../services/OrderService';
 import serviceRequestsData from '../../data/ordersData';
 import beneficiariesData from '../../data/beneficiariesData';
+import useGameState from '../../hooks/useGameState';
+import { usePermissions } from '../../hooks/usePermissions';
+import { PERMISSIONS } from '../../utils/permissions';
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 const getBeneficiary = (id) =>
@@ -194,8 +197,25 @@ const TABS = [
   { id: 'donations',  label: 'تبرعاتي',        icon: '💝' },
 ];
 
-const OrdersTab = ({ orders = [] }) => {
+const OrdersTab = () => {
+  const { state } = useGameState();
+  const { orders = [] } = state;
+  const { can } = usePermissions();
+
+  const availableTabs = useMemo(() => {
+    return TABS.filter(tab => {
+      if (tab.id === 'donations') return can(PERMISSIONS.VIEW_MY_DONATIONS);
+      return true;
+    });
+  }, [can]);
+
   const [activeTab, setActiveTab] = useState('requests');
+
+  useEffect(() => {
+    if (!availableTabs.find(tab => tab.id === activeTab)) {
+      setActiveTab(availableTabs.length > 0 ? availableTabs[0].id : 'requests');
+    }
+  }, [availableTabs, activeTab]);
 
   // Merge seeded service requests with runtime orders
   const allServiceRequests = useMemo(() => {
@@ -250,7 +270,7 @@ const OrdersTab = ({ orders = [] }) => {
 
       {/* ── Tab Switcher ── */}
       <div className="orders-tabs">
-        {TABS.map((tab) => (
+        {availableTabs.map((tab) => (
           <button
             key={tab.id}
             className={`orders-tab-btn${activeTab === tab.id ? ' orders-tab-btn--active' : ''}`}

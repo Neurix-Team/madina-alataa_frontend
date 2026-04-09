@@ -2,6 +2,7 @@
 import React, { useState, useCallback, memo, useMemo, useEffect, useRef } from 'react';
 import CITY_LOCATIONS from '../../data/cityExplorationData';
 import AudioManager from '../../services/AudioManager';
+import useGameState from '../../hooks/useGameState';
 
 // ── helpers ───────────────────────────────────────────────────────────────
 
@@ -403,7 +404,10 @@ const DetailView = memo(({ loc, completedIds, onBack, onCompleteTask }) => {
 
 // ── Main Tab ──────────────────────────────────────────────────────────────
 
-const CityExplorationTab = ({ userStats, completedQuests, onCompleteQuest }) => {
+const CityExplorationTab = () => {
+  const { state, actions } = useGameState();
+  const { userStats, completedQuests } = state;
+  const { completeQuest } = actions;
   const [selectedLoc, setSelectedLoc] = useState(null);
   const [localDone,   setLocalDone]   = useState(() => new Set());
 
@@ -418,9 +422,9 @@ const CityExplorationTab = ({ userStats, completedQuests, onCompleteQuest }) => 
 
   const handleCompleteTask = useCallback((task) => {
     setLocalDone(prev => new Set([...prev, task.id]));
-    // Propagate to parent game engine if callback provided
-    onCompleteQuest?.({ id: task.id, kp: task.kp, xp: task.xp, title: task.title }, 0);
-  }, [onCompleteQuest]);
+    // Update game state
+    completeQuest?.(task.id);
+  }, [completeQuest]);
 
   // Stats
   const totalTasks     = CITY_LOCATIONS.reduce((s, l) => s + l.tasks.length, 0);

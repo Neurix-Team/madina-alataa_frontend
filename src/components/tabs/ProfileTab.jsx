@@ -1,15 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════════
-// 🎨 Professional Avatar Customization Room (غرفة التجهيزات)
-// ═══════════════════════════════════════════════════════════════════════
-// Project: بطل العطاء (Madina Al-Ataa)
-// Features:
-// - Full avatar recreation with AI photo support
-// - Advanced customization with 30+ options
-// - Shop integration for unlockables
-// - Live 3D-like preview
-// - Save/Load presets
-// - Share avatar feature
-// ═══════════════════════════════════════════════════════════════════════
 
 import React, { useState, useRef, useEffect } from 'react';
 import JellyButton from '../common/JellyButton';

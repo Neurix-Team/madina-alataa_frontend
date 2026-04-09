@@ -5,6 +5,8 @@ import CasesFilter from '../../components/cases/CasesFilter/CasesFilter';
 import CaseCard from '../../components/cases/CaseCard/CaseCard';
 import RocketBackground from '../../components/common/RocketBackground';
 import CanvasBackground from '../../components/common/CanvasBackground';
+import { usePermissions } from '../../hooks/usePermissions';
+import { PERMISSIONS } from '../../utils/permissions';
 
 const CASES_DATA = [
   {
@@ -75,6 +77,7 @@ const CASES_DATA = [
 
 export default function CasesPage() {
   const navigate = useNavigate();
+  const { can } = usePermissions();
   const [activeUrgency, setActiveUrgency] = useState([]);
   const [activeCategory, setActiveCategory] = useState([]);
   const [locationSearch, setLocationSearch] = useState('');
@@ -306,7 +309,7 @@ export default function CasesPage() {
           </div>
 
           <div className="cases-sidebar-list">
-            <button className="cases-side-btn cases-side-btn--primary" onClick={() => navigate('/my-donations')}>تبرعاتي</button>
+            {can(PERMISSIONS.VIEW_MY_DONATIONS) && <button className="cases-side-btn cases-side-btn--primary" onClick={() => navigate('/my-donations')}>تبرعاتي</button>}
             <button className="cases-side-btn" onClick={() => navigate('/map')}>الرجوع للرئيسية</button>
             <button className="cases-side-btn" onClick={() => navigate('/profile-v2')}>البروفايل</button>
             <button className="cases-side-btn cases-side-btn--danger" onClick={handleLogout}>تسجيل الخروج</button>

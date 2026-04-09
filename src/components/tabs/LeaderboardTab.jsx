@@ -1,11 +1,14 @@
 // src/components/tabs/LeaderboardTab.jsx
 import React from 'react';
 import leaderboardData from '../../data/leaderboardData';
+import { useAuth } from '../../hooks/useAuth';
 
 const RANK_EMOJI = ['🥇','🥈','🥉'];
 const RANK_COLOR = ['#f59e0b','#94a3b8','#cd7c2f'];
 
-const LeaderboardTab = ({ userKP }) => {
+const LeaderboardTab = () => {
+  const { user } = useAuth();
+  const userKP = user?.points || 0;
   const rows = leaderboardData
     .map((p) => ({ ...p, kp: p.isMe ? userKP : p.kp }))
     .sort((a, b) => b.kp - a.kp);

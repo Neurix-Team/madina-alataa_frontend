@@ -191,6 +191,7 @@ export default function ProfileV2Page() {
   const [mapEmbedUrl, setMapEmbedUrl] = useState('');
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
   const [avatarUrl, setAvatarUrl] = useState(getAvatarImageUrl());
+  const [avatarKey, setAvatarKey] = useState(0);
 
   const safeUser = useMemo(() => {
     const user = (() => {
@@ -247,7 +248,7 @@ export default function ProfileV2Page() {
 
     setTimeout(() => setProgressFill(55), 200);
     return () => clearInterval(interval);
-  }, []);
+  }, [location]);
 
   const roleText = safeUser.role === 'parent' ? 'ولي أمر' : 'متبرع';
 

@@ -1,8 +1,11 @@
-// src/components/layout/Sidebar.jsx
+﻿// src/components/layout/Sidebar.jsx
 import React, { useState, useEffect } from 'react';
 import GameEngine   from '../../services/GameEngine';
 import ThemeService from '../../services/ThemeService';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { usePermissions } from '../../hooks/usePermissions';
+import { PERMISSIONS } from '../../utils/permissions';
+import { useAuth } from '../../hooks/useAuth';
 import {
   FaMapMarkedAlt,
   FaCheckCircle,
@@ -77,7 +80,11 @@ const SIDEBAR_CSS = `
     0%, 100% { border-color: rgba(29,110,216,0.3); }
     50%       { border-color: rgba(14,165,233,0.6); }
   }
-
+  @media (max-width: 768px) {
+    .sb-hamburger {
+      display: flex !important;
+    }
+  }
   /* ── Nav Button ── */
   .sb-nav-btn {
     display: flex;
@@ -196,23 +203,23 @@ const SIDEBAR_CSS = `
 
 // ── Nav items ─────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { id: 'map',         label: 'خريطة المهام',    icon: FaMapMarkedAlt },
+  { id: 'map',         label: 'خريطة المهام',    icon: FaMapMarkedAlt, condition: PERMISSIONS.VIEW_MAP },
   { id: 'profile',     label: 'البروفايل',        icon: FaUser },
   { id: 'avatar',      label: 'افاتار',           icon: FaUser },
-  { id: 'cases',       label: 'الحالات',          icon: FaHeart },
-  { id: 'daily',       label: 'المهام اليومية',   icon: FaCheckCircle },
-  { id: 'explore',     label: 'استكشاف المدينة',  icon: FaCompass },
-  { id: 'city',        label: 'خريطة المدينة',    icon: FaCity },
-  { id: 'geo',         label: 'مهام جغرافية',     icon: FaMapMarkerAlt },
-  { id: 'team',        label: 'تحديات الفريق',    icon: FaUsers },
-  { id: 'badges',      label: 'الأوسمة',          icon: FaTrophy },
-  { id: 'leaderboard', label: 'المتصدرون',        icon: FaChartBar },
-  { id: 'impact',      label: 'أثري',             icon: FaHeart },
-  { id: 'parents',     label: 'الاباء',           icon: FaUserFriends, dividerBefore: true },
-  { id: 'create-request', label: 'إنشاء طلب',    icon: FaPlus },
-  { id: 'my-donations',    label: 'تبرعاتي',        icon: FaCoins },
-  { id: 'orders',      label: 'الأوامر',          icon: FaBoxOpen },
-  { id: 'admin',       label: 'الإدارة',          icon: FaCog },
+  { id: 'cases',       label: 'الحالات',          icon: FaHeart, condition: PERMISSIONS.VIEW_CASES },
+  { id: 'daily',       label: 'المهام اليومية',   icon: FaCheckCircle, condition: PERMISSIONS.VIEW_DAILY_TASKS },
+  { id: 'explore',     label: 'استكشاف المدينة',  icon: FaCompass, condition: PERMISSIONS.VIEW_MAP },
+  { id: 'city',        label: 'خريطة المدينة',    icon: FaCity, condition: PERMISSIONS.VIEW_MAP },
+  { id: 'geo',         label: 'مهام جغرافية',     icon: FaMapMarkerAlt, condition: PERMISSIONS.VIEW_GEO_QUESTS },
+  { id: 'team',        label: 'تحديات الفريق',    icon: FaUsers, condition: PERMISSIONS.VIEW_TEAM_CHALLENGES },
+  { id: 'badges',      label: 'الأوسمة',          icon: FaTrophy, condition: PERMISSIONS.VIEW_BADGES },
+  { id: 'leaderboard', label: 'المتصدرون',        icon: FaChartBar, condition: PERMISSIONS.VIEW_LEADERBOARD },
+  { id: 'impact',      label: 'أثري',             icon: FaHeart, condition: PERMISSIONS.VIEW_IMPACT },
+  { id: 'parents',     label: 'الاباء',           icon: FaUserFriends, dividerBefore: true, condition: PERMISSIONS.VIEW_PARENTS },
+  { id: 'create-request', label: 'إنشاء طلب',    icon: FaPlus, condition: PERMISSIONS.CREATE_REQUEST },
+  { id: 'my-donations',    label: 'تبرعاتي',        icon: FaCoins, condition: PERMISSIONS.VIEW_MY_DONATIONS },
+  { id: 'orders',      label: 'الأوامر',          icon: FaBoxOpen, condition: PERMISSIONS.VIEW_ORDERS },
+  { id: 'admin',       label: 'الإدارة',          icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
 ];
 
 // ── Avatar ────────────────────────────────────────────────────────────────
@@ -379,56 +386,37 @@ export default function Sidebar({
   sidebarOpen,
   setSidebarOpen,
 }) {
+  const { logout } = useAuth();
   const xpPct = GameEngine.xpPercent(userStats.xp, userStats.xpNeeded);
 
   const navigate = useNavigate();
 const location = useLocation();
 
 const handleNavClick = (id) => {
-  if (id === 'parents') {
-    setSidebarOpen(false);
-    navigate('/parents');
-    return;
-  }
+  const pathMap = {
+    profile: '/profile-v2',
+    avatar: '/avatar',
+    impact: '/impact',
+    map: '/map',
+    badges: '/badges',
+    leaderboard: '/leaderboard',
+    orders: '/orders',
+    daily: '/daily-tasks',
+    explore: '/city-exploration',
+    city: '/city-map',
+    geo: '/geo-quests',
+    team: '/team-challenges',
+    'my-donations': '/my-donations',
+    notifications: '/notifications',
+    parents: '/parents',
+    admin: '/admin',
+    cases: '/cases',
+    'create-request': '/create-request',
+  };
 
-  if (id === 'cases') {
-    setSidebarOpen(false);
-    navigate('/cases');
-    return;
-  }
-
-  if (id === 'profile') {
-    setSidebarOpen(false);
-    navigate('/profile-v2');
-    return;
-  }
-
-  if (id === 'notifications') {
-    setSidebarOpen(false);
-    navigate('/notifications');
-    return;
-  }
-
-  if (id === 'create-request') {
-    setSidebarOpen(false);
-    navigate('/create-request');
-    return;
-  }
-
-  if (id === 'my-donations') {
-    setSidebarOpen(false);
-    navigate('/my-donations');
-    return;
-  }
-
-  if (id === 'avatar') {
-    setActiveTab('profile');
-    setSidebarOpen(false);
-    return;
-  }
-
-  setActiveTab(id);
+  const path = pathMap[id] || '/profile';
   setSidebarOpen(false);
+  navigate(path);
 };
 
   return (
@@ -646,8 +634,8 @@ const handleNavClick = (id) => {
             }}>
               <button
                 type="button"
-                onClick={() => navigate('/profile-v2')}
-                title="الذهاب إلى صفحة البروفايل"
+                onClick={() => navigate('/avatar')}
+                title="تغيير الصورة الشخصية"
                 style={{
                   border: 'none',
                   background: 'transparent',
@@ -777,34 +765,73 @@ const handleNavClick = (id) => {
           </nav> */}
 
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-  {NAV_ITEMS.map((item) => (
-    <React.Fragment key={item.id}>
-      {item.dividerBefore && (
-        <div style={{
-          height: 1,
-          background: 'linear-gradient(90deg, transparent, rgba(29,110,216,0.3), transparent)',
-          margin: '8px 4px',
-        }} />
-      )}
-      <NavBtn
-        item={item}
-        active={
-          item.id === 'parents'
-            ? location.pathname === '/parents'
-            : item.id === 'profile'
-              ? location.pathname === '/profile-v2'
-              : item.id === 'avatar'
-                ? activeTab === 'profile'
-                : activeTab === item.id
-        }
-        onClick={handleNavClick}
-      />
-    </React.Fragment>
-  ))}
-</nav>
+            {(() => {
+              const { can } = usePermissions();
+              const visibleItems = NAV_ITEMS.filter(item => !item.condition || can(item.condition));
+              return visibleItems.map((item) => (
+                <React.Fragment key={item.id}>
+                  {item.dividerBefore && (
+                    <div style={{
+                      height: 1,
+                      background: 'linear-gradient(90deg, transparent, rgba(29,110,216,0.3), transparent)',
+                      margin: '8px 4px',
+                    }} />
+                  )}
+                  <NavBtn
+                    item={item}
+                    active={
+                      item.id === 'parents'
+                        ? location.pathname === '/parents'
+                        : item.id === 'profile'
+                          ? location.pathname === '/profile-v2'
+                          : item.id === 'avatar'
+                            ? activeTab === 'profile'
+                            : activeTab === item.id
+                    }
+                    onClick={handleNavClick}
+                  />
+                </React.Fragment>
+              ));
+            })()}
+          </nav>
 
           {/* ── Dark Mode Toggle ── */}
           <DarkModeToggle />
+
+          {/* ── Logout Button ── */}
+          <button
+            onClick={() => {
+              logout();
+              navigate('/login');
+            }}
+            style={{
+              marginTop: 8,
+              padding: '10px 14px',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '14px',
+              cursor: 'pointer',
+              fontFamily: "'Cairo', sans-serif",
+              fontSize: 13,
+              fontWeight: 700,
+              textAlign: 'right',
+              direction: 'rtl',
+              transition: 'all 0.25s ease',
+              background: 'rgba(255,255,255,0.05)',
+              color: 'rgba(255,255,255,0.6)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,0,0,0.1)';
+              e.currentTarget.style.color = '#ff6b6b';
+              e.currentTarget.style.borderColor = 'rgba(255,107,107,0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.6)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+            }}
+          >
+            تسجيل الخروج
+          </button>
 
           {/* ── Footer ── */}
           <div style={{

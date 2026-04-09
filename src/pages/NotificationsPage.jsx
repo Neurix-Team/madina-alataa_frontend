@@ -189,7 +189,7 @@ const NotificationsPage = () => {
           <button
             onClick={() => {
               AudioManager.getInstance().play('click');
-              navigate('/');
+              navigate('/map');
             }}
             title="الرجوع للرئيسية"
             style={{

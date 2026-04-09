@@ -186,7 +186,11 @@ const SECTIONS = [
   { id: 'partners',      label: 'الشركاء',      icon: '🤝' },
 ];
 
-const AdminTab = ({ orders = [], userStats }) => {
+import useGameState from '../../hooks/useGameState';
+
+const AdminTab = () => {
+  const { state } = useGameState();
+  const { userStats, orders = [] } = state;
   const [activeSection, setActiveSection] = useState('overview');
   const [requests, setRequests] = useState(serviceRequestsData);
   const [requestSearch, setRequestSearch] = useState('');

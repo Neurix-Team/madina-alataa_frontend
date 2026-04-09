@@ -4,11 +4,12 @@
  * Tapping a zone opens the ZoneDetailModal.
  */
 import React, { memo, useMemo, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { FaBell } from 'react-icons/fa';
 import zonesData from '../../data/zonesData';
 import AudioManager from '../../services/AudioManager';
 import { getUnreadCount } from '../../data/notificationsData';
+import useGameState from '../../hooks/useGameState';
 import {
   caseMarkers,
   hospitalMarkers,
@@ -103,14 +104,25 @@ const ZoneCard = memo(({ zone, completedQuests, onOpenZone }) => {
 
 const ALL_MARKERS = [...caseMarkers, ...hospitalMarkers];
 
-const MapTab = ({ completedQuests, onOpenZone }) => {
+const MapTab = ({ onOpenZone }) => {
+  const { state } = useGameState();
+  const { completedQuests } = state;
   const navigate = useNavigate();
+
   const [unreadCount, setUnreadCount] = useState(0);
   const [activeCity, setActiveCity] = useState('all');
   const [activeType, setActiveType] = useState('all');
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedMarker, setSelectedMarker] = useState(null);
+  const [selectedZone, setSelectedZone] = useState(null);
+  const [showZoneModal, setShowZoneModal] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  const handleOpenZone = onOpenZone || ((zone) => {
+    AudioManager.getInstance().play('open');
+    setSelectedZone(zone);
+    setShowZoneModal(true);
+  });
 
   // Load unread count on mount and when tab becomes active
   useEffect(() => {
@@ -169,6 +181,17 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
     hospitals: filteredMarkers.filter((marker) => marker.type === 'hospital').length,
   }), [filteredMarkers]);
 
+  const selectedZoneStats = selectedZone
+    ? selectedZone.quests.reduce(
+        (acc, quest) => ({
+          kp: acc.kp + (quest.kp || 0),
+          xp: acc.xp + (quest.xp || 0),
+          impact: acc.impact + (quest.impact || 0),
+        }),
+        { kp: 0, xp: 0, impact: 0 }
+      )
+    : { kp: 0, xp: 0, impact: 0 };
+
   const handleMarkerClick = (marker) => {
     setSelectedMarker(marker);
   };
@@ -212,48 +235,48 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
 
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
               <button
-                title="الإشعارات"
-                style={{
-                  position: 'relative',
-                  width: 44,
-                  height: 44,
-                  borderRadius: 12,
-                  border: 'none',
-                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.08))',
-                  color: 'rgb(239, 68, 68)',
-                  cursor: 'pointer',
-                  fontSize: 18,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: '0.3s',
-                  fontFamily: "'Cairo', sans-serif"
-                }}
-              >
-                <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M224 512c35.32 0 63.97-28.65 63.97-64H160.03c0 35.35 28.65 64 63.97 64zm215.39-149.71c-19.32-20.76-55.47-51.99-55.47-154.29 0-77.7-54.48-139.9-127.94-155.16V32c0-17.67-14.32-32-31.98-32s-31.98 14.33-31.98 32v20.84C118.56 68.1 64.08 130.3 64.08 208c0 102.3-36.15 133.53-55.47 154.29-6 6.45-8.66 14.16-8.61 21.71.11 16.4 12.98 32 32.1 32h383.8c19.12 0 32-15.6 32.1-32 .05-7.55-2.61-15.27-8.61-21.71z"></path>
-                </svg>
-                <span style={{
-                  position: 'absolute',
-                  top: -6,
-                  left: -6,
-                  background: 'rgb(239, 68, 68)',
-                  color: 'rgb(255, 255, 255)',
-                  borderRadius: '50%',
-                  width: 22,
-                  height: 22,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 11,
-                  fontWeight: 900,
-                  border: '2px solid white',
-                  boxShadow: 'rgba(239, 68, 68, 0.4) 0px 2px 8px',
-                  fontFamily: "'Cairo', sans-serif"
-                }}>
-                  1
-                </span>
-              </button>
+              type='button'
+              onClick={() => navigate('/notifications')}
+              title="الإشعارات"
+              style={{
+                position: 'relative',
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                border: 'none',
+                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.08))',
+                color: 'rgb(239, 68, 68)',
+                cursor: 'pointer',
+                fontSize: 18,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: '0.3s',
+                fontFamily: "'Cairo', sans-serif"
+              }}
+            >
+              <FaBell />
+              <span style={{
+                position: 'absolute',
+                top: -6,
+                left: -6,
+                background: 'rgb(239, 68, 68)',
+                color: 'rgb(255, 255, 255)',
+                borderRadius: '50%',
+                width: 22,
+                height: 22,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 11,
+                fontWeight: 900,
+                border: '2px solid white',
+                boxShadow: 'rgba(239, 68, 68, 0.4) 0px 2px 8px',
+                fontFamily: "'Cairo', sans-serif"
+              }}>
+                {unreadCount || 0}
+              </span>
+            </button>
 
               <span style={{
                 padding: '8px 12px',
@@ -369,21 +392,30 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
           onChange={(e) => setActiveCity(e.target.value)}
           style={{
             width: '100%',
-            padding: '12px 14px',
-            borderRadius: 14,
-            border: '1px solid rgb(203, 213, 225)',
-            fontSize: 14,
+            padding: '14px 16px',
+            borderRadius: 18,
+            border: '1px solid rgba(59,130,246,0.25)',
+            fontSize: 15,
             fontFamily: "'Cairo', sans-serif",
             fontWeight: 700,
             color: '#0f172a',
-            background: '#fff'
+            background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
+            boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
+            appearance: 'none',
+            WebkitAppearance: 'none',
+            MozAppearance: 'none',
+            backgroundImage: 'linear-gradient(45deg, transparent 50%, rgba(15,23,42,0.8) 50%), linear-gradient(135deg, rgba(15,23,42,0.8) 50%, transparent 50%)',
+            backgroundPosition: 'calc(100% - 18px) calc(50% - 4px), calc(100% - 12px) calc(50% - 4px)',
+            backgroundSize: '6px 6px',
+            backgroundRepeat: 'no-repeat',
           }}
         >
           <option value="all" style={{
-            fontSize: 12,
-            fontWeight: 800,
-            color: 'rgb(51, 65, 85)',
-            fontFamily: "'Cairo', sans-serif"
+            fontSize: 13,
+            fontWeight: 900,
+            color: '#0f172a',
+            fontFamily: "'Cairo', sans-serif",
+            background: '#eef5ff'
           }}>
             الكل
           </option>
@@ -392,10 +424,11 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
               key={city}
               value={city}
               style={{
-                fontSize: 12,
-                fontWeight: 800,
-                color: 'rgb(51, 65, 85)',
-                fontFamily: "'Cairo', sans-serif"
+                fontSize: 13,
+                fontWeight: 900,
+                color: '#0f172a',
+                fontFamily: "'Cairo', sans-serif",
+                background: '#eef5ff'
               }}
             >
               {city}
@@ -418,14 +451,22 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
           onChange={(e) => setActiveType(e.target.value)}
           style={{
             width: '100%',
-            padding: '12px 14px',
-            borderRadius: 14,
-            border: '1px solid rgb(203, 213, 225)',
-            fontSize: 14,
+            padding: '14px 16px',
+            borderRadius: 18,
+            border: '1px solid rgba(59,130,246,0.25)',
+            fontSize: 15,
             fontFamily: "'Cairo', sans-serif",
             fontWeight: 700,
             color: '#0f172a',
-            background: '#fff'
+            background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
+            boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
+            appearance: 'none',
+            WebkitAppearance: 'none',
+            MozAppearance: 'none',
+            backgroundImage: 'linear-gradient(45deg, transparent 50%, rgba(15,23,42,0.8) 50%), linear-gradient(135deg, rgba(15,23,42,0.8) 50%, transparent 50%)',
+            backgroundPosition: 'calc(100% - 18px) calc(50% - 4px), calc(100% - 12px) calc(50% - 4px)',
+            backgroundSize: '6px 6px',
+            backgroundRepeat: 'no-repeat',
           }}
         >
           {MAP_TYPES.map((type) => (
@@ -433,10 +474,11 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
               key={type.id}
               value={type.id}
               style={{
-                fontSize: 12,
-                fontWeight: 800,
-                color: 'rgb(51, 65, 85)',
-                fontFamily: "'Cairo', sans-serif"
+                fontSize: 13,
+                fontWeight: 900,
+                color: '#0f172a',
+                fontFamily: "'Cairo', sans-serif",
+                background: '#eef5ff'
               }}
             >
               {type.label}
@@ -459,14 +501,22 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
           onChange={(e) => setActiveCategory(e.target.value)}
           style={{
             width: '100%',
-            padding: '12px 14px',
-            borderRadius: 14,
-            border: '1px solid rgb(203, 213, 225)',
-            fontSize: 14,
+            padding: '14px 16px',
+            borderRadius: 18,
+            border: '1px solid rgba(59,130,246,0.25)',
+            fontSize: 15,
             fontFamily: "'Cairo', sans-serif",
             fontWeight: 700,
             color: '#0f172a',
-            background: '#fff'
+            background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
+            boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
+            appearance: 'none',
+            WebkitAppearance: 'none',
+            MozAppearance: 'none',
+            backgroundImage: 'linear-gradient(45deg, transparent 50%, rgba(15,23,42,0.8) 50%), linear-gradient(135deg, rgba(15,23,42,0.8) 50%, transparent 50%)',
+            backgroundPosition: 'calc(100% - 18px) calc(50% - 4px), calc(100% - 12px) calc(50% - 4px)',
+            backgroundSize: '6px 6px',
+            backgroundRepeat: 'no-repeat',
           }}
         >
           {MAP_CATEGORIES.map((category) => (
@@ -474,10 +524,11 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
               key={category.id}
               value={category.id}
               style={{
-                fontSize: 12,
-                fontWeight: 800,
-                color: 'rgb(51, 65, 85)',
-                fontFamily: "'Cairo', sans-serif"
+                fontSize: 13,
+                fontWeight: 900,
+                color: '#0f172a',
+                fontFamily: "'Cairo', sans-serif",
+                background: '#eef5ff'
               }}
             >
               {category.label}
@@ -565,12 +616,211 @@ const MapTab = ({ completedQuests, onOpenZone }) => {
                 key={zone.id}
                 zone={zone}
                 completedQuests={completedQuests}
-                onOpenZone={onOpenZone}
+                onOpenZone={handleOpenZone}
               />
             ))}
           </div>
         </div>
       </div>
+
+      {/* Zone Detail Modal */}
+      {showZoneModal && selectedZone && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 30%), radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.18), transparent 28%), rgba(15, 23, 42, 0.92)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            backdropFilter: 'blur(8px)',
+            padding: '16px',
+          }}
+          onClick={() => setShowZoneModal(false)}
+        >
+          <div
+            style={{
+              position: 'relative',
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244,246,254,0.96))',
+              borderRadius: '32px',
+              maxWidth: '680px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflow: 'hidden',
+              border: '1px solid rgba(59,130,246,0.18)',
+              boxShadow: '0 32px 90px rgba(15,23,42,0.3)',
+              direction: 'rtl',
+              padding: '24px',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+              <div style={{ position: 'absolute', top: -28, right: -28, width: 160, height: 160, borderRadius: '50%', background: 'rgba(59,130,246,0.18)' }} />
+              <div style={{ position: 'absolute', bottom: -32, left: -24, width: 120, height: 120, borderRadius: '50%', background: 'rgba(168,85,247,0.14)' }} />
+              <div style={{ position: 'absolute', top: '40%', left: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(14,165,233,0.07)' }} />
+            </div>
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: 72,
+                    height: 72,
+                    borderRadius: 24,
+                    display: 'grid',
+                    placeItems: 'center',
+                    background: 'linear-gradient(135deg, rgba(59,130,246,0.16), rgba(168,85,247,0.18))',
+                    boxShadow: '0 16px 35px rgba(59,130,246,0.18)',
+                  }}>
+                    <span style={{ fontSize: 36 }}>{selectedZone.emoji}</span>
+                  </div>
+                  <div>
+                    <h2
+                      style={{
+                        margin: 0,
+                        fontSize: '24px',
+                        fontWeight: '900',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
+                      {selectedZone.title}
+                    </h2>
+                    <div style={{ marginTop: 6, color: '#475569', fontSize: 14, fontWeight: 700 }}>
+                      {selectedZone.desc}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowZoneModal(false)}
+                  style={{
+                    width: 46,
+                    height: 46,
+                    borderRadius: 16,
+                    display: 'grid',
+                    placeItems: 'center',
+                    border: '1px solid rgba(148,163,184,0.24)',
+                    background: '#fff',
+                    cursor: 'pointer',
+                    fontSize: '20px',
+                    color: '#475569',
+                    transition: 'transform 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 16, background: 'rgba(59,130,246,0.12)', color: '#1d4ed8', fontWeight: 800, fontSize: 13 }}>
+                  ⚡ {selectedZoneStats.kp} نقاط
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 16, background: 'rgba(16,185,129,0.12)', color: '#047857', fontWeight: 800, fontSize: 13 }}>
+                  ⭐ {selectedZoneStats.xp} خبرة
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 16, background: 'rgba(248,113,113,0.12)', color: '#b91c1c', fontWeight: 800, fontSize: 13 }}>
+                  ❤️ {selectedZoneStats.impact} تأثير
+                </span>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <h3
+                  style={{
+                    margin: '0 0 14px',
+                    fontSize: '18px',
+                    fontWeight: '900',
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  مهمات المنطقة ({selectedZone.quests.length})
+                </h3>
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  {selectedZone.quests.slice(0, 6).map((quest, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        padding: '16px',
+                        background: 'rgba(59,130,246,0.08)',
+                        borderRadius: '18px',
+                        border: '1px solid rgba(59,130,246,0.16)',
+                        display: 'grid',
+                        gap: '10px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ fontSize: 15, fontWeight: 900, color: 'var(--text-primary)' }}>
+                          {quest.title || `مهمة ${idx + 1}`}
+                        </div>
+                        <span style={{
+                          padding: '6px 12px',
+                          borderRadius: 999,
+                          background: 'rgba(99,102,241,0.16)',
+                          color: '#4338ca',
+                          fontSize: 12,
+                          fontWeight: 900,
+                        }}>
+                          {quest.diff || 'متوسطة'}
+                        </span>
+                      </div>
+                      <div style={{ color: '#475569', fontSize: 13, lineHeight: 1.6 }}>
+                        {quest.story || 'تحدى نفسك في هذه المهمة واجعل العالم أفضل.'}
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <span style={{ padding: '6px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.12)', color: '#065f46', fontSize: 12, fontWeight: 800 }}>
+                          {quest.kp || 0} نقاط
+                        </span>
+                        <span style={{ padding: '6px 10px', borderRadius: 999, background: 'rgba(59,130,246,0.12)', color: '#1d4ed8', fontSize: 12, fontWeight: 800 }}>
+                          {quest.xp || 0} XP
+                        </span>
+                        <span style={{ padding: '6px 10px', borderRadius: 999, background: 'rgba(248,113,113,0.12)', color: '#b91c1c', fontSize: 12, fontWeight: 800 }}>
+                          {quest.impact || 0} تأثير
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  {selectedZone.quests.length > 6 && (
+                    <div
+                      style={{
+                        textAlign: 'center',
+                        color: '#64748b',
+                        fontSize: 13,
+                        padding: '10px 0',
+                        borderTop: '1px dashed rgba(148,163,184,0.4)',
+                      }}
+                    >
+                      و {selectedZone.quests.length - 6} مهام إضافية...
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowZoneModal(false)}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+                  color: 'white',
+                  border: 'none',
+                  fontSize: '15px',
+                  fontWeight: '900',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease, opacity 0.2s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.94'; e.currentTarget.style.transform = 'scale(1.01)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)'; }}
+              >
+                العودة للخريطة
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

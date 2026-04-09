@@ -425,8 +425,15 @@ function getSavedParentInfo() {
   }
 }
 
-const ParentsTab = ({ userStats }) => {
+import useGameState from '../../hooks/useGameState';
+import { usePermissions } from '../../hooks/usePermissions';
+import { PERMISSIONS } from '../../utils/permissions';
+
+const ParentsTab = () => {
+  const { state } = useGameState();
+  const { userStats } = state;
   const navigate = useNavigate();
+  const { can } = usePermissions();
   const defaultInfo = useMemo(() => ({
     name: 'ولي أمر - أحمد السيد',
     phone: '0101 234 5678',
@@ -493,7 +500,7 @@ const ParentsTab = ({ userStats }) => {
         </div>
 
         <div className="parents-sidebar-list">
-          <button className="parents-side-btn parents-side-btn--primary" onClick={() => navigate('/create-request')}>إنشاء طلب جديد</button>
+          {can(PERMISSIONS.CREATE_REQUEST) && <button className="parents-side-btn parents-side-btn--primary" onClick={() => navigate('/create-request')}>إنشاء طلب جديد</button>}
           <button className="parents-side-btn" onClick={() => navigate('/my-children')}>متابعة اطفالي</button>
           <button className="parents-side-btn" onClick={() => navigate('/map')}>الرجوع للرئيسية</button>
           <button className="parents-side-btn" onClick={() => navigate('/profile-v2')}>البروفايل</button>

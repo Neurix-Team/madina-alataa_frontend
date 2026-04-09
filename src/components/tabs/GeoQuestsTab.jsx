@@ -8,6 +8,7 @@ import GeoQuestService from '../../services/GeoQuestService';
 import GEO_QUESTS      from '../../data/geoQuestsData';
 import AudioManager                    from '../../services/AudioManager';
 import JellyButton                     from '../common/JellyButton';
+import useGameState from '../../hooks/useGameState';
 
 const DIFF_STYLE = {
   'سهل':      { bg:'#dcfce7', color:'#15803d' },
@@ -143,7 +144,11 @@ const VerifyModal = memo(({ result, quest, onClose, onComplete }) => {
 
 // ── Main Tab ──────────────────────────────────────────────────────────────
 
-const GeoQuestsTab = ({ completedQuests, onCompleteQuest }) => {
+const GeoQuestsTab = () => {
+  const { state, actions } = useGameState();
+  const { completedQuests } = state;
+  const { completeQuest } = actions;
+  
   const [verifying,    setVerifying]    = useState(null);   // quest being verified
   const [verifyResult, setVerifyResult] = useState(null);
   const [gpsError,     setGpsError]     = useState(null);
@@ -165,11 +170,11 @@ const GeoQuestsTab = ({ completedQuests, onCompleteQuest }) => {
     if (!verifyResult?.success) return;
     // Find the quest currently being verified (last one shown)
     const quest = GEO_QUESTS.find((q) => verifyResult !== null) ?? null;
-    // Use onCompleteQuest from parent
-    if (quest) onCompleteQuest?.(quest, 0);
+    // Use completeQuest from gameState
+    if (quest) completeQuest(quest.id);
     setVerifyResult(null);
     AudioManager.getInstance().play('win');
-  }, [verifyResult, onCompleteQuest]);
+  }, [verifyResult, completeQuest]);
 
   // Track which quest the verify modal is for
   const [pendingQuest, setPendingQuest] = useState(null);
@@ -188,11 +193,11 @@ const GeoQuestsTab = ({ completedQuests, onCompleteQuest }) => {
 
   const completeVerified = useCallback(() => {
     if (!pendingQuest || !verifyResult?.success) return;
-    onCompleteQuest?.(pendingQuest, 0);
+    completeQuest(pendingQuest.id);
     setVerifyResult(null);
     setPendingQuest(null);
     AudioManager.getInstance().play('win');
-  }, [pendingQuest, verifyResult, onCompleteQuest]);
+  }, [pendingQuest, verifyResult, completeQuest]);
 
   return (
     <div>

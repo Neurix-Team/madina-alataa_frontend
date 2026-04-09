@@ -2,6 +2,8 @@
 import React from 'react';
 import JellyButton from '../common/JellyButton';
 import { beneficiariesData } from '../../data/beneficiariesData';
+import { useAuth } from '../../hooks/useAuth';
+import useGameState from '../../hooks/useGameState';
 
 const CSS = `
   .impact-home-top-grid {
@@ -114,8 +116,12 @@ const ProgressBar = ({ label, value, count, color }) => (
   </div>
 );
 
-const ImpactTab = ({ userStats, completedCount, onDonate }) => {
-  const helpedCount = Math.floor(userStats.kp / 50);
+const ImpactTab = () => {
+  const { user } = useAuth();
+  const { state } = useGameState();
+  const { userStats, completedQuests = new Set() } = state;
+  const completedCount = completedQuests.size || 0;
+  const helpedCount = Math.floor(userStats?.kp / 50 || 0);
   const levelNow = Math.max(1, Math.floor((userStats?.impactScore || 0) / 100));
   const currentWeekGive = Math.floor((userStats?.kp || 0) / 10);
   const nextLevelTarget = (levelNow + 1) * 100;

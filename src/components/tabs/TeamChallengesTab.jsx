@@ -3,6 +3,8 @@ import TeamService     from '../../services/TeamService';
 import TEAM_CHALLENGES from '../../data/teamChallengesData';
 import AudioManager    from '../../services/AudioManager';
 import JellyButton     from '../common/JellyButton';
+import { useAuth } from '../../hooks/useAuth';
+import useGameState from '../../hooks/useGameState';
 
 const svc = TeamService.getInstance();
 
@@ -187,7 +189,10 @@ const JoinTeamModal = memo(({ onConfirm, onClose }) => {
 
 // ── Main Tab ──────────────────────────────────────────────────────────────
 
-const TeamChallengesTab = ({ userStats, avatarTheme }) => {
+const TeamChallengesTab = () => {
+  const { user } = useAuth();
+  const { state } = useGameState();
+  const { userStats, avatarTheme } = state;
   const [modal,  setModal]  = useState(null);
   const [teams,  setTeams]  = useState(() => svc.getAllTeams());
   const [notify, setNotify] = useState('');
@@ -198,11 +203,11 @@ const TeamChallengesTab = ({ userStats, avatarTheme }) => {
   };
 
   const myTeamFor = useCallback((challengeId) => (
-    teams.find((t) => t.challengeId === challengeId && t.members.some((m) => m.name === userStats.name))
-  ), [teams, userStats.name]);
+    teams.find((t) => t.challengeId === challengeId && t.members.some((m) => m.name === (userStats?.name || user?.name || 'Unknown')))
+  ), [teams, userStats?.name, user?.name]);
 
   const handleCreateTeam = useCallback((teamName) => {
-    svc.createTeam(modal.challenge.id, teamName, { name: userStats.name, avatarBg: avatarTheme.bg });
+    svc.createTeam(modal.challenge.id, teamName, { name: userStats?.name || user?.name || 'Unknown', avatarBg: avatarTheme?.bg || '#1d6ed8' });
     setTeams(svc.getAllTeams());
     setModal(null);
     AudioManager.getInstance().play('win');
@@ -210,7 +215,7 @@ const TeamChallengesTab = ({ userStats, avatarTheme }) => {
   }, [modal, userStats, avatarTheme]);
 
   const handleJoinTeam = useCallback((team) => {
-    const result = svc.joinTeam(team.teamId, { name: userStats.name, avatarBg: avatarTheme.bg });
+    const result = svc.joinTeam(team.teamId, { name: userStats?.name || user?.name || 'Unknown', avatarBg: avatarTheme?.bg || '#1d6ed8' });
     if (result.success) {
       setTeams(svc.getAllTeams());
       setModal(null);
@@ -258,8 +263,8 @@ const TeamChallengesTab = ({ userStats, avatarTheme }) => {
       {modal?.type === 'create' && (
         <CreateTeamModal
           challenge={modal.challenge}
-          userName={userStats.name}
-          avatarBg={avatarTheme.bg}
+          userName={userStats?.name || user?.name || 'Unknown'}
+          avatarBg={avatarTheme?.bg || '#1d6ed8'}
           onConfirm={handleCreateTeam}
           onClose={() => setModal(null)}
         />

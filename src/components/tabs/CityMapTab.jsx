@@ -41,7 +41,11 @@ const BuildingTooltip = memo(({ b, onClose }) => (
   </>
 ));
 
-const CityMapTab = ({ completedQuests }) => {
+import useGameState from '../../hooks/useGameState';
+
+const CityMapTab = () => {
+  const { state } = useGameState();
+  const { completedQuests = new Set() } = state;
   const svc = CityBuilderService.getInstance();
 
   const [buildings, setBuildings] = useState(() => {
