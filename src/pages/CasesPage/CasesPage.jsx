@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaHeart, FaHandsHelping, FaStar, FaClipboardList } from 'react-icons/fa';
 import CasesFilter from '../../components/cases/CasesFilter/CasesFilter';
@@ -8,6 +8,7 @@ import CanvasBackground from '../../components/common/CanvasBackground';
 import { usePermissions } from '../../hooks/usePermissions';
 import { PERMISSIONS } from '../../utils/permissions';
 import { getAvatarImageUrl } from '../../utils/avatarProfile';
+import { api } from '../../services/api.js';
 
 const CASES_DATA = [
   {
@@ -79,26 +80,61 @@ const CASES_DATA = [
 export default function CasesPage() {
   const navigate = useNavigate();
   const { can } = usePermissions();
+  const [cases, setCases] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeUrgency, setActiveUrgency] = useState([]);
   const [activeCategory, setActiveCategory] = useState([]);
   const [locationSearch, setLocationSearch] = useState('');
   const [fundedRange, setFundedRange] = useState([0, 100]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    api.getCases()
+      .then((data) => {
+        if (!isMounted) return;
+        console.log('Cases API response:', data);
+        setCases(data);
+      })
+      .catch((err) => {
+        console.error('Failed to load cases:', err);
+        if (isMounted) setError(err.message || 'فشل في تحميل الحالات');
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const casesSource = cases.length > 0 ? cases : CASES_DATA;
+
   const filteredCases = useMemo(() => {
-    return CASES_DATA.filter((caseItem) => {
+    return casesSource.filter((caseItem) => {
       const urgencyOk = activeUrgency.length === 0 || activeUrgency.includes(caseItem.urgency);
       const categoryOk = activeCategory.length === 0 || activeCategory.includes(caseItem.category);
       const locationOk = !locationSearch.trim() || caseItem.city.toLowerCase().includes(locationSearch.trim().toLowerCase());
       const fundedOk = caseItem.fundedPercentage >= fundedRange[0] && caseItem.fundedPercentage <= fundedRange[1];
       return urgencyOk && categoryOk && locationOk && fundedOk;
     });
-  }, [activeUrgency, activeCategory, locationSearch, fundedRange]);
+  }, [casesSource, activeUrgency, activeCategory, locationSearch, fundedRange]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('authToken');
     navigate('/auth');
   };
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: 50 }}>جاري تحميل الحالات...</div>;
+  }
+
+  if (error) {
+    return <div style={{ textAlign: 'center', padding: 50, color: '#f87171' }}>خطأ في التحميل: {error}</div>;
+  }
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>

@@ -11,14 +11,10 @@ import {
   FaHome,
 } from 'react-icons/fa';
 import {
-  loadNotifications,
-  saveNotifications,
-  markNotificationAsRead,
-  markAllNotificationsAsRead,
-  deleteNotification,
   formatNotificationTime,
   getNotificationConfig,
 } from '../data/notificationsData';
+import { api } from '../services/api.js';
 import AudioManager from '../services/AudioManager';
 import AnimatedBackground from '../components/common/AnimatedBackground';
 
@@ -26,20 +22,42 @@ const NotificationsPage = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState('all'); // all, unread, read
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Load notifications on mount
   useEffect(() => {
-    const loaded = loadNotifications();
-    setNotifications(loaded);
+    let isMounted = true;
+
+    api.getNotifications()
+      .then((data) => {
+        if (!isMounted) return;
+        const normalized = data.map((notification) => ({
+          ...notification,
+          timestamp: notification.createdAt ? new Date(notification.createdAt) : notification.timestamp ? new Date(notification.timestamp) : new Date(),
+          description: notification.message || notification.description || '',
+        }));
+        console.log('Notifications API response:', normalized);
+        setNotifications(normalized);
+      })
+      .catch((err) => {
+        console.error('Failed to load notifications:', err);
+        if (isMounted) setError(err.message || 'فشل في تحميل الإشعارات');
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Handle notification action button click
   const handleActionClick = (notification) => {
     AudioManager.getInstance().play('click');
     
-    // Mark as read if not already
+    // Mark as read locally if not already
     if (!notification.isRead) {
-      markNotificationAsRead(notification.id);
       setNotifications(prev =>
         prev.map(n =>
           n.id === notification.id ? { ...n, isRead: true } : n
@@ -55,15 +73,15 @@ const NotificationsPage = () => {
     }
   };
 
+  const handleNotificationClick = (notification) => {
+    handleActionClick(notification);
+  };
+
   // Handle mark as read
   const handleMarkAsRead = (e, notification) => {
     e.stopPropagation();
     AudioManager.getInstance().play('click');
     
-    // Mark as read in storage
-    markNotificationAsRead(notification.id);
-    
-    // Update local state
     setNotifications(prev =>
       prev.map(n =>
         n.id === notification.id ? { ...n, isRead: true } : n
@@ -76,10 +94,6 @@ const NotificationsPage = () => {
     e.stopPropagation();
     AudioManager.getInstance().play('click');
     
-    // Delete from storage
-    deleteNotification(notificationId);
-    
-    // Update local state
     setNotifications(prev =>
       prev.filter(n => n.id !== notificationId)
     );
@@ -89,10 +103,6 @@ const NotificationsPage = () => {
   const handleMarkAllAsRead = () => {
     AudioManager.getInstance().play('click');
     
-    // Mark all as read in storage
-    markAllNotificationsAsRead();
-    
-    // Update local state
     setNotifications(prev =>
       prev.map(n => ({ ...n, isRead: true }))
     );
@@ -106,6 +116,14 @@ const NotificationsPage = () => {
   });
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: 50 }}>جاري تحميل الإشعارات...</div>;
+  }
+
+  if (error) {
+    return <div style={{ textAlign: 'center', padding: 50, color: '#f87171' }}>خطأ في التحميل: {error}</div>;
+  }
 
   return (
     <div

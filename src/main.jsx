@@ -11,12 +11,26 @@ import './styles/minigame.css';
 import './styles/badges.css';
 import App from './App';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
-  </React.StrictMode>
-);
+import { worker } from './mocks/browser';
+
+const renderApp = () => {
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+      <BrowserRouter>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+};
+
+if (import.meta.env.DEV) {
+  worker.start({
+    serviceWorker: {
+      url: '/mockServiceWorker.js',
+    },
+  }).then(renderApp);
+} else {
+  renderApp();
+}

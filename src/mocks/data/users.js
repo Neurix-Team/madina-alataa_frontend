@@ -1,0 +1,40 @@
+// src/mocks/data/users.js
+
+export const users = [
+  {
+    id: 'user1',
+    name: 'أحمد محمد',
+    email: 'ahmed@example.com',
+    role: 'volunteer',
+    avatar: 'https://via.placeholder.com/150',
+    level: 5,
+    xp: 1250,
+    badges: ['helper', 'donor'],
+    joinedDate: '2023-01-15',
+    location: 'القاهرة',
+  },
+  {
+    id: 'user2',
+    name: 'فاطمة علي',
+    email: 'fatima@example.com',
+    role: 'admin',
+    avatar: 'https://via.placeholder.com/150',
+    level: 8,
+    xp: 3200,
+    badges: ['leader', 'organizer'],
+    joinedDate: '2022-06-10',
+    location: 'الإسكندرية',
+  },
+  {
+    id: 'user3',
+    name: 'محمد حسن',
+    email: 'mohamed@example.com',
+    role: 'volunteer',
+    avatar: 'https://via.placeholder.com/150',
+    level: 3,
+    xp: 750,
+    badges: ['donor'],
+    joinedDate: '2023-08-22',
+    location: 'الجيزة',
+  },
+];

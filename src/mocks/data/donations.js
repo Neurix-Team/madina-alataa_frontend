@@ -1,0 +1,40 @@
+// src/mocks/data/donations.js
+
+export const donations = [
+  {
+    id: 'don1',
+    userId: 'user1',
+    caseId: 'case1',
+    amount: 500,
+    currency: 'EGP',
+    type: 'cash',
+    status: 'successful',
+    paymentMethod: 'credit_card',
+    createdAt: '2024-03-01T12:00:00Z',
+    message: 'دعم للمسنين',
+  },
+  {
+    id: 'don2',
+    userId: 'user2',
+    caseId: 'case2',
+    amount: 1000,
+    currency: 'EGP',
+    type: 'supplies',
+    status: 'pending',
+    paymentMethod: 'bank_transfer',
+    createdAt: '2024-03-05T14:30:00Z',
+    message: 'تبرع بالمستلزمات المدرسية',
+  },
+  {
+    id: 'don3',
+    userId: 'user3',
+    caseId: 'case3',
+    amount: 2000,
+    currency: 'EGP',
+    type: 'education',
+    status: 'successful',
+    paymentMethod: 'wallet',
+    createdAt: '2024-03-10T16:45:00Z',
+    message: 'لمشروع التعليم',
+  },
+];

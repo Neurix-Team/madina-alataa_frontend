@@ -1,8 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaEye, FaDownload, FaSync } from 'react-icons/fa';
 import {
-  loadDonations,
   getDonationStats,
   formatDonationDate,
   formatCurrency,
@@ -11,13 +10,38 @@ import {
   getPaymentMethodConfig,
   DONATION_STATUSES,
 } from '../data/donationsData';
+import { api } from '../services/api.js';
 import AnimatedBackground from '../components/common/AnimatedBackground';
 
 export default function MyDonationsPage() {
   const navigate = useNavigate();
-  const [donations] = useState(() => loadDonations());
+  const [donations, setDonations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedReceipt, setSelectedReceipt] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    api.getDonations()
+      .then((data) => {
+        if (!isMounted) return;
+        console.log('Donations API response:', data);
+        setDonations(data);
+      })
+      .catch((err) => {
+        console.error('Failed to load donations:', err);
+        if (isMounted) setError(err.message || 'فشل في تحميل التبرعات');
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const stats = useMemo(() => getDonationStats(donations), [donations]);
 
@@ -39,6 +63,14 @@ export default function MyDonationsPage() {
     console.log('Retry donation:', donation.id);
     navigate(`/donation-checkout?retry=${donation.id}`);
   };
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: 50 }}>جاري تحميل التبرعات...</div>;
+  }
+
+  if (error) {
+    return <div style={{ textAlign: 'center', padding: 50, color: '#f87171' }}>خطأ في التحميل: {error}</div>;
+  }
 
   return (
     <div style={{ direction: 'rtl', minHeight: '100vh', background: 'var(--bg-app)', position: 'relative', overflow: 'hidden' }}>
