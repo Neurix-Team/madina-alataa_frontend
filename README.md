@@ -1,19 +1,19 @@
-# بطل العطاء | Madina Al Ataa
+# BATAL El Ataa | Madina Al Ataa
 
-تطبيق واجهة أمامية تفاعلي مبني بـ **React + Vite** يهدف لتقديم تجربة تعليمية/تحفيزية للأطفال والأهالي من خلال عناصر **Gamification** مثل النقاط، الشارات، المهام، التحديات، والخريطة التفاعلية.
+Interactive frontend application built with **React + Vite** designed to provide an educational/motivational experience for children and parents through **Gamification** elements like points, badges, tasks, challenges, and interactive maps.
 
 ---
 
-## نظرة عامة
+## Overview
 
-**Madina Al Ataa** مشروع Frontend يركز على:
-- تشجيع المستخدمين على الإنجاز عبر نظام نقاط ومستويات.
-- عرض المهام اليومية والتحديات الفردية والجماعية.
-- تقديم نظام شارات وإنجازات.
-- إدارة الطلبات والحالات بطريقة مرنة.
-- دعم تجربة تفاعلية (Modals / Effects / Notifications).
+**Madina Al Ataa** is a Frontend project focused on:
+- Encouraging users through XP/levels system
+- Daily tasks and individual/team challenges
+- Badges and achievements system
+- Orders and cases management
+- Interactive experience (Modals / Effects / Notifications)
 
-المشروع يعتمد بشكل كبير على **Mock Data** و **MSW** أثناء التطوير، مع بنية جاهزة للتوسع وربط Backend فعلي لاحقًا.
+The project heavily relies on **Mock Data** and **MSW** during development, with architecture ready for real Backend integration later.
 
 ---
 
