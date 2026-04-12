@@ -569,14 +569,27 @@ const handleNavClick = (id) => {
                 background: 'radial-gradient(circle, rgba(251,191,36,0.2) 0%, transparent 70%)',
                 animation: 'glowPulse 3s ease-in-out infinite',
               }} />
-              <div style={{
-                fontSize: 34,
-                animation: 'logoFloat 4s ease-in-out infinite',
-                display: 'inline-block',
-                filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.5))',
-              }}>
-                <FaStar />
-              </div>
+             <div
+  style={{
+    width: 60,
+    height: 60,
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    animation: 'logoFloat 4s ease-in-out infinite',
+    boxShadow: '0 0 18px rgba(251,191,36,0.35)',
+  }}
+>
+  <FaStar
+    style={{
+      color: '#ffffff',
+      fontSize: 26,
+      filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.45))',
+    }}
+  />
+</div>
             </div>
             <div style={{
               fontSize: 16,
@@ -794,7 +807,7 @@ const handleNavClick = (id) => {
                         ? location.pathname === '/parents'
                         : item.id === 'profile'
                           ? location.pathname === '/profile-v2'
-                          : item.id === 'avatar'
+                          : item.id === 'profile'
                             ? activeTab === 'profile'
                             : activeTab === item.id
                     }

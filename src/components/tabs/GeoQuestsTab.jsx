@@ -5,78 +5,374 @@
  */
 import React, { useState, useCallback, memo } from 'react';
 import GeoQuestService from '../../services/GeoQuestService';
-import GEO_QUESTS      from '../../data/geoQuestsData';
-import AudioManager                    from '../../services/AudioManager';
-import JellyButton                     from '../common/JellyButton';
+import GEO_QUESTS from '../../data/geoQuestsData';
+import AudioManager from '../../services/AudioManager';
+import JellyButton from '../common/JellyButton';
 import useGameState from '../../hooks/useGameState';
 
+import {
+  FaMapMarkedAlt,
+  FaMapMarkerAlt,
+  FaHospital,
+  FaSchool,
+  FaMosque,
+  FaLeaf,
+  FaPaw,
+  FaHandsHelping,
+  FaCheckCircle,
+  FaStar,
+  FaBullseye,
+  FaExclamationTriangle,
+  FaRoute,
+} from 'react-icons/fa';
+import {
+  FiTarget,
+  FiInfo,
+  FiTrendingUp,
+  FiNavigation,
+  FiCheckCircle,
+  FiClock,
+} from 'react-icons/fi';
+
+const GQ_CSS = `
+  .gq-tab {
+    direction: rtl;
+    display: grid;
+    gap: 16px;
+    font-family: 'Cairo', sans-serif;
+    color: #0f172a;
+  }
+
+  .gq-header {
+    background:
+      radial-gradient(circle at top right, rgba(73,198,242,0.12), transparent 28%),
+      radial-gradient(circle at bottom left, rgba(184,140,248,0.08), transparent 24%),
+      linear-gradient(135deg, #ffffff 0%, #f8fcff 55%, #faf7ff 100%);
+    border-radius: 24px;
+    padding: 20px 24px;
+    box-shadow: 0 18px 40px rgba(15,23,42,0.06);
+    border: 1.5px solid rgba(226,232,240,0.9);
+    text-align: center;
+  }
+
+  .gq-header__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
+    color: #2563eb;
+    font-size: 24px;
+    box-shadow: 0 12px 24px rgba(59,130,246,0.08);
+  }
+
+  .gq-header__title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #0f172a;
+    margin-bottom: 4px;
+  }
+
+  .gq-header__subtitle {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .gq-info-banner {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1.5px solid #bfdbfe;
+    border-radius: 18px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 12px 24px rgba(59,130,246,0.05);
+  }
+
+  .gq-info-banner__icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1d4ed8;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .gq-info-banner__title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #1d4ed8;
+    margin-bottom: 2px;
+  }
+
+  .gq-info-banner__desc {
+    font-size: 12px;
+    color: #1e40af;
+    font-weight: 700;
+    line-height: 1.7;
+  }
+
+  .gq-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .gq-card {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    border-radius: 22px;
+    padding: 20px 22px;
+    box-shadow: 0 14px 30px rgba(15,23,42,0.05);
+    border: 1.5px solid rgba(226,232,240,0.9);
+    transition: all 0.2s ease;
+  }
+
+  .gq-card--done {
+    border-color: rgba(134,239,172,0.9);
+    background: linear-gradient(180deg, #f0fdf4 0%, #f7fff9 100%);
+    opacity: 0.92;
+  }
+
+  .gq-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 34px rgba(15,23,42,0.08);
+  }
+
+  .gq-card__top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .gq-card__icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(226,232,240,0.9);
+    box-shadow: 0 8px 18px rgba(15,23,42,0.04);
+    color: #2563eb;
+    font-size: 24px;
+  }
+
+  .gq-card__title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .gq-card__title {
+    font-size: 15px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+
+  .gq-card__desc {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 700;
+    line-height: 1.7;
+  }
+
+  .gq-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 6px 10px;
+    border-radius: 999px;
+  }
+
+  .gq-hint {
+    background: rgba(29,110,216,0.08);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(29,110,216,0.14);
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .gq-rewards {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .gq-complete-badge {
+    text-align: center;
+    background: linear-gradient(135deg, #dcfce7, #ecfdf5);
+    border-radius: 14px;
+    padding: 12px;
+    color: #166534;
+    font-weight: 900;
+    font-size: 13px;
+    border: 1px solid rgba(134,239,172,0.9);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .gq-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.42);
+    backdrop-filter: blur(3px);
+    z-index: 100;
+  }
+
+  .gq-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    border-radius: 24px;
+    padding: 30px 28px;
+    max-width: 360px;
+    width: 90%;
+    z-index: 110;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(15,23,42,0.18);
+    border: 1.5px solid rgba(226,232,240,0.9);
+    animation: gqPop 0.35s ease-out;
+  }
+
+  .gq-modal__icon {
+    width: 76px;
+    height: 76px;
+    border-radius: 22px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
+    color: #2563eb;
+    font-size: 30px;
+    box-shadow: 0 12px 24px rgba(15,23,42,0.06);
+  }
+
+  .gq-modal__title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #0f172a;
+    margin-bottom: 8px;
+  }
+
+  .gq-modal__desc {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 700;
+    margin-bottom: 18px;
+    line-height: 1.7;
+  }
+
+  @keyframes gqPop {
+    0% { opacity: 0; transform: translate(-50%,-50%) scale(0.95); }
+    100% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  }
+`;
+
 const DIFF_STYLE = {
-  'سهل':      { bg:'#dcfce7', color:'#15803d' },
-  'متوسط':    { bg:'#fef9c3', color:'#854d0e' },
-  'صعب':      { bg:'#fee2e2', color:'#b91c1c' },
-  'صعب جداً': { bg:'#fce7f3', color:'#9d174d' },
+  سهل: { bg: '#dcfce7', color: '#15803d' },
+  متوسط: { bg: '#fef9c3', color: '#854d0e' },
+  صعب: { bg: '#fee2e2', color: '#b91c1c' },
+  'صعب جداً': { bg: '#fce7f3', color: '#9d174d' },
 };
 
-// ── Quest Card ────────────────────────────────────────────────────────────
+const getQuestIcon = (quest) => {
+  const text = `${quest?.title || ''} ${quest?.desc || ''} ${quest?.hint || ''}`.toLowerCase();
+
+  if (text.includes('مستشفى') || text.includes('مرض')) return FaHospital;
+  if (text.includes('مدرس') || text.includes('تعليم')) return FaSchool;
+  if (text.includes('مسجد') || text.includes('قرآن') || text.includes('صلاة')) return FaMosque;
+  if (text.includes('شجر') || text.includes('بيئة') || text.includes('حديقة')) return FaLeaf;
+  if (text.includes('حيوان') || text.includes('قط') || text.includes('كلب')) return FaPaw;
+  if (text.includes('مساعدة') || text.includes('خدمة')) return FaHandsHelping;
+
+  return FaMapMarkerAlt;
+};
 
 const GeoQuestCard = memo(({ quest, completed, onVerify, isVerifying }) => {
   const dl = DIFF_STYLE[quest.difficulty] ?? DIFF_STYLE['متوسط'];
+  const QuestIcon = getQuestIcon(quest);
 
   return (
-    <div style={{
-      background:'var(--bg-card)', borderRadius:20, padding:'20px 22px',
-      boxShadow:'var(--shadow-sm)',
-      border: completed ? '2px solid #86efac' : '1.5px solid var(--border)',
-      direction:'rtl', transition:'all 0.2s',
-      opacity: completed ? 0.85 : 1,
-    }}>
-      <div style={{ display:'flex', alignItems:'flex-start', gap:14, marginBottom:12 }}>
-        {/* Icon */}
-        <div style={{
-          width:56, height:56, borderRadius:16, flexShrink:0,
-          background: completed ? 'var(--card-done-bg)' : 'var(--bg-card-2)',
-          display:'flex', alignItems:'center', justifyContent:'center', fontSize:28,
-          border: completed ? '2px solid #86efac' : '2px solid var(--border)',
-        }}>
-          {quest.emoji}
+    <div className={`gq-card${completed ? ' gq-card--done' : ''}`}>
+      <div className="gq-card__top">
+        <div className="gq-card__icon">
+          {completed ? <FaCheckCircle /> : <QuestIcon />}
         </div>
 
-        <div style={{ flex:1 }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8, marginBottom:4 }}>
-            <span style={{ fontSize:15, fontWeight:900, color:'var(--text-primary)' }}>
-              {completed ? '✅ ' : '📍 '}{quest.title}
-            </span>
-            <span style={{ fontSize:10, fontWeight:900, padding:'2px 8px', borderRadius:99, background:dl.bg, color:dl.color, whiteSpace:'nowrap', flexShrink:0 }}>
+        <div style={{ flex: 1 }}>
+          <div className="gq-card__title-row">
+            <span className="gq-card__title">{quest.title}</span>
+            <span
+              className="gq-chip"
+              style={{
+                background: dl.bg,
+                color: dl.color,
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+              }}
+            >
               {quest.difficulty}
             </span>
           </div>
-          <p style={{ fontSize:12, color:'var(--text-secondary)', fontWeight:600, lineHeight:1.6 }}>{quest.desc}</p>
+
+          <p className="gq-card__desc">{quest.desc}</p>
         </div>
       </div>
 
-      {/* Hint */}
-      <div style={{ background:'rgba(29,110,216,0.1)', borderRadius:10, padding:'8px 12px', marginBottom:12, display:'flex', alignItems:'center', gap:6, border:'1px solid rgba(29,110,216,0.2)' }}>
-        <span style={{ fontSize:16 }}>💡</span>
-        <span style={{ fontSize:12, color:'#3b82f6', fontWeight:700 }}>{quest.hint}</span>
+      <div className="gq-hint">
+        <FiInfo />
+        <span>{quest.hint}</span>
       </div>
 
-      {/* Rewards */}
-      <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:14 }}>
-        {[
-          { label:`⭐ ${quest.kp} KP`,      bg:'#fef9c3', color:'#92400e' },
-          { label:`🔷 ${quest.xp} XP`,        bg:'#eff6ff', color:'#1d4ed8' },
-          { label:`🌍 تأثير ${quest.impact}`,  bg:'#f0fdf4', color:'#166534' },
-        ].map((chip) => (
-          <span key={chip.label} style={{ fontSize:11, fontWeight:900, padding:'3px 10px', borderRadius:99, background:chip.bg, color:chip.color }}>
-            {chip.label}
-          </span>
-        ))}
+      <div className="gq-rewards">
+        <span className="gq-chip" style={{ background: '#fff7cc', color: '#92400e' }}>
+          <FaStar />
+          <span>{quest.kp} KP</span>
+        </span>
+
+        <span className="gq-chip" style={{ background: '#eff6ff', color: '#1d4ed8' }}>
+          <FiTarget />
+          <span>{quest.xp} XP</span>
+        </span>
+
+        <span className="gq-chip" style={{ background: '#ecfdf5', color: '#166534' }}>
+          <FiTrendingUp />
+          <span>تأثير {quest.impact}</span>
+        </span>
       </div>
 
-      {/* Action */}
       {completed ? (
-        <div style={{ textAlign:'center', background:'var(--card-done-bg)', borderRadius:12, padding:'10px', color:'#16a34a', fontWeight:900, fontSize:13, border:'1px solid var(--card-done-border)' }}>
-          🏆 مهمة مكتملة! أحسنت!
+        <div className="gq-complete-badge">
+          <FaCheckCircle />
+          <span>مهمة مكتملة! أحسنت!</span>
         </div>
       ) : (
         <JellyButton
@@ -87,146 +383,132 @@ const GeoQuestCard = memo(({ quest, completed, onVerify, isVerifying }) => {
           onClick={() => onVerify(quest)}
           disabled={isVerifying}
         >
-          {isVerifying ? '⏳ جاري التحقق من موقعك…' : '📍 أنا في المكان الصح!'}
+          {isVerifying ? 'جاري التحقق من موقعك…' : 'أنا في المكان الصحيح'}
         </JellyButton>
       )}
     </div>
   );
 });
 
-// ── Verification Result Modal ─────────────────────────────────────────────
-
 const VerifyModal = memo(({ result, quest, onClose, onComplete }) => {
   if (!result) return null;
 
+  const QuestIcon = quest ? getQuestIcon(quest) : FaMapMarkerAlt;
+
+  let title = '';
+  let desc = '';
+  let Icon = QuestIcon;
+  let action = null;
+
+  if (result.loading) {
+    title = 'جاري التحقق من موقعك';
+    desc = 'انتظر قليلاً حتى نحصل على إحداثياتك الحالية بدقة.';
+    Icon = FiNavigation;
+  } else if (result.success) {
+    title = 'تم التحقق! أنت في المكان الصحيح';
+    desc = `ممتاز، أنت على بُعد ${GeoQuestService.formatDistance(result.distance)} من الهدف.`;
+    Icon = FaCheckCircle;
+    action = (
+      <JellyButton variant="success" size="md" fullWidth sound="win" onClick={onComplete}>
+        استلام المكافأة
+      </JellyButton>
+    );
+  } else if (result.error) {
+    title = 'تعذر التحقق من GPS';
+    desc = result.error;
+    Icon = FaExclamationTriangle;
+    action = (
+      <JellyButton variant="dark" size="md" fullWidth sound="click" onClick={onClose}>
+        فهمت
+      </JellyButton>
+    );
+  } else {
+    title = `أنت بعيد بـ ${GeoQuestService.formatDistance(result.distance)}`;
+    desc = `تحتاج أن تكون على بُعد ${GeoQuestService.formatDistance(quest.radiusM)} من الهدف.`;
+    Icon = FaRoute;
+    action = (
+      <JellyButton variant="dark" size="md" fullWidth sound="click" onClick={onClose}>
+        سأتحرك إلى الموقع
+      </JellyButton>
+    );
+  }
+
   return (
     <>
-      <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.4)', backdropFilter:'blur(3px)', zIndex:100 }} />
-      <div style={{
-        position:'fixed', top:'50%', left:'50%', transform:'translate(-50%,-50%)',
-        background:'var(--bg-card)', borderRadius:24, padding:'32px 28px',
-        maxWidth:340, width:'90%', zIndex:110,
-        textAlign:'center', direction:'rtl',
-        boxShadow:'var(--shadow-lg)',
-        animation:'popIn 0.35s ease-out',
-        border:'1.5px solid var(--border)',
-      }}>
-        <div style={{ fontSize:56, marginBottom:12 }}>
-          {result.success ? '🎉' : result.error ? '⚠️' : '📍'}
+      <div className="gq-modal-overlay" onClick={onClose} />
+      <div className="gq-modal">
+        <div className="gq-modal__icon">
+          <Icon />
         </div>
-        <h3 style={{ fontSize:18, fontWeight:900, color:'var(--text-primary)', marginBottom:8 }}>
-          {result.success
-            ? 'تم التحقق! أنت في المكان الصح'
-            : result.error
-            ? 'خطأ في GPS'
-            : `أنت بعيد بـ ${GeoQuestService.formatDistance(result.distance)}`}
-        </h3>
-        <p style={{ fontSize:13, color:'var(--text-secondary)', fontWeight:600, marginBottom:20, lineHeight:1.6 }}>
-          {result.success
-            ? `مبروك! تبعد فقط ${GeoQuestService.formatDistance(result.distance)} عن الهدف`
-            : result.error
-            ? result.error
-            : `تحتاج أن تكون على بُعد ${GeoQuestService.formatDistance(quest.radiusM)} من الهدف`}
-        </p>
-        {result.success ? (
-          <JellyButton variant="success" size="md" fullWidth sound="win" onClick={onComplete}>
-            ✅ استلام المكافأة!
-          </JellyButton>
-        ) : (
-          <JellyButton variant="dark" size="md" fullWidth sound="click" onClick={onClose}>
-            حسناً، سأذهب هناك
-          </JellyButton>
-        )}
+
+        <h3 className="gq-modal__title">{title}</h3>
+        <p className="gq-modal__desc">{desc}</p>
+
+        {action}
       </div>
     </>
   );
 });
 
-// ── Main Tab ──────────────────────────────────────────────────────────────
-
 const GeoQuestsTab = () => {
   const { state, actions } = useGameState();
   const { completedQuests } = state;
   const { completeQuest } = actions;
-  
-  const [verifying,    setVerifying]    = useState(null);   // quest being verified
+
+  const [verifying, setVerifying] = useState(null);
   const [verifyResult, setVerifyResult] = useState(null);
-  const [gpsError,     setGpsError]     = useState(null);
-
-  const handleVerify = useCallback(async (quest) => {
-    setVerifying(quest);
-    setVerifyResult(null);
-    setGpsError(null);
-    AudioManager.getInstance().play('click');
-
-    const result = await GeoQuestService.verifyQuestLocation(quest);
-    setVerifying(null);
-    setVerifyResult(result);
-
-    if (result.success) AudioManager.getInstance().play('open');
-  }, []);
-
-  const handleComplete = useCallback(() => {
-    if (!verifyResult?.success) return;
-    // Find the quest currently being verified (last one shown)
-    const quest = GEO_QUESTS.find((q) => verifyResult !== null) ?? null;
-    // Use completeQuest from gameState
-    if (quest) completeQuest(quest.id);
-    setVerifyResult(null);
-    AudioManager.getInstance().play('win');
-  }, [verifyResult, completeQuest]);
-
-  // Track which quest the verify modal is for
   const [pendingQuest, setPendingQuest] = useState(null);
 
   const startVerify = useCallback(async (quest) => {
     setPendingQuest(quest);
     setVerifying(quest);
-    setVerifyResult(null);
+    setVerifyResult({ loading: true });
     AudioManager.getInstance().play('click');
 
     const result = await GeoQuestService.verifyQuestLocation(quest);
+
     setVerifying(null);
     setVerifyResult(result);
+
     if (result.success) AudioManager.getInstance().play('open');
   }, []);
 
   const completeVerified = useCallback(() => {
     if (!pendingQuest || !verifyResult?.success) return;
-    completeQuest(pendingQuest.id);
+
+    completeQuest(pendingQuest);
     setVerifyResult(null);
     setPendingQuest(null);
     AudioManager.getInstance().play('win');
   }, [pendingQuest, verifyResult, completeQuest]);
 
   return (
-    <div>
-      {/* Header */}
-      <div style={{ background:'var(--bg-card)', borderRadius:22, padding:'18px 24px', marginBottom:16, boxShadow:'var(--shadow-md)', textAlign:'center', direction:'rtl', border:'1.5px solid var(--border)' }}>
-        <h2 style={{ fontSize:24, fontWeight:900, color:'var(--text-primary)', marginBottom:4 }}>📍 مهام العالم الحقيقي</h2>
-        <p style={{ color:'var(--text-secondary)', fontSize:13, fontWeight:600 }}>
-          توجه إلى الأماكن الحقيقية وأكمل المهام — GPS يتحقق من وجودك!
-        </p>
+    <div className="gq-tab">
+      <style>{GQ_CSS}</style>
+
+      <div className="gq-header">
+        <div className="gq-header__icon">
+          <FaMapMarkedAlt />
+        </div>
+        <div className="gq-header__title">مهام العالم الحقيقي</div>
+        <div className="gq-header__subtitle">
+          توجه إلى الأماكن الحقيقية وأكمل المهام — GPS يتحقق من وجودك
+        </div>
       </div>
 
-      {/* GPS info banner */}
-      <div style={{
-        background:'linear-gradient(135deg,#eff6ff,#dbeafe)',
-        border:'1.5px solid #bfdbfe',
-        borderRadius:16, padding:'12px 18px', marginBottom:16,
-        display:'flex', alignItems:'center', gap:12, direction:'rtl',
-      }}>
-        <span style={{ fontSize:28 }}>📡</span>
+      <div className="gq-info-banner">
+        <span className="gq-info-banner__icon">
+          <FiNavigation />
+        </span>
         <div>
-          <div style={{ fontSize:13, fontWeight:900, color:'#1d4ed8' }}>كيف يعمل؟</div>
-          <div style={{ fontSize:12, color:'#1e40af', fontWeight:600 }}>
-            اذهب إلى المكان المحدد، اضغط "أنا في المكان الصح"، وسيتحقق GPS من موقعك تلقائياً!
+          <div className="gq-info-banner__title">كيف تعمل المهام الجغرافية؟</div>
+          <div className="gq-info-banner__desc">
+            اذهب إلى المكان المحدد، اضغط على زر التحقق، وسيتأكد النظام من موقعك تلقائيًا.
           </div>
         </div>
       </div>
 
-      {/* Quest cards */}
-      <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <div className="gq-grid">
         {GEO_QUESTS.map((quest) => (
           <GeoQuestCard
             key={quest.id}
@@ -238,12 +520,14 @@ const GeoQuestsTab = () => {
         ))}
       </div>
 
-      {/* Verification result modal */}
       {(verifyResult || verifying) && (
         <VerifyModal
           result={verifying ? { loading: true } : verifyResult}
           quest={pendingQuest}
-          onClose={() => { setVerifyResult(null); setPendingQuest(null); }}
+          onClose={() => {
+            setVerifyResult(null);
+            setPendingQuest(null);
+          }}
           onComplete={completeVerified}
         />
       )}
