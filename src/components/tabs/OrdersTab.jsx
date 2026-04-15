@@ -14,10 +14,9 @@ import OrderService from '../../services/OrderService';
 import serviceRequestsData from '../../data/ordersData';
 import beneficiariesData from '../../data/beneficiariesData';
 import useGameState from '../../hooks/useGameState';
-import { usePermissions } from '../../hooks/usePermissions';import { useAuth } from '../../hooks/useAuth';import { PERMISSIONS } from '../../utils/permissions';
-<<<<<<< HEAD
-=======
-
+import { usePermissions } from '../../hooks/usePermissions';
+import { useAuth } from '../../hooks/useAuth';
+import { PERMISSIONS } from '../../utils/permissions';
 import {
   FaHandsHelping,
   FaHeart,
@@ -36,7 +35,6 @@ import {
   FaHome,
 } from 'react-icons/fa';
 import { FiTarget } from 'react-icons/fi';
->>>>>>> main
 
 const getBeneficiary = (id) =>
   beneficiariesData.find((b) => b.id === id) ?? null;
