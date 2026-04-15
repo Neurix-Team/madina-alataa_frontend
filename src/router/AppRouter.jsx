@@ -53,7 +53,7 @@ export const AppRouter = () => {
 
       {/* Protected routes */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<Layout />}>
+        <Route  element={<Layout />}>
           <Route index element={<Navigate to="/profile-v2" replace />} />
           <Route path="/profile" element={<ProfileTab />} />
           <Route path="/impact" element={<ImpactTab />} />

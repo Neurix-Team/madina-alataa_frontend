@@ -16,6 +16,10 @@ const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+
   const PATH_TO_TAB = {
     '/map': 'map',
     '/daily-tasks': 'daily',
@@ -150,45 +154,45 @@ const Layout = () => {
         <CanvasBackground />
         <RocketBackground />
 
-        <div className="app-layout" style={{
-          position: 'relative',
-          zIndex: 1,
-          display: 'flex',
-          minHeight: '100vh',
-          alignItems: 'flex-start',
-        }}>
-          {/* Sidebar */}
-          <Sidebar
-            activeTab={activeTab}
-            setActiveTab={setActiveTabWithPath}
-            userStats={userStats}
-            avatarTheme={avatarTheme}
-            sidebarOpen={isSidebarOpen}
-            setSidebarOpen={setIsSidebarOpen}
-          />
+        <style>{`
+        .layout-shell {
+          display: flex;
+          gap: 16px;
+          min-height: 100vh;
+          padding: 16px;
+          background: var(--bg-app);
+        }
 
-          {/* Main content */}
-          <main
-            className="main-content"
-            style={{
-              flex: 1,
-              padding: '20px',
-              direction: 'rtl',
-              minHeight: '100vh',
-            }}
-          >
-            {/* Dashboard stat cards */}
-            <DashboardCards userStats={userStats} completedCount={completedCount} />
+        .layout-main {
+          flex: 1;
+          min-width: 0;
+        }
 
-            {/* XP progress bar */}
-            <XpBar userStats={userStats} />
+        @media (max-width: 768px) {
+          .layout-shell {
+            padding: 12px;
+          }
 
-            {/* Tab content */}
-            <div className="tab-enter">
-              <Outlet />
-            </div>
-          </main>
-        </div>
+          .layout-main {
+            padding-top: 60px; /* علشان زر الهامبرجر */
+          }
+        }
+      `}</style>
+
+      <div className="layout-shell">
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          userStats={userStats}
+          avatarTheme={avatarTheme}
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+        />
+
+        <main className="layout-main">
+          <Outlet />
+        </main>
+      </div>
 
         {/* Mobile Nav Bar */}
         <MobileNavBar activeTab={activeTab} onNavClick={handleNavClick} />

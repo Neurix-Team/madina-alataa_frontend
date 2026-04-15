@@ -5,7 +5,7 @@
  */
 import React, { memo, useMemo, useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { FaBell } from 'react-icons/fa';
+import { FaBell, FaChevronDown } from 'react-icons/fa';
 import zonesData from '../../data/zonesData';
 import AudioManager from '../../services/AudioManager';
 import { getUnreadCount } from '../../data/notificationsData';
@@ -378,7 +378,7 @@ const MapTab = ({ onOpenZone }) => {
 
     <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
 
-      <label style={{ display: 'grid', gap: 8, fontFamily: "'Cairo', sans-serif" }}>
+      <label style={{ display: 'grid', gap: 8, fontFamily: "'Cairo', sans-serif", position: 'relative' }}>
         <span style={{
           fontSize: 12,
           fontWeight: 800,
@@ -387,57 +387,64 @@ const MapTab = ({ onOpenZone }) => {
         }}>
           حسب المدينة
         </span>
-        <select
-          value={activeCity}
-          onChange={(e) => setActiveCity(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '14px 16px',
-            borderRadius: 18,
-            border: '1px solid rgba(59,130,246,0.25)',
-            fontSize: 15,
-            fontFamily: "'Cairo', sans-serif",
-            fontWeight: 700,
-            color: '#0f172a',
-            background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
-            boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
-            appearance: 'none',
-            WebkitAppearance: 'none',
-            MozAppearance: 'none',
-            backgroundImage: 'linear-gradient(45deg, transparent 50%, rgba(15,23,42,0.8) 50%), linear-gradient(135deg, rgba(15,23,42,0.8) 50%, transparent 50%)',
-            backgroundPosition: 'calc(100% - 18px) calc(50% - 4px), calc(100% - 12px) calc(50% - 4px)',
-            backgroundSize: '6px 6px',
-            backgroundRepeat: 'no-repeat',
-          }}
-        >
-          <option value="all" style={{
-            fontSize: 13,
-            fontWeight: 900,
-            color: '#0f172a',
-            fontFamily: "'Cairo', sans-serif",
-            background: '#eef5ff'
-          }}>
-            الكل
-          </option>
-          {CITIES.map((city) => (
-            <option
-              key={city}
-              value={city}
-              style={{
-                fontSize: 13,
-                fontWeight: 900,
-                color: '#0f172a',
-                fontFamily: "'Cairo', sans-serif",
-                background: '#eef5ff'
-              }}
-            >
-              {city}
+        <div style={{ position: 'relative' }}>
+          <select
+            value={activeCity}
+            onChange={(e) => setActiveCity(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '14px 40px 14px 16px',
+              borderRadius: 18,
+              border: '1px solid rgba(59,130,246,0.25)',
+              fontSize: 15,
+              fontFamily: "'Cairo', sans-serif",
+              fontWeight: 700,
+              color: '#0f172a',
+              background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
+              boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+            }}
+          >
+            <option value="all" style={{
+              fontSize: 13,
+              fontWeight: 900,
+              color: '#0f172a',
+              fontFamily: "'Cairo', sans-serif",
+              background: '#eef5ff'
+            }}>
+              الكل
             </option>
-          ))}
-        </select>
+            {CITIES.map((city) => (
+              <option
+                key={city}
+                value={city}
+                style={{
+                  fontSize: 13,
+                  fontWeight: 900,
+                  color: '#0f172a',
+                  fontFamily: "'Cairo', sans-serif",
+                  background: '#eef5ff'
+                }}
+              >
+                {city}
+              </option>
+            ))}
+          </select>
+          <FaChevronDown style={{
+            position: 'absolute',
+            right: '12px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: 'rgba(15,23,42,0.6)',
+            fontSize: '14px',
+            pointerEvents: 'none',
+          }} />
+        </div>
       </label>
 
-      <label style={{ display: 'grid', gap: 8, fontFamily: "'Cairo', sans-serif" }}>
+      <label style={{ display: 'grid', gap: 8, fontFamily: "'Cairo', sans-serif", position: 'relative' }}>
         <span style={{
           fontSize: 12,
           fontWeight: 800,
@@ -446,48 +453,55 @@ const MapTab = ({ onOpenZone }) => {
         }}>
           نوع العلامة
         </span>
-        <select
-          value={activeType}
-          onChange={(e) => setActiveType(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '14px 16px',
-            borderRadius: 18,
-            border: '1px solid rgba(59,130,246,0.25)',
-            fontSize: 15,
-            fontFamily: "'Cairo', sans-serif",
-            fontWeight: 700,
-            color: '#0f172a',
-            background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
-            boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
-            appearance: 'none',
-            WebkitAppearance: 'none',
-            MozAppearance: 'none',
-            backgroundImage: 'linear-gradient(45deg, transparent 50%, rgba(15,23,42,0.8) 50%), linear-gradient(135deg, rgba(15,23,42,0.8) 50%, transparent 50%)',
-            backgroundPosition: 'calc(100% - 18px) calc(50% - 4px), calc(100% - 12px) calc(50% - 4px)',
-            backgroundSize: '6px 6px',
-            backgroundRepeat: 'no-repeat',
-          }}
-        >
-          {MAP_TYPES.map((type) => (
-            <option
-              key={type.id}
-              value={type.id}
-              style={{
-                fontSize: 13,
-                fontWeight: 900,
-                color: '#0f172a',
-                fontFamily: "'Cairo', sans-serif",
-                background: '#eef5ff'
-              }}
-            >
-              {type.label}
-            </option>
-          ))}
-        </select>
+        <div style={{ position: 'relative' }}>
+          <select
+            value={activeType}
+            onChange={(e) => setActiveType(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '14px 40px 14px 16px',
+              borderRadius: 18,
+              border: '1px solid rgba(59,130,246,0.25)',
+              fontSize: 15,
+              fontFamily: "'Cairo', sans-serif",
+              fontWeight: 700,
+              color: '#0f172a',
+              background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
+              boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+            }}
+          >
+            {MAP_TYPES.map((type) => (
+              <option
+                key={type.id}
+                value={type.id}
+                style={{
+                  fontSize: 13,
+                  fontWeight: 900,
+                  color: '#0f172a',
+                  fontFamily: "'Cairo', sans-serif",
+                  background: '#eef5ff'
+                }}
+              >
+                {type.label}
+              </option>
+            ))}
+          </select>
+          <FaChevronDown style={{
+            position: 'absolute',
+            right: '12px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: 'rgba(15,23,42,0.6)',
+            fontSize: '14px',
+            pointerEvents: 'none',
+          }} />
+        </div>
       </label>
 
-      <label style={{ display: 'grid', gap: 8, fontFamily: "'Cairo', sans-serif" }}>
+      <label style={{ display: 'grid', gap: 8, fontFamily: "'Cairo', sans-serif", position: 'relative' }}>
         <span style={{
           fontSize: 12,
           fontWeight: 800,
@@ -496,45 +510,52 @@ const MapTab = ({ onOpenZone }) => {
         }}>
           نوع الحالة
         </span>
-        <select
-          value={activeCategory}
-          onChange={(e) => setActiveCategory(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '14px 16px',
-            borderRadius: 18,
-            border: '1px solid rgba(59,130,246,0.25)',
-            fontSize: 15,
-            fontFamily: "'Cairo', sans-serif",
-            fontWeight: 700,
-            color: '#0f172a',
-            background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
-            boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
-            appearance: 'none',
-            WebkitAppearance: 'none',
-            MozAppearance: 'none',
-            backgroundImage: 'linear-gradient(45deg, transparent 50%, rgba(15,23,42,0.8) 50%), linear-gradient(135deg, rgba(15,23,42,0.8) 50%, transparent 50%)',
-            backgroundPosition: 'calc(100% - 18px) calc(50% - 4px), calc(100% - 12px) calc(50% - 4px)',
-            backgroundSize: '6px 6px',
-            backgroundRepeat: 'no-repeat',
-          }}
-        >
-          {MAP_CATEGORIES.map((category) => (
-            <option
-              key={category.id}
-              value={category.id}
-              style={{
-                fontSize: 13,
-                fontWeight: 900,
-                color: '#0f172a',
-                fontFamily: "'Cairo', sans-serif",
-                background: '#eef5ff'
-              }}
-            >
-              {category.label}
-            </option>
-          ))}
-        </select>
+        <div style={{ position: 'relative' }}>
+          <select
+            value={activeCategory}
+            onChange={(e) => setActiveCategory(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '14px 40px 14px 16px',
+              borderRadius: 18,
+              border: '1px solid rgba(59,130,246,0.25)',
+              fontSize: 15,
+              fontFamily: "'Cairo', sans-serif",
+              fontWeight: 700,
+              color: '#0f172a',
+              background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
+              boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+            }}
+          >
+            {MAP_CATEGORIES.map((category) => (
+              <option
+                key={category.id}
+                value={category.id}
+                style={{
+                  fontSize: 13,
+                  fontWeight: 900,
+                  color: '#0f172a',
+                  fontFamily: "'Cairo', sans-serif",
+                  background: '#eef5ff'
+                }}
+              >
+                {category.label}
+              </option>
+            ))}
+          </select>
+          <FaChevronDown style={{
+            position: 'absolute',
+            right: '12px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: 'rgba(15,23,42,0.6)',
+            fontSize: '14px',
+            pointerEvents: 'none',
+          }} />
+        </div>
       </label>
 
     </div>

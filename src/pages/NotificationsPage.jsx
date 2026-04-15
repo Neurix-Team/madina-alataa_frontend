@@ -215,7 +215,6 @@ const NotificationsPage = () => {
               alignItems: 'center',
               gap: 8,
               padding: '10px 16px',
-              border: 'none',
               borderRadius: 10,
               background: 'linear-gradient(135deg, rgba(29,110,216,0.55) 0%, rgba(14,165,233,0.35) 100%)',
               color: '#fff',
@@ -326,7 +325,6 @@ const NotificationsPage = () => {
                 onClick={() => setSelectedFilter(filter.id)}
                 style={{
                   padding: '8px 16px',
-                  border: 'none',
                   borderRadius: 8,
                   background: selectedFilter === filter.id
                     ? 'rgba(59,130,246,0.3)'
@@ -597,7 +595,6 @@ const NotificationsPage = () => {
                       style={{
                         width: '100%',
                         padding: '10px 12px',
-                        border: 'none',
                         borderRadius: 8,
                         background: `linear-gradient(135deg, ${config.color}33, ${config.color}22)`,
                         color: config.color,

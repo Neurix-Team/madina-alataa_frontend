@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { FaGamepad, FaRocket, FaCrown, FaUserAstronaut } from 'react-icons/fa';
+import { FaGamepad, FaRocket, FaCrown, FaUserAstronaut, FaGithub } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import AudioManager from '../../services/AudioManager';
@@ -117,6 +118,18 @@ const AuthScreen = () => {
     } catch (error) {
       AudioManager.getInstance().play('error');
     }
+  };
+
+  const handleGoogleLogin = async () => {
+    AudioManager.getInstance().play('click');
+    // TODO: Implement Google OAuth login
+    console.log('Google login clicked');
+  };
+
+  const handleGithubLogin = async () => {
+    AudioManager.getInstance().play('click');
+    // TODO: Implement GitHub OAuth login
+    console.log('GitHub login clicked');
   };
 
   const heroOnRight = isLogin;
@@ -310,6 +323,104 @@ const AuthScreen = () => {
                 );
               })}
             </div>
+
+            {/* Social Login Buttons */}
+            {isLogin && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                  <button
+                    onClick={handleGoogleLogin}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      border: '2px solid #e2e8f0',
+                      borderRadius: 14,
+                      background: '#fff',
+                      color: '#334155',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: "'Cairo',sans-serif",
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      transition: 'all 0.18s',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#d1d5db';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#e2e8f0';
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+                    }}
+                  >
+                    <FcGoogle size={18} />
+                    جوجل
+                  </button>
+                  <button
+                    onClick={handleGithubLogin}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      border: '2px solid #e2e8f0',
+                      borderRadius: 14,
+                      background: '#fff',
+                      color: '#334155',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: "'Cairo',sans-serif",
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      transition: 'all 0.18s',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#d1d5db';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#e2e8f0';
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+                    }}
+                  >
+                    <FaGithub size={18} />
+                    جيت هاب
+                  </button>
+                </div>
+                <div style={{
+                  textAlign: 'center',
+                  fontSize: 12,
+                  color: '#94a3b8',
+                  fontWeight: 600,
+                  marginBottom: 16,
+                  position: 'relative',
+                }}>
+                  <span style={{
+                    background: '#fff',
+                    padding: '0 12px',
+                    position: 'relative',
+                    zIndex: 1,
+                  }}>
+                    أو
+                  </span>
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: 0,
+                    right: 0,
+                    height: 1,
+                    background: '#e2e8f0',
+                    zIndex: 0,
+                  }} />
+                </div>
+              </div>
+            )}
 
             <div style={{ animation: animating ? 'formFadeOut 0.24s ease forwards' : 'formSlideIn 0.32s ease both' }}>
               {isLogin ? (
