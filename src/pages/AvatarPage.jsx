@@ -155,11 +155,20 @@ export default function AvatarPage() {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [activeTab, setActiveTab] = useState('basic');
   const [points] = useState(0); // Placeholder for points
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 1280
+  );
 
   useEffect(() => {
     const url = buildAvatarUrlFromProfile(profile);
     setAvatarUrl(url);
   }, [profile]);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const updateProfile = (key, value) => {
     setProfile(prev => ({ ...prev, [key]: value }));
@@ -221,19 +230,23 @@ export default function AvatarPage() {
     { value: 'gold', label: 'ذهبي', color: '#f59e0b' },
   ];
 
+  const isTablet = windowWidth <= 1100;
+  const isMobile = windowWidth <= 768;
+  const isSmallMobile = windowWidth <= 480;
+
   return (
     <div style={{
       fontFamily: 'Cairo, sans-serif',
       direction: 'rtl',
       minHeight: '100vh',
-      padding: '20px',
+      padding: isMobile ? '12px' : '20px',
       background: 'var(--bg-app)',
     }}>
       {/* Header */}
       <div style={{
         background: 'var(--bg-card)',
         borderRadius: '20px',
-        padding: '24px 28px',
+        padding: isMobile ? '18px 16px 16px' : '24px 28px',
         marginBottom: '20px',
         boxShadow: 'var(--shadow-md)',
         border: '1.5px solid var(--border)',
@@ -241,31 +254,36 @@ export default function AvatarPage() {
         position: 'relative',
       }}>
         <h2 style={{
-          fontSize: '28px',
+          fontSize: isMobile ? '22px' : '28px',
           fontWeight: '900',
           color: 'var(--text-primary)',
           marginBottom: '6px',
+          paddingLeft: isMobile ? 0 : '110px',
         }}>
           🎨 غرفة التجهيزات
         </h2>
         <p style={{
-          fontSize: '14px',
+          fontSize: isMobile ? '13px' : '14px',
           color: 'var(--text-secondary)',
           fontWeight: '600',
+          paddingLeft: isMobile ? 0 : '110px',
         }}>
           خصّص مظهرك وشخصيتك بشكل احترافي!
         </p>
         <div style={{
-          position: 'absolute',
+          position: isMobile ? 'static' : 'absolute',
           top: '24px',
           left: '28px',
           background: 'linear-gradient(135deg, rgb(251, 191, 36), rgb(245, 158, 11))',
           color: 'rgb(120, 53, 15)',
-          padding: '6px 16px',
+          padding: isMobile ? '6px 12px' : '6px 16px',
           borderRadius: '99px',
-          fontSize: '13px',
+          fontSize: isMobile ? '12px' : '13px',
           fontWeight: '800',
           boxShadow: 'rgba(251, 191, 36, 0.3) 0px 4px 12px',
+          display: 'inline-block',
+          marginTop: isMobile ? '12px' : 0,
+          maxWidth: '100%',
         }}>
           ✨ نقاطك: <strong>{points}</strong> KP
         </div>
@@ -278,6 +296,7 @@ export default function AvatarPage() {
         marginBottom: '20px',
         overflowX: 'auto',
         padding: '0px 4px',
+        scrollbarWidth: 'thin',
       }}>
         <button
           onClick={() => setActiveTab('basic')}
@@ -286,14 +305,14 @@ export default function AvatarPage() {
             background: activeTab === 'basic' ? 'linear-gradient(135deg, rgb(102, 126, 234), rgb(118, 75, 162))' : 'var(--bg-card)',
             border: activeTab === 'basic' ? '2px solid rgb(118, 75, 162)' : '2px solid var(--border)',
             borderRadius: '12px',
-            padding: '12px 16px',
+            padding: isMobile ? '10px 12px' : '12px 16px',
             cursor: 'pointer',
             transition: '0.2s',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
-            minWidth: '100px',
+            minWidth: isSmallMobile ? '88px' : '100px',
             color: activeTab === 'basic' ? 'rgb(255, 255, 255)' : 'var(--text-primary)',
             transform: activeTab === 'basic' ? 'translateY(-2px)' : 'none',
             boxShadow: activeTab === 'basic' ? 'rgba(118, 75, 162, 0.3) 0px 4px 12px' : 'none',
@@ -309,14 +328,14 @@ export default function AvatarPage() {
             background: activeTab === 'advanced' ? 'linear-gradient(135deg, rgb(102, 126, 234), rgb(118, 75, 162))' : 'var(--bg-card)',
             border: activeTab === 'advanced' ? '2px solid rgb(118, 75, 162)' : '2px solid var(--border)',
             borderRadius: '12px',
-            padding: '12px 16px',
+            padding: isMobile ? '10px 12px' : '12px 16px',
             cursor: 'pointer',
             transition: '0.2s',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
-            minWidth: '100px',
+            minWidth: isSmallMobile ? '88px' : '100px',
             color: activeTab === 'advanced' ? 'rgb(255, 255, 255)' : 'var(--text-primary)',
             transform: activeTab === 'advanced' ? 'translateY(-2px)' : 'none',
             boxShadow: activeTab === 'advanced' ? 'rgba(118, 75, 162, 0.3) 0px 4px 12px' : 'none',
@@ -332,14 +351,14 @@ export default function AvatarPage() {
             background: activeTab === 'ai-photo' ? 'linear-gradient(135deg, rgb(102, 126, 234), rgb(118, 75, 162))' : 'var(--bg-card)',
             border: activeTab === 'ai-photo' ? '2px solid rgb(118, 75, 162)' : '2px solid var(--border)',
             borderRadius: '12px',
-            padding: '12px 16px',
+            padding: isMobile ? '10px 12px' : '12px 16px',
             cursor: 'pointer',
             transition: '0.2s',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
-            minWidth: '100px',
+            minWidth: isSmallMobile ? '88px' : '100px',
             color: activeTab === 'ai-photo' ? 'rgb(255, 255, 255)' : 'var(--text-primary)',
             transform: activeTab === 'ai-photo' ? 'translateY(-2px)' : 'none',
             boxShadow: activeTab === 'ai-photo' ? 'rgba(118, 75, 162, 0.3) 0px 4px 12px' : 'none',
@@ -355,14 +374,14 @@ export default function AvatarPage() {
             background: activeTab === 'store' ? 'linear-gradient(135deg, rgb(102, 126, 234), rgb(118, 75, 162))' : 'var(--bg-card)',
             border: activeTab === 'store' ? '2px solid rgb(118, 75, 162)' : '2px solid var(--border)',
             borderRadius: '12px',
-            padding: '12px 16px',
+            padding: isMobile ? '10px 12px' : '12px 16px',
             cursor: 'pointer',
             transition: '0.2s',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
-            minWidth: '100px',
+            minWidth: isSmallMobile ? '88px' : '100px',
             color: activeTab === 'store' ? 'rgb(255, 255, 255)' : 'var(--text-primary)',
             transform: activeTab === 'store' ? 'translateY(-2px)' : 'none',
             boxShadow: activeTab === 'store' ? 'rgba(118, 75, 162, 0.3) 0px 4px 12px' : 'none',
@@ -378,14 +397,14 @@ export default function AvatarPage() {
             background: activeTab === 'saved' ? 'linear-gradient(135deg, rgb(102, 126, 234), rgb(118, 75, 162))' : 'var(--bg-card)',
             border: activeTab === 'saved' ? '2px solid rgb(118, 75, 162)' : '2px solid var(--border)',
             borderRadius: '12px',
-            padding: '12px 16px',
+            padding: isMobile ? '10px 12px' : '12px 16px',
             cursor: 'pointer',
             transition: '0.2s',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
-            minWidth: '100px',
+            minWidth: isSmallMobile ? '88px' : '100px',
             color: activeTab === 'saved' ? 'rgb(255, 255, 255)' : 'var(--text-primary)',
             transform: activeTab === 'saved' ? 'translateY(-2px)' : 'none',
             boxShadow: activeTab === 'saved' ? 'rgba(118, 75, 162, 0.3) 0px 4px 12px' : 'none',
@@ -399,34 +418,36 @@ export default function AvatarPage() {
       {/* Main Content */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '400px 1fr',
+        gridTemplateColumns: isTablet ? '1fr' : '400px 1fr',
         gap: '20px',
+        alignItems: 'start',
       }}>
         {/* Left Side: Avatar Preview */}
         <div style={{
           background: 'var(--bg-card)',
           borderRadius: '20px',
-          padding: '24px',
+          padding: isMobile ? '16px' : '24px',
           boxShadow: 'var(--shadow-md)',
           border: '1.5px solid var(--border)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           gap: '20px',
-          position: 'sticky',
-          top: '20px',
+          position: isTablet ? 'relative' : 'sticky',
+          top: isTablet ? 'auto' : '20px',
           height: 'fit-content',
         }}>
           <div style={{
             position: 'relative',
             borderRadius: '20px',
-            padding: '20px',
+            padding: isMobile ? '12px' : '20px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             boxShadow: 'rgba(0, 0, 0, 0.15) 0px 10px 30px',
-            width: '350px',
-            height: '350px',
+            width: '100%',
+            maxWidth: isMobile ? '280px' : '350px',
+            aspectRatio: '1 / 1',
             background: 'linear-gradient(135deg, rgb(16, 185, 129), rgb(5, 150, 105))',
           }}>
             <img
@@ -457,6 +478,7 @@ export default function AvatarPage() {
             display: 'flex',
             gap: '10px',
             width: '100%',
+            flexDirection: isMobile ? 'column' : 'row',
           }}>
             <button
               onClick={handleSave}
@@ -476,8 +498,8 @@ export default function AvatarPage() {
                 transition: 'box-shadow 0.2s, opacity 0.2s, transform 0.2s',
                 background: 'linear-gradient(135deg, rgb(59, 162, 248), rgb(29, 110, 216))',
                 color: 'rgb(255, 255, 255)',
-                padding: '13px 24px',
-                fontSize: '15px',
+                padding: isMobile ? '12px 18px' : '13px 24px',
+                fontSize: isMobile ? '14px' : '15px',
                 borderRadius: '16px',
                 flex: 1,
                 transform: 'translateY(0px)',
@@ -503,8 +525,8 @@ export default function AvatarPage() {
                 transition: 'box-shadow 0.2s, opacity 0.2s, transform 0.2s',
                 background: 'linear-gradient(135deg, rgb(59, 162, 248), rgb(29, 110, 216))',
                 color: 'rgb(255, 255, 255)',
-                padding: '13px 24px',
-                fontSize: '15px',
+                padding: isMobile ? '12px 18px' : '13px 24px',
+                fontSize: isMobile ? '14px' : '15px',
                 borderRadius: '16px',
                 flex: 1,
               }}
@@ -518,11 +540,11 @@ export default function AvatarPage() {
         <div style={{
           background: 'var(--bg-card)',
           borderRadius: '20px',
-          padding: '24px',
+          padding: isMobile ? '16px' : '24px',
           boxShadow: 'var(--shadow-md)',
           border: '1.5px solid var(--border)',
-          maxHeight: 'calc(-200px + 100vh)',
-          overflowY: 'auto',
+          maxHeight: isTablet ? 'none' : 'calc(-200px + 100vh)',
+          overflowY: isTablet ? 'visible' : 'auto',
         }}>
           {activeTab === 'basic' && (
             <div style={{
@@ -542,7 +564,7 @@ export default function AvatarPage() {
                 </h4>
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
+                  gridTemplateColumns: isSmallMobile ? '1fr' : '1fr 1fr',
                   gap: '12px',
                 }}>
                   <button
@@ -635,7 +657,7 @@ export default function AvatarPage() {
                 </h4>
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gridTemplateColumns: isSmallMobile ? 'repeat(2, 1fr)' : isMobile ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)',
                   gap: '10px',
                 }}>
                   {hairStyleOptions.map(option => (
@@ -721,7 +743,7 @@ export default function AvatarPage() {
                 </h4>
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gridTemplateColumns: isSmallMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
                   gap: '12px',
                 }}>
                   {[
@@ -769,7 +791,7 @@ export default function AvatarPage() {
                 </h4>
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gridTemplateColumns: isSmallMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
                   gap: '12px',
                 }}>
                   {[
@@ -816,7 +838,7 @@ export default function AvatarPage() {
                 </h4>
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gridTemplateColumns: isSmallMobile ? 'repeat(2, 1fr)' : isMobile ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)',
                   gap: '10px',
                 }}>
                   {[
@@ -943,7 +965,7 @@ export default function AvatarPage() {
               </p>
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
+                gridTemplateColumns: isSmallMobile ? '1fr' : 'repeat(2, 1fr)',
                 gap: '16px',
               }}>
                 {[
@@ -1014,7 +1036,7 @@ export default function AvatarPage() {
               </p>
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: isSmallMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
                 gap: '16px',
               }}>
                 {/* Placeholder for saved avatars */}
