@@ -6,6 +6,7 @@ import CaseCard from '../../components/cases/CaseCard/CaseCard';
 import RocketBackground from '../../components/common/RocketBackground';
 import CanvasBackground from '../../components/common/CanvasBackground';
 import { usePermissions } from '../../hooks/usePermissions';
+import { useAuth } from '../../hooks/useAuth';
 import { PERMISSIONS } from '../../utils/permissions';
 import { getAvatarImageUrl } from '../../utils/avatarProfile';
 import { api } from '../../services/api.js';
@@ -80,6 +81,9 @@ const CASES_DATA = [
 export default function CasesPage() {
   const navigate = useNavigate();
   const { can } = usePermissions();
+  const { user } = useAuth();
+  const isAdmin = user?.roles?.includes('admin');
+  const isParent = user?.roles?.includes('parent');
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -346,7 +350,7 @@ export default function CasesPage() {
           </div>
 
           <div className="cases-sidebar-list">
-            {can(PERMISSIONS.VIEW_MY_DONATIONS) && <button className="cases-side-btn cases-side-btn--primary" onClick={() => navigate('/my-donations')}>تبرعاتي</button>}
+            {can(PERMISSIONS.VIEW_MY_DONATIONS) && !isAdmin && !isParent && <button className="cases-side-btn cases-side-btn--primary" onClick={() => navigate('/my-donations')}>تبرعاتي</button>}
             <button className="cases-side-btn" onClick={() => navigate('/map')}>الرجوع للرئيسية</button>
             <button className="cases-side-btn" onClick={() => navigate('/profile-v2')}>البروفايل</button>
             <button className="cases-side-btn cases-side-btn--danger" onClick={handleLogout}>تسجيل الخروج</button>

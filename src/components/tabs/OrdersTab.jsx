@@ -14,8 +14,7 @@ import OrderService from '../../services/OrderService';
 import serviceRequestsData from '../../data/ordersData';
 import beneficiariesData from '../../data/beneficiariesData';
 import useGameState from '../../hooks/useGameState';
-import { usePermissions } from '../../hooks/usePermissions';
-import { PERMISSIONS } from '../../utils/permissions';
+import { usePermissions } from '../../hooks/usePermissions';import { useAuth } from '../../hooks/useAuth';import { PERMISSIONS } from '../../utils/permissions';
 
 import {
   FaHandsHelping,
@@ -592,13 +591,16 @@ const OrdersTab = () => {
   const { state } = useGameState();
   const { orders = [] } = state;
   const { can } = usePermissions();
+  const { user } = useAuth();
+  const isAdmin = user?.roles?.includes('admin');
+  const isParent = user?.roles?.includes('parent');
 
   const availableTabs = useMemo(() => {
     return TABS.filter((tab) => {
-      if (tab.id === 'donations') return can(PERMISSIONS.VIEW_MY_DONATIONS);
+      if (tab.id === 'donations') return can(PERMISSIONS.VIEW_MY_DONATIONS) && !isAdmin && !isParent;
       return true;
     });
-  }, [can]);
+  }, [can, isAdmin, isParent]);
 
   const [activeTab, setActiveTab] = useState('requests');
 
