@@ -35,6 +35,8 @@ import {
 } from 'react-icons/fa';
 import { getAvatarImageUrl } from '../../utils/avatarProfile';
 
+
+
 // ── Injected CSS (keyframes + class-based styles) ─────────────────────────
 const SIDEBAR_CSS = `
   @keyframes sidebarSlideIn {
@@ -220,6 +222,7 @@ const NAV_ITEMS = [
   { id: 'my-donations',    label: 'تبرعاتي',        icon: FaCoins, condition: PERMISSIONS.VIEW_MY_DONATIONS },
   { id: 'orders',      label: 'الأوامر',          icon: FaBoxOpen, condition: PERMISSIONS.VIEW_ORDERS },
   { id: 'admin',       label: 'الإدارة',          icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
+  { id: 'incoming-requests', label: 'الطلبات الواردة', icon: FaBell, condition: PERMISSIONS.VIEW_ADMIN },
 ];
 
 // ── Avatar ────────────────────────────────────────────────────────────────
@@ -235,6 +238,8 @@ const AvatarSVG = ({ bg, accessory }) => {
   };
   const AccessoryIcon = accessoryMap[accessory] || FaCrown;
 
+
+  
   return (
     <div style={{
       width: 54,
@@ -392,6 +397,7 @@ export default function Sidebar({
   const navigate = useNavigate();
 const location = useLocation();
 
+
 const handleNavClick = (id) => {
   const pathMap = {
     profile: '/profile-v2',
@@ -412,12 +418,26 @@ const handleNavClick = (id) => {
     admin: '/admin',
     cases: '/cases',
     'create-request': '/create-request',
+    'incoming-requests': '/incoming-requests',
   };
 
-  const path = pathMap[id] || '/profile';
+  const path = pathMap[id] || '/profile-v2';
+
+  setActiveTab?.(id);
   setSidebarOpen(false);
   navigate(path);
 };
+
+const { can } = usePermissions();
+const { user } = useAuth();
+const isAdmin = user?.roles?.includes('admin');
+
+const visibleItems = NAV_ITEMS.filter((item) => {
+  if (isAdmin && (item.id === 'parents' || item.id === 'create-request')) {
+    return false;
+  }
+  return !item.condition || can(item.condition);
+});
 
   return (
     <>
@@ -567,14 +587,27 @@ const handleNavClick = (id) => {
                 background: 'radial-gradient(circle, rgba(251,191,36,0.2) 0%, transparent 70%)',
                 animation: 'glowPulse 3s ease-in-out infinite',
               }} />
-              <div style={{
-                fontSize: 34,
-                animation: 'logoFloat 4s ease-in-out infinite',
-                display: 'inline-block',
-                filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.5))',
-              }}>
-                <FaStar />
-              </div>
+              <div
+  style={{
+    width: 60,
+    height: 60,
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    animation: 'logoFloat 4s ease-in-out infinite',
+    boxShadow: '0 0 18px rgba(251,191,36,0.35)',
+  }}
+>
+  <FaStar
+    style={{
+      color: '#ffffff',
+      fontSize: 26,
+      filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.45))',
+    }}
+  />
+</div>
             </div>
             <div style={{
               fontSize: 16,
@@ -743,57 +776,67 @@ const handleNavClick = (id) => {
             </div>
           </div>
 
-          {/* ── Nav items ── */}
-          {/* <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-            {NAV_ITEMS.map((item) => (
-              <React.Fragment key={item.id}>
-                {item.dividerBefore && (
-                  <div style={{
-                    height: 1,
-                    background: 'linear-gradient(90deg, transparent, rgba(29,110,216,0.3), transparent)',
-                    margin: '8px 4px',
-                  }} />
-                )}
-                <NavBtn
-                 type="button"
-                  item={item}
-                  active={activeTab === item.id}
-                  onClick={setActiveTab}
-                />
-              </React.Fragment>
-            ))}
-          </nav> */}
+<nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+  {visibleItems.map((item) => (
+    <React.Fragment key={item.id}>
+      {item.dividerBefore && (
+        <div
+          style={{
+            height: 1,
+            background: 'linear-gradient(90deg, transparent, rgba(29,110,216,0.3), transparent)',
+            margin: '8px 4px',
+          }}
+        />
+      )}
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-            {(() => {
-              const { can } = usePermissions();
-              const visibleItems = NAV_ITEMS.filter(item => !item.condition || can(item.condition));
-              return visibleItems.map((item) => (
-                <React.Fragment key={item.id}>
-                  {item.dividerBefore && (
-                    <div style={{
-                      height: 1,
-                      background: 'linear-gradient(90deg, transparent, rgba(29,110,216,0.3), transparent)',
-                      margin: '8px 4px',
-                    }} />
-                  )}
-                  <NavBtn
-                    item={item}
-                    active={
-                      item.id === 'parents'
-                        ? location.pathname === '/parents'
-                        : item.id === 'profile'
-                          ? location.pathname === '/profile-v2'
-                          : item.id === 'avatar'
-                            ? activeTab === 'profile'
-                            : activeTab === item.id
-                    }
-                    onClick={handleNavClick}
-                  />
-                </React.Fragment>
-              ));
-            })()}
-          </nav>
+      <NavBtn
+        item={item}
+        active={
+          item.id === 'parents'
+            ? location.pathname === '/parents'
+            : item.id === 'profile'
+            ? location.pathname === '/profile-v2'
+            : item.id === 'avatar'
+            ? location.pathname === '/avatar'
+            : item.id === 'impact'
+            ? location.pathname === '/impact'
+            : item.id === 'map'
+            ? location.pathname === '/map'
+            : item.id === 'badges'
+            ? location.pathname === '/badges'
+            : item.id === 'leaderboard'
+            ? location.pathname === '/leaderboard'
+            : item.id === 'orders'
+            ? location.pathname === '/orders'
+            : item.id === 'daily'
+            ? location.pathname === '/daily-tasks'
+            : item.id === 'explore'
+            ? location.pathname === '/city-exploration'
+            : item.id === 'city'
+            ? location.pathname === '/city-map'
+            : item.id === 'geo'
+            ? location.pathname === '/geo-quests'
+            : item.id === 'team'
+            ? location.pathname === '/team-challenges'
+            : item.id === 'my-donations'
+            ? location.pathname === '/my-donations'
+            : item.id === 'notifications'
+            ? location.pathname === '/notifications'
+            : item.id === 'admin'
+            ? location.pathname === '/admin'
+            : item.id === 'cases'
+            ? location.pathname === '/cases'
+            : item.id === 'create-request'
+            ? location.pathname === '/create-request'
+            : item.id === 'incoming-requests'
+            ? location.pathname === '/incoming-requests'
+            : activeTab === item.id
+        }
+        onClick={handleNavClick}
+      />
+    </React.Fragment>
+  ))}
+</nav>
 
           {/* ── Dark Mode Toggle ── */}
           <DarkModeToggle />

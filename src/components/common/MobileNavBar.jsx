@@ -12,7 +12,7 @@ const MobileNavBar = ({ activeTab, setActiveTab }) => (
   <nav
     className="mobile-nav"
     style={{
-      display: 'none',
+      display: 'flex',
       position: 'fixed',
       bottom: 0,
       left: 0,
@@ -22,8 +22,18 @@ const MobileNavBar = ({ activeTab, setActiveTab }) => (
       zIndex: 80,
       paddingBottom: 'env(safe-area-inset-bottom)',
       transition: 'background 0.3s, border-color 0.3s',
+      overflowX: 'auto',
+      scrollbarWidth: 'none',
+      msOverflowStyle: 'none',
     }}
   >
+    <style>
+      {`
+        .mobile-nav::-webkit-scrollbar {
+          display: none;
+        }
+      `}
+    </style>
     {MOBILE_NAV.map((item) => (
       <button
         key={item.id}
