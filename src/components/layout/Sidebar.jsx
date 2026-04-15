@@ -220,7 +220,6 @@ const NAV_ITEMS = [
   { id: 'my-donations',    label: 'تبرعاتي',        icon: FaCoins, condition: PERMISSIONS.VIEW_MY_DONATIONS },
   { id: 'orders',      label: 'الأوامر',          icon: FaBoxOpen, condition: PERMISSIONS.VIEW_ORDERS },
   { id: 'admin',       label: 'الإدارة',          icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
-  { id: 'incoming-requests', label: 'الطلبات الواردة', icon: FaBell, condition: PERMISSIONS.VIEW_ADMIN },
 ];
 
 // ── Avatar ────────────────────────────────────────────────────────────────
@@ -318,32 +317,6 @@ const DarkModeToggle = () => {
 
   const toggle = () => ThemeService.getInstance().toggle();
 
-const isItemActive = (id) => {
-  const pathMap = {
-    profile: '/profile-v2',
-    avatar: '/avatar',
-    impact: '/impact',
-    map: '/map',
-    badges: '/badges',
-    leaderboard: '/leaderboard',
-    orders: '/orders',
-    daily: '/daily-tasks',
-    explore: '/city-exploration',
-    city: '/city-map',
-    geo: '/geo-quests',
-    team: '/team-challenges',
-    'my-donations': '/my-donations',
-    notifications: '/notifications',
-    parents: '/parents',
-    admin: '/admin',
-    cases: '/cases',
-    'create-request': '/create-request',
-    'incoming-requests': '/incoming-requests',
-  };
-
-  return location.pathname === pathMap[id];
-};
-
   return (
     <button
       onClick={toggle}
@@ -419,65 +392,6 @@ export default function Sidebar({
   const navigate = useNavigate();
 const location = useLocation();
 
-// const handleNavClick = (id) => {
-//   // const pathMap = {
-//   //   profile: '/profile-v2',
-//   //   avatar: '/avatar',
-//   //   impact: '/impact',
-//   //   map: '/map',
-//   //   badges: '/badges',
-//   //   leaderboard: '/leaderboard',
-//   //   orders: '/orders',
-//   //   daily: '/daily-tasks',
-//   //   explore: '/city-exploration',
-//   //   city: '/city-map',
-//   //   geo: '/geo-quests',
-//   //   team: '/team-challenges',
-//   //   'my-donations': '/my-donations',
-//   //   notifications: '/notifications',
-//   //   parents: '/parents',
-//   //   admin: '/admin',
-//   //   cases: '/cases',
-//   //   'create-request': '/create-request',
-//   //   'incoming-requests': '/incoming-requests',
-//   // };
-
-//   // const path = pathMap[id] || '/profile';
-//   // setSidebarOpen(false);
-//   // navigate(path);
-
-//   const handleNavClick = (id) => {
-//   const pathMap = {
-//     profile: '/profile-v2',
-//     avatar: '/avatar',
-//     impact: '/impact',
-//     map: '/map',
-//     badges: '/badges',
-//     leaderboard: '/leaderboard',
-//     orders: '/orders',
-//     daily: '/daily-tasks',
-//     explore: '/city-exploration',
-//     city: '/city-map',
-//     geo: '/geo-quests',
-//     team: '/team-challenges',
-//     'my-donations': '/my-donations',
-//     notifications: '/notifications',
-//     parents: '/parents',
-//     admin: '/admin',
-//     cases: '/cases',
-//     'create-request': '/create-request',
-//     'incoming-requests': '/incoming-requests',
-//   };
-
-//   const path = pathMap[id] || '/profile-v2';
-
-//   setActiveTab?.(id);
-//   setSidebarOpen(false);
-//   navigate(path);
-// };
-// };
-
-
 const handleNavClick = (id) => {
   const pathMap = {
     profile: '/profile-v2',
@@ -498,29 +412,12 @@ const handleNavClick = (id) => {
     admin: '/admin',
     cases: '/cases',
     'create-request': '/create-request',
-    'incoming-requests': '/incoming-requests',
   };
 
-  const path = pathMap[id] || '/profile-v2';
-
-  setActiveTab?.(id);
+  const path = pathMap[id] || '/profile';
   setSidebarOpen(false);
   navigate(path);
 };
-const { can } = usePermissions();
-const { user } = useAuth();
-const isAdmin = user?.roles?.includes('admin');
-const isParent = user?.roles?.includes('parent');
-
-const visibleItems = NAV_ITEMS.filter((item) => {
-  if (isAdmin && (item.id === 'parents' || item.id === 'create-request')) {
-    return false;
-  }
-  if ((isAdmin || isParent) && item.id === 'my-donations') {
-    return false;
-  }
-  return !item.condition || can(item.condition);
-});
 
   return (
     <>
@@ -670,27 +567,14 @@ const visibleItems = NAV_ITEMS.filter((item) => {
                 background: 'radial-gradient(circle, rgba(251,191,36,0.2) 0%, transparent 70%)',
                 animation: 'glowPulse 3s ease-in-out infinite',
               }} />
-             <div
-  style={{
-    width: 60,
-    height: 60,
-    borderRadius: '50%',
-    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    animation: 'logoFloat 4s ease-in-out infinite',
-    boxShadow: '0 0 18px rgba(251,191,36,0.35)',
-  }}
->
-  <FaStar
-    style={{
-      color: '#ffffff',
-      fontSize: 26,
-      filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.45))',
-    }}
-  />
-</div>
+              <div style={{
+                fontSize: 34,
+                animation: 'logoFloat 4s ease-in-out infinite',
+                display: 'inline-block',
+                filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.5))',
+              }}>
+                <FaStar />
+              </div>
             </div>
             <div style={{
               fontSize: 16,
@@ -880,18 +764,10 @@ const visibleItems = NAV_ITEMS.filter((item) => {
             ))}
           </nav> */}
 
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-            {/* {(() => {
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+            {(() => {
               const { can } = usePermissions();
-              const { user } = useAuth();
-              const isAdmin = user?.roles?.includes('admin');
-              const visibleItems = NAV_ITEMS.filter(item => {
-                // Hide parents and create-request buttons for admin users
-                if (isAdmin && (item.id === 'parents' || item.id === 'create-request')) {
-                  return false;
-                }
-                return !item.condition || can(item.condition);
-              });
+              const visibleItems = NAV_ITEMS.filter(item => !item.condition || can(item.condition));
               return visibleItems.map((item) => (
                 <React.Fragment key={item.id}>
                   {item.dividerBefore && (
@@ -908,7 +784,7 @@ const visibleItems = NAV_ITEMS.filter((item) => {
                         ? location.pathname === '/parents'
                         : item.id === 'profile'
                           ? location.pathname === '/profile-v2'
-                          : item.id === 'profile'
+                          : item.id === 'avatar'
                             ? activeTab === 'profile'
                             : activeTab === item.id
                     }
@@ -916,68 +792,7 @@ const visibleItems = NAV_ITEMS.filter((item) => {
                   />
                 </React.Fragment>
               ));
-            })()} */}
-
-
-  {visibleItems.map((item) => (
-    <React.Fragment key={item.id}>
-      {item.dividerBefore && (
-        <div
-          style={{
-            height: 1,
-            background: 'linear-gradient(90deg, transparent, rgba(29,110,216,0.3), transparent)',
-            margin: '8px 4px',
-          }}
-        />
-      )}
-
-      <NavBtn
-        item={item}
-        active={
-          item.id === 'parents'
-            ? location.pathname === '/parents'
-            : item.id === 'profile'
-            ? location.pathname === '/profile-v2'
-            : item.id === 'avatar'
-            ? location.pathname === '/avatar'
-            : item.id === 'impact'
-            ? location.pathname === '/impact'
-            : item.id === 'map'
-            ? location.pathname === '/map'
-            : item.id === 'badges'
-            ? location.pathname === '/badges'
-            : item.id === 'leaderboard'
-            ? location.pathname === '/leaderboard'
-            : item.id === 'orders'
-            ? location.pathname === '/orders'
-            : item.id === 'daily'
-            ? location.pathname === '/daily-tasks'
-            : item.id === 'explore'
-            ? location.pathname === '/city-exploration'
-            : item.id === 'city'
-            ? location.pathname === '/city-map'
-            : item.id === 'geo'
-            ? location.pathname === '/geo-quests'
-            : item.id === 'team'
-            ? location.pathname === '/team-challenges'
-            : item.id === 'my-donations'
-            ? location.pathname === '/my-donations'
-            : item.id === 'notifications'
-            ? location.pathname === '/notifications'
-            : item.id === 'admin'
-            ? location.pathname === '/admin'
-            : item.id === 'cases'
-            ? location.pathname === '/cases'
-            : item.id === 'create-request'
-            ? location.pathname === '/create-request'
-            : item.id === 'incoming-requests'
-            ? location.pathname === '/incoming-requests'
-            : activeTab === item.id
-        }
-        onClick={handleNavClick}
-      />
-    </React.Fragment>
-  ))}
+            })()}
           </nav>
 
           {/* ── Dark Mode Toggle ── */}
