@@ -220,7 +220,6 @@ const NAV_ITEMS = [
   { id: 'my-donations',    label: 'تبرعاتي',        icon: FaCoins, condition: PERMISSIONS.VIEW_MY_DONATIONS },
   { id: 'orders',      label: 'الأوامر',          icon: FaBoxOpen, condition: PERMISSIONS.VIEW_ORDERS },
   { id: 'admin',       label: 'الإدارة',          icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
-  { id: 'incoming-requests', label: 'الطلبات الواردة', icon: FaBell, condition: PERMISSIONS.VIEW_ADMIN },
 ];
 
 // ── Avatar ────────────────────────────────────────────────────────────────
@@ -413,7 +412,6 @@ const handleNavClick = (id) => {
     admin: '/admin',
     cases: '/cases',
     'create-request': '/create-request',
-    'incoming-requests': '/incoming-requests',
   };
 
   const path = pathMap[id] || '/profile';
@@ -569,27 +567,14 @@ const handleNavClick = (id) => {
                 background: 'radial-gradient(circle, rgba(251,191,36,0.2) 0%, transparent 70%)',
                 animation: 'glowPulse 3s ease-in-out infinite',
               }} />
-             <div
-  style={{
-    width: 60,
-    height: 60,
-    borderRadius: '50%',
-    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    animation: 'logoFloat 4s ease-in-out infinite',
-    boxShadow: '0 0 18px rgba(251,191,36,0.35)',
-  }}
->
-  <FaStar
-    style={{
-      color: '#ffffff',
-      fontSize: 26,
-      filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.45))',
-    }}
-  />
-</div>
+              <div style={{
+                fontSize: 34,
+                animation: 'logoFloat 4s ease-in-out infinite',
+                display: 'inline-block',
+                filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.5))',
+              }}>
+                <FaStar />
+              </div>
             </div>
             <div style={{
               fontSize: 16,
@@ -782,15 +767,7 @@ const handleNavClick = (id) => {
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
             {(() => {
               const { can } = usePermissions();
-              const { user } = useAuth();
-              const isAdmin = user?.roles?.includes('admin');
-              const visibleItems = NAV_ITEMS.filter(item => {
-                // Hide parents and create-request buttons for admin users
-                if (isAdmin && (item.id === 'parents' || item.id === 'create-request')) {
-                  return false;
-                }
-                return !item.condition || can(item.condition);
-              });
+              const visibleItems = NAV_ITEMS.filter(item => !item.condition || can(item.condition));
               return visibleItems.map((item) => (
                 <React.Fragment key={item.id}>
                   {item.dividerBefore && (
@@ -807,7 +784,7 @@ const handleNavClick = (id) => {
                         ? location.pathname === '/parents'
                         : item.id === 'profile'
                           ? location.pathname === '/profile-v2'
-                          : item.id === 'profile'
+                          : item.id === 'avatar'
                             ? activeTab === 'profile'
                             : activeTab === item.id
                     }
