@@ -1,4 +1,4 @@
-// src/components/layout/Sidebar.jsx
+﻿// src/components/layout/Sidebar.jsx
 import React, { useState, useEffect } from 'react';
 import GameEngine   from '../../services/GameEngine';
 import ThemeService from '../../services/ThemeService';
@@ -421,48 +421,51 @@ export default function Sidebar({
   const xpPct = GameEngine.xpPercent(userStats.xp, userStats.xpNeeded);
 
   const navigate = useNavigate();
-const location = useLocation();
+  const location = useLocation();
+  const { can } = usePermissions();
+  const { user } = useAuth();
+  const isAdmin = user?.roles?.includes('admin');
+  const isParent = user?.roles?.includes('parent');
 
-const handleNavClick = (id) => {
-  const pathMap = {
-    profile: '/profile-v2',
-    avatar: '/avatar',
-    impact: '/impact',
-    map: '/map',
-    badges: '/badges',
-    leaderboard: '/leaderboard',
-    orders: '/orders',
-    daily: '/daily-tasks',
-    explore: '/city-exploration',
-    city: '/city-map',
-    geo: '/geo-quests',
-    team: '/team-challenges',
-    'my-donations': '/my-donations',
-    notifications: '/notifications',
-    parents: '/parents',
-    admin: '/admin',
-    cases: '/cases',
-    'create-request': '/create-request',
-    'incoming-requests': '/incoming-requests',
+  const handleNavClick = (id) => {
+    const pathMap = {
+      profile: '/profile-v2',
+      avatar: '/avatar',
+      impact: '/impact',
+      map: '/map',
+      badges: '/badges',
+      leaderboard: '/leaderboard',
+      orders: '/orders',
+      daily: '/daily-tasks',
+      explore: '/city-exploration',
+      city: '/city-map',
+      geo: '/geo-quests',
+      team: '/team-challenges',
+      'my-donations': '/my-donations',
+      notifications: '/notifications',
+      parents: '/parents',
+      admin: '/admin',
+      cases: '/cases',
+      'create-request': '/create-request',
+      'incoming-requests': '/incoming-requests',
+    };
+
+    const path = pathMap[id] || '/profile-v2';
+
+    setActiveTab?.(id);
+    setSidebarOpen(false);
+    navigate(path);
   };
 
-  const path = pathMap[id] || '/profile-v2';
-
-  setActiveTab?.(id);
-  setSidebarOpen(false);
-  navigate(path);
-};
-
-const { can } = usePermissions();
-const { user } = useAuth();
-const isAdmin = user?.roles?.includes('admin');
-
-const visibleItems = NAV_ITEMS.filter((item) => {
-  if (isAdmin && (item.id === 'parents' || item.id === 'create-request')) {
-    return false;
-  }
-  return !item.condition || can(item.condition);
-});
+  const visibleItems = NAV_ITEMS.filter((item) => {
+    if (isAdmin && (item.id === 'parents' || item.id === 'create-request')) {
+      return false;
+    }
+    if ((isAdmin || isParent) && item.id === 'my-donations') {
+      return false;
+    }
+    return !item.condition || can(item.condition);
+  });
 
   return (
     <>

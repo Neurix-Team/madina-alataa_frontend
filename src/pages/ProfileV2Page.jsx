@@ -954,26 +954,6 @@ function SettingsPanel({ form, setForm, onSave, onDetectLocation, onLogout, mapE
         )}
 
         <div style={{ height: 1, background: 'rgba(255,255,255,.15)', margin: '8px 0' }} />
-
-        <button
-          onClick={onLogout}
-          style={{
-            border: '1px solid rgba(255,140,140,0.35)',
-            borderRadius: 12,
-            padding: '12px 14px',
-            fontWeight: 800,
-            color: '#ffb4b4',
-            background: 'rgba(255,65,65,0.12)',
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <FaSignOutAlt />
-          تسجيل الخروج
-        </button>
       </div>
     </div>
   );

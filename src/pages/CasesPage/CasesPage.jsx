@@ -353,7 +353,6 @@ export default function CasesPage() {
             {can(PERMISSIONS.VIEW_MY_DONATIONS) && !isAdmin && !isParent && <button className="cases-side-btn cases-side-btn--primary" onClick={() => navigate('/my-donations')}>تبرعاتي</button>}
             <button className="cases-side-btn" onClick={() => navigate('/map')}>الرجوع للرئيسية</button>
             <button className="cases-side-btn" onClick={() => navigate('/profile-v2')}>البروفايل</button>
-            <button className="cases-side-btn cases-side-btn--danger" onClick={handleLogout}>تسجيل الخروج</button>
           </div>
         </aside>
 

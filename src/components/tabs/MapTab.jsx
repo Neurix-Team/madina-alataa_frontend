@@ -17,6 +17,7 @@ import {
   MAP_TYPES,
   MAP_CATEGORIES,
 } from '../../data/mapLocations';
+import DashboardCards from '../common/DashboardCards';
 
 const COLOR_MAP = {
   rose:    { bg: '#fff1f2', border: '#fda4af', badge: '#be123c' },
@@ -27,6 +28,7 @@ const COLOR_MAP = {
   emerald: { bg: '#f0fdf4', border: '#6ee7b7', badge: '#065f46' },
   red:     { bg: '#fff5f5', border: '#fca5a5', badge: '#b91c1c' },
   orange:  { bg: '#fff7ed', border: '#fdba74', badge: '#c2410c' },
+  blue:    { bg: '#eff6ff', border: '#93c5fd', badge: '#1d4ed8' },
 };
 
 const ZoneCard = memo(({ zone, completedQuests, onOpenZone }) => {
@@ -198,6 +200,8 @@ const MapTab = ({ onOpenZone }) => {
 
   return (
     <div style={{ display: 'grid', gap: 18 }}>
+      <DashboardCards userStats={state.userStats} completedCount={doneQuests} />
+
       <div style={{
         background: 'var(--bg-card)',
         borderRadius: 22,
@@ -372,6 +376,90 @@ const MapTab = ({ onOpenZone }) => {
           fontFamily: "'Cairo', sans-serif"
         }}>
           {nearestPlace ? nearestPlace.subtitle : 'استخدم الفلاتر لإيجاد أماكن'}
+        </div>
+      </div>
+    </div>
+
+    {/* Colored stats cards */}
+    <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
+      <div style={{
+        padding: 16,
+        borderRadius: 18,
+        background: 'linear-gradient(135deg, #fff7ed, #fed7aa)',
+        border: '2px solid #fdba74',
+        fontFamily: "'Cairo', sans-serif",
+        boxShadow: '0 4px 12px rgba(251, 146, 60, 0.2)',
+      }}>
+        <div style={{
+          fontSize: 14,
+          color: '#c2410c',
+          fontWeight: 800,
+          fontFamily: "'Cairo', sans-serif"
+        }}>
+          الحالات
+        </div>
+        <div style={{
+          marginTop: 8,
+          fontSize: 28,
+          fontWeight: 900,
+          fontFamily: "'Cairo', sans-serif",
+          color: '#ea580c'
+        }}>
+          {summary.cases}
+        </div>
+      </div>
+
+      <div style={{
+        padding: 16,
+        borderRadius: 18,
+        background: 'linear-gradient(135deg, #faf5ff, #e9d5ff)',
+        border: '2px solid #d8b4fe',
+        fontFamily: "'Cairo', sans-serif",
+        boxShadow: '0 4px 12px rgba(147, 51, 234, 0.2)',
+      }}>
+        <div style={{
+          fontSize: 14,
+          color: '#7e22ce',
+          fontWeight: 800,
+          fontFamily: "'Cairo', sans-serif"
+        }}>
+          المستشفيات
+        </div>
+        <div style={{
+          marginTop: 8,
+          fontSize: 28,
+          fontWeight: 900,
+          fontFamily: "'Cairo', sans-serif",
+          color: '#a855f7'
+        }}>
+          {summary.hospitals}
+        </div>
+      </div>
+
+      <div style={{
+        padding: 16,
+        borderRadius: 18,
+        background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+        border: '2px solid #93c5fd',
+        fontFamily: "'Cairo', sans-serif",
+        boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)',
+      }}>
+        <div style={{
+          fontSize: 14,
+          color: '#1d4ed8',
+          fontWeight: 800,
+          fontFamily: "'Cairo', sans-serif"
+        }}>
+          إجمالي
+        </div>
+        <div style={{
+          marginTop: 8,
+          fontSize: 28,
+          fontWeight: 900,
+          fontFamily: "'Cairo', sans-serif",
+          color: '#2563eb'
+        }}>
+          {filteredMarkers.length}
         </div>
       </div>
     </div>

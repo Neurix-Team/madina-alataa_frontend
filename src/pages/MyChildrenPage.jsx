@@ -509,7 +509,6 @@ export default function MyChildrenPage() {
           <button className="children-side-btn" onClick={() => navigate('/map')}>الرجوع للرئيسية</button>
           <button className="children-side-btn" onClick={() => navigate('/profile-v2')}>البروفايل</button>
           <button className="children-side-btn" onClick={() => setSettingsOpen((s) => !s)}>الإعدادات</button>
-          <button className="children-side-btn children-side-btn--danger" onClick={handleLogout}>تسجيل الخروج</button>
         </div>
       </aside>
 

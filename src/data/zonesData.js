@@ -231,6 +231,26 @@ const zonesData = [
       },
     ],
   },
+  {
+    id: 'z9',
+    title: 'البحر الأزرق',
+    desc: 'المنطقة الساحلية',
+    emoji: '🌊',
+    color: 'blue',
+    quests: [
+      {
+        id: 'q14',
+        title: 'تنظيف الشاطئ',
+        diff: 'متوسط',
+        story: 'الشاطئ مليء بالنفايات، لنقم بتنظيفه وإعادة جماله!',
+        kp: 90, xp: 180, impact: 15,
+        bonuses: [
+          { id: 'b40', label: 'زراعة أشجار', kp: 25 },
+          { id: 'b41', label: 'توعية الزوار', kp: 20 },
+        ],
+      },
+    ],
+  },
 ];
 
 export default zonesData;
