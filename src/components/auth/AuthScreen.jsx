@@ -31,12 +31,29 @@ const loginSchema = Yup.object({
   password: Yup.string().min(6, 'الكلمة السرية لازم تكون 6 حروف على الأقل').required('الكلمة السرية مطلوبة'),
 });
 
+// const registerSchema = Yup.object({
+//   name: Yup.string().min(3, 'الاسم لازم يكون 3 حروف على الأقل').required('الاسم مطلوب'),
+//   email: Yup.string().required('البريد الإلكتروني مطلوب'),
+//   password: Yup.string().min(6, 'الكلمة السرية لازم تكون 6 حروف على الأقل').required('الكلمة السرية مطلوبة'),
+//   age: Yup.number().min(1, 'العمر لازم يكون أكبر من 0').max(120, 'العمر لازم يكون أقل من 120').required('العمر مطلوب'),
+//   role: Yup.string().oneOf(['donor', 'parent', 'volunteer', 'reviewer', 'admin'], 'اختار دور صحيح').required('الدور مطلوب'),
+// });
+
 const registerSchema = Yup.object({
-  name: Yup.string().min(3, 'الاسم لازم يكون 3 حروف على الأقل').required('الاسم مطلوب'),
-  email: Yup.string().required('البريد الإلكتروني مطلوب'),
-  password: Yup.string().min(6, 'الكلمة السرية لازم تكون 6 حروف على الأقل').required('الكلمة السرية مطلوبة'),
-  age: Yup.number().min(1, 'العمر لازم يكون أكبر من 0').max(120, 'العمر لازم يكون أقل من 120').required('العمر مطلوب'),
-  role: Yup.string().oneOf(['donor', 'parent', 'volunteer', 'reviewer', 'admin'], 'اختار دور صحيح').required('الدور مطلوب'),
+  fullname: Yup.string()
+    .min(3, 'الاسم لازم يكون 3 حروف على الأقل')
+    .required('الاسم مطلوب'),
+
+  email: Yup.string()
+    .email('البريد الإلكتروني غير صحيح')
+    .required('البريد الإلكتروني مطلوب'),
+
+  password: Yup.string()
+    .min(8, 'الكلمة السرية لازم تكون 8 حروف على الأقل مع حرف كبير ورقم')
+    .required('الكلمة السرية مطلوبة'),
+
+  birthDate: Yup.string()
+    .required('تاريخ الميلاد مطلوب'),
 });
 
 
@@ -148,30 +165,59 @@ const AuthScreen = () => {
   });
 
   const registerFormik = useFormik({
-    initialValues: { name: '', email: '', password: '', age: '', role: 'donor' },
+    // initialValues: { name: '', email: '', password: '', age: '', role: 'donor' },
+initialValues: {
+  fullname: '',
+  email: '',
+  password: '',
+  birthDate: '',
+},
     validationSchema: registerSchema,
+    // onSubmit: async (values) => {
+    //   try {
+    //     const user = await register(values);
+    //     setSuccess(true);
+    //     AudioManager.getInstance().unlock();
+    //     AudioManager.getInstance().play('win');
+    //     setTimeout(() => {
+    //       goByRole(user);
+    //     }, 700);
+    //   } catch (error) {
+    //     AudioManager.getInstance().play('error');
+    //   }
+    // },
+
     onSubmit: async (values) => {
-      try {
-        const user = await register(values);
-        setSuccess(true);
-        AudioManager.getInstance().unlock();
-        AudioManager.getInstance().play('win');
-        setTimeout(() => {
-          goByRole(user);
-        }, 700);
-      } catch (error) {
-        AudioManager.getInstance().play('error');
-      }
-    },
+  try {
+    console.log('REGISTER FORM VALUES:', values);
+
+    const user = await register(values);
+
+    console.log('REGISTER FINAL USER:', user);
+
+    if (!user) return;
+
+    setSuccess(true);
+    AudioManager.getInstance().unlock();
+    AudioManager.getInstance().play('win');
+
+    setTimeout(() => {
+      goByRole(user);
+    }, 700);
+  } catch (error) {
+    console.error('REGISTER SUBMIT ERROR:', error);
+    AudioManager.getInstance().play('error');
+  }
+},
   });
 
   // Auto-adjust role based on age
-  useEffect(() => {
-    const age = parseInt(registerFormik.values.age);
-    if (age < 19 && registerFormik.values.role === 'parent') {
-      registerFormik.setFieldValue('role', 'donor');
-    }
-  }, [registerFormik.values.age, registerFormik.values.role]);
+  // useEffect(() => {
+  //   const age = parseInt(registerFormik.values.age);
+  //   if (age < 19 && registerFormik.values.role === 'parent') {
+  //     registerFormik.setFieldValue('role', 'donor');
+  //   }
+  // }, [registerFormik.values.age, registerFormik.values.role]);
 
   const handleGuest = async () => {
     AudioManager.getInstance().unlock();
@@ -185,6 +231,22 @@ const AuthScreen = () => {
       AudioManager.getInstance().play('error');
     }
   };
+
+const handleLogin = async (values) => {
+  try {
+    const user = await login(values); // إرسال البيانات إلى الدالة المعدلة في AuthProvider
+
+    // إذا تم تسجيل الدخول بنجاح، سيتم التعامل مع النتيجة هنا
+    if (user) {
+      console.log('User logged in successfully:', user);
+      // هنا يمكنك التعامل مع الانتقال أو إجراء أي عملية أخرى بعد تسجيل الدخول
+    } else {
+      console.error('Login failed');
+    }
+  } catch (error) {
+    console.error('Error during login:', error);
+  }
+};
 
   const handleGoogleLogin = async () => {
     AudioManager.getInstance().play('click');
@@ -638,21 +700,51 @@ const AuthScreen = () => {
                 </form>
               ) : (
                 <form onSubmit={registerFormik.handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <InputField type="text" name="name" label="الاسم الكامل" placeholder="اكتب اسمك" formik={registerFormik} icon={FaUser} />
-                  {registerFormik.touched.name && registerFormik.errors.name && <p style={ERROR_STYLE}>⚠️ {registerFormik.errors.name}</p>}
+
+                  
+
+  <InputField
+  type="text"
+  name="fullname"
+  label="الاسم الكامل"
+  placeholder="الاسم الكامل"
+  formik={registerFormik}
+  icon={FaUser}
+/>
+
+{registerFormik.touched.fullname && registerFormik.errors.fullname && (
+  <p style={ERROR_STYLE}>⚠️ {registerFormik.errors.fullname}</p>
+)}
+
                   <InputField type="email" name="email" label="البريد الإلكتروني" placeholder="أدخل بريدك الإلكتروني" formik={registerFormik} icon={FaEnvelope} />
                   {registerFormik.touched.email && registerFormik.errors.email && <p style={ERROR_STYLE}>⚠️ {registerFormik.errors.email}</p>}
-                  <InputField type="number" name="age" label="العمر" placeholder="أدخل عمرك" formik={registerFormik} icon={FaCalendarAlt} />
+
+                  {/* <InputField type="number" name="age" label="العمر" placeholder="أدخل عمرك" formik={registerFormik} icon={FaCalendarAlt} />
                   {registerFormik.touched.age && registerFormik.errors.age && <p style={ERROR_STYLE}>⚠️ {registerFormik.errors.age}</p>}
+                   */}
+
+                   <InputField
+  type="date"
+  name="birthDate"
+  label="تاريخ الميلاد"
+  placeholder="اختر تاريخ الميلاد"
+  formik={registerFormik}
+  icon={FaCalendarAlt}
+/>
+
+{registerFormik.touched.birthDate && registerFormik.errors.birthDate && (
+  <p style={ERROR_STYLE}>⚠️ {registerFormik.errors.birthDate}</p>
+)}
+
                   <InputField type="password" name="password" label="كلمة المرور" placeholder="أنشئ كلمة مرور قوية" formik={registerFormik} icon={FaLock} />
                   {registerFormik.touched.password && registerFormik.errors.password && <p style={ERROR_STYLE}>⚠️ {registerFormik.errors.password}</p>}
-                  <SelectField name="role" label="نوع الحساب" formik={registerFormik} icon={FaUserTag}>
+                  {/* <SelectField name="role" label="نوع الحساب" formik={registerFormik} icon={FaUserTag}>
                     <option value="donor">متبرع</option>
                     {parseInt(registerFormik.values.age) >= 19 && <option value="parent">ولي أمر</option>}
                     <option value="volunteer">متطوع</option>
                     <option value="reviewer">مراجع</option>
                     <option value="admin">مدير</option>
-                  </SelectField>
+                  </SelectField> */}
                   {registerFormik.touched.role && registerFormik.errors.role && <p style={ERROR_STYLE}>⚠️ {registerFormik.errors.role}</p>}
                   {authError && <p style={ERROR_STYLE}>⚠️ {authError}</p>}
                   <button className="auth-submit-btn" type="submit" style={BTN_STYLE} disabled={registerFormik.isSubmitting}>

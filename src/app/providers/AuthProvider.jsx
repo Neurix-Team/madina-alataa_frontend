@@ -1,5 +1,5 @@
 // src/app/providers/AuthProvider.jsx
-
+import { authService } from '../../services/authService';
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { mockLogin, mockRegister, mockGuestLogin } from '../../services/mockAuth';
 import secureStorage from '../../utils/secureStorage';
@@ -35,77 +35,118 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function with validation
-  const login = async (payload) => {
-    try {
-      setAuthError(null);
+  // const login = async (payload) => {
+  //   try {
+  //     setAuthError(null);
 
-      // Validate input
-      const emailError = validateEmail(payload.email);
-      if (emailError) {
-        setAuthError(emailError);
-        return null;
-      }
+  //     // Validate input
+  //     const emailError = validateEmail(payload.email);
+  //     if (emailError) {
+  //       setAuthError(emailError);
+  //       return null;
+  //     }
 
-      const passwordError = validatePassword(payload.password);
-      if (passwordError) {
-        setAuthError(passwordError);
-        return null;
-      }
+  //     const passwordError = validatePassword(payload.password);
+  //     if (passwordError) {
+  //       setAuthError(passwordError);
+  //       return null;
+  //     }
 
-      const loggedInUser = await mockLogin(payload);
-      setUser(loggedInUser);
-      await secureStorage.setItem(STORAGE_KEY, loggedInUser);
-      return loggedInUser;
-    } catch (error) {
-      const errorMsg = handleError(error);
-      setAuthError(errorMsg);
-      logError(error, 'AuthProvider.login');
-      return null;
+  //     const loggedInUser = await mockLogin(payload);
+  //     setUser(loggedInUser);
+  //     await secureStorage.setItem(STORAGE_KEY, loggedInUser);
+  //     return loggedInUser;
+  //   } catch (error) {
+  //     const errorMsg = handleError(error);
+  //     setAuthError(errorMsg);
+  //     logError(error, 'AuthProvider.login');
+  //     return null;
+  //   }
+  // };
+
+const login = async (payload) => {
+  try {
+    setAuthError(null);
+
+    // إرسال طلب لوجين إلى الـ API
+    const response = await axios.post('http://api-givingchampion.dev.localhost:5128/api/auth/login', payload);
+
+    // طباعة الريسبونس في الكونسول
+    console.log('LOGIN RESPONSE:', response);
+
+    // التأكد من وجود بيانات المستخدم في الريسبونس
+    const userData = response.data?.user ?? response.data;
+
+    // إذا كانت الاستجابة صحيحة:
+    if (userData) {
+      const normalizedUser = {
+        id: userData?.id || `user-${Date.now()}`,
+        name: userData?.fullname || userData?.name || 'Unknown',
+        email: userData?.email || payload.email,
+        roles: userData?.roles || ['User'],
+        token: response.data?.token || null,
+      };
+
+      console.log('NORMALIZED LOGIN USER:', normalizedUser);
+
+      setUser(normalizedUser); // تخزين المستخدم في الحالة
+      await secureStorage.setItem(STORAGE_KEY, normalizedUser); // تخزينه في secureStorage
+
+      return normalizedUser; // إرجاع المستخدم
     }
-  };
+  } catch (error) {
+    // في حالة حدوث خطأ، عرض رسالة الخطأ في الكونسول
+    console.error('LOGIN API ERROR:', error.response?.data || error.message || error);
 
-  // Register function with validation
+    const errorMsg =
+      error?.response?.data?.message ||
+      error?.response?.data?.title ||
+      'فشل تسجيل الدخول';
+
+    setAuthError(errorMsg); // تعيين رسالة الخطأ في حالة حدوث خطأ
+    logError(error, 'AuthProvider.login'); // تسجيل الخطأ
+
+    return null; // إرجاع null في حال حدوث خطأ
+  }
+};
+    // Register function with validation
   const register = async (payload) => {
     try {
       setAuthError(null);
 
-      // Validate input
-      const nameError = validateName(payload.name);
-      if (nameError) {
-        setAuthError(nameError);
-        return null;
-      }
+      const registeredUserResponse = await authService.register(payload);
+      console.log('REGISTER RESPONSE INSIDE PROVIDER:', registeredUserResponse);
 
-      const emailError = validateEmail(payload.email);
-      if (emailError) {
-        setAuthError(emailError);
-        return null;
-      }
+      const userData = registeredUserResponse?.user ?? registeredUserResponse?.data ?? registeredUserResponse;
 
-      const passwordError = validatePassword(payload.password);
-      if (passwordError) {
-        setAuthError(passwordError);
-        return null;
-      }
+      const normalizedUser = {
+        id: userData?.id || userData?.userId || `user-${Date.now()}`,
+        name: userData?.fullname || userData?.fullName || userData?.name || payload.fullname,
+        email: userData?.email || payload.email,
+        birthDate: userData?.birthDate || payload.birthDate,
+        roles: userData?.roles || ['donor'],
+        token: registeredUserResponse?.token || registeredUserResponse?.accessToken || userData?.token || null,
+      };
 
-      const roleError = validateRole(payload.role);
-      if (roleError) {
-        setAuthError(roleError);
-        return null;
-      }
+      console.log('NORMALIZED REGISTER USER:', normalizedUser);
 
-      const registeredUser = await mockRegister(payload);
-      setUser(registeredUser);
-      await secureStorage.setItem(STORAGE_KEY, registeredUser);
-      return registeredUser;
+      setUser(normalizedUser);
+      await secureStorage.setItem(STORAGE_KEY, normalizedUser);
+      return normalizedUser;
     } catch (error) {
-      const errorMsg = handleError(error);
+      console.error('REGISTER API ERROR:', error?.response?.data || error?.message || error);
+
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.response?.data?.title ||
+        'فشل إنشاء الحساب';
+
       setAuthError(errorMsg);
       logError(error, 'AuthProvider.register');
+
       return null;
     }
   };
-
   const guestLogin = async () => {
     try {
       setAuthError(null);
@@ -126,7 +167,8 @@ export const AuthProvider = ({ children }) => {
     try {
       setAuthError(null);
       setUser(null);
-      await secureStorage.removeItem(STORAGE_KEY);
+      // Keep user data in localStorage for future sessions
+      // await secureStorage.removeItem(STORAGE_KEY);
     } catch (error) {
       logError(error, 'AuthProvider.logout');
       setAuthError('فشل في تسجيل الخروج');

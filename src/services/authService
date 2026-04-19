@@ -1,0 +1,23 @@
+//logic for auth service
+//take api and return data
+import { axiosClient } from './axiosClient';
+
+export const authService = {
+
+  register: async (payload) => {
+    const requestBody = {
+      email: payload.email,
+      password: payload.password,
+      fullname: payload.fullname,
+      birthDate: payload.birthDate,
+    };
+
+    console.log('REGISTER REQUEST BODY:', requestBody);
+
+    const response = await axiosClient.post('/auth/register', requestBody);
+
+    console.log('REGISTER REAL API RESPONSE:', response.data);
+
+    return response.data;
+  },
+};

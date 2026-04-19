@@ -51,6 +51,10 @@ export const handlers = [
     return notification ? HttpResponse.json(notification) : HttpResponse.json({ error: 'Notification not found' }, { status: 404 })
   }),
 
+  http.post('http://api-givingchampion.dev.localhost:5128/api/auth/register', () => {
+  return passthrough()
+}),
+
   // Handle /notifications (if any direct requests)
   http.get('/notifications', () => {
     return HttpResponse.json(notifications)
