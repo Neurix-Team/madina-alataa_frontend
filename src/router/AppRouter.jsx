@@ -121,6 +121,7 @@ import CaseDetailsPage from '../pages/CaseDetailsPage';
 import DonationCheckoutPage from '../pages/DonationCheckoutPage';
 import CreateRequestPage from '../pages/CreateRequestPage';
 import IncomingRequestsPage from '../pages/IncomingRequestsPage';
+import ContinueRegistrationPage from '../pages/ContinueRegistrationPage';
 
 // Social Auth Pages
 // اعملي الصفحتين دول بعدين أو سيبيهم commented لحد ما تجهزيهم
@@ -152,6 +153,7 @@ export const AppRouter = () => {
 
       {/* Public route */}
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <Route path="/continue-registration" element={<ContinueRegistrationPage />} />
 
       {/* Social auth routes - فعليهم لما تعملي الصفحات */}
       {/*

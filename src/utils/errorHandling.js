@@ -1,5 +1,5 @@
 // src/utils/errorHandling.js
-
+import { Axios } from "axios";
 // Public error messages - safe for user display
 export const ERROR_MESSAGES = {
   // Authentication errors

@@ -22,9 +22,10 @@ import {
   FaStar,
 } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth'; // تأكد من أن المسار صحيح
 import { useNavigate } from 'react-router-dom';
-import AudioManager from '../../services/AudioManager';
+import AudioManager from '../../services/AudioManager'; // تأكد من أن الملف موجود في المسار
+import { useAuthContext } from '../../app/providers/AuthProvider';
 
 const loginSchema = Yup.object({
   email: Yup.string().email('البريد الإلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
@@ -119,7 +120,17 @@ function FeatureBadge({ icon: Icon, text }) {
 }
 
 const AuthScreen = () => {
-  const { login, register, guestLogin, authError } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const { 
+    user, 
+    login, 
+    register, 
+    guestLogin, 
+    googleLogin, 
+     continueRegistration, 
+     authError,
+     setAuthError
+   } = useAuth();
   const navigate = useNavigate();
 
   const [isLogin, setIsLogin] = useState(true);
@@ -138,6 +149,7 @@ const AuthScreen = () => {
     return () => clearTimeout(t);
   }, []);
 
+  
   const handleSwitch = (toLogin) => {
     if (toLogin === isLogin) return;
     AudioManager.getInstance().play('click');
@@ -248,10 +260,50 @@ const handleLogin = async (values) => {
   }
 };
 
+  
+  //continue registration with google
+  // const handleGoogleLogin = async () => {
+  // setLoading(true);
+  // await googleLogin();
+
+  // // إذا كان المستخدم بحاجة لإتمام التسجيل عبر جوجل
+  // if (user?.needsPasswordUpdate) {
+  //   // اطلب من المستخدم إدخال كلمة مرور جديدة
+  //   const newPassword = prompt('الرجاء إدخال كلمة مرور جديدة:');
+    
+  //   if (newPassword) {
+  //     const updatedUser = await continueRegistration(user.id, newPassword);
+  //     if (updatedUser) {
+  //       // بعد إتمام التحديث، قم بالتوجيه أو بإجراء آخر
+  //       navigate('/profile-v2');
+  //     }
+  //   } else {
+  //     setAuthError('لم يتم إدخال كلمة مرور جديدة');
+  //   }
+  // }
+
   const handleGoogleLogin = async () => {
-    AudioManager.getInstance().play('click');
-    // TODO: Implement Google OAuth login
-    console.log('Google login clicked');
+    try {
+      setLoading(true);
+      const loggedInUser = await googleLogin();
+
+      // إذا كان المستخدم بحاجة لإتمام التسجيل عبر جوجل
+      if (loggedInUser?.needsPasswordUpdate) {
+        navigate('/continue-registration', { 
+          state: { 
+            userId: loggedInUser.id, 
+            email: loggedInUser.email 
+          } 
+        });
+      } else if (loggedInUser) {
+        // إذا لم يكن بحاجة لتحديث كلمة المرور، توجه للصفحة الرئيسية
+        goByRole(loggedInUser);
+      }
+    } catch (error) {
+      console.error('Google Login Error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGithubLogin = async () => {
@@ -606,7 +658,8 @@ const handleLogin = async (values) => {
                   <button
                     type="button"
                     className="auth-social-btn"
-                    onClick={handleGoogleLogin}
+                     onClick={handleGoogleLogin}
+                     disabled={loading}
                     style={{
                       flex: 1,
                       padding: '12px',
@@ -627,7 +680,7 @@ const handleLogin = async (values) => {
                     }}
                   >
                     <FcGoogle size={18} />
-                    جوجل
+                   {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول باستخدام جوجل'}
                   </button>
                   <button
                     type="button"

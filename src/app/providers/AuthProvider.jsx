@@ -5,15 +5,20 @@ import { mockLogin, mockRegister, mockGuestLogin } from '../../services/mockAuth
 import secureStorage from '../../utils/secureStorage';
 import { handleError, logError } from '../../utils/errorHandling';
 import { validateEmail, validatePassword, validateName, validateRole } from '../../utils/validations';
+import axios from 'axios';
 
-const AuthContext = createContext();
 
 const STORAGE_KEY = 'madina_auth_user';
 
+// Create AuthContext at module level so it's accessible to useAuthContext
+const AuthContext = createContext();
+
 export const AuthProvider = ({ children }) => {
+
   const [user, setUser] = useState(null);
   const [bootstrapping, setBootstrapping] = useState(true);
   const [authError, setAuthError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Load user from secure storage on mount
   useEffect(() => {
@@ -69,7 +74,7 @@ const login = async (payload) => {
     setAuthError(null);
 
     // إرسال طلب لوجين إلى الـ API
-    const response = await axios.post('http://api-givingchampion.dev.localhost:5128/api/auth/login', payload);
+    const response = await axios.post('http://localhost:5128/api/auth/login', payload);
 
     // طباعة الريسبونس في الكونسول
     console.log('LOGIN RESPONSE:', response);
@@ -162,6 +167,82 @@ const login = async (payload) => {
     }
   };
 
+  //google login fetching
+const googleLogin = async () => {
+    try {
+      setLoading(true);
+
+      // إرسال GET request إلى backend لجوجل لوجين
+      const response = await axios.get('/auth/google/login');
+
+      // تخزين التوكن أو بيانات المستخدم
+      const { user: userData, token } = response.data;
+
+      const normalizedUser = {
+        id: userData?.id || `user-${Date.now()}`,
+        name: userData?.fullname || userData?.name || 'Unknown',
+        email: userData?.email || 'No Email',
+        roles: userData?.roles || ['User'],
+        token: token || response.data?.token || null,
+        needsPasswordUpdate: userData?.needsPasswordUpdate || false,
+      };
+
+      setUser(normalizedUser);
+      await secureStorage.setItem(STORAGE_KEY, normalizedUser);
+      localStorage.setItem('auth_token', token);
+
+      console.log('Google Login Successful:', response.data);
+      return normalizedUser;
+    } catch (error) {
+      console.error('Google Login Error:', error);
+      setAuthError('فشل تسجيل الدخول باستخدام جوجل');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //continue registration fetching
+const continueRegistration = async (userId, newPassword) => {
+  try {
+    setAuthError(null);
+    
+    // إرسال POST طلب إلى API الخاص ب continue-registration
+    const response = await axios.post('/api/auth/continue-registration', {
+      userid: userId,
+      newpassword: newPassword,
+    });
+
+    console.log('Continue Registration Successful:', response.data);
+
+    // التأكد من البيانات المسترجعة
+    if (response.data) {
+      const userData = response.data?.user ?? response.data;
+      const normalizedUser = {
+        id: userData?.id || `user-${Date.now()}`,
+        name: userData?.fullname || userData?.name || 'Unknown',
+        email: userData?.email || 'No Email',
+        roles: userData?.roles || ['User'],
+        token: response.data?.token || null,
+      };
+
+      // تخزين البيانات في حالة المستخدم
+      setUser(normalizedUser);
+      await secureStorage.setItem(STORAGE_KEY, normalizedUser); // حفظ البيانات
+
+      return normalizedUser;
+    }
+  } catch (error) {
+    console.error('Continue Registration Error:', error);
+    const errorMsg =
+      error?.response?.data?.message ||
+      error?.response?.data?.title ||
+      'فشل في إتمام التسجيل';
+
+    setAuthError(errorMsg); // تعيين رسالة الخطأ
+    return null;
+  }
+};
+
   // Logout function
   const logout = async () => {
     try {
@@ -189,11 +270,15 @@ const login = async (payload) => {
     hasRole,
     bootstrapping,
     authError,
+    setAuthError,
+    loading,
     login,
     register,
     guestLogin,
+    googleLogin,
+    continueRegistration,
     logout,
-  }), [user, isAuthenticated, isAdmin, bootstrapping, authError]);
+  }), [user, isAuthenticated, isAdmin, bootstrapping, authError, loading]);
 
   return (
     <AuthContext.Provider value={value}>
