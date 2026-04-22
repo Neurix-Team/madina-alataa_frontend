@@ -285,23 +285,10 @@ const handleLogin = async (values) => {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      const loggedInUser = await googleLogin();
-
-      // إذا كان المستخدم بحاجة لإتمام التسجيل عبر جوجل
-      if (loggedInUser?.needsPasswordUpdate) {
-        navigate('/continue-registration', { 
-          state: { 
-            userId: loggedInUser.id, 
-            email: loggedInUser.email 
-          } 
-        });
-      } else if (loggedInUser) {
-        // إذا لم يكن بحاجة لتحديث كلمة المرور، توجه للصفحة الرئيسية
-        goByRole(loggedInUser);
-      }
+      await googleLogin();
+      // Page will redirect, so no further handling needed here
     } catch (error) {
       console.error('Google Login Error:', error);
-    } finally {
       setLoading(false);
     }
   };
