@@ -1,6 +1,6 @@
 //logic for auth service
 //take api and return data
-import { axiosClient } from './axiosClient';
+import axios from 'axios';
 
 export const authService = {
 
@@ -14,7 +14,7 @@ export const authService = {
 
     console.log('REGISTER REQUEST BODY:', requestBody);
 
-    const response = await axiosClient.post('/auth/register', requestBody);
+    const response = await axios.post('http://api-givingchampion.dev.localhost:5128/api/auth/register', requestBody);
 
     console.log('REGISTER REAL API RESPONSE:', response.data);
 

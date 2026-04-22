@@ -40,81 +40,53 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function with validation
-  // const login = async (payload) => {
-  //   try {
-  //     setAuthError(null);
+  const login = async (payload) => {
+    try {
+      setAuthError(null);
 
-  //     // Validate input
-  //     const emailError = validateEmail(payload.email);
-  //     if (emailError) {
-  //       setAuthError(emailError);
-  //       return null;
-  //     }
+      // Send login request to API
+      const response = await axios.post('http://api-givingchampion.dev.localhost:5128/api/auth/login', payload);
 
-  //     const passwordError = validatePassword(payload.password);
-  //     if (passwordError) {
-  //       setAuthError(passwordError);
-  //       return null;
-  //     }
+      // Print response in console
+      console.log('LOGIN RESPONSE:', response);
 
-  //     const loggedInUser = await mockLogin(payload);
-  //     setUser(loggedInUser);
-  //     await secureStorage.setItem(STORAGE_KEY, loggedInUser);
-  //     return loggedInUser;
-  //   } catch (error) {
-  //     const errorMsg = handleError(error);
-  //     setAuthError(errorMsg);
-  //     logError(error, 'AuthProvider.login');
-  //     return null;
-  //   }
-  // };
+      // Verify user data exists in response
+      const userData = response.data?.user ?? response.data;
 
-const login = async (payload) => {
-  try {
-    setAuthError(null);
+      // If response is valid:
+      if (userData) {
+        const normalizedUser = {
+          id: userData?.id || `user-${Date.now()}`,
+          name: userData?.fullname || userData?.name || 'Unknown',
+          email: userData?.email || payload.email,
+          roles: userData?.roles || ['User'],
+          token: response.data?.token || null,
+        };
 
-    // إرسال طلب لوجين إلى الـ API
-    const response = await axios.post('http://localhost:5128/api/auth/login', payload);
+        console.log('NORMALIZED LOGIN USER:', normalizedUser);
 
-    // طباعة الريسبونس في الكونسول
-    console.log('LOGIN RESPONSE:', response);
+        setUser(normalizedUser); // Store user in state
+        await secureStorage.setItem(STORAGE_KEY, normalizedUser); // Store in secureStorage
 
-    // التأكد من وجود بيانات المستخدم في الريسبونس
-    const userData = response.data?.user ?? response.data;
+        return normalizedUser; // Return user
+      }
+    } catch (error) {
+      // If error occurs, show error message in console
+      console.error('LOGIN API ERROR:', error.response?.data || error.message || error);
 
-    // إذا كانت الاستجابة صحيحة:
-    if (userData) {
-      const normalizedUser = {
-        id: userData?.id || `user-${Date.now()}`,
-        name: userData?.fullname || userData?.name || 'Unknown',
-        email: userData?.email || payload.email,
-        roles: userData?.roles || ['User'],
-        token: response.data?.token || null,
-      };
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.response?.data?.title ||
+        'فشل تسجيل الدخول';
 
-      console.log('NORMALIZED LOGIN USER:', normalizedUser);
+      setAuthError(errorMsg); // Set error message if error occurs
+      logError(error, 'AuthProvider.login'); // Log error
 
-      setUser(normalizedUser); // تخزين المستخدم في الحالة
-      await secureStorage.setItem(STORAGE_KEY, normalizedUser); // تخزينه في secureStorage
-
-      return normalizedUser; // إرجاع المستخدم
+      return null; // Return null if error occurs
     }
-  } catch (error) {
-    // في حالة حدوث خطأ، عرض رسالة الخطأ في الكونسول
-    console.error('LOGIN API ERROR:', error.response?.data || error.message || error);
+  };
 
-    const errorMsg =
-      error?.response?.data?.message ||
-      error?.response?.data?.title ||
-      'فشل تسجيل الدخول';
-
-    setAuthError(errorMsg); // تعيين رسالة الخطأ في حالة حدوث خطأ
-    logError(error, 'AuthProvider.login'); // تسجيل الخطأ
-
-    return null; // إرجاع null في حال حدوث خطأ
-  }
-};
-    // Register function with validation
+  // Register function with validation
   const register = async (payload) => {
     try {
       setAuthError(null);
@@ -140,13 +112,24 @@ const login = async (payload) => {
       return normalizedUser;
     } catch (error) {
       console.error('REGISTER API ERROR:', error?.response?.data || error?.message || error);
+      console.error('FULL ERROR RESPONSE:', error?.response);
+      console.error('ERROR STATUS:', error?.response?.status);
+      console.error('ERROR DATA:', JSON.stringify(error?.response?.data, null, 2));
 
-      const errorMsg =
-        error?.response?.data?.message ||
-        error?.response?.data?.title ||
-        'فشل إنشاء الحساب';
+      // Handle validation errors specifically
+      if (error?.response?.data?.errors) {
+        const validationErrors = error.response.data.errors;
+        const errorMessages = validationErrors.map(err => err.message || err).join(', ');
+        setAuthError(`Validation errors: ${errorMessages}`);
+      } else {
+        const errorMsg =
+          error?.response?.data?.message ||
+          error?.response?.data?.title ||
+          'فشل إنشاء الحساب';
 
-      setAuthError(errorMsg);
+        setAuthError(errorMsg);
+      }
+      
       logError(error, 'AuthProvider.register');
 
       return null;
@@ -171,33 +154,18 @@ const login = async (payload) => {
 const googleLogin = async () => {
     try {
       setLoading(true);
+      setAuthError(null);
 
-      // إرسال GET request إلى backend لجوجل لوجين
-      const response = await axios.get('/auth/google/login');
-
-      // تخزين التوكن أو بيانات المستخدم
-      const { user: userData, token } = response.data;
-
-      const normalizedUser = {
-        id: userData?.id || `user-${Date.now()}`,
-        name: userData?.fullname || userData?.name || 'Unknown',
-        email: userData?.email || 'No Email',
-        roles: userData?.roles || ['User'],
-        token: token || response.data?.token || null,
-        needsPasswordUpdate: userData?.needsPasswordUpdate || false,
-      };
-
-      setUser(normalizedUser);
-      await secureStorage.setItem(STORAGE_KEY, normalizedUser);
-      localStorage.setItem('auth_token', token);
-
-      console.log('Google Login Successful:', response.data);
-      return normalizedUser;
+      // Redirect to Google OAuth login endpoint
+      window.location.href = 'http://api-givingchampion.dev.localhost:5128/api/auth/google/login';
+      
+      // This function will not complete as the page will redirect
+      return null;
     } catch (error) {
       console.error('Google Login Error:', error);
-      setAuthError('فشل تسجيل الدخول باستخدام جوجل');
-    } finally {
+      setAuthError('Failed to initiate Google login');
       setLoading(false);
+      return null;
     }
   };
 
@@ -206,15 +174,15 @@ const continueRegistration = async (userId, newPassword) => {
   try {
     setAuthError(null);
     
-    // إرسال POST طلب إلى API الخاص ب continue-registration
-    const response = await axios.post('/api/auth/continue-registration', {
+    // Send POST request to continue-registration API
+    const response = await axios.post('http://api-givingchampion.dev.localhost:5128/api/auth/continue-registration', {
       userid: userId,
       newpassword: newPassword,
     });
 
     console.log('Continue Registration Successful:', response.data);
 
-    // التأكد من البيانات المسترجعة
+    // Verify returned data
     if (response.data) {
       const userData = response.data?.user ?? response.data;
       const normalizedUser = {
@@ -225,9 +193,9 @@ const continueRegistration = async (userId, newPassword) => {
         token: response.data?.token || null,
       };
 
-      // تخزين البيانات في حالة المستخدم
+      // Store data in user state
       setUser(normalizedUser);
-      await secureStorage.setItem(STORAGE_KEY, normalizedUser); // حفظ البيانات
+      await secureStorage.setItem(STORAGE_KEY, normalizedUser); // Save data
 
       return normalizedUser;
     }
@@ -236,9 +204,9 @@ const continueRegistration = async (userId, newPassword) => {
     const errorMsg =
       error?.response?.data?.message ||
       error?.response?.data?.title ||
-      'فشل في إتمام التسجيل';
+      'Failed to complete registration';
 
-    setAuthError(errorMsg); // تعيين رسالة الخطأ
+    setAuthError(errorMsg); // Set error message
     return null;
   }
 };

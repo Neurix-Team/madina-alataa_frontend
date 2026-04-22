@@ -122,6 +122,7 @@ import DonationCheckoutPage from '../pages/DonationCheckoutPage';
 import CreateRequestPage from '../pages/CreateRequestPage';
 import IncomingRequestsPage from '../pages/IncomingRequestsPage';
 import ContinueRegistrationPage from '../pages/ContinueRegistrationPage';
+import AuthCallback from '../components/auth/AuthCallback';
 
 // Social Auth Pages
 // اعملي الصفحتين دول بعدين أو سيبيهم commented لحد ما تجهزيهم
@@ -153,6 +154,7 @@ export const AppRouter = () => {
 
       {/* Public route */}
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/continue-registration" element={<ContinueRegistrationPage />} />
 
       {/* Social auth routes - فعليهم لما تعملي الصفحات */}
