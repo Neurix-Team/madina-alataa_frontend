@@ -154,6 +154,7 @@ export const AppRouter = () => {
 
       {/* Public route */}
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <Route path="/signin-google" element={<Navigate to="/auth/callback" replace />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/continue-registration" element={<ContinueRegistrationPage />} />
 

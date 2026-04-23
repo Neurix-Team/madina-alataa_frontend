@@ -282,16 +282,40 @@ const handleLogin = async (values) => {
   //   }
   // }
 
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     setLoading(true);
+
+  //     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  //     const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+
+  //     // If we have a client id configured, build Google OAuth URL and redirect the browser
+  //     if (GOOGLE_CLIENT_ID) {
+  //       const redirectUri = `${window.location.origin}/auth/callback`;
+  //       const scope = encodeURIComponent('openid email profile');
+  //       const loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${scope}&prompt=select_account&access_type=offline`;
+  //       window.location.href = loginUrl;
+  //       return;
+  //     }
+
+  //     // Fallback: call existing backend redirect (keeps previous behavior)
+  //     await googleLogin();
+  //     // Page will redirect by backend
+  //   } catch (error) {
+  //     console.error('Google Login Error:', error);
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleGoogleLogin = async () => {
-    try {
-      setLoading(true);
-      await googleLogin();
-      // Page will redirect, so no further handling needed here
-    } catch (error) {
-      console.error('Google Login Error:', error);
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    await googleLogin();
+  } catch (error) {
+    console.error('Google Login Error:', error);
+    setLoading(false);
+  }
+};
 
   const handleGithubLogin = async () => {
     AudioManager.getInstance().play('click');

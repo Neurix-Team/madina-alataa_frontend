@@ -44,8 +44,12 @@ export const AuthProvider = ({ children }) => {
     try {
       setAuthError(null);
 
+      // Use environment variable for API base URL
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+      const loginUrl = `${apiBase.replace(/\/$/, '')}/api/auth/login`;
+      
       // Send login request to API
-      const response = await axios.post('http://api-givingchampion.dev.localhost:5128/api/auth/login', payload);
+      const response = await axios.post(loginUrl, payload);
 
       // Print response in console
       console.log('LOGIN RESPONSE:', response);
@@ -93,6 +97,14 @@ export const AuthProvider = ({ children }) => {
 
       const registeredUserResponse = await authService.register(payload);
       console.log('REGISTER RESPONSE INSIDE PROVIDER:', registeredUserResponse);
+      // Save the raw API response to localStorage for debugging/inspection
+      try {
+        if (typeof window !== 'undefined' && window.localStorage && registeredUserResponse) {
+          window.localStorage.setItem('madina_register_response_raw', JSON.stringify(registeredUserResponse));
+        }
+      } catch (e) {
+        console.warn('Failed to save register response to localStorage', e);
+      }
 
       const userData = registeredUserResponse?.user ?? registeredUserResponse?.data ?? registeredUserResponse;
 
@@ -151,34 +163,71 @@ export const AuthProvider = ({ children }) => {
   };
 
   //google login fetching
-const googleLogin = async () => {
-    try {
-      setLoading(true);
-      setAuthError(null);
+// const googleLogin = async () => {
+//     try {
+//       setLoading(true);
+//       setAuthError(null);
 
-      // Redirect to Google OAuth login endpoint
-      window.location.href = 'http://api-givingchampion.dev.localhost:5128/api/auth/google/login';
+//       // Redirect to Google OAuth login endpoint. Use VITE_API_BASE_URL when available
+//       const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+//       const callbackUrl = `${window.location.origin}/signin-google`;
+//       const loginUrl = `${apiBase.replace(/\/$/, '')}/api/auth/google/login?callbackUrl=${callbackUrl}`;
+//       // If apiBase is empty this becomes '/api/auth/google/login' (relative)
+//       window.location.href = loginUrl;
       
-      // This function will not complete as the page will redirect
-      return null;
-    } catch (error) {
-      console.error('Google Login Error:', error);
-      setAuthError('Failed to initiate Google login');
-      setLoading(false);
-      return null;
-    }
-  };
+//       // This function will not complete as the page will redirect
+//       return null;
+//     } catch (error) {
+//       console.error('Google Login Error:', error);
+//       setAuthError('Failed to initiate Google login');
+//       setLoading(false);
+//       return null;
+//     }
+//   };
+
+const googleLogin = async () => {
+  try {
+    setLoading(true);
+    setAuthError(null);
+
+    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+    const callbackUrl = `${window.location.origin}/auth/callback`; // بدل /signin-google
+    const loginUrl = `${apiBase.replace(/\/$/, '')}/api/auth/google/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+
+    window.location.href = loginUrl;
+    return null;
+  } catch (error) {
+    console.error('Google Login Error:', error);
+    setAuthError('Failed to initiate Google login');
+    setLoading(false);
+    return null;
+  }
+};
 
   //continue registration fetching
-const continueRegistration = async (userId, newPassword) => {
+const continueRegistration = async (userId, newPassword, extra = null) => {
   try {
     setAuthError(null);
     
+    // Use environment variable for API base URL
+    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+    const continueRegUrl = `${apiBase.replace(/\/$/, '')}/api/auth/continue-registration`;
+    
     // Send POST request to continue-registration API
-    const response = await axios.post('http://api-givingchampion.dev.localhost:5128/api/auth/continue-registration', {
-      userid: userId,
-      newpassword: newPassword,
-    });
+    const payload = { userid: userId, newpassword: newPassword };
+    if (extra) payload.extra = extra;
+
+    console.log('Continue Registration - REQUEST:', continueRegUrl, payload);
+
+    const response = await axios.post(continueRegUrl, payload);
+    // Persist raw response for debugging
+    try {
+      if (typeof window !== 'undefined' && window.localStorage && response) {
+        window.localStorage.setItem('madina_continue_registration_response_raw', JSON.stringify(response));
+      }
+    } catch (e) {
+      console.warn('Failed to save continue registration response', e);
+    }
 
     console.log('Continue Registration Successful:', response.data);
 
@@ -231,22 +280,39 @@ const continueRegistration = async (userId, newPassword) => {
     return user?.roles?.includes(role) || false;
   };
 
+  // const value = useMemo(() => ({
+  //   user,
+  //   isAuthenticated,
+  //   isAdmin,
+  //   hasRole,
+  //   bootstrapping,
+  //   authError,
+  //   setAuthError,
+  //   loading,
+  //   login,
+  //   register,
+  //   guestLogin,
+  //   googleLogin,
+  //   continueRegistration,
+  //   logout,
+  // }), [user, isAuthenticated, isAdmin, bootstrapping, authError, loading]);
   const value = useMemo(() => ({
-    user,
-    isAuthenticated,
-    isAdmin,
-    hasRole,
-    bootstrapping,
-    authError,
-    setAuthError,
-    loading,
-    login,
-    register,
-    guestLogin,
-    googleLogin,
-    continueRegistration,
-    logout,
-  }), [user, isAuthenticated, isAdmin, bootstrapping, authError, loading]);
+  user,
+  setUser,          // أضيفي ده
+  isAuthenticated,
+  isAdmin,
+  hasRole,
+  bootstrapping,
+  authError,
+  setAuthError,
+  loading,
+  login,
+  register,
+  guestLogin,
+  googleLogin,
+  continueRegistration,
+  logout,
+}), [user, isAuthenticated, isAdmin, bootstrapping, authError, loading]);
 
   return (
     <AuthContext.Provider value={value}>

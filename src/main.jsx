@@ -10,6 +10,7 @@ import './styles/npc-dialog.css';
 import './styles/minigame.css';
 import './styles/badges.css';
 import App from './App';
+import 'wicg-inert';
 
 import { worker } from './mocks/browser';
 

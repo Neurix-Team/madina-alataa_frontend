@@ -1,6 +1,7 @@
 // src/components/modals/ZoneDetailModal.jsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import AudioManager from '../../services/AudioManager';
+import useInertOnOpen from '../../utils/useInertOnOpen';
 
 const DIFF_STYLE = {
   'سهل':      { bg:'#dcfce7', color:'#15803d' },
@@ -32,6 +33,9 @@ const ZoneDetailModal = ({ zone, completedQuests, onClose, onOpenQuest }) => {
     if (zone) AudioManager.getInstance().play('open');
   }, [zone]);
 
+  const modalRef = useRef(null);
+  useInertOnOpen(modalRef, !!zone);
+
   if (!zone) return null;
 
   return (
@@ -45,7 +49,7 @@ const ZoneDetailModal = ({ zone, completedQuests, onClose, onOpenQuest }) => {
           zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', padding:16,
         }}
       >
-        <div className="zone-modal-box">
+        <div className="zone-modal-box" ref={modalRef}>
           {/* Header */}
           <div style={{ padding:'22px 24px 16px', borderBottom:'1.5px solid #f1f5f9', display:'flex', alignItems:'center', gap:12 }}>
             <div style={{ width:58, height:58, borderRadius:16, background:'#f8fafc', display:'flex', alignItems:'center', justifyContent:'center', fontSize:30, flexShrink:0 }}>

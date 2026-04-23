@@ -14,8 +14,21 @@ const ContinueRegistrationPage = () => {
   const location = useLocation();
 
   // Get user info from location state or current user context
-  const userId = location.state?.userId || user?.id;
-  const email = location.state?.email || user?.email;
+  // Handle Google OAuth response structure
+  const googleResponseData = location.state;
+  const userId = location.state?.userId || 
+                location.state?.user?.id || 
+                location.state?.data?.user?.id ||
+                user?.id;
+  const email = location.state?.email || 
+               location.state?.user?.email || 
+               location.state?.data?.user?.email ||
+               user?.email;
+  
+  // Log the received data for debugging
+  console.log('Continue Registration - Location State:', location.state);
+  console.log('Continue Registration - Extracted userId:', userId);
+  console.log('Continue Registration - Extracted email:', email);
 
   React.useEffect(() => {
     return () => setAuthError(null);
@@ -38,7 +51,7 @@ const ContinueRegistrationPage = () => {
 
     try {
       setLoading(true);
-      const updatedUser = await continueRegistration(userId, newPassword);
+      const updatedUser = await continueRegistration(userId, newPassword, googleResponseData);
       if (updatedUser) {
         AudioManager.getInstance().play('win');
         navigate('/profile-v2');
