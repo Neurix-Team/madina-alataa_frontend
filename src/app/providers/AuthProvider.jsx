@@ -1,5 +1,6 @@
 // src/app/providers/AuthProvider.jsx
 import { authService } from '../../services/authService';
+import { axiosClient } from '../../services/axiosClient';
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { mockLogin, mockRegister, mockGuestLogin } from '../../services/mockAuth';
 import secureStorage from '../../utils/secureStorage';
@@ -67,6 +68,7 @@ export const AuthProvider = ({ children }) => {
           token: response.data?.token || null,
         };
 
+        // Log normalized user for debugging
         console.log('NORMALIZED LOGIN USER:', normalizedUser);
 
         setUser(normalizedUser); // Store user in state
