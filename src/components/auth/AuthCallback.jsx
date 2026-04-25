@@ -43,7 +43,13 @@ const AuthCallback = () => {
             'Content-Type': 'application/json',
           },
         });
-      console.log('CALLBACK API RESPONSE (full):', response.data);
+
+      // Log full axios response and the response data for debugging
+      console.log('CALLBACK API RESPONSE (axios):', response);
+      console.log('CALLBACK API RESPONSE DATA:', response.data);
+
+      // Store the raw API response in component state for display
+      setResponseData(response.data);
 
       // Try to extract token immediately from the exchange response and persist it
       const immediateToken = response?.data?.token
@@ -54,6 +60,7 @@ const AuthCallback = () => {
         || response?.data?.tokens?.access
         || response?.data?.user?.token
         || null;
+
       if (immediateToken) {
         try {
           if (typeof window !== 'undefined' && window.localStorage) {
@@ -150,7 +157,7 @@ const AuthCallback = () => {
     }
   };
 
-  // handleCallback();
+  handleCallback();
 }, [navigate, setUser]);
 
   if (loading) {
