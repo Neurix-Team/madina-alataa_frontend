@@ -47,23 +47,32 @@ const AuthCallback = () => {
           },
         });
 
-        // Log full axios response and the response data for debugging
-        console.log('CALLBACK API RESPONSE (axios):', response);
-        console.log('CALLBACK API RESPONSE DATA:', response.data);
+        // Build a simplified debug view of the axios response that includes the
+        // original `code` and a normalized `needsregistration` flag so both the
+        // axios debug log and the response data contain the fields the UI checks.
+        const rawData = response.data || {};
+        const urlNeeds = urlParams.get('needsregistration') === 'true';
+        const normalizedNeeds = Boolean(rawData?.needsRegistration ?? rawData?.needsregistration ?? urlNeeds);
 
-        // Store the raw API response in a local variable for processing
-        const responseData = response.data || {};
-        // Ensure the original authorization code is preserved in the response view
-        responseData.code = responseData.code ?? code;
+        const debugAxiosResponse = {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+          config: response.config ? { url: response.config.url, method: response.config.method } : undefined,
+          data: {
+            ...rawData,
+            code: rawData.code ?? code,
+            needsregistration: rawData.needsregistration ?? rawData.needsRegistration ?? normalizedNeeds,
+          },
+        };
 
-        // Check if needsregistration is present in the URL or response
-        const needsRegistration = urlParams.get('needsregistration') === 'true'
-          || Boolean(responseData?.needsRegistration ?? responseData?.needsregistration);
+        // Log the simplified axios response and its data (both include code and needsregistration)
+        console.log('CALLBACK API RESPONSE (axios):', debugAxiosResponse);
+        console.log('CALLBACK API RESPONSE DATA:', debugAxiosResponse.data);
 
-        // Expose a normalized `needsregistration` flag on the response data and log it
-        responseData.needsregistration = responseData.needsregistration ?? responseData.needsRegistration ?? needsRegistration;
-        console.log('NEEDS REGISTRATION:', needsRegistration, 'responseData.needsregistration:', responseData.needsregistration);
-        // Update component state with the enriched response data
+        // Use the enriched data object going forward
+        const responseData = debugAxiosResponse.data;
+        // keep responseData in state for display
         setResponseData(responseData);
 
         if (needsRegistration) {
