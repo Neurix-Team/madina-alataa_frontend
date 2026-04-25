@@ -21,12 +21,52 @@ export const AuthProvider = ({ children }) => {
   const [authError, setAuthError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const fetchMe = async () => {
+    try {
+      const response = await axiosClient.get('/api/auth/me');
+      const userData = response.data;
+      
+      if (userData) {
+        const normalizedUser = {
+          id: userData.id,
+          name: userData.userName || userData.fullname || userData.name || '',
+          email: userData.email || '',
+          roles: userData.roles || [],
+          token: localStorage.getItem('madina_access_token') || 
+                 localStorage.getItem('auth_token') || 
+                 localStorage.getItem('accessToken'),
+        };
+
+        setUser(normalizedUser);
+        await secureStorage.setItem(STORAGE_KEY, normalizedUser);
+        return normalizedUser;
+      }
+    } catch (error) {
+      console.error('Fetch Me Error:', error);
+      // If 401, we might want to logout
+      if (error.response?.status === 401) {
+        logout();
+      }
+      return null;
+    }
+  };
+
   // Load user from secure storage on mount
   useEffect(() => {
     const loadUser = async () => {
       try {
         const storedUser = await secureStorage.getItem(STORAGE_KEY, null);
-        if (storedUser) {
+        const token = localStorage.getItem('madina_access_token') || 
+                     localStorage.getItem('auth_token') || 
+                     localStorage.getItem('accessToken');
+
+        if (token) {
+          // If we have a token, try to refresh user data from server
+          const freshUser = await fetchMe();
+          if (!freshUser && storedUser) {
+            setUser(storedUser);
+          }
+        } else if (storedUser) {
           setUser(storedUser);
         }
       } catch (error) {
@@ -207,57 +247,137 @@ const googleLogin = async () => {
 };
 
   //continue registration fetching
+// const continueRegistration = async (userId, newPassword, extra = null) => {
+//   try {
+//     setAuthError(null);
+    
+//     // Send POST request to continue-registration API using axiosClient
+//     const payload = { userid: userId, newpassword: newPassword };
+//     if (extra) payload.extra = extra;
+
+//     console.log('Continue Registration - REQUEST:', payload);
+
+//     const response = await axiosClient.post('/api/auth/continue-registration', payload);
+    
+//     console.log('Continue Registration Successful:', response.data);
+
+//     // Verify returned data
+//     if (response.data) {
+//       const userData = response.data?.user ?? response.data;
+//       const token = response.data?.token || response.data?.accessToken || userData?.token;
+      
+//       // Save token to localStorage if returned
+//       if (token) {
+//         localStorage.setItem('madina_access_token', token);
+//         localStorage.setItem('auth_token', token);
+//         localStorage.setItem('accessToken', token);
+//       }
+
+//       const normalizedUser = {
+//         id: userData?.id || userData?.userId || `user-${Date.now()}`,
+//         name: userData?.fullname || userData?.fullName || userData?.name || 'Unknown',
+//         email: userData?.email || 'No Email',
+//         roles: userData?.roles || ['User'],
+//         token: token,
+//       };
+
+//       // Store data in user state
+//       setUser(normalizedUser);
+//       await secureStorage.setItem(STORAGE_KEY, normalizedUser); // Save data
+
+//       return normalizedUser;
+//     }
+//   } catch (error) {
+//     console.error('Continue Registration Error:', error);
+//     const errorMsg =
+//       error?.response?.data?.message ||
+//       error?.response?.data?.title ||
+//       'Failed to complete registration';
+
+//     setAuthError(errorMsg); // Set error message
+//     return null;
+//   }
+// };
+
 const continueRegistration = async (userId, newPassword, extra = null) => {
   try {
     setAuthError(null);
-    
-    // Use environment variable for API base URL
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
-    const continueRegUrl = `${apiBase.replace(/\/$/, '')}/api/auth/continue-registration`;
-    
-    // Send POST request to continue-registration API
-    const payload = { userid: userId, newpassword: newPassword };
-    if (extra) payload.extra = extra;
 
-    console.log('Continue Registration - REQUEST:', continueRegUrl, payload);
-
-    const response = await axios.post(continueRegUrl, payload);
-    // Persist raw response for debugging
-    try {
-      if (typeof window !== 'undefined' && window.localStorage && response) {
-        window.localStorage.setItem('madina_continue_registration_response_raw', JSON.stringify(response));
-      }
-    } catch (e) {
-      console.warn('Failed to save continue registration response', e);
+    if (!userId) {
+      setAuthError('UserId غير موجود، ارجعي اعملي تسجيل بجوجل مرة تانية');
+      return null;
     }
+
+    const token =
+      localStorage.getItem('madina_access_token') ||
+      localStorage.getItem('auth_token') ||
+      localStorage.getItem('accessToken') ||
+      localStorage.getItem('google_temp_token') ||
+      extra?.token ||
+      extra?.accessToken ||
+      extra?.tempToken;
+
+    if (!token) {
+      setAuthError('التوكن غير موجود، لازم تعملي تسجيل بجوجل مرة تانية');
+      return null;
+    }
+
+    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+    const url = `${apiBase.replace(/\/$/, '')}/api/auth/continue-registration`;
+
+    const payload = {
+      userId: userId,
+      newPassword: newPassword,
+    };
+
+    console.log('Continue Registration URL:', url);
+    console.log('Continue Registration PAYLOAD:', payload);
+    console.log('Continue Registration TOKEN:', token);
+
+    const response = await axios.post(url, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
     console.log('Continue Registration Successful:', response.data);
 
-    // Verify returned data
-    if (response.data) {
-      const userData = response.data?.user ?? response.data;
-      const normalizedUser = {
-        id: userData?.id || `user-${Date.now()}`,
-        name: userData?.fullname || userData?.name || 'Unknown',
-        email: userData?.email || 'No Email',
-        roles: userData?.roles || ['User'],
-        token: response.data?.token || null,
-      };
+    const userData = response.data?.user ?? response.data;
 
-      // Store data in user state
-      setUser(normalizedUser);
-      await secureStorage.setItem(STORAGE_KEY, normalizedUser); // Save data
+    const finalToken =
+      response.data?.token ||
+      response.data?.accessToken ||
+      userData?.token ||
+      token;
 
-      return normalizedUser;
-    }
+    localStorage.setItem('madina_access_token', finalToken);
+    localStorage.setItem('auth_token', finalToken);
+    localStorage.setItem('accessToken', finalToken);
+
+    const normalizedUser = {
+      id: userData?.id || userData?.userId || userId,
+      name: userData?.fullname || userData?.fullName || userData?.name || 'Unknown',
+      email: userData?.email || extra?.email || extra?.Email || 'No Email',
+      roles: userData?.roles || ['User'],
+      token: finalToken,
+    };
+
+    setUser(normalizedUser);
+    await secureStorage.setItem(STORAGE_KEY, normalizedUser);
+
+    return normalizedUser;
   } catch (error) {
     console.error('Continue Registration Error:', error);
+    console.error('Status:', error?.response?.status);
+    console.error('Data:', error?.response?.data);
+
     const errorMsg =
       error?.response?.data?.message ||
       error?.response?.data?.title ||
       'Failed to complete registration';
 
-    setAuthError(errorMsg); // Set error message
+    setAuthError(errorMsg);
     return null;
   }
 };
@@ -267,8 +387,12 @@ const continueRegistration = async (userId, newPassword, extra = null) => {
     try {
       setAuthError(null);
       setUser(null);
-      // Keep user data in localStorage for future sessions
-      // await secureStorage.removeItem(STORAGE_KEY);
+      // Clear all possible token keys
+      localStorage.removeItem('madina_access_token');
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('madina_auth_user');
+      await secureStorage.removeItem(STORAGE_KEY);
     } catch (error) {
       logError(error, 'AuthProvider.logout');
       setAuthError('فشل في تسجيل الخروج');
@@ -300,7 +424,7 @@ const continueRegistration = async (userId, newPassword, extra = null) => {
   // }), [user, isAuthenticated, isAdmin, bootstrapping, authError, loading]);
   const value = useMemo(() => ({
   user,
-  setUser,          // أضيفي ده
+  setUser,
   isAuthenticated,
   isAdmin,
   hasRole,
@@ -313,6 +437,7 @@ const continueRegistration = async (userId, newPassword, extra = null) => {
   guestLogin,
   googleLogin,
   continueRegistration,
+  fetchMe,
   logout,
 }), [user, isAuthenticated, isAdmin, bootstrapping, authError, loading]);
 

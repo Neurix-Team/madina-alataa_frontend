@@ -17,10 +17,12 @@ const ContinueRegistrationPage = () => {
   // Handle Google OAuth response structure
   const googleResponseData = location.state;
   const userId = location.state?.userId || 
+                location.state?.UserId || 
                 location.state?.user?.id || 
                 location.state?.data?.user?.id ||
                 user?.id;
   const email = location.state?.email || 
+               location.state?.Email || 
                location.state?.user?.email || 
                location.state?.data?.user?.email ||
                user?.email;

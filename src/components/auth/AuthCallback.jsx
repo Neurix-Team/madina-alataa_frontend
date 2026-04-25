@@ -22,6 +22,50 @@ const AuthCallback = () => {
         const code = urlParams.get('code');
         console.log('AUTHORIZATION CODE (from URL):', code);
 
+        // Read needsregistration from URL, log it, and persist to localStorage
+        // const needsParam = urlParams.get('needsregistration');
+        // const urlNeeds = needsParam === 'true';
+        // console.log('NEEDSREGISTRATION (from URL):', needsParam, urlNeeds);
+        // try {
+        //   if (typeof window !== 'undefined' && window.localStorage) {
+        //     window.localStorage.setItem('madina_needs_registration', urlNeeds ? 'true' : 'false');
+        //     console.log('Saved madina_needs_registration:', window.localStorage.getItem('madina_needs_registration'));
+        //   }
+        // } catch (e) {
+        //   console.warn('Failed to save madina_needs_registration to localStorage', e);
+        // }
+        // Read needsRegistration from URL with all possible names
+const needsParam =
+  urlParams.get('needsRegistration') ??
+  urlParams.get('needsregistration') ??
+  urlParams.get('needs_registration');
+
+const urlNeeds =
+  typeof needsParam === 'string' &&
+  needsParam.toLowerCase() === 'true';
+
+console.log('NEEDS REGISTRATION PARAM FROM URL:', needsParam);
+console.log('NEEDS REGISTRATION BOOLEAN FROM URL:', urlNeeds);
+
+try {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    // خزني القيمة بس لو الباراميتر موجود فعلًا في URL
+    if (needsParam !== null && needsParam !== undefined) {
+      window.localStorage.setItem(
+        'madina_needs_registration',
+        urlNeeds ? 'true' : 'false'
+      );
+    }
+
+    console.log(
+      'Saved madina_needs_registration:',
+      window.localStorage.getItem('madina_needs_registration')
+    );
+  }
+} catch (e) {
+  console.warn('Failed to save madina_needs_registration to localStorage', e);
+}
+
         const remoteError = urlParams.get('remoteError');
 
         if (remoteError) {
@@ -47,32 +91,57 @@ const AuthCallback = () => {
           },
         });
 
-        // Build a simplified debug view of the axios response that includes the
-        // original `code` and a normalized `needsregistration` flag so both the
-        // axios debug log and the response data contain the fields the UI checks.
-        const rawData = response.data || {};
-        const urlNeeds = urlParams.get('needsregistration') === 'true';
-        const normalizedNeeds = Boolean(rawData?.needsRegistration ?? rawData?.needsregistration ?? urlNeeds);
+        // Log full axios response and the response data for debugging
+        console.log('CALLBACK API RESPONSE (axios):', response);
+        console.log('CALLBACK API RESPONSE DATA:', response.data);
 
-        const debugAxiosResponse = {
-          status: response.status,
-          statusText: response.statusText,
-          headers: response.headers,
-          config: response.config ? { url: response.config.url, method: response.config.method } : undefined,
-          data: {
-            ...rawData,
-            code: rawData.code ?? code,
-            needsregistration: rawData.needsregistration ?? rawData.needsRegistration ?? normalizedNeeds,
-          },
-        };
+        // Store the raw API response in a local variable for processing
+        const responseData = response.data || {};
+        // Ensure the original authorization code is preserved in the response view
+        responseData.code = responseData.code ?? code;
 
-        // Log the simplified axios response and its data (both include code and needsregistration)
-        console.log('CALLBACK API RESPONSE (axios):', debugAxiosResponse);
-        console.log('CALLBACK API RESPONSE DATA:', debugAxiosResponse.data);
+        // Prefer the persisted `madina_needs_registration` value from localStorage
+        let storedNeeds = false;
+        try {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            storedNeeds = window.localStorage.getItem('madina_needs_registration') === 'true';
+          }
+        } catch (e) {
+          console.warn('Failed to read madina_needs_registration from localStorage', e);
+        }
 
-        // Use the enriched data object going forward
-        const responseData = debugAxiosResponse.data;
-        // keep responseData in state for display
+        // Check if needsregistration should apply (localStorage takes precedence)
+        // const needsRegistration = storedNeeds || Boolean(responseData?.needsRegistration ?? responseData?.needsregistration);
+        const parseBool = (value) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') return value.toLowerCase() === 'true';
+  return false;
+};
+
+const apiNeeds = parseBool(
+  responseData?.needsRegistration ?? responseData?.needsregistration
+);
+
+const needsRegistration = storedNeeds || apiNeeds || urlNeeds;
+
+window.localStorage.setItem(
+  'madina_needs_registration',
+  needsRegistration ? 'true' : 'false'
+);
+
+responseData.needsRegistration = needsRegistration;
+responseData.needsregistration = needsRegistration;
+
+console.log('FINAL NEEDS REGISTRATION:', needsRegistration);
+console.log(
+  'FINAL LOCAL STORAGE:',
+  window.localStorage.getItem('madina_needs_registration')
+);
+
+        // Expose a normalized `needsregistration` flag on the response data and log it
+        responseData.needsregistration = responseData.needsregistration ?? responseData.needsRegistration ?? needsRegistration;
+        console.log('NEEDS REGISTRATION:', needsRegistration, 'responseData.needsregistration:', responseData.needsregistration);
+        // Update component state with the enriched response data
         setResponseData(responseData);
 
         if (needsRegistration) {
@@ -83,6 +152,19 @@ const AuthCallback = () => {
             JSON.stringify(pending)
           );
 
+          // Persist token temporarily so `continueRegistration` can read it
+          try {
+            if (typeof window !== 'undefined' && window.localStorage && (responseData?.accessToken || responseData?.token || responseData?.tempToken)) {
+              const pendingToken = responseData?.token || responseData?.accessToken || responseData?.tempToken || responseData?.AccessToken;
+              window.localStorage.setItem('google_temp_token', pendingToken);
+              window.localStorage.setItem('madina_access_token', pendingToken);
+              window.localStorage.setItem('auth_token', pendingToken);
+              window.localStorage.setItem('accessToken', pendingToken);
+            }
+          } catch (e) {
+            console.warn('Failed to save temporary google token to localStorage', e);
+          }
+
           navigate('/continue-registration', {
             replace: true,
             state: responseData,
@@ -90,11 +172,17 @@ const AuthCallback = () => {
           return;
         }
 
-        // Backend returns TokenResponse: { accessToken, expiresAtUtc, userId, email, roles }
-        const token = responseData?.accessToken || responseData?.token;
-        const userId = responseData?.userId;
-        const email = responseData?.email;
-        const roles = responseData?.roles || [];
+        // Backend may return TokenResponse with several possible token fields
+        // Prefer stable names but accept tempToken variations for the Google flow
+        const token =
+          responseData?.token ||
+          responseData?.accessToken ||
+          responseData?.tempToken ||
+          responseData?.AccessToken ||
+          responseData?.TempToken;
+        const userId = responseData?.userId || responseData?.UserId;
+        const email = responseData?.email || responseData?.Email;
+        const roles = responseData?.roles || responseData?.Roles || [];
 
         if (!token) {
           setError('Google exchange did not return an access token.');
@@ -112,7 +200,7 @@ const AuthCallback = () => {
         setUser(normalizedUser);
         await secureStorage.setItem('madina_auth_user', normalizedUser);
         
-        // Log and persist access token for inspection
+        // Log and persist access token for inspection (include google_temp_token)
         console.log('CALLBACK ACCESS TOKEN:', token);
         try {
           if (typeof window !== 'undefined' && window.localStorage && token) {
@@ -120,25 +208,21 @@ const AuthCallback = () => {
             window.localStorage.setItem('madina_access_token', token);
             window.localStorage.setItem('auth_token', token);
             window.localStorage.setItem('accessToken', token);
+            // keep a temp key for flows that expect it
+            window.localStorage.setItem('google_temp_token', token);
           }
         } catch (e) {
           console.warn('Failed to save access token to localStorage', e);
         }
 
-        // if (normalizedUser.roles.includes('admin')) {
-        //   navigate('/admin', { replace: true });
-        // } else if (normalizedUser.roles.includes('parent')) {
-        //   navigate('/parents', { replace: true });
-        // } else {
-        //   navigate('/profile-v2', { replace: true });
-        // }
-        // Stay on callback page after successful authentication
-
-
-// console.log('Authentication completed. Staying on /auth/callback page.');
-
-
-return;
+        if (normalizedUser.roles.includes('admin')) {
+          navigate('/admin', { replace: true });
+        } else if (normalizedUser.roles.includes('parent')) {
+          navigate('/parents', { replace: true });
+        } else {
+          navigate('/profile-v2', { replace: true });
+        }
+        return;
       } catch (err) {
         // Detailed error logging for easier debugging of 400/500 responses from exchange API
         console.error('CALLBACK ERROR (full):', err);

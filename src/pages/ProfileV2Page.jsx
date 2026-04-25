@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import {
   FaUser,
   FaMap,
@@ -26,7 +27,6 @@ import {
   FaHandsHelping,
   FaStarAndCrescent,
 } from 'react-icons/fa';
-import { createToken, decodeToken } from '../utils/jwt';
 import secureStorage from '../utils/secureStorage';
 import { getAvatarImageUrl } from '../utils/avatarProfile';
 
@@ -191,6 +191,7 @@ const buildGoogleMapEmbedUrl = (lat, lng) => {
 export default function ProfileV2Page() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout, fetchMe } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [activePanel, setActivePanel] = useState('profile');
   const [levelCount, setLevelCount] = useState(0);
@@ -204,19 +205,16 @@ export default function ProfileV2Page() {
   const [avatarKey, setAvatarKey] = useState(0);
 
   const safeUser = useMemo(() => {
-    const user = secureStorage.getItem('user', {});
-    const token = secureStorage.getItem('token', null);
-    const decoded = token ? decodeToken(token) : null;
     return {
-      heroName: decoded?.heroName || user?.heroName || 'البطل',
-      role: decoded?.role || user?.role || 'donor',
-      city: decoded?.city || user?.city || 'القاهرة',
-      email: decoded?.email || user?.email || '',
-      address: decoded?.address || user?.address || '',
-      lat: decoded?.lat ?? user?.lat ?? null,
-      lng: decoded?.lng ?? user?.lng ?? null,
+      heroName: user?.name || 'البطل',
+      role: user?.roles?.[0] || 'donor',
+      city: user?.city || 'القاهرة',
+      email: user?.email || '',
+      address: user?.address || '',
+      lat: user?.lat ?? null,
+      lng: user?.lng ?? null,
     };
-  }, []);
+  }, [user]);
 
   const [settingsForm, setSettingsForm] = useState({
     fullName: safeUser.heroName,
@@ -226,6 +224,23 @@ export default function ProfileV2Page() {
     lat: safeUser.lat,
     lng: safeUser.lng,
   });
+
+  // Sync settings form when safeUser changes (after fetchMe)
+  useEffect(() => {
+    setSettingsForm({
+      fullName: safeUser.heroName,
+      email: safeUser.email,
+      city: safeUser.city,
+      address: safeUser.address,
+      lat: safeUser.lat,
+      lng: safeUser.lng,
+    });
+  }, [safeUser]);
+
+  useEffect(() => {
+    // Fetch latest user data when profile is mounted
+    fetchMe();
+  }, []);
 
   useEffect(() => {
     if (safeUser.lat != null && safeUser.lng != null) {
@@ -260,9 +275,7 @@ export default function ProfileV2Page() {
   };
 
   const doLogout = () => {
-    secureStorage.removeItem('token');
-    secureStorage.removeItem('authToken');
-    secureStorage.removeItem('user');
+    logout();
     navigate('/auth');
   };
 
@@ -290,54 +303,8 @@ export default function ProfileV2Page() {
   };
 
   const handleSaveSettings = () => {
-    const currentToken = secureStorage.getItem('token', null);
-    if (!currentToken) {
-      alert('لا يوجد جلسة مستخدم نشطة');
-      return;
-    }
-
-    const decoded = decodeToken(currentToken);
-    if (!decoded) {
-      alert('تعذر قراءة بيانات المستخدم الحالية');
-      return;
-    }
-
-    const updatedPayload = {
-      ...decoded,
-      heroName: settingsForm.fullName || decoded.heroName,
-      city: settingsForm.city || decoded.city,
-      address: settingsForm.address || decoded.address || '',
-      lat: settingsForm.lat ?? decoded.lat ?? null,
-      lng: settingsForm.lng ?? decoded.lng ?? null,
-    };
-
-    const newToken = createToken(updatedPayload);
-
-    let accounts = [];
-    try {
-      accounts = secureStorage.getItem('accounts', []);
-    } catch {
-      accounts = [];
-    }
-
-    const idx = accounts.findIndex((acc) => acc === currentToken);
-    if (idx >= 0) accounts[idx] = newToken;
-    else accounts.push(newToken);
-
-    secureStorage.setItem('accounts', accounts);
-    secureStorage.setItem('token', newToken);
-    secureStorage.setItem('user', {
-      email: updatedPayload.email,
-      heroName: updatedPayload.heroName,
-      role: updatedPayload.role,
-      city: updatedPayload.city,
-      address: updatedPayload.address,
-      lat: updatedPayload.lat,
-      lng: updatedPayload.lng,
-    });
-
-    setNearbyPlaces(buildNearbyPlaces(updatedPayload.city, updatedPayload.lat, updatedPayload.lng));
-    alert('تم حفظ التغييرات بنجاح');
+    // TODO: Implement save settings to API
+    alert('سيتم حفظ الإعدادات قريباً');
   };
 
   const completeDonation = () => {
