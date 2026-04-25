@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -10,32 +10,35 @@ const AuthCallback = () => {
   const [responseData, setResponseData] = useState(null);
   const navigate = useNavigate();
   const { setUser } = useAuth();
-
-  
+  const hasCalled = useRef(false);
 
   useEffect(() => {
-  const handleCallback = async () => {
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      const remoteError = urlParams.get('remoteError');
+    const handleCallback = async () => {
+      if (hasCalled.current) return;
+      hasCalled.current = true;
 
-      if (remoteError) {
-        setError(`Authentication error: ${remoteError}`);
-        return;
-      }
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        console.log('AUTHORIZATION CODE (from URL):', code);
 
-      if (!code) {
-        setError('Missing authorization code');
-        return;
-      }
+        const remoteError = urlParams.get('remoteError');
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
-      const exchangeUrl = `${apiBase.replace(/\/$/, '')}/api/auth/google/exchange`;
+        if (remoteError) {
+          setError(`Authentication error: ${remoteError}`);
+          return;
+        }
 
-        const state = urlParams.get('state');
+        if (!code) {
+          setError('Missing authorization code');
+          return;
+        }
+
+        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+        const exchangeUrl = `${apiBase.replace(/\/$/, '')}/api/auth/google/exchange`;
+
         const redirectUri = `${window.location.origin}/auth/callback`;
-        const payload = { code, state, redirectUri };
+        const payload = { code };
         console.log('CALLBACK EXCHANGE REQUEST:', exchangeUrl, payload);
       
         const response = await axios.post(exchangeUrl, payload, {
@@ -44,121 +47,127 @@ const AuthCallback = () => {
           },
         });
 
-      // Log full axios response and the response data for debugging
-      console.log('CALLBACK API RESPONSE (axios):', response);
-      console.log('CALLBACK API RESPONSE DATA:', response.data);
+        // Log full axios response and the response data for debugging
+        console.log('CALLBACK API RESPONSE (axios):', response);
+        console.log('CALLBACK API RESPONSE DATA:', response.data);
 
-      // Store the raw API response in component state for display
-      setResponseData(response.data);
+        // Store the raw API response in a local variable for processing
+        const responseData = response.data || {};
+        // Ensure the original authorization code is preserved in the response view
+        responseData.code = responseData.code ?? code;
 
-      // Try to extract token immediately from the exchange response and persist it
-      const immediateToken = response?.data?.token
-        || response?.data?.accessToken
-        || response?.data?.access_token
-        || response?.data?.data?.token
-        || response?.data?.data?.access_token
-        || response?.data?.tokens?.access
-        || response?.data?.user?.token
-        || null;
+        // Check if needsregistration is present in the URL or response
+        const needsRegistration = urlParams.get('needsregistration') === 'true'
+          || Boolean(responseData?.needsRegistration ?? responseData?.needsregistration);
 
-      if (immediateToken) {
+        // Expose a normalized `needsregistration` flag on the response data and log it
+        responseData.needsregistration = responseData.needsregistration ?? responseData.needsRegistration ?? needsRegistration;
+        console.log('NEEDS REGISTRATION:', needsRegistration, 'responseData.needsregistration:', responseData.needsregistration);
+        // Update component state with the enriched response data
+        setResponseData(responseData);
+
+        if (needsRegistration) {
+          // include the original code when saving pending registration
+          const pending = { ...responseData, code };
+          sessionStorage.setItem(
+            'pending_google_registration',
+            JSON.stringify(pending)
+          );
+
+          navigate('/continue-registration', {
+            replace: true,
+            state: responseData,
+          });
+          return;
+        }
+
+        // Backend returns TokenResponse: { accessToken, expiresAtUtc, userId, email, roles }
+        const token = responseData?.accessToken || responseData?.token;
+        const userId = responseData?.userId;
+        const email = responseData?.email;
+        const roles = responseData?.roles || [];
+
+        if (!token) {
+          setError('Google exchange did not return an access token.');
+          return;
+        }
+
+        const normalizedUser = {
+          id: userId,
+          name: responseData?.fullname || responseData?.name || email || '',
+          email: email || '',
+          roles: roles,
+          token,
+        };
+
+        setUser(normalizedUser);
+        await secureStorage.setItem('madina_auth_user', normalizedUser);
+        
+        // Log and persist access token for inspection
+        console.log('CALLBACK ACCESS TOKEN:', token);
         try {
-          if (typeof window !== 'undefined' && window.localStorage) {
-            window.localStorage.setItem('madina_access_token', immediateToken);
-            window.localStorage.setItem('auth_token', immediateToken);
-            console.log('Saved immediate access token to localStorage');
+          if (typeof window !== 'undefined' && window.localStorage && token) {
+            // store using several keys for compatibility
+            window.localStorage.setItem('madina_access_token', token);
+            window.localStorage.setItem('auth_token', token);
+            window.localStorage.setItem('accessToken', token);
           }
         } catch (e) {
-          console.warn('Failed to save immediate access token', e);
+          console.warn('Failed to save access token to localStorage', e);
         }
-      }
 
-      const responseData = response.data;
-      const needsRegistration = Boolean(
-        responseData?.needsregistration ?? responseData?.needsRegistration
-      );
+        // if (normalizedUser.roles.includes('admin')) {
+        //   navigate('/admin', { replace: true });
+        // } else if (normalizedUser.roles.includes('parent')) {
+        //   navigate('/parents', { replace: true });
+        // } else {
+        //   navigate('/profile-v2', { replace: true });
+        // }
+        // Stay on callback page after successful authentication
 
-      // الحالة دي ليست login مكتمل
-      if (needsRegistration) {
-        sessionStorage.setItem(
-          'pending_google_registration',
-          JSON.stringify(responseData)
-        );
 
-        navigate('/continue-registration', {
-          replace: true,
-          state: responseData,
-        });
-        return;
-      }
+// console.log('Authentication completed. Staying on /auth/callback page.');
 
-      const userData = responseData?.user;
-      const token = responseData?.token ?? userData?.token;
 
-      if (!userData || !token) {
-        setError('Google exchange did not return a completed authenticated user.');
-        return;
-      }
+return;
+      } catch (err) {
+        // Detailed error logging for easier debugging of 400/500 responses from exchange API
+        console.error('CALLBACK ERROR (full):', err);
+        const resp = err?.response;
+        console.error('CALLBACK ERROR RESPONSE DATA:', resp?.data);
+        console.error('CALLBACK ERROR STATUS:', resp?.status);
+        console.error('CALLBACK ERROR HEADERS:', resp?.headers);
 
-      const normalizedUser = {
-        id: userData.id,
-        name: userData.fullname || userData.name || '',
-        email: userData.email || '',
-        roles: userData.roles || [],
-        token,
-      };
-
-      setUser(normalizedUser);
-      await secureStorage.setItem('madina_auth_user', normalizedUser);
-      // Log and persist access token for inspection
-      console.log('CALLBACK ACCESS TOKEN:', token);
-      try {
-        if (typeof window !== 'undefined' && window.localStorage && token) {
-          window.localStorage.setItem('madina_access_token', token);
-          // keep legacy key as well
-          window.localStorage.setItem('auth_token', token);
+        // Persist error details to localStorage for inspection
+        try {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.setItem('madina_google_exchange_error', JSON.stringify({
+              message: err?.message,
+              status: resp?.status,
+              data: resp?.data,
+              headers: resp?.headers,
+            }));
+          }
+        } catch (e) {
+          console.warn('Failed to save exchange error to localStorage', e);
         }
-      } catch (e) {
-        console.warn('Failed to save access token to localStorage', e);
-      }
 
-      if (normalizedUser.roles.includes('admin')) {
-        navigate('/admin', { replace: true });
-      } else if (normalizedUser.roles.includes('parent')) {
-        navigate('/parents', { replace: true });
-      } else {
-        navigate('/profile-v2', { replace: true });
-      }
-    } catch (err) {
-      // Detailed error logging for easier debugging of 400/500 responses from exchange API
-      console.error('CALLBACK ERROR (full):', err);
-      const resp = err?.response;
-      console.error('CALLBACK ERROR RESPONSE DATA:', resp?.data);
-      console.error('CALLBACK ERROR STATUS:', resp?.status);
-      console.error('CALLBACK ERROR HEADERS:', resp?.headers);
-
-      // Persist error details to localStorage for inspection
-      try {
-        if (typeof window !== 'undefined' && window.localStorage) {
-          window.localStorage.setItem('madina_google_exchange_error', JSON.stringify({
-            message: err?.message,
-            status: resp?.status,
-            data: resp?.data,
-            headers: resp?.headers,
-          }));
+        // Try to get a more descriptive error message from the backend response
+        let backendErrorMessage = '';
+        if (resp?.data?.errors && Array.isArray(resp.data.errors)) {
+          backendErrorMessage = resp.data.errors.map(e => e.description || e.message || e).join(', ');
+        } else if (resp?.data?.message) {
+          backendErrorMessage = resp.data.message;
         }
-      } catch (e) {
-        console.warn('Failed to save exchange error to localStorage', e);
+
+        setError(backendErrorMessage || err.message || 'Authentication failed');
+      } finally {
+        setLoading(false);
       }
+    };
 
-      setError(resp?.data?.message || err.message || 'Authentication failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  handleCallback();
-}, [navigate, setUser]);
+    handleCallback();
+  }, [navigate, setUser]);
 
   if (loading) {
     return (
