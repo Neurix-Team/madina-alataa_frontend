@@ -139,9 +139,16 @@ const AuthScreen = () => {
   const [success, setSuccess] = useState(false);
 
   const goByRole = (user) => {
-    if (user.roles.includes('admin')) navigate('/admin');
-    else if (user.roles.includes('parent')) navigate('/parents');
-    else navigate('/profile-v2');
+    // التأكد من فحص الأدوار بغض النظر عن حالة الأحرف (Admin أو admin)
+    const roles = user.roles.map(r => r.toLowerCase());
+    
+    if (roles.includes('admin')) {
+      navigate('/admin');
+    } else if (roles.includes('parent')) {
+      navigate('/parents');
+    } else {
+      navigate('/profile-v2');
+    }
   };
 
   useEffect(() => {

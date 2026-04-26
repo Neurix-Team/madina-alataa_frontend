@@ -10,6 +10,7 @@
  *  4. Partners list
  */
 import React, { useState, useMemo } from 'react';
+const UsersManagementLazy = React.lazy(() => import('../../pages/UsersManagementPage'));
 import '../../styles/admin.css';
 import { beneficiariesData, partnersData } from '../../data/beneficiariesData';
 import serviceRequestsData from '../../data/ordersData';
@@ -645,6 +646,7 @@ const SECTIONS = [
   { id: 'requests', label: 'الطلبات', Icon: FaClipboardList },
   { id: 'beneficiaries', label: 'المستفيدون', Icon: FaHome },
   { id: 'partners', label: 'الشركاء', Icon: FaHandshake },
+  { id: 'users', label: 'إدارة المستخدمين', Icon: FaUsers },
 ];
 
 const AdminTab = () => {
@@ -869,6 +871,23 @@ const AdminTab = () => {
             {partnersData.map((partner) => (
               <PartnerRow key={partner.id} partner={partner} />
             ))}
+          </div>
+        )}
+
+        {activeSection === 'users' && (
+          <div className="admin-section">
+            <div className="admin-section__title">
+              <span className="admin-section__title-icon">
+                <FaUsers />
+              </span>
+              <span>إدارة المستخدمين</span>
+            </div>
+            <div style={{ marginTop: 8 }}>
+              {/* Lazy-load the users management page UI */}
+              <React.Suspense fallback={<div>جاري التحميل...</div>}>
+                <UsersManagementLazy />
+              </React.Suspense>
+            </div>
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { FaLock, FaCheckCircle, FaRocket } from 'react-icons/fa';
@@ -35,6 +35,18 @@ const ContinueRegistrationPage = () => {
   React.useEffect(() => {
     return () => setAuthError(null);
   }, [setAuthError]);
+
+  // حفظ userId في localStorage لتسهيل الوصول لاحقًا
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && userId) {
+        window.localStorage.setItem('madina_continue_user_id', String(userId));
+        console.log('Saved madina_continue_user_id:', window.localStorage.getItem('madina_continue_user_id'));
+      }
+    } catch (e) {
+      console.warn('Failed to save madina_continue_user_id to localStorage', e);
+    }
+  }, [userId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
