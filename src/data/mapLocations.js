@@ -1,0 +1,105 @@
+export const CITIES = ['القاهرة', 'الجيزة', 'الإسكندرية', 'المنصورة'];
+
+export const MAP_TYPES = [
+  { id: 'all', label: 'الكل' },
+  { id: 'case', label: 'حالات' },
+  { id: 'hospital', label: 'مستشفيات' },
+];
+
+export const MAP_CATEGORIES = [
+  { id: 'all', label: 'الكل' },
+  { id: 'medical', label: 'طبية' },
+  { id: 'educational', label: 'تعليمية' },
+  { id: 'housing', label: 'سكنية' },
+  { id: 'community', label: 'مجتمعية' },
+];
+
+export const caseMarkers = [
+  {
+    id: 'm1',
+    type: 'case',
+    category: 'medical',
+    categoryLabel: 'طبية',
+    city: 'القاهرة',
+    label: 'دعم علاجي لعائلة أحمد',
+    subtitle: 'طبية • القاهرة',
+    x: 28,
+    y: 32,
+    icon: '❤️',
+  },
+  {
+    id: 'm2',
+    type: 'case',
+    category: 'educational',
+    categoryLabel: 'تعليمية',
+    city: 'الجيزة',
+    label: 'مصاريف تعليم ليان',
+    subtitle: 'تعليمية • الجيزة',
+    x: 55,
+    y: 45,
+    icon: '🎓',
+  },
+  {
+    id: 'm3',
+    type: 'case',
+    category: 'housing',
+    categoryLabel: 'سكنية',
+    city: 'الإسكندرية',
+    label: 'ترميم منزل أسرة متضررة',
+    subtitle: 'سكنية • الإسكندرية',
+    x: 70,
+    y: 18,
+    icon: '🏠',
+  },
+  {
+    id: 'm4',
+    type: 'case',
+    category: 'medical',
+    categoryLabel: 'طبية',
+    city: 'المنصورة',
+    label: 'عملية جراحية لطفل',
+    subtitle: 'طبية • المنصورة',
+    x: 18,
+    y: 66,
+    icon: '🩺',
+  },
+];
+
+export const hospitalMarkers = [
+  {
+    id: 'h1',
+    type: 'hospital',
+    category: 'medical',
+    categoryLabel: 'مستشفى',
+    city: 'القاهرة',
+    label: 'مستشفى الشفاء',
+    subtitle: 'مستشفى • القاهرة',
+    x: 42,
+    y: 22,
+    icon: '🏥',
+  },
+  {
+    id: 'h2',
+    type: 'hospital',
+    category: 'medical',
+    categoryLabel: 'مستشفى',
+    city: 'الجيزة',
+    label: 'مستشفى الرحمة',
+    subtitle: 'مستشفى • الجيزة',
+    x: 63,
+    y: 55,
+    icon: '🏥',
+  },
+  {
+    id: 'h3',
+    type: 'hospital',
+    category: 'medical',
+    categoryLabel: 'مستشفى',
+    city: 'الإسكندرية',
+    label: 'مستشفى السلام',
+    subtitle: 'مستشفى • الإسكندرية',
+    x: 79,
+    y: 12,
+    icon: '🏥',
+  },
+];

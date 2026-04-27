@@ -1,0 +1,240 @@
+/* src/styles/npc-dialog.css — NPC Dialog Modal Styles */
+
+/* ── Overlay ── */
+.npc-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  z-index: 120;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 0 20px;
+  animation: npcFadeIn 0.25s ease-out;
+}
+
+@keyframes npcFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Dialog Box ── */
+.npc-dialog {
+  background: var(--bg-card);
+  border-radius: 28px 28px 20px 20px;
+  max-width: 480px;
+  width: calc(100% - 32px);
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.25), 0 40px 80px rgba(0, 0, 0, 0.3);
+  border: 1.5px solid var(--border);
+  direction: rtl;
+  animation: npcSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+@keyframes npcSlideUp {
+  from { opacity: 0; transform: translateY(60px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ── NPC Header ── */
+.npc-dialog__header {
+  background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+  padding: 20px 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.npc-dialog__avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  border: 2.5px solid rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  animation: npcAvatarBounce 2s ease-in-out infinite;
+}
+
+@keyframes npcAvatarBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
+
+.npc-dialog__npc-info {
+  flex: 1;
+}
+
+.npc-dialog__npc-name {
+  font-size: 16px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.npc-dialog__npc-role {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+}
+
+.npc-dialog__step-indicator {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.npc-dialog__step-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transition: all 0.3s ease;
+}
+
+.npc-dialog__step-dot--active {
+  background: #fff;
+  width: 18px;
+  border-radius: 99px;
+}
+
+/* ── Dialog Body ── */
+.npc-dialog__body {
+  padding: 20px 24px;
+}
+
+/* ── Speech Bubble ── */
+.npc-dialog__bubble {
+  background: var(--bg-card-2, #f8fafc);
+  border: 1.5px solid var(--border);
+  border-radius: 4px 18px 18px 18px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  position: relative;
+  animation: npcTextAppear 0.4s ease-out;
+}
+
+@keyframes npcTextAppear {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.npc-dialog__bubble::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid var(--border);
+}
+
+.npc-dialog__bubble::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  right: 21px;
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 9px solid var(--bg-card-2, #f8fafc);
+}
+
+.npc-dialog__text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+/* ── Choices ── */
+.npc-dialog__choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.npc-dialog__choice-btn {
+  width: 100%;
+  padding: 12px 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-card);
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: right;
+  direction: rtl;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.npc-dialog__choice-btn:hover {
+  background: linear-gradient(135deg, rgba(29, 78, 216, 0.08), rgba(14, 165, 233, 0.05));
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  transform: translateX(-3px);
+}
+
+.npc-dialog__choice-btn:active {
+  transform: scale(0.98);
+}
+
+.npc-dialog__choice-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* ── Start Quest Button ── */
+.npc-dialog__start-btn {
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+  color: #fff;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.npc-dialog__start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(29, 78, 216, 0.45);
+}
+
+.npc-dialog__start-btn:active {
+  transform: scale(0.98);
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .npc-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .npc-dialog {
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+  }
+}

@@ -1,0 +1,10 @@
+- [ ] Create shared avatar profile utility (`src/utils/avatarProfile.js`)
+- [ ] Upgrade avatar save flow in `src/components/tabs/ProfileTab.jsx` to persist global avatar profile
+- [ ] Improve avatar preview rendering to cartoon-style URL-based avatar
+- [ ] Add more variety options (colors/features/clothes) in avatar editor
+- [ ] Wire shared avatar rendering in `src/components/layout/Sidebar.jsx`
+- [ ] Wire shared avatar rendering in `src/pages/ProfileV2Page.jsx`
+- [ ] Wire shared avatar rendering in `src/components/tabs/ParentsTab.jsx`
+- [ ] Wire shared avatar rendering in `src/pages/CasesPage/CasesPage.jsx`
+- [ ] Wire shared avatar rendering in `src/pages/MyChildrenPage.jsx`
+- [ ] Review consistency + fallback behavior
