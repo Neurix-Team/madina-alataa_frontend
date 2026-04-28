@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://api-givingchampion.dev.localhost:5128';
 
 export const axiosClient = axios.create({
   baseURL: API_BASE_URL,
@@ -19,6 +19,23 @@ axiosClient.interceptors.request.use(
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      // Log when token is being sent to mission APIs specifically
+      if (config.url?.includes('/api/mission')) {
+        console.log('🔐 Sending auth_token to mission API:', {
+          url: config.url,
+          method: config.method,
+          hasToken: !!token,
+          tokenPreview: token.substring(0, 20) + '...'
+        });
+      }
+    } else {
+      // Warn when no token is found for mission APIs
+      if (config.url?.includes('/api/mission')) {
+        console.warn('⚠️ No auth_token found for mission API request:', {
+          url: config.url,
+          method: config.method
+        });
+      }
     }
     return config;
   },

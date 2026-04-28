@@ -10,6 +10,7 @@
  *  4. Partners list
  */
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 const UsersManagementLazy = React.lazy(() => import('../../pages/UsersManagementPage'));
 import '../../styles/admin.css';
 import { beneficiariesData, partnersData } from '../../data/beneficiariesData';
@@ -35,6 +36,7 @@ import {
   FaUserFriends,
   FaInfoCircle,
   FaHeart,
+  FaMapMarkerAlt,
 } from 'react-icons/fa';
 import {
   FiTrendingUp,
@@ -646,10 +648,12 @@ const SECTIONS = [
   { id: 'requests', label: 'الطلبات', Icon: FaClipboardList },
   { id: 'beneficiaries', label: 'المستفيدون', Icon: FaHome },
   { id: 'partners', label: 'الشركاء', Icon: FaHandshake },
+  { id: 'locations', label: 'العناوين', Icon: FaMapMarkerAlt },
   { id: 'users', label: 'إدارة المستخدمين', Icon: FaUsers },
 ];
 
 const AdminTab = () => {
+  const navigate = useNavigate();
   const { state } = useGameState();
   const { userStats, orders = [] } = state;
 
@@ -701,6 +705,14 @@ const AdminTab = () => {
     );
   };
 
+  const handleTabClick = (sectionId) => {
+    if (sectionId === 'locations') {
+      navigate('/locations');
+    } else {
+      setActiveSection(sectionId);
+    }
+  };
+
   return (
     <div className="admin-page">
       <AnimatedBackground />
@@ -724,7 +736,7 @@ const AdminTab = () => {
               <button
                 key={sec.id}
                 className={`admin-tab-btn${activeSection === sec.id ? ' admin-tab-btn--active' : ''}`}
-                onClick={() => setActiveSection(sec.id)}
+                onClick={() => handleTabClick(sec.id)}
               >
                 <Icon />
                 <span>{sec.label}</span>

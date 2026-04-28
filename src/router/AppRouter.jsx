@@ -143,6 +143,9 @@ import CityExplorationTab from '../components/tabs/CityExplorationTab';
 import CityMapTab from '../components/tabs/CityMapTab';
 import ParentsTab from '../components/tabs/ParentsTab';
 import AdminTab from '../components/tabs/AdminTab';
+import MissionsTab from '../components/tabs/MissionsTab';
+import AvailableMissionsTab from '../components/tabs/AvailableMissionsTab';
+import LocationsTab from '../components/tabs/LocationsTab';
 
 export const AppRouter = () => {
   return (
@@ -191,6 +194,9 @@ export const AppRouter = () => {
           <Route path="/avatar" element={<AvatarPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
 
+          {/* Available missions for users */}
+          <Route path="/available-missions" element={<AvailableMissionsTab />} />
+
           {/* Cases & Donations */}
           <Route path="/cases" element={<CasesPage />} />
           <Route path="/cases/:id" element={<CaseDetailsPage />} />
@@ -209,6 +215,8 @@ export const AppRouter = () => {
           {/* Admin routes */}
           <Route element={<RoleGuard allowedRoles={['admin']} />}>
             <Route path="/admin" element={<AdminTab />} />
+            <Route path="/missions" element={<MissionsTab />} />
+            <Route path="/locations" element={<LocationsTab />} />
             <Route path="/incoming-requests" element={<IncomingRequestsPage />} />
           </Route>
         </Route>
