@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes, FaMapMarkerAlt, FaGlobe, FaCompass, FaStar, FaMapPin, FaLock, FaUnlock } from 'react-icons/fa';
+import { FaTimes, FaMapMarkerAlt, FaGlobe, FaCompass, FaStar, FaSatellite, FaFingerprint, FaLayerGroup, FaInfoCircle, FaCalendarAlt, FaHistory, FaCheckCircle } from 'react-icons/fa';
 
 const LocationDetailModal = ({ isOpen, onClose, location }) => {
-  if (!location) return null;
+  if (!isOpen || !location) return null;
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'غير محدد';
-    return new Date(dateString).toLocaleString('ar-EG', {
+    if (!dateString) return 'غير متوفر';
+    return new Date(dateString).toLocaleDateString('ar-EG', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -19,187 +19,164 @@ const LocationDetailModal = ({ isOpen, onClose, location }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4" dir="rtl">
+        <div className="fixed inset-0 bg-[#020617]/90 backdrop-blur-2xl flex items-center justify-center z-[100] p-4 md:p-8" dir="rtl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.9, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", duration: 0.5 }}
-            className="bg-gradient-to-br from-[#0a192f] to-[#112240] rounded-3xl border border-blue-800/50 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[0_0_50px_rgba(30,58,138,0.3)]"
+            exit={{ opacity: 0, scale: 0.9, y: 50 }}
+            className="bg-[#0f172a] rounded-[3.5rem] border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-[0_0_120px_rgba(79,70,229,0.25)] flex flex-col relative"
           >
+            {/* Animated Background Orbs */}
+            <div className="absolute top-0 left-0 w-80 h-80 bg-indigo-600/10 rounded-full blur-[100px] -z-10 animate-pulse" />
+            <div className="absolute bottom-0 right-0 w-80 h-80 bg-blue-600/10 rounded-full blur-[100px] -z-10 animate-pulse" style={{ animationDelay: '1s' }} />
+
             {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b border-blue-900/50 bg-[#0a192f]/50 sticky top-0 z-10 backdrop-blur-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
-                  <FaMapMarkerAlt className="text-blue-400 text-xl" />
+            <div className="flex justify-between items-start p-10 border-b border-white/5 bg-white/5 backdrop-blur-3xl sticky top-0 z-20">
+              <div className="flex-1">
+                <div className="flex items-center gap-6 mb-6">
+                  <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-indigo-600 to-blue-800 flex items-center justify-center shadow-2xl border border-white/20 group">
+                    <FaMapMarkerAlt className="text-white text-3xl group-hover:scale-110 transition-transform" />
+                  </div>
+                  <div>
+                    <h3 className="text-4xl font-black text-white tracking-tighter leading-tight mb-2">
+                      {location.name || 'عنوان مجهول'}
+                    </h3>
+                    <div className="flex items-center gap-3 text-slate-500 font-bold text-sm uppercase tracking-[0.2em]">
+                      <FaFingerprint className="text-indigo-500/50" />
+                      {location.id || 'N/A'}
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200 leading-tight">
-                  تفاصيل العنوان
-                </h3>
+                
+                <div className="flex flex-wrap gap-3">
+                  <div className="px-6 py-2.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-black text-xs uppercase tracking-widest flex items-center gap-3 shadow-lg">
+                    <FaLayerGroup className="text-sm" />
+                    المستوى: {location.requiredLevel}
+                  </div>
+                  <div className="px-6 py-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black text-xs uppercase tracking-widest flex items-center gap-3 shadow-lg">
+                    <FaCheckCircle className="text-sm" />
+                    موقع نشط
+                  </div>
+                </div>
               </div>
+              
               <motion.button
-                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileHover={{ scale: 1.1, rotate: 90, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="w-10 h-10 flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors text-red-400 hover:text-red-300 border border-red-500/20"
+                className="w-14 h-14 flex items-center justify-center bg-white/5 rounded-[1.5rem] transition-all text-slate-400 border border-white/5 shadow-xl"
               >
-                <FaTimes className="text-lg" />
+                <FaTimes className="text-2xl" />
               </motion.button>
             </div>
 
             {/* Content */}
-            <div className="p-6 space-y-8">
-              {/* Location Name */}
-              <div className="bg-[#112240]/50 rounded-2xl p-5 border border-blue-900/30">
-                <h4 className="text-lg font-bold text-blue-300 mb-3 flex items-center gap-2">
-                  <FaMapMarkerAlt className="text-blue-500/70" /> اسم العنوان
-                </h4>
-                <p className="text-2xl text-blue-100 font-bold bg-[#0a192f] p-4 rounded-xl border border-blue-900/50">
-                  {location.name}
-                </p>
-              </div>
-
-              {/* Required Level */}
-              <div className="bg-[#112240]/50 rounded-2xl p-5 border border-blue-900/30">
-                <h4 className="text-lg font-bold text-blue-300 mb-3 flex items-center gap-2">
-                  <FaStar className="text-yellow-500" /> المستوى المطلوب
-                </h4>
-                <div className="flex items-center gap-3 text-xl text-yellow-400">
-                  <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center border border-yellow-500/30">
-                    <FaStar className="text-yellow-400" />
-                  </div>
-                  <span className="font-black text-2xl">{location.requiredLevel}</span>
+            <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
+              {/* Coordinates Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-4 text-white font-black text-xl tracking-tighter px-2">
+                  <FaSatellite className="text-indigo-500 animate-pulse" />
+                  <h4>بيانات التموضع الجغرافي</h4>
                 </div>
-              </div>
-
-              {/* Coordinates */}
-              <div className="bg-[#112240]/50 rounded-2xl p-5 border border-blue-900/30">
-                <h4 className="text-lg font-bold text-blue-300 mb-4 flex items-center gap-2">
-                  <FaGlobe className="text-blue-400" /> الإحداثيات الجغرافية
-                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Longitude */}
-                  <div className="bg-[#0a192f] p-4 rounded-xl border border-blue-900/50">
-                    <div className="flex items-center gap-2 text-sm text-blue-300 mb-2">
-                      <FaCompass className="text-blue-400" />
-                      <span className="font-bold">خط الطول (Longitude)</span>
+                  <motion.div whileHover={{ y: -5 }} className="bg-white/5 rounded-[2.5rem] p-8 border border-white/5 space-y-4 group transition-all duration-500">
+                    <div className="flex items-center gap-3 text-blue-400 font-black text-sm uppercase tracking-widest mb-2">
+                      <FaCompass className="text-xl" />
+                      <span>خط الطول</span>
                     </div>
-                    <div className="text-blue-100 font-mono text-xl">
-                      {location.longitude || 'غير محدد'}
+                    <div className="text-white font-mono text-3xl font-black tabular-nums break-all group-hover:text-blue-300 transition-colors">
+                      {location.longitude || '0.000000'}
+                    </div>
+                  </motion.div>
+
+                  <motion.div whileHover={{ y: -5 }} className="bg-white/5 rounded-[2.5rem] p-8 border border-white/5 space-y-4 group transition-all duration-500">
+                    <div className="flex items-center gap-3 text-indigo-400 font-black text-sm uppercase tracking-widest mb-2">
+                      <FaGlobe className="text-xl" />
+                      <span>خط العرض</span>
+                    </div>
+                    <div className="text-white font-mono text-3xl font-black tabular-nums break-all group-hover:text-indigo-300 transition-colors">
+                      {location.latitude || '0.000000'}
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+
+              {/* Stats & History */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Information Card */}
+                <div className="bg-white/5 rounded-[2.5rem] p-8 border border-white/5 space-y-6">
+                  <div className="flex items-center gap-3 text-slate-400 font-black text-sm uppercase tracking-widest mb-2">
+                    <FaInfoCircle className="text-lg" />
+                    <span>المتطلبات</span>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center bg-black/20 p-5 rounded-2xl border border-white/5 group hover:bg-black/40 transition-all">
+                      <span className="text-slate-500 font-bold text-sm">المستوى الأدنى</span>
+                      <div className="flex items-center gap-2 font-black text-xl text-yellow-500">
+                        <FaStar />
+                        <span className="tabular-nums">{location.requiredLevel}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center bg-black/20 p-5 rounded-2xl border border-white/5 group hover:bg-black/40 transition-all">
+                      <span className="text-slate-500 font-bold text-sm">حالة الوصول</span>
+                      <span className="px-4 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-full font-black text-xs uppercase tracking-widest">
+                        متاح الآن
+                      </span>
                     </div>
                   </div>
-                  
-                  {/* Latitude */}
-                  <div className="bg-[#0a192f] p-4 rounded-xl border border-blue-900/50">
-                    <div className="flex items-center gap-2 text-sm text-blue-300 mb-2">
-                      <FaGlobe className="text-blue-400" />
-                      <span className="font-bold">خط العرض (Latitude)</span>
+                </div>
+
+                {/* Timeline Card */}
+                <div className="bg-white/5 rounded-[2.5rem] p-8 border border-white/5 space-y-6">
+                  <div className="flex items-center gap-3 text-slate-400 font-black text-sm uppercase tracking-widest mb-2">
+                    <FaHistory className="text-lg" />
+                    <span>تاريخ السجل</span>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-2 bg-black/20 p-5 rounded-2xl border border-white/5 group hover:bg-black/40 transition-all">
+                      <div className="flex items-center gap-2 text-slate-500 font-bold text-xs uppercase tracking-widest">
+                        <FaCalendarAlt className="text-blue-500" />
+                        تاريخ الإنشاء
+                      </div>
+                      <span className="text-white font-black text-sm tabular-nums">
+                        {formatDate(location.createdAt)}
+                      </span>
                     </div>
-                    <div className="text-blue-100 font-mono text-xl">
-                      {location.latitude || 'غير محدد'}
+                    <div className="flex flex-col gap-2 bg-black/20 p-5 rounded-2xl border border-white/5 group hover:bg-black/40 transition-all">
+                      <div className="flex items-center gap-2 text-slate-500 font-bold text-xs uppercase tracking-widest">
+                        <FaHistory className="text-purple-500" />
+                        آخر مزامنة
+                      </div>
+                      <span className="text-white font-black text-sm tabular-nums">
+                        {formatDate(location.updatedAt || location.createdAt)}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Location ID */}
-              <div className="bg-[#112240]/50 rounded-2xl p-5 border border-blue-900/30">
-                <h4 className="text-lg font-bold text-blue-300 mb-3 flex items-center gap-2">
-                  <FaMapPin className="text-blue-500/70" /> معرف العنوان
-                </h4>
-                <p className="text-blue-100 font-mono text-lg tracking-wider bg-[#0a192f] p-4 rounded-xl border border-blue-900/50 break-all">
-                  {location.id}
+              {/* Map Preview Placeholder */}
+              <div className="bg-white/5 rounded-[2.5rem] p-10 border border-white/5 text-center space-y-6 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner relative z-10 group-hover:scale-110 transition-transform duration-500">
+                  <FaSatellite className="text-5xl text-indigo-500/30 group-hover:text-indigo-500/50 transition-colors" />
+                </div>
+                <h4 className="text-white font-black text-xl relative z-10">معاينة القمر الصناعي</h4>
+                <p className="text-slate-500 text-sm font-medium max-w-sm mx-auto relative z-10 leading-relaxed">
+                  هذا الموقع مسجل بدقة عالية في قاعدة البيانات المركزية ومتاح لجميع العمليات الميدانية المتوافقة مع المستوى {location.requiredLevel}.
                 </p>
-              </div>
-
-              {/* Status Information */}
-              <div className="bg-[#112240]/50 rounded-2xl p-5 border border-blue-900/30">
-                <h4 className="text-lg font-bold text-blue-300 mb-4 flex items-center gap-2">
-                  <FaLock className="text-blue-500/70" /> حالة العنوان
-                </h4>
-                <div className="space-y-3 bg-[#0a192f] p-4 rounded-xl border border-blue-900/50">
-                  <div className="flex justify-between items-center pb-3 border-b border-blue-900/30">
-                    <span className="text-blue-200 font-bold">المستوى المطلوب</span>
-                    <span className="text-yellow-400 font-bold text-lg flex items-center gap-2">
-                      <FaStar className="text-yellow-500" />
-                      {location.requiredLevel}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-blue-200 font-bold">الإحداثيات</span>
-                    <span className="text-blue-100 font-mono text-sm">
-                      {location.longitude && location.latitude 
-                        ? `${location.longitude}, ${location.latitude}` 
-                        : 'غير محدد'
-                      }
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Dates */}
-              {location.createdAt && (
-                <div className="bg-[#112240]/50 rounded-2xl p-5 border border-blue-900/30">
-                  <h4 className="text-lg font-bold text-blue-300 mb-4 flex items-center gap-2">
-                    <FaMapMarkerAlt className="text-blue-500/70" /> التواريخ
-                  </h4>
-                  <div className="space-y-3 bg-[#0a192f] p-4 rounded-xl border border-blue-900/50">
-                    {location.createdAt && (
-                      <div className="flex justify-between items-center pb-3 border-b border-blue-900/30">
-                        <span className="text-blue-200 font-bold">تاريخ الإنشاء</span>
-                        <span className="text-blue-100 font-medium bg-blue-900/30 px-3 py-1 rounded-lg border border-blue-800/30 text-sm">
-                          {formatDate(location.createdAt)}
-                        </span>
-                      </div>
-                    )}
-                    {location.updatedAt && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-blue-200 font-bold">آخر تحديث</span>
-                        <span className="text-blue-100 font-medium bg-blue-900/30 px-3 py-1 rounded-lg border border-blue-800/30 text-sm">
-                          {formatDate(location.updatedAt)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Additional Information */}
-              <div className="bg-[#112240]/50 rounded-2xl p-5 border border-blue-900/30">
-                <h4 className="text-lg font-bold text-blue-300 mb-4 flex items-center gap-2">
-                  <FaMapMarkerAlt className="text-blue-500/70" /> معلومات إضافية
-                </h4>
-                <div className="space-y-3 bg-[#0a192f] p-4 rounded-xl border border-blue-900/50">
-                  <div className="flex items-center gap-3 text-blue-200">
-                    <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-                      {location.requiredLevel <= 5 ? (
-                        <FaUnlock className="text-green-400" />
-                      ) : (
-                        <FaLock className="text-red-400" />
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-bold text-lg">
-                        {location.requiredLevel <= 5 ? 'متاح للمستويات المنخفضة' : 'يتطلب مستوى عالي'}
-                      </div>
-                      <div className="text-sm text-blue-300/60">
-                        المستوى المطلوب: {location.requiredLevel}
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-blue-900/50 bg-[#0a192f]/50 backdrop-blur-xl sticky bottom-0 z-10">
+            <div className="p-10 border-t border-white/5 bg-white/5 backdrop-blur-3xl sticky bottom-0 z-20">
               <motion.button
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onClose}
-                className="w-full px-6 py-4 bg-gradient-to-r from-[#112240] to-[#1a365d] hover:from-[#1a365d] hover:to-[#112240] text-blue-200 rounded-2xl transition-all font-bold text-xl border border-blue-800/50 shadow-lg"
+                className="w-full px-10 py-6 bg-white/5 text-slate-300 rounded-[2rem] transition-all font-black text-xl border border-white/5 shadow-2xl"
               >
-                إغلاق التفاصيل
+                إغلاق سجل الموقع
               </motion.button>
             </div>
           </motion.div>

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes, FaPlus, FaMapMarkerAlt, FaTasks, FaShieldAlt, FaStar, FaTrophy, FaLeaf } from 'react-icons/fa';
+import { FaTimes, FaPlus, FaMapMarkerAlt, FaTasks, FaShieldAlt, FaStar, FaTrophy, FaLeaf, FaChartPie } from 'react-icons/fa';
 
 const AddMissionModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     title: '',
-    difficulty: 0,
+    difficulty: 1,
     requiredLevel: 1,
     kpReward: 1,
     xpReward: 1,
@@ -26,38 +26,42 @@ const AddMissionModal = ({ isOpen, onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (!formData.title.trim()) {
       alert('يرجى إدخال عنوان المهمة');
       return;
     }
-    
+
     if (!formData.locationId.trim()) {
-      alert('يرجى إدخال معرف الموقع (Location ID) بصيغة صحيحة (Guid)');
+      alert('يرجى إدخال معرف الموقع (Location ID)');
       return;
     }
 
     setLoading(true);
     try {
       const submitData = {
-        title: formData.title,
-        difficulty: formData.difficulty,
-        requiredLevel: formData.requiredLevel,
-        kpReward: formData.kpReward,
-        xpReward: formData.xpReward,
-        impactReward: formData.impactReward,
-        locationId: formData.locationId
+        title: formData.title.trim(),
+        difficulty: Number(formData.difficulty) || 1,
+        requiredLevel: Number(formData.requiredLevel) || 1,
+        kpReward: Number(formData.kpReward) || 1,
+        xpReward: Number(formData.xpReward) || 1,
+        impactReward: Number(formData.impactReward) || 1,
+        locationId: formData.locationId.trim()
       };
       
       await onSubmit(submitData);
       setFormData({
         title: '',
-        difficulty: 0,
+        difficulty: 1,
         requiredLevel: 1,
         kpReward: 1,
         xpReward: 1,
         impactReward: 1,
         locationId: ''
       });
+      onClose();
+    } catch (err) {
+      console.error('Error in AddMissionModal:', err);
     } finally {
       setLoading(false);
     }
@@ -66,207 +70,199 @@ const AddMissionModal = ({ isOpen, onClose, onSubmit }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4" dir="rtl">
+        <div className="fixed inset-0 bg-[#020617]/80 backdrop-blur-2xl flex items-center justify-center z-[100] p-4 md:p-8" dir="rtl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", duration: 0.5 }}
-            className="bg-gradient-to-br from-[#0a192f] to-[#112240] rounded-3xl border border-blue-800/50 w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-[0_0_50px_rgba(30,58,138,0.3)]"
+            initial={{ opacity: 0, scale: 0.9, y: 40, rotateX: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 40, rotateX: 15 }}
+            transition={{ type: "spring", duration: 0.7, bounce: 0.3 }}
+            className="bg-[#0f172a]/90 rounded-[3rem] border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-[0_0_100px_rgba(37,99,235,0.2)] flex flex-col relative"
           >
+            {/* Background Orbs */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] -z-10" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-600/10 rounded-full blur-[80px] -z-10" />
+
             {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b border-blue-900/50 bg-[#0a192f]/50 sticky top-0 z-10 backdrop-blur-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-                  <FaPlus className="text-blue-400 text-lg" />
+            <div className="flex justify-between items-center p-10 border-b border-white/5 bg-white/5 backdrop-blur-3xl sticky top-0 z-20">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center shadow-2xl border border-white/20">
+                  <FaPlus className="text-white text-xl" />
                 </div>
-                <h3 className="text-2xl font-bold text-white tracking-wide">إضافة مهمة جديدة</h3>
+                <div>
+                  <h3 className="text-3xl font-black text-white tracking-tighter">إنشاء مهمة جديدة</h3>
+                  <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mt-1">تحديد تفاصيل العملية الميدانية</p>
+                </div>
               </div>
               <motion.button
-                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileHover={{ scale: 1.1, rotate: 90, backgroundColor: 'rgba(239, 68, 68, 0.2)' }}
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="w-10 h-10 flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors text-red-400 hover:text-red-300 border border-red-500/20"
+                className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-2xl transition-all text-slate-400 border border-white/5"
               >
-                <FaTimes className="text-lg" />
+                <FaTimes className="text-xl" />
               </motion.button>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {/* Title */}
-              <div className="group">
-                <label className="flex items-center gap-2 text-base font-bold text-blue-200 mb-3">
-                  <FaTasks className="text-blue-400" />
-                  عنوان المهمة <span className="text-red-400">*</span>
-                </label>
-                <div className="relative">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
+              {/* Title Section */}
+              <div className="bg-white/5 rounded-[2rem] p-8 border border-white/5 space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-2 h-8 bg-blue-500 rounded-full" />
+                  <h4 className="text-white font-black text-lg">البيانات الأساسية</h4>
+                </div>
+                <div className="group space-y-3">
+                  <label className="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest px-1">
+                    <FaTasks className="text-blue-500" />
+                    عنوان العملية <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     name="title"
                     value={formData.title}
                     onChange={handleChange}
                     required
-                    className="w-full bg-[#0a192f]/50 border-2 border-blue-900/50 rounded-xl px-4 py-3.5 text-lg text-white placeholder-blue-300/30 focus:outline-none focus:border-blue-500 focus:bg-[#112240] focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 shadow-inner"
-                    placeholder="أدخل عنوان المهمة بشكل واضح"
+                    className="w-full bg-black/40 border-2 border-white/5 rounded-[1.5rem] px-6 py-5 text-xl text-white placeholder-slate-700 focus:outline-none focus:border-blue-500/50 focus:ring-8 focus:ring-blue-500/5 transition-all duration-300 shadow-inner font-bold"
+                    placeholder="أدخل عنواناً مميزاً للمهمة..."
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Difficulty */}
-                <div className="group">
-                  <label className="flex items-center gap-2 text-base font-bold text-blue-200 mb-3">
-                    <FaShieldAlt className="text-blue-400" />
-                    مستوى الصعوبة
-                  </label>
-                  <select
-                    name="difficulty"
-                    value={formData.difficulty}
-                    onChange={handleChange}
-                    className="w-full bg-[#0a192f]/50 border-2 border-blue-900/50 rounded-xl px-4 py-3.5 text-lg text-white focus:outline-none focus:border-blue-500 focus:bg-[#112240] focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 shadow-inner appearance-none cursor-pointer"
-                  >
-                    <option value={0}>سهل (Easy)</option>
-                    <option value={1}>متوسط (Normal)</option>
-                    <option value={2}>صعب (Hard)</option>
-                    <option value={3}>صعب جداً (Very Hard)</option>
-                  </select>
-                </div>
+              {/* Config Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-white/5 rounded-[2rem] p-8 border border-white/5 space-y-6">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-2 h-8 bg-purple-500 rounded-full" />
+                    <h4 className="text-white font-black text-lg">الإعدادات</h4>
+                  </div>
+                  <div className="space-y-6">
+                    <div className="group space-y-3">
+                      <label className="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest px-1">
+                        <FaShieldAlt className="text-purple-500" />
+                        درجة الصعوبة
+                      </label>
+                      <div className="relative">
+                        <select
+                          name="difficulty"
+                          value={formData.difficulty}
+                          onChange={handleChange}
+                          className="w-full bg-black/40 border-2 border-white/5 rounded-[1.5rem] px-6 py-5 text-xl text-white focus:outline-none focus:border-purple-500/50 focus:ring-8 focus:ring-purple-500/5 transition-all duration-300 shadow-inner appearance-none cursor-pointer font-bold"
+                        >
+                          <option value={0}>سهل (EASY)</option>
+                          <option value={1}>متوسط (NORMAL)</option>
+                          <option value={2}>صعب (HARD)</option>
+                          <option value={3}>أسطوري (LEGENDARY)</option>
+                        </select>
+                        <FaChartPie className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" />
+                      </div>
+                    </div>
 
-                {/* Required Level */}
-                <div className="group">
-                  <label className="flex items-center gap-2 text-base font-bold text-blue-200 mb-3">
-                    <FaStar className="text-yellow-500" />
-                    المستوى المطلوب
-                  </label>
-                  <input
-                    type="number"
-                    name="requiredLevel"
-                    value={formData.requiredLevel}
-                    onChange={handleChange}
-                    min="1"
-                    max="100"
-                    className="w-full bg-[#0a192f]/50 border-2 border-blue-900/50 rounded-xl px-4 py-3.5 text-lg text-white placeholder-blue-300/30 focus:outline-none focus:border-yellow-500 focus:bg-[#112240] focus:ring-4 focus:ring-yellow-500/20 transition-all duration-300 shadow-inner"
-                    placeholder="من 1 إلى 100"
-                  />
-                </div>
-              </div>
-
-              {/* Rewards Grid */}
-              <div className="bg-[#0a192f]/30 p-5 rounded-2xl border border-blue-900/30">
-                <h4 className="text-blue-300 font-bold mb-4 flex items-center gap-2">
-                  <FaTrophy className="text-yellow-400" /> مكافآت المهمة
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {/* KP Reward */}
-                  <div className="group">
-                    <label className="block text-sm font-bold text-yellow-400/80 mb-2">
-                      نقاط الخير (KP)
-                    </label>
-                    <div className="relative">
-                      <FaTrophy className="absolute right-4 top-1/2 transform -translate-y-1/2 text-yellow-500/50" />
+                    <div className="group space-y-3">
+                      <label className="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest px-1">
+                        <FaStar className="text-yellow-500" />
+                        المستوى الأدنى
+                      </label>
                       <input
                         type="number"
-                        name="kpReward"
-                        value={formData.kpReward}
+                        name="requiredLevel"
+                        value={formData.requiredLevel}
                         onChange={handleChange}
                         min="1"
-                        className="w-full bg-[#0a192f]/80 border border-yellow-900/50 rounded-xl pr-12 pl-4 py-3 text-lg text-yellow-400 placeholder-yellow-700/30 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all duration-300 font-bold"
-                        placeholder="0"
+                        max="100"
+                        className="w-full bg-black/40 border-2 border-white/5 rounded-[1.5rem] px-6 py-5 text-xl text-white focus:outline-none focus:border-yellow-500/50 focus:ring-8 focus:ring-yellow-500/5 transition-all duration-300 shadow-inner font-bold"
                       />
                     </div>
                   </div>
+                </div>
 
-                  {/* XP Reward */}
-                  <div className="group">
-                    <label className="block text-sm font-bold text-purple-400/80 mb-2">
-                      نقاط الخبرة (XP)
-                    </label>
-                    <div className="relative">
-                      <FaStar className="absolute right-4 top-1/2 transform -translate-y-1/2 text-purple-500/50" />
-                      <input
-                        type="number"
-                        name="xpReward"
-                        value={formData.xpReward}
-                        onChange={handleChange}
-                        min="1"
-                        className="w-full bg-[#0a192f]/80 border border-purple-900/50 rounded-xl pr-12 pl-4 py-3 text-lg text-purple-400 placeholder-purple-700/30 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 font-bold"
-                        placeholder="0"
-                      />
-                    </div>
+                {/* Rewards Section */}
+                <div className="bg-white/5 rounded-[2rem] p-8 border border-white/5 space-y-6">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-2 h-8 bg-emerald-500 rounded-full" />
+                    <h4 className="text-white font-black text-lg">المكافآت</h4>
                   </div>
-
-                  {/* Impact Reward */}
-                  <div className="group">
-                    <label className="block text-sm font-bold text-green-400/80 mb-2">
-                      نقاط التأثير
-                    </label>
-                    <div className="relative">
-                      <FaLeaf className="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-500/50" />
-                      <input
-                        type="number"
-                        name="impactReward"
-                        value={formData.impactReward}
-                        onChange={handleChange}
-                        min="1"
-                        className="w-full bg-[#0a192f]/80 border border-green-900/50 rounded-xl pr-12 pl-4 py-3 text-lg text-green-400 placeholder-green-700/30 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300 font-bold"
-                        placeholder="0"
-                      />
-                    </div>
+                  <div className="space-y-6">
+                    {[
+                      { name: 'kpReward', icon: FaTrophy, color: 'text-yellow-500', label: 'نقاط الخير' },
+                      { name: 'xpReward', icon: FaStar, color: 'text-purple-500', label: 'نقاط الخبرة' },
+                      { name: 'impactReward', icon: FaLeaf, color: 'text-emerald-500', label: 'نقاط التأثير' }
+                    ].map((r, i) => (
+                      <div key={i} className="group space-y-2">
+                        <div className="flex items-center justify-between px-1">
+                          <label className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                            <r.icon className={r.color} />
+                            {r.label}
+                          </label>
+                          <span className="text-white font-black text-xs tabular-nums">{formData[r.name]}</span>
+                        </div>
+                        <input
+                          type="number"
+                          name={r.name}
+                          value={formData[r.name]}
+                          onChange={handleChange}
+                          min="0"
+                          className="w-full bg-black/40 border-2 border-white/5 rounded-2xl px-5 py-3 text-lg text-white focus:outline-none focus:border-white/20 transition-all font-bold"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
 
-              {/* Location ID */}
-              <div className="group">
-                <label className="flex items-center gap-2 text-base font-bold text-blue-200 mb-3">
-                  <FaMapMarkerAlt className="text-blue-400" />
-                  معرف الموقع (Location ID) <span className="text-red-400">*</span>
-                </label>
-                <div className="relative">
+              {/* Location Section */}
+              <div className="bg-white/5 rounded-[2rem] p-8 border border-white/5 space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-2 h-8 bg-indigo-500 rounded-full" />
+                  <h4 className="text-white font-black text-lg">تحديد الموقع</h4>
+                </div>
+                <div className="group space-y-3">
+                  <label className="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest px-1">
+                    <FaMapMarkerAlt className="text-indigo-500" />
+                    معرف الموقع الجغرافي <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     name="locationId"
                     value={formData.locationId}
                     onChange={handleChange}
-                    required
-                    className="w-full bg-[#0a192f]/50 border-2 border-blue-900/50 rounded-xl px-4 py-3.5 text-lg text-white placeholder-blue-300/30 focus:outline-none focus:border-blue-500 focus:bg-[#112240] focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 shadow-inner font-mono text-left"
-                    placeholder="e.g. 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    className="w-full bg-black/40 border-2 border-white/5 rounded-[1.5rem] px-6 py-5 text-lg text-blue-400 placeholder-slate-700 focus:outline-none focus:border-indigo-500/50 focus:ring-8 focus:ring-indigo-500/5 transition-all duration-300 shadow-inner font-mono text-left"
+                    placeholder="00000000-0000-0000-0000-000000000000"
                     dir="ltr"
                   />
                 </div>
               </div>
-
-              {/* Actions */}
-              <div className="flex gap-4 pt-6 mt-6 border-t border-blue-900/50">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 px-6 py-4 bg-[#112240] hover:bg-[#1a365d] text-blue-200 rounded-xl transition-colors font-bold text-lg border border-blue-800/50"
-                  disabled={loading}
-                >
-                  إلغاء
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(59,130,246,0.4)" }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  className="flex-[2] px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl transition-all duration-300 flex items-center justify-center gap-3 font-bold text-lg shadow-lg shadow-blue-900/50 border border-blue-400/30"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                  ) : (
-                    <>
-                      <FaPlus />
-                      إضافة المهمة
-                    </>
-                  )}
-                </motion.button>
-              </div>
             </form>
+
+            {/* Footer Actions */}
+            <div className="p-10 border-t border-white/5 bg-white/5 backdrop-blur-3xl sticky bottom-0 z-20 flex gap-6">
+              <motion.button
+                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.08)' }}
+                whileTap={{ scale: 0.98 }}
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-8 py-5 bg-white/5 text-slate-400 rounded-2xl transition-all font-black text-xl border border-white/5"
+                disabled={loading}
+              >
+                إلغاء
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02, boxShadow: "0 20px 40px -10px rgba(37,99,235,0.5)" }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                onClick={handleSubmit}
+                className="flex-[2] px-8 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl transition-all duration-300 flex items-center justify-center gap-4 font-black text-xl shadow-2xl border border-white/10"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="w-8 h-8 border-[4px] border-white/20 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <FaPlus className="text-lg" />
+                    <span>اعتماد المهمة</span>
+                  </>
+                )}
+              </motion.button>
+            </div>
           </motion.div>
         </div>
       )}

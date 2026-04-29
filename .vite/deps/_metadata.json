@@ -1,0 +1,115 @@
+{
+  "hash": "44370347",
+  "configHash": "590b100d",
+  "lockfileHash": "4732d0ab",
+  "browserHash": "3cce47b5",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "e6bc244d",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "31e91046",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "64684c0e",
+      "needsInterop": false
+    },
+    "wicg-inert": {
+      "src": "../../node_modules/wicg-inert/dist/inert.esm.js",
+      "file": "wicg-inert.js",
+      "fileHash": "0b3bcb05",
+      "needsInterop": true
+    },
+    "msw/browser": {
+      "src": "../../node_modules/msw/lib/browser/index.mjs",
+      "file": "msw_browser.js",
+      "fileHash": "f70f573d",
+      "needsInterop": false
+    },
+    "axios": {
+      "src": "../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "da850e25",
+      "needsInterop": false
+    },
+    "msw": {
+      "src": "../../node_modules/msw/lib/core/index.mjs",
+      "file": "msw.js",
+      "fileHash": "d952a3ad",
+      "needsInterop": false
+    },
+    "framer-motion": {
+      "src": "../../node_modules/framer-motion/dist/es/index.mjs",
+      "file": "framer-motion.js",
+      "fileHash": "511a1dd1",
+      "needsInterop": false
+    },
+    "react-icons/fa": {
+      "src": "../../node_modules/react-icons/fa/index.mjs",
+      "file": "react-icons_fa.js",
+      "fileHash": "79c5133a",
+      "needsInterop": false
+    },
+    "react-icons/fi": {
+      "src": "../../node_modules/react-icons/fi/index.mjs",
+      "file": "react-icons_fi.js",
+      "fileHash": "7931397f",
+      "needsInterop": false
+    },
+    "formik": {
+      "src": "../../node_modules/formik/dist/formik.esm.js",
+      "file": "formik.js",
+      "fileHash": "6ea27393",
+      "needsInterop": false
+    },
+    "yup": {
+      "src": "../../node_modules/yup/index.esm.js",
+      "file": "yup.js",
+      "fileHash": "0b9dc974",
+      "needsInterop": false
+    },
+    "react-icons/fc": {
+      "src": "../../node_modules/react-icons/fc/index.mjs",
+      "file": "react-icons_fc.js",
+      "fileHash": "aa0ff700",
+      "needsInterop": false
+    },
+    "react-icons/gi": {
+      "src": "../../node_modules/react-icons/gi/index.mjs",
+      "file": "react-icons_gi.js",
+      "fileHash": "bfa4bb6c",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-SYV3ZKVK": {
+      "file": "chunk-SYV3ZKVK.js"
+    },
+    "graphql-AU2Y2I4X": {
+      "file": "graphql-AU2Y2I4X.js"
+    },
+    "chunk-JBJ6LC6B": {
+      "file": "chunk-JBJ6LC6B.js"
+    },
+    "chunk-4RK2WDNS": {
+      "file": "chunk-4RK2WDNS.js"
+    },
+    "chunk-MJNKXFER": {
+      "file": "chunk-MJNKXFER.js"
+    },
+    "chunk-ODB75UNA": {
+      "file": "chunk-ODB75UNA.js"
+    },
+    "chunk-DWA4UIM3": {
+      "file": "chunk-DWA4UIM3.js"
+    }
+  }
+}

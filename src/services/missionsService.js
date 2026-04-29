@@ -15,30 +15,58 @@ export const missionsService = {
     }
   },
 
-  // Get mission by ID
+ 
   getMissionById: async (id) => {
-    try {
-      const response = await axiosClient.get(`${MISSIONS_API_URL}/${id}`);
-      console.log('Mission Detail API Response:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching mission details:', error);
-      throw error;
-    }
-  },
+  try {
+    const response = await axiosClient.get(`${MISSIONS_API_URL}/${id}`);
+    console.log('Mission Detail API Response:', response.data);
+
+    // لأن الباك بيرجع الداتا أحيانًا داخل value
+    return response.data?.value || response.data?.data || response.data;
+  } catch (error) {
+    console.error('Error fetching mission details:', error);
+    throw error;
+  }
+},
 
   // Create new mission
   createMission: async (missionData) => {
     try {
-      const response = await axiosClient.post(MISSIONS_API_URL, missionData);
-      console.log('Create Mission API Response:', response.data);
+      console.log('📤 Creating mission with data:', JSON.stringify(missionData, null, 2));
+
+      const payload = {
+        title: String(missionData.title || '').trim(),
+        difficulty: Number(missionData.difficulty) || 0,
+        requiredLevel: Number(missionData.requiredLevel) || 1,
+        kpReward: Number(missionData.kpReward) || 0,
+        xpReward: Number(missionData.xpReward) || 0,
+        impactReward: Number(missionData.impactReward) || 0,
+        locationId: String(missionData.locationId || '').trim()
+      };
+
+      console.log('📤 Sanitized mission payload:', JSON.stringify(payload, null, 2));
+
+      const response = await axiosClient.post(MISSIONS_API_URL, payload);
+      console.log('✅ Create Mission API Success:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error creating mission:', error);
-      throw error;
+      console.error('❌ Error creating mission:', error);
+
+      if (error.response) {
+        console.error('❌ API Response Error:', {
+          status: error.response.status,
+          data: error.response.data
+        });
+        throw error;
+      } else if (error.request) {
+        console.error('❌ Network Error (No Response):', error.request);
+        throw new Error('لا يوجد استجابة من السيرفر. تحقق من الاتصال بالإنترنت.');
+      } else {
+        console.error('❌ Request Setup Error:', error.message);
+        throw error;
+      }
     }
   },
-
   // Search missions
   searchMissions: async (searchTerm, pageNumber = 1, pageSize = 10) => {
     try {
@@ -57,23 +85,17 @@ export const missionsService = {
       // Log the data being sent for debugging
       console.log('📤 Updating mission with ID:', missionId, 'data:', JSON.stringify(missionData, null, 2));
       
-      // Ensure numeric fields are numbers and handle GUID validation
+      // Ensure numeric fields are numbers
       const sanitizedData = {
-        title: missionData.title?.trim(),
-        difficulty: parseInt(missionData.difficulty) || 1,
-        requiredLevel: missionData.requiredLevel ? parseInt(missionData.requiredLevel) : null,
-        kpReward: missionData.kpReward ? parseInt(missionData.kpReward) : null,
-        xpReward: missionData.xpReward ? parseInt(missionData.xpReward) : null,
-        impactReward: missionData.impactReward ? parseInt(missionData.impactReward) : null,
-        locationId: missionData.locationId || null,
-        status: missionData.status !== undefined ? parseInt(missionData.status) : 1
+        title: String(missionData.title || '').trim(),
+        difficulty: Number(missionData.difficulty) || 0,
+        requiredLevel: Number(missionData.requiredLevel) || 1,
+        kpReward: Number(missionData.kpReward) || 0,
+        xpReward: Number(missionData.xpReward) || 0,
+        impactReward: Number(missionData.impactReward) || 0,
+        locationId: String(missionData.locationId || '').trim(),
+        status: missionData.status !== undefined ? Number(missionData.status) : 1
       };
-
-      // Validate locationId as GUID - if not valid GUID, set to null
-      if (sanitizedData.locationId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(sanitizedData.locationId)) {
-        console.log('🔧 Invalid GUID format for locationId, setting to null:', sanitizedData.locationId);
-        sanitizedData.locationId = null;
-      }
 
       console.log('📤 Sanitized update data:', JSON.stringify(sanitizedData, null, 2));
       

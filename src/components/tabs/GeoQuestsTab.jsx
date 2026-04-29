@@ -3,36 +3,51 @@
  * GeoQuestsTab — Real-world GPS-based quests.
  * Player must physically travel to a location to unlock and complete the quest.
  */
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { geoQuestsService } from '../../services/geoQuestsService';
 import GeoQuestService from '../../services/GeoQuestService';
-import GEO_QUESTS from '../../data/geoQuestsData';
+import useGameState from '../../hooks/useGameState';
 import AudioManager from '../../services/AudioManager';
 import JellyButton from '../common/JellyButton';
-import useGameState from '../../hooks/useGameState';
+import AddGeoQuestModal from '../modals/AddGeoQuestModal';
+import GeoQuestDetailModal from '../modals/GeoQuestDetailModal';
+import EditGeoQuestModal from '../modals/EditGeoQuestModal';
 
 import {
   FaMapMarkedAlt,
   FaMapMarkerAlt,
-  FaHospital,
-  FaSchool,
-  FaMosque,
-  FaLeaf,
-  FaPaw,
-  FaHandsHelping,
+  FaPlus,
+  FaSearch,
+  FaEye,
+  FaEdit,
+  FaTrash,
   FaCheckCircle,
   FaStar,
   FaBullseye,
   FaExclamationTriangle,
   FaRoute,
+  FaRocket,
+  FaGem,
+  FaShieldAlt,
+  FaFire,
+  FaTasks,
+  FaTrophy,
+  FaLeaf,
+  FaChartPie,
+  FaArrowRight,
+  FaArrowLeft,
+  FaClock,
+  FaLayerGroup,
+  FaUserShield,
+  FaGlobe,
+  FaHospital,
+  FaSchool,
+  FaMosque,
+  FaPaw,
+  FaHandsHelping
 } from 'react-icons/fa';
-import {
-  FiTarget,
-  FiInfo,
-  FiTrendingUp,
-  FiNavigation,
-  FiCheckCircle,
-  FiClock,
-} from 'react-icons/fi';
+import { FiNavigation, FiInfo, FiTarget, FiTrendingUp } from 'react-icons/fi';
 
 const GQ_CSS = `
   .gq-tab {
@@ -451,6 +466,151 @@ const VerifyModal = memo(({ result, quest, onClose, onComplete }) => {
 });
 
 const GeoQuestsTab = () => {
+  const [geoQuests, setGeoQuests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize] = useState(10);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedGeoQuest, setSelectedGeoQuest] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if user is admin (you can modify this logic based on your auth system)
+  useEffect(() => {
+    const checkAdmin = () => {
+      const userData = localStorage.getItem('user_data') || localStorage.getItem('madeena_login_user_response');
+      if (userData) {
+        try {
+          const parsed = JSON.parse(userData);
+          setIsAdmin(parsed.role === 'admin' || parsed.isAdmin || false);
+        } catch (e) {
+          console.warn('Failed to parse user data for admin check');
+        }
+      }
+    };
+    checkAdmin();
+  }, []);
+
+  const fetchGeoQuests = async (page = 1, search = '') => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = search
+        ? await geoQuestsService.searchGeoQuests(search, page, pageSize)
+        : await geoQuestsService.getGeoQuests(page, pageSize);
+
+      setGeoQuests(response.data);
+      setTotalPages(response.pagination.totalPages || 1);
+      setCurrentPage(response.pagination.currentPage || page);
+    } catch (err) {
+      setError(err.response?.data?.message || 'فشل في جلب المهام الجغرافية');
+      console.error('Error fetching GeoQuests:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGeoQuests(currentPage, searchTerm);
+  }, [currentPage, searchTerm]);
+
+  const handleAddGeoQuest = async (geoQuestData) => {
+    try {
+      await geoQuestsService.createGeoQuest(geoQuestData);
+      setShowAddModal(false);
+      fetchGeoQuests(currentPage, searchTerm);
+      alert('تم إضافة المهمة الجغرافية بنجاح');
+    } catch (err) {
+      console.error('Error adding GeoQuest:', err);
+      const apiData = err.response?.data;
+      let errorMsg = 'فشل في إضافة المهمة الجغرافية.';
+      if (apiData?.errors) {
+        const messages = Object.values(apiData.errors).flat().join('\n');
+        errorMsg += `\nالأخطاء:\n${messages}`;
+      } else if (apiData?.detail) {
+        errorMsg += `\n${apiData.detail}`;
+      } else if (apiData?.message) {
+        errorMsg += `\n${apiData.message}`;
+      } else if (apiData?.error) {
+        errorMsg += `\n${apiData.error}`;
+      } else if (err.message) {
+        errorMsg += `\n${err.message}`;
+      }
+      alert(errorMsg);
+      setError(errorMsg);
+    }
+  };
+
+  const handleViewGeoQuest = async (geoQuestId) => {
+    try {
+      const geoQuest = await geoQuestsService.getGeoQuestById(geoQuestId);
+      setSelectedGeoQuest(geoQuest);
+      setShowDetailModal(true);
+    } catch (err) {
+      console.error('Error fetching GeoQuest details:', err);
+      alert('فشل في جلب تفاصيل المهمة الجغرافية');
+    }
+  };
+
+  const handleEditGeoQuest = (geoQuest) => {
+    setSelectedGeoQuest(geoQuest);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateGeoQuest = async (geoQuestId, geoQuestData) => {
+    try {
+      await geoQuestsService.updateGeoQuest(geoQuestId, geoQuestData);
+      setShowEditModal(false);
+      setSelectedGeoQuest(null);
+      fetchGeoQuests(currentPage, searchTerm);
+      alert('تم تحديث المهمة الجغرافية بنجاح');
+    } catch (err) {
+      console.error('Error updating GeoQuest:', err);
+      let errorMessage = 'فشل في تحديث المهمة الجغرافية';
+      if (err.response?.data?.message) {
+        errorMessage = `خطأ: ${err.response.data.message}`;
+      } else if (err.response?.data?.error) {
+        errorMessage = `خطأ: ${err.response.data.error}`;
+      } else if (err.message) {
+        errorMessage = `خطأ: ${err.message}`;
+      }
+      alert(errorMessage);
+    }
+  };
+
+  const handleDeleteGeoQuest = async (geoQuestId) => {
+    const confirmed = window.confirm('هل أنت متأكد من حذف هذه المهمة الجغرافية؟ هذا الإجراء لا يمكن التراجع عنه.');
+    if (!confirmed) return;
+
+    try {
+      await geoQuestsService.deleteGeoQuest(geoQuestId);
+      alert('تم حذف المهمة الجغرافية بنجاح');
+      fetchGeoQuests(currentPage, searchTerm);
+    } catch (err) {
+      console.error('Error deleting GeoQuest:', err);
+      let errorMessage = 'فشل في حذف المهمة الجغرافية';
+      if (err.response?.data?.message) {
+        errorMessage = `خطأ: ${err.response.data.message}`;
+      } else if (err.response?.data?.error) {
+        errorMessage = `خطأ: ${err.response.data.error}`;
+      } else if (err.message) {
+        errorMessage = `خطأ: ${err.message}`;
+      }
+      alert(errorMessage);
+    }
+  };
+
+  const handleSearch = (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    setCurrentPage(1);
+  };
+
   const { state, actions } = useGameState();
   const { completedQuests } = state;
   const { completeQuest } = actions;
@@ -509,7 +669,7 @@ const GeoQuestsTab = () => {
       </div>
 
       <div className="gq-grid">
-        {GEO_QUESTS.map((quest) => (
+        {geoQuests.map((quest) => (
           <GeoQuestCard
             key={quest.id}
             quest={quest}

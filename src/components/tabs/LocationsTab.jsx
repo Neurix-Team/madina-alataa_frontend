@@ -7,7 +7,8 @@ import LocationDetailModal from '../modals/LocationDetailModal';
 import { 
   FaPlus, FaSearch, FaEye, FaEdit, FaTrash, FaMapMarkerAlt, 
   FaGlobe, FaCompass, FaMapPin, FaStar, FaLock, FaUnlock,
-  FaExclamationTriangle, FaFilter, FaList
+  FaExclamationTriangle, FaFilter, FaList, FaChartLine, FaArrowRight, FaArrowLeft,
+  FaCheckCircle, FaSatellite
 } from 'react-icons/fa';
 
 const LocationsTab = () => {
@@ -21,20 +22,34 @@ const LocationsTab = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [userLevel, setUserLevel] = useState('');
+  const [userLevel, setUserLevel] = useState('100');
   const [showAvailable, setShowAvailable] = useState(false);
+
+  // Statistics
+  const stats = [
+    { label: 'إجمالي العناوين', value: locations.length, icon: FaMapMarkerAlt, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
+    { label: 'متوسط المستوى', value: locations.length ? Math.round(locations.reduce((acc, curr) => acc + (curr.requiredLevel || 0), 0) / locations.length) : 0, icon: FaChartLine, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
+    { label: 'العناوين النشطة', value: locations.length, icon: FaStar, color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+  ];
 
   const fetchLocations = async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await locationsService.getLocations();
-      setLocations(response.data || []);
+      const fetchedLocations =
+        Array.isArray(response) ? response :
+        Array.isArray(response?.data) ? response.data :
+        Array.isArray(response?.value) ? response.value :
+        Array.isArray(response?.values) ? response.values :
+        Array.isArray(response?.items) ? response.items :
+        Array.isArray(response?.data?.items) ? response.data.items :
+        Array.isArray(response?.value?.items) ? response.value.items :
+        Array.isArray(response?.values?.items) ? response.values.items :
+        [];
+      setLocations(fetchedLocations);
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 
-                          err.response?.data?.error || 
-                          err.message || 
-                          'فشل في جلب العناوين';
+      const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'فشل في جلب العناوين';
       setError(errorMessage);
       console.error('Error fetching locations:', err);
     } finally {
@@ -42,23 +57,30 @@ const LocationsTab = () => {
     }
   };
 
-  const fetchAvailableLocations = async (level = '') => {
+  const fetchAvailableLocations = async (level = userLevel) => {
     try {
       setAvailableLoading(true);
-      const response = await locationsService.getAvailableLocations(level);
-      setAvailableLocations(response.data || []);
-      console.log('Available locations for admin:', response.data);
+      const safeLevel = Number(level) > 0 ? Number(level) : 100;
+      const response = await locationsService.getAvailableLocations(safeLevel);
+      const fetchedAvailableLocations =
+        Array.isArray(response) ? response :
+        Array.isArray(response?.data) ? response.data :
+        Array.isArray(response?.value) ? response.value :
+        Array.isArray(response?.values) ? response.values :
+        Array.isArray(response?.items) ? response.items :
+        Array.isArray(response?.data?.items) ? response.data.items :
+        Array.isArray(response?.value?.items) ? response.value.items :
+        Array.isArray(response?.values?.items) ? response.values.items :
+        [];
+      setAvailableLocations(fetchedAvailableLocations);
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 
-                          err.response?.data?.error || 
-                          err.message || 
-                          'فشل في جلب العناوين المتاحة';
+      const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'فشل في جلب العناوين المتاحة';
       console.error('Error fetching available locations:', err);
       alert(errorMessage);
     } finally {
       setAvailableLoading(false);
     }
-  };
+  }; 
 
   useEffect(() => {
     fetchLocations();
@@ -66,7 +88,8 @@ const LocationsTab = () => {
 
   const handleViewLocation = async (locationId) => {
     try {
-      const location = await locationsService.getLocationById(locationId);
+      const response = await locationsService.getLocationById(locationId);
+      const location = response?.value ?? response?.data ?? response?.result ?? response;
       setSelectedLocation(location);
       setShowDetailModal(true);
     } catch (err) {
@@ -89,30 +112,22 @@ const LocationsTab = () => {
       alert('تم تحديث العنوان بنجاح');
     } catch (err) {
       console.error('Error updating location:', err);
-      // Error is already handled in modal
     }
   };
 
   const handleDeleteLocation = async (locationId) => {
     const confirmed = window.confirm('هل أنت متأكد من حذف هذا العنوان؟ هذا الإجراء لا يمكن التراجع عنه.');
     if (!confirmed) return;
-
     try {
       await locationsService.deleteLocation(locationId);
       alert('تم حذف العنوان بنجاح');
       fetchLocations();
     } catch (err) {
       console.error('Error deleting location:', err);
-      
       let errorMessage = 'فشل في حذف العنوان';
-      if (err.response?.data?.message) {
-        errorMessage = `خطأ: ${err.response.data.message}`;
-      } else if (err.response?.data?.error) {
-        errorMessage = `خطأ: ${err.response.data.error}`;
-      } else if (err.message) {
-        errorMessage = `خطأ: ${err.message}`;
-      }
-      
+      if (err.response?.data?.message) errorMessage = `خطأ: ${err.response.data.message}`;
+      else if (err.response?.data?.error) errorMessage = `خطأ: ${err.response.data.error}`;
+      else if (err.message) errorMessage = `خطأ: ${err.message}`;
       alert(errorMessage);
     }
   };
@@ -125,343 +140,261 @@ const LocationsTab = () => {
       alert('تم إضافة العنوان بنجاح');
     } catch (err) {
       console.error('Error adding location:', err);
-      // Error is already handled in modal
     }
   };
 
   const handleShowAvailable = () => {
-    setShowAvailable(!showAvailable);
-    if (!showAvailable) {
-      fetchAvailableLocations(userLevel);
+    const nextShowAvailable = !showAvailable;
+    setShowAvailable(nextShowAvailable);
+    if (nextShowAvailable) {
+      const safeLevel = Number(userLevel) > 0 ? Number(userLevel) : 100;
+      fetchAvailableLocations(safeLevel);
     }
   };
 
-  const filteredLocations = locations.filter(location =>
-    location.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.requiredLevel?.toString().includes(searchTerm)
-  );
+  const filteredLocations = Array.isArray(locations)
+    ? locations.filter(location =>
+        location.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        location.requiredLevel?.toString().includes(searchTerm)
+      )
+    : [];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { type: 'spring', stiffness: 100, damping: 20 }
+    }
+  };
 
   const LocationCard = ({ location, showActions = true }) => (
     <motion.div 
       variants={cardVariants}
-      whileHover={{ y: -5, scale: 1.02 }}
-      className="relative group bg-[#0a192f]/80 backdrop-blur-md rounded-2xl p-6 border border-blue-800/30 transition-all duration-300 shadow-lg hover:shadow-blue-900/50 overflow-hidden"
+      whileHover={{ y: -12, scale: 1.02 }}
+      className="relative group bg-[#0f172a]/40 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/5 transition-all duration-500 shadow-2xl hover:shadow-blue-900/40 overflow-hidden"
     >
-      {/* Glow Effect on Hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
+      <div className="absolute -top-24 -right-24 w-56 h-56 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full blur-[80px] group-hover:bg-blue-500/20 transition-all duration-700" />
       
       <div className="relative z-10">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex justify-between items-start mb-8">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-                <FaMapMarkerAlt className="text-blue-400 text-xl" />
+            <div className="flex items-center gap-5 mb-5">
+              <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-500/20 to-indigo-600/20 flex items-center justify-center border border-blue-500/30 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                <FaMapMarkerAlt className="text-blue-400 text-3xl" />
               </div>
-              <h3 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200 leading-tight">
-                {location.name}
-              </h3>
+              <div>
+                <h3 className="text-3xl font-black text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-blue-300 transition-all leading-tight mb-2">
+                  {location.name}
+                </h3>
+                <div className="flex items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-widest">
+                  <FaMapPin className="text-blue-500/50" />
+                  <span className="truncate max-w-[150px]">{location.id.substring(0, 18)}...</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-3 text-sm text-blue-200/80 bg-blue-900/20 w-fit px-3 py-1.5 rounded-lg border border-blue-800/30">
-              <FaStar className="text-yellow-500" />
-              <span className="font-medium">المستوى: {location.requiredLevel}</span>
+            
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 text-xs font-black text-yellow-400 bg-yellow-500/10 px-5 py-2.5 rounded-[1.2rem] border border-yellow-500/20 shadow-lg uppercase tracking-widest">
+                <FaStar className="animate-pulse" />
+                <span>المستوى المطلوب: {location.requiredLevel}</span>
+              </div>
             </div>
           </div>
           
           {showActions && (
-            <div className="flex items-center gap-2">
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => handleViewLocation(location.id)}
-                className="p-3 bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-900/50 transition-all border border-blue-400/30"
-                title="عرض التفاصيل"
-              >
-                <FaEye className="text-xl" />
+            <div className="flex flex-col gap-3 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300">
+              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => handleViewLocation(location.id)} className="p-3.5 bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white rounded-2xl transition-all border border-blue-500/20 shadow-xl" title="عرض">
+                <FaEye className="text-lg" />
               </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => handleEditLocation(location)}
-                className="p-3 bg-gradient-to-br from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white rounded-xl shadow-lg shadow-orange-900/50 transition-all border border-orange-400/30"
-                title="تعديل العنوان"
-              >
-                <FaEdit className="text-xl" />
+              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => handleEditLocation(location)} className="p-3.5 bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white rounded-2xl transition-all border border-orange-500/20 shadow-xl" title="تعديل">
+                <FaEdit className="text-lg" />
               </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => handleDeleteLocation(location.id)}
-                className="p-3 bg-gradient-to-br from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white rounded-xl shadow-lg shadow-red-900/50 transition-all border border-red-400/30"
-                title="حذف العنوان"
-              >
-                <FaTrash className="text-xl" />
+              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => handleDeleteLocation(location.id)} className="p-3.5 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white rounded-2xl transition-all border border-red-500/20 shadow-xl" title="حذف">
+                <FaTrash className="text-lg" />
               </motion.button>
             </div>
           )}
         </div>
         
-        {/* Coordinates */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-[#112240]/50 rounded-xl p-4 border border-blue-900/30">
-            <div className="flex items-center gap-2 text-sm text-blue-300 mb-2">
-              <FaCompass className="text-blue-400" />
-              <span className="font-bold">خط الطول</span>
+        <div className="grid grid-cols-2 gap-5 mb-8">
+          <div className="bg-black/40 backdrop-blur-md rounded-[1.5rem] p-5 border border-white/5 group-hover:border-blue-500/30 transition-all duration-500">
+            <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">
+              <FaCompass className="text-blue-500" />
+              <span>خط الطول</span>
             </div>
-            <div className="text-blue-100 font-mono text-lg">
-              {location.longitude || 'غير محدد'}
+            <div className="text-white font-mono text-xl truncate font-bold tabular-nums">
+              {location.longitude || '0.0000'}
             </div>
           </div>
-          <div className="bg-[#112240]/50 rounded-xl p-4 border border-blue-900/30">
-            <div className="flex items-center gap-2 text-sm text-blue-300 mb-2">
-              <FaGlobe className="text-blue-400" />
-              <span className="font-bold">خط العرض</span>
+          <div className="bg-black/40 backdrop-blur-md rounded-[1.5rem] p-5 border border-white/5 group-hover:border-blue-500/30 transition-all duration-500">
+            <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">
+              <FaGlobe className="text-indigo-500" />
+              <span>خط العرض</span>
             </div>
-            <div className="text-blue-100 font-mono text-lg">
-              {location.latitude || 'غير محدد'}
+            <div className="text-white font-mono text-xl truncate font-bold tabular-nums">
+              {location.latitude || '0.0000'}
             </div>
           </div>
         </div>
 
-        {/* Location ID */}
-        <div className="bg-[#112240]/50 rounded-xl p-3 border border-blue-900/30">
-          <div className="flex items-center gap-2 text-sm text-blue-300 mb-1">
-            <FaMapPin className="text-blue-400" />
-            <span className="font-bold">معرف العنوان</span>
-          </div>
-          <div className="text-blue-100 font-mono text-sm tracking-wider">
-            {location.id}
-          </div>
-        </div>
+        {!showActions && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-center gap-3 py-4 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 font-black text-xs uppercase tracking-widest shadow-inner">
+            <FaCheckCircle className="text-sm" />
+            عنوان متاح لمستواك الحالي
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100
-      }
-    }
-  };
-
   return (
-    <div className="relative min-h-screen bg-[#020817] text-slate-300 p-4 md:p-8 overflow-hidden" dir="rtl">
-      {/* Decorative Background Orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[100px] pointer-events-none animate-pulse" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-cyan-600/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '2s' }} />
-      <div className="absolute top-[40%] right-[20%] w-64 h-64 bg-indigo-600/10 rounded-full blur-[80px] pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
-
-      <div className="relative z-10">
-        {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-        <div className="flex items-center gap-5">
-          <motion.div 
-            animate={{ y: [-5, 5, -5], rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.5)] border border-white/20"
-          >
-            <FaMapMarkerAlt className="text-white text-3xl drop-shadow-md" />
-          </motion.div>
-          <div>
-            <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-blue-300 drop-shadow-sm">إدارة العناوين</h2>
-            <p className="text-blue-300/80 text-base font-medium mt-2 tracking-wide">إضافة، تعديل، وحذف العناوين الجغرافية</p>
-          </div>
-        </div>
-        
-        <div className="flex gap-4">
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleShowAvailable}
-            className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl font-bold text-lg border transition-all ${
-              showAvailable 
-                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-green-900/50 border-green-400/30' 
-                : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-blue-900/50 border-blue-400/30'
-            }`}
-          >
-            <FaList />
-            {showAvailable ? 'جميع العناوين' : 'العناوين المتاحة'}
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-4 rounded-2xl shadow-xl shadow-blue-900/50 font-bold text-lg border border-blue-400/30"
-          >
-            <div className="bg-white/20 p-2 rounded-xl group-hover:rotate-90 transition-transform duration-300">
-              <FaPlus />
-            </div>
-            <span>عنوان جديد</span>
-          </motion.button>
-        </div>
+    <div className="relative min-h-screen bg-[#020617] text-slate-300 p-6 md:p-12 overflow-hidden" dir="rtl">
+      {/* Animated Background Orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1], x: [0, 80, 0], y: [0, 40, 0] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} className="absolute -top-[15%] -left-[10%] w-[700px] h-[700px] bg-blue-600/15 rounded-full blur-[120px]" />
+        <motion.div animate={{ scale: [1.3, 1, 1.3], opacity: [0.1, 0.15, 0.1], x: [0, -60, 0], y: [0, -80, 0] }} transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }} className="absolute -bottom-[15%] -right-[10%] w-[800px] h-[800px] bg-indigo-600/10 rounded-full blur-[140px]" />
       </div>
 
-      {/* Search and Filter Bar */}
-      {!showAvailable && (
-        <div className="mb-12 relative z-10">
-          <div className="relative max-w-2xl mx-auto md:mx-0 group">
-            <div className="absolute inset-y-0 right-0 flex items-center pr-6 pointer-events-none">
-              <FaSearch className="text-blue-400/50 group-focus-within:text-blue-400 group-focus-within:scale-110 transition-all text-xl" />
+      <div className="relative z-10 max-w-7xl mx-auto">
+        {/* Modern Header */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10 mb-20">
+          <div className="flex items-center gap-8">
+            <motion.div whileHover={{ rotate: 12, scale: 1.15 }} className="w-24 h-24 rounded-[2.5rem] bg-gradient-to-br from-indigo-600 to-blue-800 flex items-center justify-center shadow-[0_20px_50px_rgba(79,70,229,0.4)] border border-white/20 relative overflow-hidden group">
+              <FaMapMarkerAlt className="text-white text-4xl drop-shadow-2xl z-10 transition-transform group-hover:scale-110" />
+              <div className="absolute inset-0 bg-white/20 rounded-[2rem] animate-ping opacity-10" style={{ animationDuration: '4s' }} />
+            </motion.div>
+            <div>
+              <h2 className="text-6xl font-black text-white tracking-tighter mb-4 drop-shadow-sm">إدارة المواقع</h2>
+              <div className="flex items-center gap-4 text-indigo-400/80 font-black text-xl tracking-wide">
+                <span className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_15px_rgba(99,102,241,0.8)]" />
+                تخصيص وتتبع الإحداثيات الجغرافية للنظام
+              </div>
             </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="ابحث عن عنوان (بالاسم، المستوى المطلوب...)"
-              className="w-full bg-[#112240]/80 backdrop-blur-xl border-2 border-blue-800/40 rounded-3xl py-4 pr-14 pl-6 text-xl text-white placeholder-blue-200/30 focus:outline-none focus:border-blue-500 focus:bg-[#1a365d]/90 focus:ring-4 focus:ring-blue-500/20 transition-all shadow-2xl hover:border-blue-700/60"
-            />
           </div>
-        </div>
-      )}
-
-      {/* Available Locations Level Filter */}
-      {showAvailable && (
-        <div className="mb-12">
-          <div className="relative max-w-md mx-auto md:mx-0 group">
-            <input
-              type="number"
-              value={userLevel}
-              onChange={(e) => setUserLevel(e.target.value)}
-              placeholder="المستوى الخاص بك"
-              min="1"
-              max="100"
-              className="w-full bg-[#112240]/80 backdrop-blur-xl border-2 border-green-800/40 rounded-3xl py-4 pr-6 pl-6 text-xl text-white placeholder-green-200/30 focus:outline-none focus:border-green-500 focus:bg-[#1a365d]/90 focus:ring-4 focus:ring-green-500/20 transition-all shadow-2xl hover:border-green-700/60"
-            />
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => fetchAvailableLocations(userLevel)}
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-xl transition-colors"
-            >
-              <FaSearch />
+          
+          <div className="flex flex-wrap gap-6 w-full lg:w-auto">
+            <motion.button whileHover={{ scale: 1.05, y: -5 }} whileTap={{ scale: 0.95 }} onClick={handleShowAvailable} className={`flex-1 lg:flex-none flex items-center justify-center gap-4 px-10 py-6 rounded-[2rem] font-black text-xl transition-all duration-500 border-2 ${showAvailable ? 'bg-emerald-600 border-emerald-400 shadow-[0_20px_40px_-10px_rgba(16,185,129,0.5)] text-white' : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10 hover:text-white shadow-2xl'}`}>
+              {showAvailable ? <FaMapMarkerAlt /> : <FaList />}
+              <span>{showAvailable ? 'عرض الكل' : 'العناوين المتاحة'}</span>
+            </motion.button>
+            
+            <motion.button whileHover={{ scale: 1.05, y: -5, boxShadow: '0 25px 50px -12px rgba(79,70,229,0.5)' }} whileTap={{ scale: 0.95 }} onClick={() => setShowAddModal(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-10 py-6 rounded-[2rem] font-black text-xl border border-white/10 transition-all duration-300 shadow-2xl">
+              <FaPlus className="text-lg" />
+              <span>إضافة عنوان</span>
             </motion.button>
           </div>
         </div>
-      )}
 
-      {/* Error Message */}
-      <AnimatePresence>
-        {error && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, height: 0 }}
-            className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 mb-8 flex items-center gap-3 text-red-400"
-          >
-            <FaExclamationTriangle className="text-xl" />
-            <span className="font-semibold">{error}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Main Content Area */}
-      {loading && !showAvailable ? (
-        <div className="flex flex-col items-center justify-center h-64 gap-4">
-          <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-          <div className="text-blue-400 font-bold animate-pulse">جاري تحميل العناوين...</div>
-        </div>
-      ) : availableLoading && showAvailable ? (
-        <div className="flex flex-col items-center justify-center h-64 gap-4">
-          <div className="w-12 h-12 border-4 border-green-500/30 border-t-green-500 rounded-full animate-spin" />
-          <div className="text-green-400 font-bold animate-pulse">جاري تحميل العناوين المتاحة...</div>
-        </div>
-      ) : (
-        <>
-          {/* Results Counter */}
-          {!loading && !availableLoading && (
-            <div className="flex items-center justify-between mb-6 text-blue-300">
-              <div className="flex items-center gap-2">
-                <FaMapMarkerAlt className="text-blue-400" />
-                <span className="font-bold">
-                  {showAvailable ? `${availableLocations.length} عنوان متاح` : `${filteredLocations.length} عنوان`}
-                </span>
+        {/* Dynamic Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+          {stats.map((s, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }} whileHover={{ y: -8 }} className="bg-white/5 backdrop-blur-2xl border border-white/5 rounded-[3rem] p-8 flex items-center gap-8 group transition-all duration-500 shadow-xl">
+              <div className={`w-20 h-20 rounded-3xl ${s.bg} ${s.border} border flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500`}>
+                <s.icon className={`text-4xl ${s.color}`} />
               </div>
-              {showAvailable && userLevel && (
-                <div className="text-sm text-green-200/60">
-                  للمستوى: {userLevel}
+              <div>
+                <div className="text-slate-500 font-black text-xs mb-1.5 uppercase tracking-[0.2em]">{s.label}</div>
+                <div className="text-5xl font-black text-white tracking-tighter tabular-nums">{s.value}</div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Search & Dynamic Filters */}
+        <div className="mb-20">
+          {!showAvailable ? (
+            <div className="relative group max-w-4xl mx-auto">
+              <div className="absolute inset-y-0 right-0 flex items-center pr-10 pointer-events-none transition-transform group-focus-within:scale-125 duration-500">
+                <FaSearch className="text-indigo-500/30 text-3xl group-focus-within:text-indigo-400" />
+              </div>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="البحث بالاسم أو المستوى المطلوب..."
+                className="w-full bg-white/5 backdrop-blur-3xl border-2 border-white/5 rounded-[3rem] py-8 pr-20 pl-10 text-2xl text-white placeholder-slate-700 focus:outline-none focus:border-indigo-500/50 focus:ring-[20px] focus:ring-indigo-500/5 transition-all duration-500 shadow-2xl text-center font-bold"
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col md:flex-row gap-6 max-w-3xl mx-auto">
+              <div className="relative flex-1 group">
+                <div className="absolute inset-y-0 right-0 flex items-center pr-8 pointer-events-none">
+                  <FaStar className="text-emerald-500/30 text-2xl" />
                 </div>
-              )}
+                <input
+                  type="number"
+                  value={userLevel}
+                  onChange={(e) => setUserLevel(e.target.value)}
+                  placeholder="المستوى الخاص بك"
+                  className="w-full bg-white/5 border-2 border-white/5 rounded-[2rem] py-6 pr-16 pl-8 text-2xl text-white placeholder-slate-700 focus:outline-none focus:border-emerald-500/50 transition-all font-bold text-center"
+                />
+              </div>
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => fetchAvailableLocations(userLevel)} className="px-12 py-6 bg-emerald-600 hover:bg-emerald-500 text-white rounded-[2rem] font-black text-xl transition-all shadow-2xl flex items-center justify-center gap-4">
+                <FaSatellite />
+                <span>تحديث النطاق</span>
+              </motion.button>
             </div>
           )}
+        </div>
 
-          {/* Locations Grid */}
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10"
-          >
-            {(showAvailable ? availableLocations : filteredLocations).map((location) => (
-              <LocationCard 
-                key={location.id} 
-                location={location} 
-                showActions={!showAvailable}
-              />
-            ))}
-          </motion.div>
-
-          {/* Empty State */}
-          {!loading && !availableLoading && (showAvailable ? availableLocations.length === 0 : filteredLocations.length === 0) && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-20 bg-[#112240]/40 rounded-3xl border border-blue-900/30 backdrop-blur-sm"
-            >
-              <div className="w-24 h-24 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FaMapMarkerAlt className="text-4xl text-blue-400/50" />
+        {/* Content Area */}
+        <AnimatePresence mode="wait">
+          {loading && !showAvailable ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center py-48">
+              <div className="relative">
+                <div className="w-32 h-32 border-[6px] border-indigo-500/10 border-t-indigo-500 rounded-full animate-spin shadow-2xl" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <FaGlobe className="text-indigo-500 text-3xl animate-pulse" />
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">
-                {showAvailable ? 'لا توجد عناوين متاحة' : 'لا توجد عناوين'}
-              </h3>
-              <p className="text-blue-200/50 mb-8 max-w-md mx-auto">
-                {showAvailable ? 'جرب تغيير المستوى لعرض العناوين المتاحة.' : 'جرب البحث عن عناوين أخرى.'}
-              </p>
+              <div className="mt-12 text-slate-500 font-black text-3xl tracking-[0.3em] animate-pulse uppercase">تحديد المواقع</div>
+            </motion.div>
+          ) : (
+            <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -40 }}>
+              <div className="flex items-center justify-between mb-12 px-8">
+                <div className="flex items-center gap-5 text-indigo-300/80 font-black text-lg uppercase tracking-widest">
+                  <div className="w-16 h-2 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-full shadow-[0_0_15px_rgba(79,70,229,0.5)]" />
+                  <span>{showAvailable ? `وجدنا ${availableLocations.length} موقعاً متاحاً` : `إجمالي المواقع المسجلة: ${filteredLocations.length}`}</span>
+                </div>
+              </div>
+
+              <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
+                {(showAvailable ? availableLocations : filteredLocations).map((loc) => (
+                  <LocationCard key={loc.id} location={loc} showActions={!showAvailable} />
+                ))}
+              </motion.div>
+
+              {(showAvailable ? availableLocations.length === 0 : filteredLocations.length === 0) && (
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-48 bg-white/5 rounded-[5rem] border-4 border-dashed border-white/5 backdrop-blur-sm relative overflow-hidden group">
+                  <div className="w-48 h-48 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-12 shadow-2xl">
+                    <FaMapMarkerAlt className="text-8xl text-slate-800" />
+                  </div>
+                  <h3 className="text-5xl font-black text-white mb-8 tracking-tighter">لم يتم العثور على نتائج</h3>
+                  <p className="text-slate-500 text-2xl max-w-xl mx-auto font-bold leading-relaxed mb-12">
+                    لم نتمكن من العثور على أي مواقع تطابق معايير البحث الحالية. جرب كلمات بحث أخرى أو أضف موقعاً جديداً.
+                  </p>
+                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowAddModal(true)} className="bg-white text-[#020617] px-14 py-5 rounded-2xl font-black text-xl transition-all shadow-2xl">
+                    إضافة عنوان جديد
+                  </motion.button>
+                </motion.div>
+              )}
             </motion.div>
           )}
-        </>
-      )}
-
-      {/* Add Location Modal */}
-      <AddLocationModal 
-        isOpen={showAddModal} 
-        onClose={() => setShowAddModal(false)} 
-        onSubmit={handleAddLocation}
-      />
-
-      {/* Edit Location Modal */}
-      <EditLocationModal 
-        isOpen={showEditModal} 
-        onClose={() => {
-          setShowEditModal(false);
-          setSelectedLocation(null);
-        }} 
-        onSubmit={handleUpdateLocation}
-        location={selectedLocation} 
-      />
-
-      {/* Location Detail Modal */}
-      <LocationDetailModal 
-        isOpen={showDetailModal} 
-        onClose={() => setShowDetailModal(false)} 
-        location={selectedLocation} 
-      />
+        </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {showAddModal && <AddLocationModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} onSubmit={handleAddLocation} />}
+        {showEditModal && <EditLocationModal isOpen={showEditModal} onClose={() => { setShowEditModal(false); setSelectedLocation(null); }} onSubmit={handleUpdateLocation} location={selectedLocation} />}
+        {showDetailModal && <LocationDetailModal isOpen={showDetailModal} onClose={() => { setShowDetailModal(false); setSelectedLocation(null); }} location={selectedLocation} />}
+      </AnimatePresence>
     </div>
   );
 };

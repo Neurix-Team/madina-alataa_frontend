@@ -1,30 +1,47 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes, FaMapMarkerAlt, FaStar, FaClock, FaLock, FaEye, FaEyeSlash, FaCheckCircle, FaExclamationTriangle, FaTrophy, FaLeaf, FaShieldAlt, FaFire, FaGem, FaTasks } from 'react-icons/fa';
+import { FaTimes, FaMapMarkerAlt, FaStar, FaClock, FaLock, FaEye, FaEyeSlash, FaCheckCircle, FaExclamationTriangle, FaTrophy, FaLeaf, FaShieldAlt, FaFire, FaGem, FaTasks, FaFingerprint, FaCalendarAlt, FaLayerGroup, FaTags } from 'react-icons/fa';
 
 const MissionDetailModal = ({ isOpen, onClose, mission }) => {
-  if (!isOpen || !mission) return null;
+  if (!isOpen) return null;
+
+  const missionData = mission?.value ?? mission?.data ?? mission?.result ?? mission;
+  if (!missionData) return null;
+
+  const missionStatus = String(missionData.status ?? '').toLowerCase();
+  const rawIsActive = missionData.isActive;
+  const rawIsHidden = missionData.isHidden;
+
+  const isActive = rawIsActive !== undefined && rawIsActive !== null
+    ? rawIsActive === true || rawIsActive === 'true'
+    : missionStatus === 'open' || missionStatus === 'active' || missionStatus === '';
+
+  const isHidden = rawIsHidden !== undefined && rawIsHidden !== null
+    ? rawIsHidden === true || rawIsHidden === 'true'
+    : false;
 
   const getDifficultyInfo = (level) => {
-    switch (level) {
-      case 0:
-        return { text: 'سهل', color: 'from-green-500/20 to-emerald-600/20', bg: 'bg-green-500/10', border: 'border-green-500/30', textCol: 'text-green-400', icon: FaLeaf, glow: 'hover:shadow-green-900/50' };
-      case 1:
-        return { text: 'متوسط', color: 'from-blue-500/20 to-cyan-600/20', bg: 'bg-blue-500/10', border: 'border-blue-500/30', textCol: 'text-blue-400', icon: FaShieldAlt, glow: 'hover:shadow-blue-900/50' };
-      case 2:
-        return { text: 'صعب', color: 'from-orange-500/20 to-red-600/20', bg: 'bg-orange-500/10', border: 'border-orange-500/30', textCol: 'text-orange-400', icon: FaFire, glow: 'hover:shadow-orange-900/50' };
-      case 3:
-        return { text: 'صعب جداً', color: 'from-purple-500/20 to-pink-600/20', bg: 'bg-purple-500/10', border: 'border-purple-500/30', textCol: 'text-purple-400', icon: FaGem, glow: 'hover:shadow-purple-900/50' };
-      default:
-        return { text: 'غير محدد', color: 'from-gray-500/20 to-slate-600/20', bg: 'bg-gray-500/10', border: 'border-gray-500/30', textCol: 'text-gray-400', icon: FaTasks, glow: 'hover:shadow-gray-900/50' };
+    const normalized = typeof level === 'string' ? level.toLowerCase() : Number(level);
+    if (normalized === 0 || normalized === 'easy' || normalized === 'سهل') {
+      return { text: 'سهل', color: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', textCol: 'text-emerald-400', icon: FaLeaf };
     }
+    if (normalized === 1 || normalized === 'normal' || normalized === 'medium' || normalized === 'متوسط') {
+      return { text: 'متوسط', color: 'from-blue-500 to-indigo-600', bg: 'bg-blue-500/10', border: 'border-blue-500/20', textCol: 'text-blue-400', icon: FaShieldAlt };
+    }
+    if (normalized === 2 || normalized === 'hard' || normalized === 'صعب') {
+      return { text: 'صعب', color: 'from-orange-500 to-red-600', bg: 'bg-orange-500/10', border: 'border-orange-500/20', textCol: 'text-orange-400', icon: FaFire };
+    }
+    if (normalized === 3 || normalized === 'veryhard' || normalized === 'very hard' || normalized === 'أسطوري') {
+      return { text: 'أسطوري', color: 'from-purple-500 to-fuchsia-600', bg: 'bg-purple-500/10', border: 'border-purple-500/20', textCol: 'text-purple-400', icon: FaGem };
+    }
+    return { text: 'غير محدد', color: 'from-slate-500 to-slate-600', bg: 'bg-slate-500/10', border: 'border-slate-500/20', textCol: 'text-slate-400', icon: FaTasks };
   };
 
-  const diffInfo = getDifficultyInfo(mission.difficulty);
+  const diffInfo = getDifficultyInfo(missionData.difficulty);
   const DiffIcon = diffInfo.icon;
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'غير محدد';
+    if (!dateString) return 'غير متوفر';
     return new Date(dateString).toLocaleDateString('ar-EG', {
       year: 'numeric',
       month: 'long',
@@ -37,229 +54,212 @@ const MissionDetailModal = ({ isOpen, onClose, mission }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4" dir="rtl">
+        <div className="fixed inset-0 bg-[#020617]/90 backdrop-blur-2xl flex items-center justify-center z-[100] p-4 md:p-8" dir="rtl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.9, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", duration: 0.5 }}
-            className="bg-gradient-to-br from-[#0a192f] to-[#112240] rounded-3xl border border-blue-800/50 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[0_0_50px_rgba(30,58,138,0.3)]"
+            exit={{ opacity: 0, scale: 0.9, y: 50 }}
+            className="bg-[#0f172a] rounded-[3.5rem] border border-white/10 w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-[0_0_120px_rgba(37,99,235,0.25)] flex flex-col relative"
           >
+            {/* Animated Background Orbs */}
+            <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 rounded-full blur-[100px] -z-10 animate-pulse" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-600/10 rounded-full blur-[100px] -z-10 animate-pulse" style={{ animationDelay: '1s' }} />
+
             {/* Header */}
-            <div className="flex justify-between items-start p-6 border-b border-blue-900/50 bg-[#0a192f]/50 sticky top-0 z-10 backdrop-blur-xl">
+            <div className="flex justify-between items-start p-10 border-b border-white/5 bg-white/5 backdrop-blur-3xl sticky top-0 z-20">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
-                    <FaTasks className="text-blue-400 text-xl" />
+                <div className="flex items-center gap-6 mb-6">
+                  <div className={`w-16 h-16 rounded-3xl bg-gradient-to-br ${diffInfo.color} flex items-center justify-center shadow-2xl border border-white/20 group`}>
+                    <FaTasks className="text-white text-3xl group-hover:scale-110 transition-transform" />
                   </div>
-                  <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200 leading-tight">
-                    {mission.title}
-                  </h3>
+                  <div>
+                    <h3 className="text-4xl font-black text-white tracking-tighter leading-tight mb-2">
+                      {missionData.title || 'بدون عنوان'}
+                    </h3>
+                    <div className="flex items-center gap-3 text-slate-500 font-bold text-sm uppercase tracking-[0.2em]">
+                      <FaFingerprint className="text-blue-500/50" />
+                      {missionData.id || 'N/A'}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-3 mt-4">
-                  <span className={`px-4 py-1.5 rounded-xl ${diffInfo.bg} ${diffInfo.border} border ${diffInfo.textCol} font-bold flex items-center gap-2 shadow-inner text-sm`}>
+                
+                <div className="flex flex-wrap gap-3">
+                  <div className={`px-5 py-2 rounded-2xl ${diffInfo.bg} ${diffInfo.border} border ${diffInfo.textCol} font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg`}>
                     <DiffIcon className="text-sm" />
-                    {diffInfo.textCol === 'text-purple-400' && <span className="animate-pulse absolute w-2 h-2 bg-purple-400 rounded-full blur-sm" />}
                     {diffInfo.text}
-                  </span>
-                  <span className="px-4 py-1.5 rounded-xl bg-blue-900/40 border border-blue-700/50 text-blue-100 font-bold flex items-center gap-2 text-sm shadow-inner">
-                    <FaStar className="text-yellow-500" /> المستوى: {mission.requiredLevel}
-                  </span>
-                  {!mission.isActive && (
-                    <span className="px-4 py-1.5 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 font-bold flex items-center gap-2 shadow-inner text-sm">
-                      <FaLock /> غير متاحة
-                    </span>
-                  )}
-                  {mission.isHidden && (
-                    <span className="px-4 py-1.5 rounded-xl bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 font-bold flex items-center gap-2 shadow-inner text-sm">
-                      <FaEyeSlash /> مخفية
-                    </span>
-                  )}
+                  </div>
+                  <div className="px-5 py-2 rounded-2xl bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                    <FaLayerGroup className="text-yellow-500" />
+                    المستوى: {missionData.requiredLevel}
+                  </div>
+                  <div className={`px-5 py-2 rounded-2xl ${isActive ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-400'} border font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg`}>
+                    {isActive ? <FaCheckCircle /> : <FaLock />}
+                    {isActive ? 'نشطة' : 'مغلقة'}
+                  </div>
                 </div>
               </div>
+              
               <motion.button
-                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileHover={{ scale: 1.1, rotate: 90, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="w-10 h-10 flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors text-red-400 hover:text-red-300 border border-red-500/20"
+                className="w-14 h-14 flex items-center justify-center bg-white/5 rounded-[1.5rem] transition-all text-slate-400 border border-white/5 shadow-xl"
               >
-                <FaTimes className="text-lg" />
+                <FaTimes className="text-2xl" />
               </motion.button>
             </div>
 
             {/* Content */}
-            <div className="p-6 space-y-8">
-              {/* Mission ID */}
-              <div className="bg-[#112240]/50 rounded-2xl p-4 border border-blue-900/30">
-                <h4 className="text-sm font-bold text-blue-300 mb-2 flex items-center gap-2">
-                  <FaTasks className="text-blue-500/70" /> معرف المهمة
-                </h4>
-                <p className="text-blue-100 font-mono text-base tracking-wider bg-[#0a192f] p-3 rounded-xl border border-blue-900/50">{mission.id}</p>
-              </div>
-
-              {/* Description */}
-              {mission.description && (
-                <div className="bg-[#112240]/50 rounded-2xl p-4 border border-blue-900/30">
-                  <h4 className="text-sm font-bold text-blue-300 mb-2 flex items-center gap-2">
-                    <FaEye className="text-blue-500/70" /> وصف المهمة
-                  </h4>
-                  <p className="text-blue-100 leading-relaxed text-lg bg-[#0a192f] p-4 rounded-xl border border-blue-900/50">{mission.description}</p>
+            <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
+              {/* Mission Details Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Description Card */}
+                <div className="bg-white/5 rounded-[2.5rem] p-8 border border-white/5 space-y-4">
+                  <div className="flex items-center gap-3 text-blue-400 font-black text-sm uppercase tracking-widest mb-2">
+                    <FaEye className="text-lg" />
+                    <span>نظرة عامة</span>
+                  </div>
+                  <p className="text-slate-300 leading-relaxed text-lg font-medium italic">
+                    {missionData.description || 'لا يوجد وصف تفصيلي لهذه المهمة في الوقت الحالي.'}
+                  </p>
                 </div>
-              )}
 
-              {/* Rewards */}
-              <div>
-                <h4 className="text-base font-bold text-blue-300 mb-4 flex items-center gap-2">
-                  <FaTrophy className="text-yellow-400" /> المكافآت
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-gradient-to-br from-[#112240] to-[#1a365d] rounded-2xl p-5 border border-yellow-500/30 flex flex-col items-center justify-center group hover:scale-105 transition-transform duration-300 shadow-lg">
-                    <FaTrophy className="text-yellow-400 mb-3 text-3xl opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all" />
-                    <span className="text-yellow-400 font-black text-3xl mb-1">{mission.kpReward}</span>
-                    <div className="text-yellow-200/60 text-sm font-bold uppercase tracking-wider">نقطة خير</div>
+                {/* Location Card */}
+                <div className="bg-white/5 rounded-[2.5rem] p-8 border border-white/5 space-y-4">
+                  <div className="flex items-center gap-3 text-indigo-400 font-black text-sm uppercase tracking-widest mb-2">
+                    <FaMapMarkerAlt className="text-lg" />
+                    <span>إحداثيات الموقع</span>
                   </div>
-                  <div className="bg-gradient-to-br from-[#112240] to-[#1a365d] rounded-2xl p-5 border border-purple-500/30 flex flex-col items-center justify-center group hover:scale-105 transition-transform duration-300 shadow-lg">
-                    <FaStar className="text-purple-400 mb-3 text-3xl opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all" />
-                    <span className="text-purple-400 font-black text-3xl mb-1">{mission.xpReward}</span>
-                    <div className="text-purple-200/60 text-sm font-bold uppercase tracking-wider">نقطة خبرة</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-[#112240] to-[#1a365d] rounded-2xl p-5 border border-green-500/30 flex flex-col items-center justify-center group hover:scale-105 transition-transform duration-300 shadow-lg">
-                    <FaLeaf className="text-green-400 mb-3 text-3xl opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all" />
-                    <span className="text-green-400 font-black text-3xl mb-1">{mission.impactReward}</span>
-                    <div className="text-green-200/60 text-sm font-bold uppercase tracking-wider">نقطة تأثير</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Location */}
-              {mission.locationId && (
-                <div className="bg-[#112240]/50 rounded-2xl p-4 border border-blue-900/30">
-                  <h4 className="text-sm font-bold text-blue-300 mb-2 flex items-center gap-2">
-                    <FaMapMarkerAlt className="text-blue-500/70" /> الموقع
-                  </h4>
-                  <div className="flex items-center gap-3 bg-[#0a192f] rounded-xl p-4 border border-blue-900/50">
-                    <div className="p-2 bg-blue-500/20 rounded-lg">
-                      <FaMapMarkerAlt className="text-blue-400 text-xl" />
+                  <div className="bg-black/40 rounded-2xl p-5 border border-white/5 flex items-center gap-4 group">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                      <FaMapMarkerAlt className="text-indigo-400 text-xl" />
                     </div>
-                    <span className="text-blue-100 font-mono text-lg">{mission.locationId}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Status Information */}
-              <div className="bg-[#112240]/50 rounded-2xl p-4 border border-blue-900/30">
-                <h4 className="text-sm font-bold text-blue-300 mb-3 flex items-center gap-2">
-                  <FaExclamationTriangle className="text-blue-500/70" /> حالة المهمة
-                </h4>
-                <div className="space-y-3 bg-[#0a192f] p-4 rounded-xl border border-blue-900/50">
-                  <div className="flex justify-between items-center pb-3 border-b border-blue-900/30">
-                    <span className="text-blue-200 font-bold">الحالة العامة</span>
-                    <span className={`px-3 py-1.5 rounded-xl font-bold text-sm flex items-center gap-2 ${
-                      mission.isActive 
-                        ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                        : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                    }`}>
-                      {mission.isActive ? <FaCheckCircle /> : <FaTimes />}
-                      {mission.isActive ? 'نشطة ومتاحة' : 'غير نشطة'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-blue-200 font-bold">الرؤية لللاعبين</span>
-                    <span className={`px-3 py-1.5 rounded-xl font-bold text-sm flex items-center gap-2 ${
-                      mission.isHidden 
-                        ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' 
-                        : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                    }`}>
-                      {mission.isHidden ? <FaEyeSlash /> : <FaEye />}
-                      {mission.isHidden ? 'مخفية عن اللاعبين' : 'مرئية للجميع'}
+                    <span className="text-indigo-200 font-mono text-lg break-all group-hover:text-white transition-colors">
+                      {missionData.locationId || 'موقع غير محدد'}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Dates */}
-              <div className="bg-[#112240]/50 rounded-2xl p-4 border border-blue-900/30">
-                <h4 className="text-sm font-bold text-blue-300 mb-3 flex items-center gap-2">
-                  <FaClock className="text-blue-500/70" /> المواعيد والتواريخ
-                </h4>
-                <div className="space-y-3 bg-[#0a192f] p-4 rounded-xl border border-blue-900/50">
-                  {mission.createdAt && (
-                    <div className="flex justify-between items-center pb-3 border-b border-blue-900/30">
-                      <span className="text-blue-200 font-bold">تاريخ الإنشاء</span>
-                      <span className="text-blue-100 font-medium bg-blue-900/30 px-3 py-1 rounded-lg border border-blue-800/30 text-sm">
-                        {formatDate(mission.createdAt)}
-                      </span>
-                    </div>
-                  )}
-                  {mission.updatedAt && (
-                    <div className="flex justify-between items-center pb-3 border-b border-blue-900/30">
-                      <span className="text-blue-200 font-bold">آخر تحديث</span>
-                      <span className="text-blue-100 font-medium bg-blue-900/30 px-3 py-1 rounded-lg border border-blue-800/30 text-sm">
-                        {formatDate(mission.updatedAt)}
-                      </span>
-                    </div>
-                  )}
-                  {mission.startDate && (
-                    <div className="flex justify-between items-center pb-3 border-b border-blue-900/30">
-                      <span className="text-blue-200 font-bold">تاريخ البدء</span>
-                      <span className="text-blue-100 font-medium bg-blue-900/30 px-3 py-1 rounded-lg border border-blue-800/30 text-sm">
-                        {formatDate(mission.startDate)}
-                      </span>
-                    </div>
-                  )}
-                  {mission.endDate && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-blue-200 font-bold">تاريخ الانتهاء</span>
-                      <span className="text-blue-100 font-medium bg-blue-900/30 px-3 py-1 rounded-lg border border-blue-800/30 text-sm">
-                        {formatDate(mission.endDate)}
-                      </span>
-                    </div>
-                  )}
+              {/* Rewards Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-4 text-white font-black text-xl tracking-tighter px-2">
+                  <FaTrophy className="text-yellow-500" />
+                  <h4>نظام المكافآت المعتمد</h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    { icon: FaTrophy, val: missionData.kpReward, label: 'نقطة خير', color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+                    { icon: FaStar, val: missionData.xpReward, label: 'خبرة مكتسبة', color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
+                    { icon: FaLeaf, val: missionData.impactReward, label: 'تأثير مجتمعي', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' }
+                  ].map((r, i) => (
+                    <motion.div key={i} whileHover={{ y: -5 }} className={`${r.bg} rounded-[2rem] p-7 border ${r.border} flex flex-col items-center text-center group transition-all duration-500`}>
+                      <r.icon className={`${r.color} text-4xl mb-4 group-hover:scale-110 transition-transform`} />
+                      <span className="text-white font-black text-4xl mb-1 tabular-nums">{r.val}</span>
+                      <span className="text-slate-500 font-black text-[10px] uppercase tracking-widest">{r.label}</span>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
 
-              {/* Additional Information */}
-              {mission.prerequisites && mission.prerequisites.length > 0 && (
-                <div className="bg-[#112240]/50 rounded-2xl p-4 border border-blue-900/30">
-                  <h4 className="text-sm font-bold text-blue-300 mb-3 flex items-center gap-2">
-                    <FaCheckCircle className="text-blue-500/70" /> المتطلبات المسبقة
-                  </h4>
-                  <div className="space-y-2">
-                    {mission.prerequisites.map((prereq, index) => (
-                      <div key={index} className="bg-[#0a192f] rounded-xl p-3 text-blue-100 text-sm border border-blue-900/50 flex items-center gap-2 font-medium">
-                        <FaStar className="text-blue-500/50 text-xs" /> {prereq}
+              {/* Metadata Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Dates Timeline */}
+                <div className="bg-white/5 rounded-[2.5rem] p-8 border border-white/5 space-y-6">
+                  <div className="flex items-center gap-3 text-slate-400 font-black text-sm uppercase tracking-widest mb-2">
+                    <FaCalendarAlt className="text-lg" />
+                    <span>الجدول الزمني</span>
+                  </div>
+                  <div className="space-y-4">
+                    {[
+                      { label: 'تاريخ الإنشاء', val: missionData.createdAt, icon: FaPlus, color: 'text-blue-500' },
+                      { label: 'آخر تحديث', val: missionData.updatedAt, icon: FaClock, color: 'text-purple-500' },
+                      { label: 'تاريخ البدء', val: missionData.startDate, icon: FaCheckCircle, color: 'text-emerald-500' },
+                      { label: 'تاريخ الانتهاء', val: missionData.endDate, icon: FaTimes, color: 'text-red-500' }
+                    ].filter(d => d.val).map((d, i) => (
+                      <div key={i} className="flex justify-between items-center bg-black/20 p-4 rounded-2xl border border-white/5">
+                        <div className="flex items-center gap-3 font-bold text-slate-400 text-sm">
+                          <d.icon className={d.color} />
+                          <span>{d.label}</span>
+                        </div>
+                        <span className="text-white font-black text-sm tabular-nums">{formatDate(d.val)}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
 
-              {/* Tags */}
-              {mission.tags && mission.tags.length > 0 && (
-                <div className="bg-[#112240]/50 rounded-2xl p-4 border border-blue-900/30">
-                  <h4 className="text-sm font-bold text-blue-300 mb-3 flex items-center gap-2">
-                    <FaStar className="text-blue-500/70" /> الوسوم
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {mission.tags.map((tag, index) => (
-                      <span key={index} className="px-3 py-1.5 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-xl text-blue-200 font-bold text-sm border border-blue-500/30 shadow-inner">
-                        #{tag}
-                      </span>
-                    ))}
+                {/* Status & Security */}
+                <div className="bg-white/5 rounded-[2.5rem] p-8 border border-white/5 space-y-6">
+                  <div className="flex items-center gap-3 text-slate-400 font-black text-sm uppercase tracking-widest mb-2">
+                    <FaShieldAlt className="text-lg" />
+                    <span>الحالة والأمان</span>
                   </div>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center bg-black/20 p-4 rounded-2xl border border-white/5">
+                      <span className="text-slate-400 font-bold text-sm">رؤية المهمة</span>
+                      <div className={`flex items-center gap-2 font-black text-sm ${isHidden ? 'text-yellow-500' : 'text-blue-400'}`}>
+                        {isHidden ? <FaEyeSlash /> : <FaEye />}
+                        <span>{isHidden ? 'مخفية' : 'مرئية للجميع'}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center bg-black/20 p-4 rounded-2xl border border-white/5">
+                      <span className="text-slate-400 font-bold text-sm">مستوى الصعوبة</span>
+                      <div className={`flex items-center gap-2 font-black text-sm ${diffInfo.textCol}`}>
+                        <DiffIcon />
+                        <span>{diffInfo.text}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tags & Prerequisites */}
+              {(missionData.tags?.length > 0 || missionData.prerequisites?.length > 0) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {missionData.tags?.length > 0 && (
+                    <div className="bg-white/5 rounded-[2.5rem] p-8 border border-white/5 space-y-4">
+                      <div className="flex items-center gap-3 text-slate-400 font-black text-sm uppercase tracking-widest mb-2">
+                        <FaTags className="text-lg" />
+                        <span>الوسوم</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {missionData.tags.map((tag, i) => (
+                          <span key={i} className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 font-black text-xs">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {missionData.prerequisites?.length > 0 && (
+                    <div className="bg-white/5 rounded-[2.5rem] p-8 border border-white/5 space-y-4">
+                      <div className="flex items-center gap-3 text-slate-400 font-black text-sm uppercase tracking-widest mb-2">
+                        <FaCheckCircle className="text-lg" />
+                        <span>المتطلبات</span>
+                      </div>
+                      <div className="space-y-2">
+                        {missionData.prerequisites.map((p, i) => (
+                          <div key={i} className="bg-black/20 p-3 rounded-xl border border-white/5 text-slate-300 text-sm font-bold flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+                            {p}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-blue-900/50 bg-[#0a192f]/50 backdrop-blur-xl sticky bottom-0 z-10">
+            <div className="p-10 border-t border-white/5 bg-white/5 backdrop-blur-3xl sticky bottom-0 z-20">
               <motion.button
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onClose}
-                className="w-full px-6 py-4 bg-gradient-to-r from-[#112240] to-[#1a365d] hover:from-[#1a365d] hover:to-[#112240] text-blue-200 rounded-2xl transition-all font-bold text-lg border border-blue-800/50 shadow-lg"
+                className="w-full px-10 py-6 bg-white/5 text-slate-300 rounded-[2rem] transition-all font-black text-xl border border-white/5 shadow-2xl"
               >
-                إغلاق التفاصيل
+                إغلاق سجل البيانات
               </motion.button>
             </div>
           </motion.div>
