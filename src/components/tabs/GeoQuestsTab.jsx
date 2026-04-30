@@ -486,7 +486,14 @@ const GeoQuestsTab = () => {
       if (userData) {
         try {
           const parsed = JSON.parse(userData);
-          setIsAdmin(parsed.role === 'admin' || parsed.isAdmin || false);
+          
+          // Robust admin check
+          const roles = parsed.roles || parsed.role || (parsed.user?.roles) || [];
+          const isAdminRole = Array.isArray(roles) 
+            ? roles.some(r => String(r).toLowerCase() === 'admin')
+            : String(roles).toLowerCase() === 'admin';
+            
+          setIsAdmin(isAdminRole || parsed.isAdmin || false);
         } catch (e) {
           console.warn('Failed to parse user data for admin check');
         }

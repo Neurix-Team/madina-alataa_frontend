@@ -34,6 +34,7 @@ import {
   FaBell,
   FaFlag,
   FaPlay,
+  FaChild,
 } from 'react-icons/fa';
 import { getAvatarImageUrl } from '../../utils/avatarProfile';
 
@@ -228,6 +229,7 @@ const NAV_ITEMS = [
   { id: 'missions',    label: 'المهام',           icon: FaFlag, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'admin',       label: 'الإدارة',          icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'incoming-requests', label: 'الطلبات الواردة', icon: FaBell, condition: PERMISSIONS.VIEW_ADMIN },
+  { id: 'my-children', label: 'أطفالي', icon: FaChild },
 ];
 
 // ── Avatar ────────────────────────────────────────────────────────────────
@@ -430,6 +432,7 @@ export default function Sidebar({
       'available-missions': '/available-missions',
       locations: '/locations',
       missions: '/missions',
+      'my-children': '/my-children',
     };
     return location.pathname === pathMap[id] || activeTab === id;
   };
@@ -458,6 +461,7 @@ export default function Sidebar({
       'available-missions': '/available-missions',
       locations: '/locations',
       missions: '/missions',
+      'my-children': '/my-children',
     };
 
     const path = pathMap[id] || '/profile-v2';
@@ -468,10 +472,14 @@ export default function Sidebar({
   };
 
   const visibleItems = NAV_ITEMS.filter((item) => {
-    if (isAdmin && (item.id === 'parents' || item.id === 'create-request')) {
+    if (isAdmin && (item.id === 'parents' || item.id === 'create-request' || item.id === 'my-children')) {
       return false;
     }
     if ((isAdmin || isParent) && item.id === 'my-donations') {
+      return false;
+    }
+    // my-children is shown to all non-admin users (donors, volunteers, parents)
+    if (item.id === 'my-children' && isAdmin) {
       return false;
     }
     return !item.condition || can(item.condition);

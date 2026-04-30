@@ -9,13 +9,16 @@
  *  3. Beneficiaries list
  *  4. Partners list
  */
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 const UsersManagementLazy = React.lazy(() => import('../../pages/UsersManagementPage'));
+const PartnersTabLazy = React.lazy(() => import('./PartnersTab'));
+const PendingChildrenTabLazy = React.lazy(() => import('./PendingChildrenTab'));
 import '../../styles/admin.css';
 import { beneficiariesData, partnersData } from '../../data/beneficiariesData';
 import serviceRequestsData from '../../data/ordersData';
 import OrderService from '../../services/OrderService';
+import { axiosClient } from '../../services/axiosClient';
 import AnimatedBackground from '../common/AnimatedBackground';
 import useGameState from '../../hooks/useGameState';
 
@@ -37,6 +40,7 @@ import {
   FaInfoCircle,
   FaHeart,
   FaMapMarkerAlt,
+  FaBell,
 } from 'react-icons/fa';
 import {
   FiTrendingUp,
@@ -648,6 +652,7 @@ const SECTIONS = [
   { id: 'requests', label: 'الطلبات', Icon: FaClipboardList },
   { id: 'beneficiaries', label: 'المستفيدون', Icon: FaHome },
   { id: 'partners', label: 'الشركاء', Icon: FaHandshake },
+  { id: 'incoming-requests', label: 'الطلبات الواردة', Icon: FaBell },
   { id: 'locations', label: 'العناوين', Icon: FaMapMarkerAlt },
   { id: 'users', label: 'إدارة المستخدمين', Icon: FaUsers },
 ];
@@ -661,6 +666,38 @@ const AdminTab = () => {
   const [requests, setRequests] = useState(serviceRequestsData);
   const [requestSearch, setRequestSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+
+  // Dashboard data from API
+  const [dashboardData, setDashboardData] = useState(null);
+  const [dashboardLoading, setDashboardLoading] = useState(false);
+  const [dashboardError, setDashboardError] = useState(null);
+
+  // Fetch dashboard data on component mount
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      setDashboardLoading(true);
+      setDashboardError(null);
+      try {
+        console.log('🔍 Fetching admin dashboard from API...');
+        const response = await axiosClient.get('/api/admin/dashboard');
+        console.log('✅ Admin Dashboard API Response:', response.data);
+        setDashboardData(response.data);
+      } catch (error) {
+        console.error('❌ Error fetching admin dashboard:', error);
+        if (error.response) {
+          console.error('❌ Dashboard API Error:', {
+            status: error.response.status,
+            data: error.response.data
+          });
+        }
+        setDashboardError(error.message || 'Failed to fetch dashboard data');
+      } finally {
+        setDashboardLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, []);
 
   const volunteerOrders = useMemo(
     () => orders.filter((o) => o.type === 'VolunteerOrder'),
@@ -804,6 +841,38 @@ const AdminTab = () => {
                 </div>
               ))}
             </div>
+
+            {/* Dashboard API Response Display */}
+            <div className="admin-section">
+              <div className="admin-section__title">
+                <span className="admin-section__title-icon">
+                  <FaChartBar />
+                </span>
+                <span>بيانات لوحة التحكم (API)</span>
+              </div>
+
+              {dashboardLoading && (
+                <div className="admin-empty">جاري تحميل بيانات لوحة التحكم...</div>
+              )}
+
+              {dashboardError && (
+                <div className="admin-empty" style={{ color: '#ef4444', borderColor: '#ef4444' }}>
+                  خطأ في تحميل البيانات: {dashboardError}
+                </div>
+              )}
+
+              {!dashboardLoading && !dashboardError && dashboardData && (
+                <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '16px', overflow: 'auto' }}>
+                  <pre style={{ margin: 0, fontSize: '12px', fontFamily: 'monospace', direction: 'ltr', textAlign: 'left' }}>
+                    {JSON.stringify(dashboardData, null, 2)}
+                  </pre>
+                </div>
+              )}
+
+              {!dashboardLoading && !dashboardError && !dashboardData && (
+                <div className="admin-empty">لا توجد بيانات متاحة</div>
+              )}
+            </div>
           </>
         )}
 
@@ -872,18 +941,15 @@ const AdminTab = () => {
         )}
 
         {activeSection === 'partners' && (
-          <div className="admin-section">
-            <div className="admin-section__title">
-              <span className="admin-section__title-icon">
-                <FaHandshake />
-              </span>
-              <span>الشركاء ({partnersData.length})</span>
-            </div>
+          <React.Suspense fallback={<div>جاري التحميل...</div>}>
+            <PartnersTabLazy />
+          </React.Suspense>
+        )}
 
-            {partnersData.map((partner) => (
-              <PartnerRow key={partner.id} partner={partner} />
-            ))}
-          </div>
+        {activeSection === 'incoming-requests' && (
+          <React.Suspense fallback={<div>جاري التحميل...</div>}>
+            <PendingChildrenTabLazy />
+          </React.Suspense>
         )}
 
         {activeSection === 'users' && (

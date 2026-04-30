@@ -206,10 +206,12 @@ export const AppRouter = () => {
           {/* Request creation */}
           <Route path="/create-request" element={<CreateRequestPage />} />
 
+          {/* My Children - available for donors, volunteers, and parents (not admin) */}
+          <Route path="/my-children" element={<MyChildrenPage />} />
+
           {/* Parent routes */}
           <Route element={<RoleGuard allowedRoles={['parent']} />}>
             <Route path="/parents" element={<ParentsTab />} />
-            <Route path="/my-children" element={<MyChildrenPage />} />
           </Route>
 
           {/* Admin routes */}

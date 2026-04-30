@@ -6,7 +6,12 @@ export const availableMissionsService = {
   // Get available missions for user with pagination
   getAvailableMissions: async (userLevel = '', pageNumber = 1, pageSize = 10) => {
     try {
-      const response = await axiosClient.get(`${AVAILABLE_MISSIONS_API_URL}?userLevel=${userLevel}&PageNumber=${pageNumber}&PageSize=${pageSize}`);
+      const params = new URLSearchParams();
+      params.append('PageNumber', pageNumber);
+      params.append('PageSize', pageSize);
+      if (userLevel) params.append('userLevel', userLevel);
+
+      const response = await axiosClient.get(`${AVAILABLE_MISSIONS_API_URL}?${params.toString()}`);
       console.log('Available Missions API Response:', response.data);
       return response.data;
     } catch (error) {
@@ -18,7 +23,13 @@ export const availableMissionsService = {
   // Search available missions
   searchAvailableMissions: async (searchTerm, userLevel = '', pageNumber = 1, pageSize = 10) => {
     try {
-      const response = await axiosClient.get(`${AVAILABLE_MISSIONS_API_URL}?search=${searchTerm}&userLevel=${userLevel}&PageNumber=${pageNumber}&PageSize=${pageSize}`);
+      const params = new URLSearchParams();
+      params.append('search', searchTerm);
+      params.append('PageNumber', pageNumber);
+      params.append('PageSize', pageSize);
+      if (userLevel) params.append('userLevel', userLevel);
+
+      const response = await axiosClient.get(`${AVAILABLE_MISSIONS_API_URL}?${params.toString()}`);
       console.log('Search Available Missions API Response:', response.data);
       return response.data;
     } catch (error) {

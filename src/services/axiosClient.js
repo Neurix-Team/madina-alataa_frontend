@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://api-givingchampion.dev.localhost:5128';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
 
 export const axiosClient = axios.create({
   baseURL: API_BASE_URL,
@@ -33,8 +33,14 @@ axiosClient.interceptors.request.use(
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      // Log when token is being sent to mission and location APIs specifically
-      if (config.url?.includes('/api/mission') || config.url?.includes('/api/location')) {
+      // Log when token is being sent to mission, location, and partners APIs specifically
+      if (
+        config.url?.includes('/api/mission') || 
+        config.url?.includes('/api/location') ||
+        config.url?.includes('/api/Partners') ||
+        config.url?.includes('/api/Child') ||
+        config.url?.includes('/api/admin')
+      ) {
         console.log('🔐 Sending auth_token to API:', {
           url: config.url,
           method: config.method,
@@ -43,8 +49,14 @@ axiosClient.interceptors.request.use(
         });
       }
     } else {
-      // Warn when no token is found for mission and location APIs
-      if (config.url?.includes('/api/mission') || config.url?.includes('/api/location')) {
+      // Warn when no token is found for important APIs
+      if (
+        config.url?.includes('/api/mission') || 
+        config.url?.includes('/api/location') ||
+        config.url?.includes('/api/Partners') ||
+        config.url?.includes('/api/Child') ||
+        config.url?.includes('/api/admin')
+      ) {
         console.warn('⚠️ No auth_token found for API request:', {
           url: config.url,
           method: config.method
