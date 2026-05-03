@@ -30,7 +30,7 @@ import {
   FaTrash,
 } from 'react-icons/fa';
 import secureStorage from '../utils/secureStorage';
-import { getAvatarImageUrl } from '../utils/avatarProfile';
+import { AVATAR_PROFILE_UPDATED_EVENT, getAvatarImageUrl } from '../utils/avatarProfile';
 
 const styles = {
   page: {
@@ -385,6 +385,25 @@ export default function ProfileV2Page() {
     return () => clearInterval(interval);
   }, [location]);
 
+  useEffect(() => {
+    const refreshAvatar = () => {
+      setAvatarUrl(getAvatarImageUrl());
+      setAvatarKey((prev) => prev + 1);
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener(AVATAR_PROFILE_UPDATED_EVENT, refreshAvatar);
+      window.addEventListener('storage', refreshAvatar);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener(AVATAR_PROFILE_UPDATED_EVENT, refreshAvatar);
+        window.removeEventListener('storage', refreshAvatar);
+      }
+    };
+  }, []);
+
   const roleText = safeUser.role === 'parent' ? 'ولي أمر' : 'متبرع';
 
   const goToProfile = () => {
@@ -607,6 +626,7 @@ export default function ProfileV2Page() {
         <button style={styles.miniProfile} onClick={goToProfile} title="الذهاب إلى صفحة البروفايل">
           <div style={styles.miniAvatar}>
             <img
+              key={`sidebar-${avatarKey}`}
               src={avatarUrl}
               alt="Saved avatar"
               style={{
@@ -686,6 +706,7 @@ export default function ProfileV2Page() {
 
             <div style={styles.heroAvatar} onClick={goToProfile} title="عرض الملف الشخصي">
               <img
+                key={`hero-${avatarKey}`}
                 src={avatarUrl}
                 alt="Saved avatar"
                 style={{

@@ -1,6 +1,7 @@
 import secureStorage from './secureStorage';
 
 const AVATAR_PROFILE_KEY = 'madinaAvatarProfile';
+const AVATAR_PROFILE_UPDATED_EVENT = 'madina:avatar-profile-updated';
 
 const DEFAULT_AVATAR_PROFILE = {
   name: 'البطل',
@@ -81,15 +82,61 @@ export function saveAvatarProfile(profile) {
     updatedAt: new Date().toISOString(),
   };
   secureStorage.setItem(AVATAR_PROFILE_KEY, payload);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(AVATAR_PROFILE_UPDATED_EVENT, { detail: payload }));
+  }
   return payload;
+}
+
+const normalizeHexColor = (value, fallback) => {
+  if (typeof value !== 'string') return fallback;
+  const cleaned = value.trim().replace(/^#/, '');
+  if (!/^[0-9a-fA-F]{6}$/.test(cleaned) && !/^[0-9a-fA-F]{3}$/.test(cleaned)) {
+    return fallback;
+  }
+  return cleaned.toLowerCase();
+};
+
+const normalizeApiGender = (gender) => {
+  if (gender === 2 || String(gender).toLowerCase() === '2' || String(gender).toLowerCase() === 'girl') {
+    return 'girl';
+  }
+  return 'boy';
+};
+
+export function buildAvatarProfileFromApiAvatar(apiAvatar, fallbackProfile = {}) {
+  const safeAvatar = apiAvatar && typeof apiAvatar === 'object'
+    ? (apiAvatar.value && typeof apiAvatar.value === 'object' ? apiAvatar.value : apiAvatar)
+    : {};
+
+  return {
+    ...DEFAULT_AVATAR_PROFILE,
+    ...fallbackProfile,
+    name: safeAvatar.characterName || fallbackProfile.name || DEFAULT_AVATAR_PROFILE.name,
+    characterName: safeAvatar.characterName || '',
+    gender: normalizeApiGender(safeAvatar.gender ?? fallbackProfile.gender),
+    hairStyle: safeAvatar.hairStyle || fallbackProfile.hairStyle || DEFAULT_AVATAR_PROFILE.hairStyle,
+    hairColor: safeAvatar.hairColor || fallbackProfile.hairColor || DEFAULT_AVATAR_PROFILE.hairColor,
+    skinColor: safeAvatar.skinColor || fallbackProfile.skinColor || null,
+    clothesColor: safeAvatar.clothesColor || fallbackProfile.clothesColor || null,
+    sourceAvatarId: safeAvatar.id || fallbackProfile.sourceAvatarId || null,
+    seed:
+      safeAvatar.id ||
+      safeAvatar.characterName ||
+      fallbackProfile.seed ||
+      fallbackProfile.name ||
+      DEFAULT_AVATAR_PROFILE.seed,
+  };
+}
+
+export function syncAvatarProfileFromApiAvatar(apiAvatar, fallbackProfile = {}) {
+  const normalizedProfile = buildAvatarProfileFromApiAvatar(apiAvatar, fallbackProfile);
+  return saveAvatarProfile(normalizedProfile);
 }
 
 
 export function buildAvatarUrlFromProfile(profile) {
   const p = { ...DEFAULT_AVATAR_PROFILE, ...profile };
-
-  const skinColor = SKIN_MAP[p.skinTone] || SKIN_MAP.medium;
-  const bgColors = BG_MAP[p.background] || BG_MAP.gradient1;
 
   const ACCESSORIES_MAP_OPENPEEPS = {
     glasses: 'glasses',
@@ -108,20 +155,24 @@ export function buildAvatarUrlFromProfile(profile) {
       medium: 'short2',
       long: 'mediumStraight',
       curly: 'afro',
+      straight: 'mediumStraight',
       wavy: 'mediumStraight',
       braid: 'twists',
       bun: 'bun',
       ponytail: 'long',
+      bald: 'short1',
     },
     girl: {
       short: 'short1',
       medium: 'mediumStraight',
       long: 'long',
       curly: 'afro',
+      straight: 'mediumStraight',
       wavy: 'mediumStraight',
       braid: 'braids',
       bun: 'bun',
       ponytail: 'long',
+      bald: 'short1',
     },
   };
 
@@ -139,14 +190,25 @@ export function buildAvatarUrlFromProfile(profile) {
     wizard: '7c3aed',
   };
 
+  const skinColor = normalizeHexColor(p.skinColor, SKIN_MAP[p.skinTone] || SKIN_MAP.medium);
+  const hairColor = normalizeHexColor(p.hairColor, HAIR_MAP[p.hairColor] || HAIR_MAP.black);
   const stableSeed = p.seed || p.name || 'madina-default-avatar';
+  const defaultClothingColor = CLOTHING_COLOR_MAP[p.clothes] || '8fa7df';
+  const clothingColor = normalizeHexColor(p.clothesColor, defaultClothingColor);
+  const bgColors = p.skinColor && p.clothesColor
+    ? `${skinColor},${clothingColor}`
+    : (BG_MAP[p.background] || BG_MAP.gradient1);
   const visualSignature = [
     p.gender,
     p.skinTone,
+    p.skinColor,
     p.hairStyle,
     p.hairColor,
+    p.clothesColor,
     p.clothes,
     p.background,
+    p.characterName,
+    p.updatedAt,
     ...(p.accessories || []),
   ].join('-');
 
@@ -165,9 +227,10 @@ export function buildAvatarUrlFromProfile(profile) {
     backgroundColor: bgColors,
     backgroundType: 'gradientLinear',
     skinColor,
+    hairColor,
     head,
     face: FACE_MAP[p.gender] || 'smile',
-    clothingColor: CLOTHING_COLOR_MAP[p.clothes] || '8fa7df',
+    clothingColor,
     scale: '95',
   });
 
@@ -185,4 +248,4 @@ export function getAvatarImageUrl() {
   return buildAvatarUrlFromProfile(saved);
 }
 
-export { AVATAR_PROFILE_KEY, DEFAULT_AVATAR_PROFILE };
+export { AVATAR_PROFILE_KEY, AVATAR_PROFILE_UPDATED_EVENT, DEFAULT_AVATAR_PROFILE };

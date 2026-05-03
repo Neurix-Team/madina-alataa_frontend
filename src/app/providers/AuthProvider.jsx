@@ -1,6 +1,7 @@
 // src/app/providers/AuthProvider.jsx
 import { authService } from '../../services/authService';
 import { axiosClient } from '../../services/axiosClient';
+import { profilesService } from '../../services/profilesService';
 import React, { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mockLogin, mockRegister, mockGuestLogin } from '../../services/mockAuth';
@@ -172,6 +173,20 @@ roles: normalizeRoles(responseData.roles || responseData.role || responseData.us
 
         console.log('NORMALIZED LOGIN USER:', normalizedUser);
         setUser(normalizedUser);
+
+        // Fetch and save user profile after login
+        try {
+          console.log('Fetching user profile after login...');
+          const profileData = await profilesService.fetchMyProfile();
+          console.log('Profile data fetched:', profileData);
+          
+          // Save profile data to localStorage
+          profilesService.saveProfileToStorage(profileData);
+          console.log('Profile saved to localStorage - avatarId:', profileData.avatarId, 'profileId:', profileData.id || profileData.profileId);
+        } catch (profileError) {
+          console.warn('Failed to fetch profile after login:', profileError.message);
+          // Don't block login flow if profile fetch fails
+        }
 
         // perform an admin-dashboard check by calling the admin API with the stored token
         try {

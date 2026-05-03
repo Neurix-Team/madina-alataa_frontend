@@ -27,9 +27,9 @@ const LocationsTab = () => {
 
   // Statistics
   const stats = [
-    { label: 'إجمالي العناوين', value: locations.length, icon: FaMapMarkerAlt, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-    { label: 'متوسط المستوى', value: locations.length ? Math.round(locations.reduce((acc, curr) => acc + (curr.requiredLevel || 0), 0) / locations.length) : 0, icon: FaChartLine, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-    { label: 'العناوين النشطة', value: locations.length, icon: FaStar, color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+    { label: 'إجمالي العناوين', value: locations.length, icon: FaMapMarkerAlt, type: 'primary' },
+    { label: 'متوسط المستوى', value: locations.length ? Math.round(locations.reduce((acc, curr) => acc + (curr.requiredLevel || 0), 0) / locations.length) : 0, icon: FaChartLine, type: 'success' },
+    { label: 'العناوين النشطة', value: locations.length, icon: FaStar, type: 'warning' },
   ];
 
   const fetchLocations = async () => {
@@ -174,171 +174,182 @@ const LocationsTab = () => {
     }
   };
 
-  const LocationCard = ({ location, showActions = true }) => (
+  const LocationCard = ({ location, showActions = true, index }) => (
     <motion.div 
       variants={cardVariants}
-      whileHover={{ y: -12, scale: 1.02 }}
-      className="relative group bg-[#0f172a]/40 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/5 transition-all duration-500 shadow-2xl hover:shadow-blue-900/40 overflow-hidden"
+      whileHover={{ y: -8, scale: 1.01 }}
+      className="pro-card pro-hover-scale"
     >
-      <div className="absolute -top-24 -right-24 w-56 h-56 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full blur-[80px] group-hover:bg-blue-500/20 transition-all duration-700" />
-      
-      <div className="relative z-10">
-        <div className="flex justify-between items-start mb-8">
-          <div className="flex-1">
-            <div className="flex items-center gap-5 mb-5">
-              <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-500/20 to-indigo-600/20 flex items-center justify-center border border-blue-500/30 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                <FaMapMarkerAlt className="text-blue-400 text-3xl" />
-              </div>
-              <div>
-                <h3 className="text-3xl font-black text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-blue-300 transition-all leading-tight mb-2">
-                  {location.name}
-                </h3>
-                <div className="flex items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-widest">
-                  <FaMapPin className="text-blue-500/50" />
-                  <span className="truncate max-w-[150px]">{location.id.substring(0, 18)}...</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-3 text-xs font-black text-yellow-400 bg-yellow-500/10 px-5 py-2.5 rounded-[1.2rem] border border-yellow-500/20 shadow-lg uppercase tracking-widest">
-                <FaStar className="animate-pulse" />
-                <span>المستوى المطلوب: {location.requiredLevel}</span>
-              </div>
-            </div>
-          </div>
-          
-          {showActions && (
-            <div className="flex flex-col gap-3 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => handleViewLocation(location.id)} className="p-3.5 bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white rounded-2xl transition-all border border-blue-500/20 shadow-xl" title="عرض">
-                <FaEye className="text-lg" />
-              </motion.button>
-              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => handleEditLocation(location)} className="p-3.5 bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white rounded-2xl transition-all border border-orange-500/20 shadow-xl" title="تعديل">
-                <FaEdit className="text-lg" />
-              </motion.button>
-              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => handleDeleteLocation(location.id)} className="p-3.5 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white rounded-2xl transition-all border border-red-500/20 shadow-xl" title="حذف">
-                <FaTrash className="text-lg" />
-              </motion.button>
-            </div>
-          )}
-        </div>
-        
-        <div className="grid grid-cols-2 gap-5 mb-8">
-          <div className="bg-black/40 backdrop-blur-md rounded-[1.5rem] p-5 border border-white/5 group-hover:border-blue-500/30 transition-all duration-500">
-            <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">
-              <FaCompass className="text-blue-500" />
-              <span>خط الطول</span>
-            </div>
-            <div className="text-white font-mono text-xl truncate font-bold tabular-nums">
-              {location.longitude || '0.0000'}
-            </div>
-          </div>
-          <div className="bg-black/40 backdrop-blur-md rounded-[1.5rem] p-5 border border-white/5 group-hover:border-blue-500/30 transition-all duration-500">
-            <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">
-              <FaGlobe className="text-indigo-500" />
-              <span>خط العرض</span>
-            </div>
-            <div className="text-white font-mono text-xl truncate font-bold tabular-nums">
-              {location.latitude || '0.0000'}
-            </div>
+      <div className="pro-card-header">
+        <div className="pro-flex pro-items-center pro-gap-3">
+          <div className="pro-number">{index + 1}</div>
+          <div>
+            <h3 className="pro-card-title">{location.name}</h3>
+            <p className="pro-card-subtitle">
+              <FaMapPin style={{ display: 'inline', marginLeft: '4px' }} />
+              {location.id?.substring(0, 12)}...
+            </p>
           </div>
         </div>
-
-        {!showActions && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-center gap-3 py-4 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 font-black text-xs uppercase tracking-widest shadow-inner">
-            <FaCheckCircle className="text-sm" />
-            عنوان متاح لمستواك الحالي
-          </motion.div>
-        )}
+        <span className="pro-badge pro-badge-warning">
+          <FaStar style={{ fontSize: '10px' }} />
+          مستوى {location.requiredLevel}
+        </span>
       </div>
+      
+      <div className="pro-card-body">
+        <div className="pro-data-grid">
+          <div className="pro-data-item">
+            <p className="pro-data-label">
+              <FaCompass style={{ color: 'var(--primary-light)' }} />
+              خط الطول
+            </p>
+            <p className="pro-data-value">{location.longitude || '0.0000'}</p>
+          </div>
+          <div className="pro-data-item">
+            <p className="pro-data-label">
+              <FaGlobe style={{ color: 'var(--accent)' }} />
+              خط العرض
+            </p>
+            <p className="pro-data-value">{location.latitude || '0.0000'}</p>
+          </div>
+        </div>
+      </div>
+
+      {showActions ? (
+        <div className="pro-card-footer">
+          <motion.button 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }} 
+            onClick={() => handleViewLocation(location.id)} 
+            className="pro-btn pro-btn-icon"
+            title="عرض"
+            style={{ color: 'var(--info)', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}
+          >
+            <FaEye />
+          </motion.button>
+          <motion.button 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }} 
+            onClick={() => handleEditLocation(location)} 
+            className="pro-btn pro-btn-icon"
+            title="تعديل"
+            style={{ color: 'var(--warning)', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)' }}
+          >
+            <FaEdit />
+          </motion.button>
+          <motion.button 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }} 
+            onClick={() => handleDeleteLocation(location.id)} 
+            className="pro-btn pro-btn-icon"
+            title="حذف"
+            style={{ color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+          >
+            <FaTrash />
+          </motion.button>
+        </div>
+      ) : (
+        <div className="pro-info-box">
+          <FaCheckCircle />
+          <span>موقع متاح لمستواك</span>
+        </div>
+      )}
     </motion.div>
   );
 
   return (
-    <div className="relative min-h-screen bg-[#020617] text-slate-300 p-6 md:p-12 overflow-hidden" dir="rtl">
-      {/* Animated Background Orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1], x: [0, 80, 0], y: [0, 40, 0] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} className="absolute -top-[15%] -left-[10%] w-[700px] h-[700px] bg-blue-600/15 rounded-full blur-[120px]" />
-        <motion.div animate={{ scale: [1.3, 1, 1.3], opacity: [0.1, 0.15, 0.1], x: [0, -60, 0], y: [0, -80, 0] }} transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }} className="absolute -bottom-[15%] -right-[10%] w-[800px] h-[800px] bg-indigo-600/10 rounded-full blur-[140px]" />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Modern Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10 mb-20">
-          <div className="flex items-center gap-8">
-            <motion.div whileHover={{ rotate: 12, scale: 1.15 }} className="w-24 h-24 rounded-[2.5rem] bg-gradient-to-br from-indigo-600 to-blue-800 flex items-center justify-center shadow-[0_20px_50px_rgba(79,70,229,0.4)] border border-white/20 relative overflow-hidden group">
-              <FaMapMarkerAlt className="text-white text-4xl drop-shadow-2xl z-10 transition-transform group-hover:scale-110" />
-              <div className="absolute inset-0 bg-white/20 rounded-[2rem] animate-ping opacity-10" style={{ animationDuration: '4s' }} />
-            </motion.div>
+    <div className="pro-page">
+      <div className="pro-container">
+        {/* Header */}
+        <div className="pro-header">
+          <div className="pro-header-left">
+            <div className="pro-header-icon">
+              <FaMapMarkerAlt />
+            </div>
             <div>
-              <h2 className="text-6xl font-black text-white tracking-tighter mb-4 drop-shadow-sm">إدارة المواقع</h2>
-              <div className="flex items-center gap-4 text-indigo-400/80 font-black text-xl tracking-wide">
-                <span className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_15px_rgba(99,102,241,0.8)]" />
-                تخصيص وتتبع الإحداثيات الجغرافية للنظام
-              </div>
+              <h2 className="pro-header-title">إدارة المواقع</h2>
+              <p className="pro-header-subtitle">تخصيص وتتبع الإحداثيات الجغرافية للنظام</p>
             </div>
           </div>
           
-          <div className="flex flex-wrap gap-6 w-full lg:w-auto">
-            <motion.button whileHover={{ scale: 1.05, y: -5 }} whileTap={{ scale: 0.95 }} onClick={handleShowAvailable} className={`flex-1 lg:flex-none flex items-center justify-center gap-4 px-10 py-6 rounded-[2rem] font-black text-xl transition-all duration-500 border-2 ${showAvailable ? 'bg-emerald-600 border-emerald-400 shadow-[0_20px_40px_-10px_rgba(16,185,129,0.5)] text-white' : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10 hover:text-white shadow-2xl'}`}>
+          <div className="pro-header-actions">
+            <motion.button 
+              whileHover={{ scale: 1.02 }} 
+              whileTap={{ scale: 0.98 }} 
+              onClick={handleShowAvailable} 
+              className={`pro-btn ${showAvailable ? 'pro-btn-success' : 'pro-btn-secondary'}`}
+            >
               {showAvailable ? <FaMapMarkerAlt /> : <FaList />}
               <span>{showAvailable ? 'عرض الكل' : 'العناوين المتاحة'}</span>
             </motion.button>
             
-            <motion.button whileHover={{ scale: 1.05, y: -5, boxShadow: '0 25px 50px -12px rgba(79,70,229,0.5)' }} whileTap={{ scale: 0.95 }} onClick={() => setShowAddModal(true)} className="flex-1 lg:flex-none flex items-center justify-center gap-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-10 py-6 rounded-[2rem] font-black text-xl border border-white/10 transition-all duration-300 shadow-2xl">
-              <FaPlus className="text-lg" />
+            <motion.button 
+              whileHover={{ scale: 1.02 }} 
+              whileTap={{ scale: 0.98 }} 
+              onClick={() => setShowAddModal(true)} 
+              className="pro-btn pro-btn-primary"
+            >
+              <FaPlus />
               <span>إضافة عنوان</span>
             </motion.button>
           </div>
         </div>
 
-        {/* Dynamic Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+        {/* Stats */}
+        <div className="pro-stats">
           {stats.map((s, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }} whileHover={{ y: -8 }} className="bg-white/5 backdrop-blur-2xl border border-white/5 rounded-[3rem] p-8 flex items-center gap-8 group transition-all duration-500 shadow-xl">
-              <div className={`w-20 h-20 rounded-3xl ${s.bg} ${s.border} border flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500`}>
-                <s.icon className={`text-4xl ${s.color}`} />
+            <motion.div 
+              key={i} 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: i * 0.1 }} 
+              className="pro-stat pro-animate-in"
+            >
+              <div className={`pro-stat-icon ${s.type}`}>
+                <s.icon />
               </div>
               <div>
-                <div className="text-slate-500 font-black text-xs mb-1.5 uppercase tracking-[0.2em]">{s.label}</div>
-                <div className="text-5xl font-black text-white tracking-tighter tabular-nums">{s.value}</div>
+                <p className="pro-stat-label">{s.label}</p>
+                <p className="pro-stat-value">{s.value}</p>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Search & Dynamic Filters */}
-        <div className="mb-20">
+        {/* Search & Filters */}
+        <div className="pro-section">
           {!showAvailable ? (
-            <div className="relative group max-w-4xl mx-auto">
-              <div className="absolute inset-y-0 right-0 flex items-center pr-10 pointer-events-none transition-transform group-focus-within:scale-125 duration-500">
-                <FaSearch className="text-indigo-500/30 text-3xl group-focus-within:text-indigo-400" />
-              </div>
+            <div className="pro-input-group" style={{ maxWidth: '500px' }}>
+              <FaSearch className="pro-input-icon" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="البحث بالاسم أو المستوى المطلوب..."
-                className="w-full bg-white/5 backdrop-blur-3xl border-2 border-white/5 rounded-[3rem] py-8 pr-20 pl-10 text-2xl text-white placeholder-slate-700 focus:outline-none focus:border-indigo-500/50 focus:ring-[20px] focus:ring-indigo-500/5 transition-all duration-500 shadow-2xl text-center font-bold"
+                placeholder="البحث بالاسم أو المستوى..."
+                className="pro-input with-icon"
               />
             </div>
           ) : (
-            <div className="flex flex-col md:flex-row gap-6 max-w-3xl mx-auto">
-              <div className="relative flex-1 group">
-                <div className="absolute inset-y-0 right-0 flex items-center pr-8 pointer-events-none">
-                  <FaStar className="text-emerald-500/30 text-2xl" />
-                </div>
+            <div className="pro-flex pro-gap-3" style={{ maxWidth: '500px' }}>
+              <div className="pro-input-group" style={{ flex: 1 }}>
+                <FaStar className="pro-input-icon" />
                 <input
                   type="number"
                   value={userLevel}
                   onChange={(e) => setUserLevel(e.target.value)}
                   placeholder="المستوى الخاص بك"
-                  className="w-full bg-white/5 border-2 border-white/5 rounded-[2rem] py-6 pr-16 pl-8 text-2xl text-white placeholder-slate-700 focus:outline-none focus:border-emerald-500/50 transition-all font-bold text-center"
+                  className="pro-input with-icon"
                 />
               </div>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => fetchAvailableLocations(userLevel)} className="px-12 py-6 bg-emerald-600 hover:bg-emerald-500 text-white rounded-[2rem] font-black text-xl transition-all shadow-2xl flex items-center justify-center gap-4">
+              <motion.button 
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.98 }} 
+                onClick={() => fetchAvailableLocations(userLevel)} 
+                className="pro-btn pro-btn-success"
+              >
                 <FaSatellite />
-                <span>تحديث النطاق</span>
+                <span>تحديث</span>
               </motion.button>
             </div>
           )}
@@ -347,41 +358,39 @@ const LocationsTab = () => {
         {/* Content Area */}
         <AnimatePresence mode="wait">
           {loading && !showAvailable ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center py-48">
-              <div className="relative">
-                <div className="w-32 h-32 border-[6px] border-indigo-500/10 border-t-indigo-500 rounded-full animate-spin shadow-2xl" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <FaGlobe className="text-indigo-500 text-3xl animate-pulse" />
-                </div>
-              </div>
-              <div className="mt-12 text-slate-500 font-black text-3xl tracking-[0.3em] animate-pulse uppercase">تحديد المواقع</div>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pro-loading">
+              <div className="pro-spinner" />
+              <p className="pro-loading-text">جاري تحميل المواقع...</p>
             </motion.div>
           ) : (
-            <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -40 }}>
-              <div className="flex items-center justify-between mb-12 px-8">
-                <div className="flex items-center gap-5 text-indigo-300/80 font-black text-lg uppercase tracking-widest">
-                  <div className="w-16 h-2 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-full shadow-[0_0_15px_rgba(79,70,229,0.5)]" />
-                  <span>{showAvailable ? `وجدنا ${availableLocations.length} موقعاً متاحاً` : `إجمالي المواقع المسجلة: ${filteredLocations.length}`}</span>
-                </div>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+              {/* Results Count */}
+              <p className="pro-section-title">
+                {showAvailable ? `${availableLocations.length} موقع متاح` : `${filteredLocations.length} موقع مسجل`}
+              </p>
+
+              <div className="pro-card-grid">
+                {(showAvailable ? availableLocations : filteredLocations).map((loc, index) => (
+                  <LocationCard key={loc.id} location={loc} showActions={!showAvailable} index={index} />
+                ))}
               </div>
 
-              <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
-                {(showAvailable ? availableLocations : filteredLocations).map((loc) => (
-                  <LocationCard key={loc.id} location={loc} showActions={!showAvailable} />
-                ))}
-              </motion.div>
-
               {(showAvailable ? availableLocations.length === 0 : filteredLocations.length === 0) && (
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-48 bg-white/5 rounded-[5rem] border-4 border-dashed border-white/5 backdrop-blur-sm relative overflow-hidden group">
-                  <div className="w-48 h-48 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-12 shadow-2xl">
-                    <FaMapMarkerAlt className="text-8xl text-slate-800" />
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="pro-empty">
+                  <div className="pro-empty-icon">
+                    <FaMapMarkerAlt />
                   </div>
-                  <h3 className="text-5xl font-black text-white mb-8 tracking-tighter">لم يتم العثور على نتائج</h3>
-                  <p className="text-slate-500 text-2xl max-w-xl mx-auto font-bold leading-relaxed mb-12">
-                    لم نتمكن من العثور على أي مواقع تطابق معايير البحث الحالية. جرب كلمات بحث أخرى أو أضف موقعاً جديداً.
+                  <h3 className="pro-empty-title">لا توجد نتائج</h3>
+                  <p className="pro-empty-text">
+                    لم يتم العثور على مواقع تطابق معايير البحث. جرب بحثاً مختلفاً أو أضف موقعاً جديداً.
                   </p>
-                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowAddModal(true)} className="bg-white text-[#020617] px-14 py-5 rounded-2xl font-black text-xl transition-all shadow-2xl">
-                    إضافة عنوان جديد
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }} 
+                    whileTap={{ scale: 0.98 }} 
+                    onClick={() => setShowAddModal(true)} 
+                    className="pro-btn pro-btn-secondary"
+                  >
+                    إضافة موقع جديد
                   </motion.button>
                 </motion.div>
               )}

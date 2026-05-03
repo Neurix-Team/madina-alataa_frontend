@@ -123,6 +123,15 @@ import CreateRequestPage from '../pages/CreateRequestPage';
 import IncomingRequestsPage from '../pages/IncomingRequestsPage';
 import ContinueRegistrationPage from '../pages/ContinueRegistrationPage';
 import AuthCallback from '../components/auth/AuthCallback';
+import DonationRequestsPage from '../pages/DonationRequestsPage';
+import UserDonationRequestsPage from '../pages/UserDonationRequestsPage';
+import CreateDonationRequestPage from '../pages/CreateDonationRequestPage';
+import UpdateProfilePage from '../pages/UpdateProfilePage';
+import AvatarEditPage from '../pages/AvatarEditPage';
+import DonationOrdersPage from '../pages/DonationOrdersPage';
+import DonationRequestPage from '../pages/DonationRequestPage';
+import MyDonationOrdersPage from '../pages/MyDonationOrdersPage';
+import DonorDonationOrdersPage from '../pages/DonorDonationOrdersPage';
 
 // Social Auth Pages
 // اعملي الصفحتين دول بعدين أو سيبيهم commented لحد ما تجهزيهم
@@ -179,7 +188,7 @@ export const AppRouter = () => {
           <Route index element={<Navigate to="/profile-v2" replace />} />
 
           {/* General protected pages */}
-          <Route path="/profile-v2" element={<ProfileV2Page />} />
+          <Route path="/profile-v2" element={<UpdateProfilePage />} />
           <Route path="/profile" element={<ProfileTab />} />
           <Route path="/impact" element={<ImpactTab />} />
           <Route path="/map" element={<MapTab />} />
@@ -191,7 +200,7 @@ export const AppRouter = () => {
           <Route path="/city-exploration" element={<CityExplorationTab />} />
           <Route path="/city-map" element={<CityMapTab />} />
           <Route path="/team-challenges" element={<TeamChallengesTab />} />
-          <Route path="/avatar" element={<AvatarPage />} />
+          <Route path="/avatar" element={<AvatarEditPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
 
           {/* Available missions for users */}
@@ -202,6 +211,13 @@ export const AppRouter = () => {
           <Route path="/cases/:id" element={<CaseDetailsPage />} />
           <Route path="/donate/:id" element={<DonationCheckoutPage />} />
           <Route path="/my-donations" element={<MyDonationsPage />} />
+
+          {/* Donation Orders */}
+          <Route path="/donation-request" element={<DonationRequestPage />} />
+          <Route path="/my-donation-orders" element={<MyDonationOrdersPage />} />
+          <Route path="/donation-orders-donor" element={<DonorDonationOrdersPage />} />
+          <Route path="/my-donation-requests" element={<UserDonationRequestsPage />} />
+          <Route path="/approved-donation-requests" element={<UserDonationRequestsPage />} />
 
           {/* Request creation */}
           <Route path="/create-request" element={<CreateRequestPage />} />
@@ -220,6 +236,8 @@ export const AppRouter = () => {
             <Route path="/missions" element={<MissionsTab />} />
             <Route path="/locations" element={<LocationsTab />} />
             <Route path="/incoming-requests" element={<IncomingRequestsPage />} />
+            <Route path="/donation-orders" element={<DonationOrdersPage />} />
+            <Route path="/donation-requests" element={<DonationRequestsPage />} />
           </Route>
         </Route>
       </Route>

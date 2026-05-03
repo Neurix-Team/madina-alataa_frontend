@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { 
   FaUsers, FaUserPlus, FaUserShield, FaTrash, FaKey, FaPlus, 
   FaMinus, FaSearch, FaChevronRight, FaChevronLeft, FaUserCircle,
-  FaEnvelope, FaCalendarAlt, FaIdBadge, FaShieldAlt, FaHeart
+  FaEnvelope, FaCalendarAlt, FaIdBadge, FaShieldAlt, FaHeart, FaUser
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -209,6 +209,37 @@ const UsersManagementPage = () => {
       setFetchingDetails(false);
     }
   };
+
+  const viewUserProfile = async (user) => {
+    try {
+      const userId = user.id || user.userId;
+      const profileId = user.profileId;
+
+      if (!userId && !profileId) {
+        console.warn('No user/profile ID found for user:', user);
+        return;
+      }
+
+      let response;
+
+      if (profileId) {
+        console.log(`Fetching profile for user ${user.fullName} with profile ID: ${profileId}`);
+        response = await axiosClient.get(`/api/Profiles/${profileId}`);
+      } else {
+        console.log(`Fetching donor profile for user ${user.fullName} with user ID: ${userId}`);
+        response = await axiosClient.get(`/api/donor/user/${userId}`);
+      }
+
+      const profileData = response.data?.value || response.data?.profile || response.data;
+      console.log('Profile Response:', profileData);
+      
+      alert(`Profile data for ${user.fullName}:\n${JSON.stringify(profileData, null, 2)}`);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      alert(`Failed to fetch profile: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
   const [users, setUsers] = useState([]);
   const [forbidden, setForbidden] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
@@ -565,6 +596,12 @@ const UsersManagementPage = () => {
         if (typeof serverData === 'string') errorMsg = serverData;
         else if (serverData.message) errorMsg = serverData.message;
         else if (serverData.error) errorMsg = serverData.error;
+        else if (serverData.title && !serverData.errors) errorMsg = serverData.title;
+        else if (serverData.errors) {
+          const firstErrorKey = Object.keys(serverData.errors)[0];
+          const firstError = serverData.errors[firstErrorKey];
+          errorMsg = Array.isArray(firstError) ? firstError[0] : String(firstError);
+        }
       }
 
       setDeleteError(errorMsg);
@@ -658,10 +695,32 @@ const UsersManagementPage = () => {
     setAssignRolesSuccess(false);
 
     try {
-      const payload = selectedRoles;
-      console.log('ASSIGN ROLES PAYLOAD:', payload);
+      const payloads = [
+        { roles: selectedRoles },
+        { roleNames: selectedRoles },
+        selectedRoles,
+      ];
+      let resp = null;
+      let lastError = null;
 
-      const resp = await axiosClient.post(`/api/user/${selectedUserForUpdate.id}/roles/assign`, payload);
+      for (const payload of payloads) {
+        try {
+          console.log('ASSIGN ROLES PAYLOAD:', payload);
+          resp = await axiosClient.post(`/api/user/${selectedUserForUpdate.id}/roles/assign`, payload);
+          break;
+        } catch (requestError) {
+          lastError = requestError;
+          console.warn('Assign roles payload failed:', payload, requestError.response?.data || requestError.message);
+          if (requestError.response?.status !== 400) {
+            throw requestError;
+          }
+        }
+      }
+
+      if (!resp && lastError) {
+        throw lastError;
+      }
+
       console.log('ASSIGN ROLES API RESPONSE:', resp.data);
 
       setAssignRolesSuccess(true);
@@ -681,6 +740,12 @@ const UsersManagementPage = () => {
         if (typeof serverData === 'string') errorMsg = serverData;
         else if (serverData.message) errorMsg = serverData.message;
         else if (serverData.error) errorMsg = serverData.error;
+        else if (serverData.title && !serverData.errors) errorMsg = serverData.title;
+        else if (serverData.errors) {
+          const firstErrorKey = Object.keys(serverData.errors)[0];
+          const firstError = serverData.errors[firstErrorKey];
+          errorMsg = Array.isArray(firstError) ? firstError[0] : String(firstError);
+        }
       }
 
       setAssignRolesError(errorMsg);
@@ -714,10 +779,32 @@ const UsersManagementPage = () => {
     setRemoveRolesSuccess(false);
 
     try {
-      const payload = selectedRolesToRemove;
-      console.log('REMOVE ROLES PAYLOAD:', payload);
+      const payloads = [
+        { roles: selectedRolesToRemove },
+        { roleNames: selectedRolesToRemove },
+        selectedRolesToRemove,
+      ];
+      let resp = null;
+      let lastError = null;
 
-      const resp = await axiosClient.post(`/api/user/${selectedUserForUpdate.id}/roles/remove`, payload);
+      for (const payload of payloads) {
+        try {
+          console.log('REMOVE ROLES PAYLOAD:', payload);
+          resp = await axiosClient.post(`/api/user/${selectedUserForUpdate.id}/roles/remove`, payload);
+          break;
+        } catch (requestError) {
+          lastError = requestError;
+          console.warn('Remove roles payload failed:', payload, requestError.response?.data || requestError.message);
+          if (requestError.response?.status !== 400) {
+            throw requestError;
+          }
+        }
+      }
+
+      if (!resp && lastError) {
+        throw lastError;
+      }
+
       console.log('REMOVE ROLES API RESPONSE:', resp.data);
 
       setRemoveRolesSuccess(true);
@@ -1072,6 +1159,27 @@ const UsersManagementPage = () => {
                               }}
                             >
                               <FaUserCircle size={14} />
+                            </motion.button>
+                            
+                            {/* Profile View Icon - Available for all users */}
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => viewUserProfile(u)}
+                              title="عرض البروفايل"
+                              style={{
+                                padding: '8px',
+                                borderRadius: 10,
+                                border: 'none',
+                                background: 'linear-gradient(135deg, #10b981, #059669)',
+                                color: '#fff',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <FaUser size={14} />
                             </motion.button>
                             
                             {/* Admin-only actions */}

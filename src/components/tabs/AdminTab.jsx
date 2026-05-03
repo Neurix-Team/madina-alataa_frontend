@@ -448,6 +448,128 @@ const CSS = `
     background: #fff;
   }
 
+  .admin-api-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .admin-api-stat {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border: 1.5px solid rgba(226,232,240,0.9);
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 10px 20px rgba(15,23,42,0.04);
+  }
+
+  .admin-api-stat__label {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .admin-api-stat__value {
+    color: #0f172a;
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1;
+    word-break: break-word;
+  }
+
+  .admin-api-sections {
+    display: grid;
+    gap: 12px;
+  }
+
+  .admin-api-card {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    border: 1.5px solid rgba(226,232,240,0.9);
+    border-radius: 18px;
+    padding: 16px;
+  }
+
+  .admin-api-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .admin-api-card__title {
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  .admin-api-card__badge {
+    background: #eef8ff;
+    color: #1d4ed8;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  .admin-api-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .admin-api-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid rgba(226,232,240,0.9);
+  }
+
+  .admin-api-row__label {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    word-break: break-word;
+  }
+
+  .admin-api-row__value {
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 900;
+    text-align: left;
+    direction: ltr;
+    word-break: break-word;
+  }
+
+  .admin-api-collection {
+    display: grid;
+    gap: 10px;
+  }
+
+  .admin-api-collection__item {
+    border-radius: 14px;
+    border: 1px solid rgba(226,232,240,0.9);
+    padding: 12px;
+    background: #f8fafc;
+  }
+
+  .admin-api-raw {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    overflow: auto;
+    font-size: 12px;
+    font-family: monospace;
+    direction: ltr;
+    text-align: left;
+  }
+
   @media (max-width: 900px) {
     .admin-kpi-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -523,6 +645,105 @@ const KpiCard = ({ icon: Icon, value, label, tone }) => (
     </div>
     <div className="admin-kpi-card__value">{value}</div>
     <div className="admin-kpi-card__label">{label}</div>
+  </div>
+);
+
+const formatDashboardLabel = (key = '') =>
+  String(key)
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .trim();
+
+const formatDashboardValue = (value) => {
+  if (value === null || value === undefined || value === '') return '—';
+  if (typeof value === 'number') return value.toLocaleString('ar-EG');
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (typeof value === 'string') return value;
+  return JSON.stringify(value);
+};
+
+const isPlainObject = (value) =>
+  value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date);
+
+const extractDashboardOverview = (data) => {
+  if (!isPlainObject(data)) return { stats: [], sections: [] };
+
+  const stats = [];
+  const sections = [];
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (typeof value === 'number') {
+      stats.push({ key, value });
+      return;
+    }
+
+    if (typeof value === 'string' || typeof value === 'boolean') {
+      stats.push({ key, value });
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      sections.push({ key, type: 'array', value });
+      return;
+    }
+
+    if (isPlainObject(value)) {
+      sections.push({ key, type: 'object', value });
+      return;
+    }
+
+    sections.push({ key, type: 'raw', value });
+  });
+
+  return { stats, sections };
+};
+
+const DashboardObjectRows = ({ data }) => (
+  <div className="admin-api-list">
+    {Object.entries(data).map(([key, value]) => (
+      <div key={key} className="admin-api-row">
+        <div className="admin-api-row__label">{formatDashboardLabel(key)}</div>
+        <div className="admin-api-row__value">
+          {isPlainObject(value) || Array.isArray(value) ? JSON.stringify(value) : formatDashboardValue(value)}
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const DashboardSectionCard = ({ section }) => (
+  <div className="admin-api-card">
+    <div className="admin-api-card__head">
+      <div className="admin-api-card__title">{formatDashboardLabel(section.key)}</div>
+      <div className="admin-api-card__badge">
+        {section.type === 'array' ? `${section.value.length} items` : section.type}
+      </div>
+    </div>
+
+    {section.type === 'object' && <DashboardObjectRows data={section.value} />}
+
+    {section.type === 'array' && (
+      <div className="admin-api-collection">
+        {section.value.length === 0 ? (
+          <div className="admin-empty">لا توجد بيانات داخل هذا القسم</div>
+        ) : (
+          section.value.slice(0, 8).map((item, index) => (
+            <div key={`${section.key}-${index}`} className="admin-api-collection__item">
+              {isPlainObject(item) ? (
+                <DashboardObjectRows data={item} />
+              ) : (
+                <div className="admin-api-row">
+                  <div className="admin-api-row__label">Item {index + 1}</div>
+                  <div className="admin-api-row__value">{formatDashboardValue(item)}</div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    )}
+
+    {section.type === 'raw' && <pre className="admin-api-raw">{JSON.stringify(section.value, null, 2)}</pre>}
   </div>
 );
 
@@ -711,6 +932,7 @@ const AdminTab = () => {
 
   const openRequests = requests.filter((r) => r.status === 'open').length;
   const totalKP = userStats?.kp ?? 0;
+  const dashboardOverview = useMemo(() => extractDashboardOverview(dashboardData), [dashboardData]);
 
   const requestsFiltered = useMemo(() => {
     const normalizedSearch = requestSearch.trim().toLowerCase();
@@ -862,10 +1084,29 @@ const AdminTab = () => {
               )}
 
               {!dashboardLoading && !dashboardError && dashboardData && (
-                <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '16px', overflow: 'auto' }}>
-                  <pre style={{ margin: 0, fontSize: '12px', fontFamily: 'monospace', direction: 'ltr', textAlign: 'left' }}>
-                    {JSON.stringify(dashboardData, null, 2)}
-                  </pre>
+                <div className="admin-api-sections">
+                  {dashboardOverview.stats.length > 0 && (
+                    <div className="admin-api-grid">
+                      {dashboardOverview.stats.map((item) => (
+                        <div key={item.key} className="admin-api-stat">
+                          <div className="admin-api-stat__label">{formatDashboardLabel(item.key)}</div>
+                          <div className="admin-api-stat__value">{formatDashboardValue(item.value)}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {dashboardOverview.sections.map((section) => (
+                    <DashboardSectionCard key={section.key} section={section} />
+                  ))}
+
+                  <div className="admin-api-card">
+                    <div className="admin-api-card__head">
+                      <div className="admin-api-card__title">الاستجابة الخام</div>
+                      <div className="admin-api-card__badge">raw json</div>
+                    </div>
+                    <pre className="admin-api-raw">{JSON.stringify(dashboardData, null, 2)}</pre>
+                  </div>
                 </div>
               )}
 

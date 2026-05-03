@@ -35,6 +35,7 @@ import {
   FaFlag,
   FaPlay,
   FaChild,
+  FaHandHoldingHeart,
 } from 'react-icons/fa';
 import { getAvatarImageUrl } from '../../utils/avatarProfile';
 
@@ -230,7 +231,12 @@ const NAV_ITEMS = [
   { id: 'admin',       label: 'الإدارة',          icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'incoming-requests', label: 'الطلبات الواردة', icon: FaBell, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'my-children', label: 'أطفالي', icon: FaChild },
-];
+  // Donation Orders System
+  { id: 'donation-orders-donor', label: 'طلبات التبرع', icon: FaHandHoldingHeart, dividerBefore: true },
+  { id: 'my-donation-orders', label: 'تبرعاتي', icon: FaCoins },
+  // Donation Orders - Admin only
+  { id: 'donation-orders', label: 'طلبات المتبرعين', icon: FaHandHoldingHeart, condition: PERMISSIONS.VIEW_ADMIN },
+  ];
 
 // ── Avatar ────────────────────────────────────────────────────────────────
 const AvatarSVG = ({ bg, accessory }) => {
@@ -433,6 +439,10 @@ export default function Sidebar({
       locations: '/locations',
       missions: '/missions',
       'my-children': '/my-children',
+      // Donation Orders System
+      'donation-orders-donor': '/approved-donation-requests',
+      'my-donation-orders': '/my-donation-orders',
+      'donation-orders': '/donation-orders',
     };
     return location.pathname === pathMap[id] || activeTab === id;
   };
@@ -462,6 +472,10 @@ export default function Sidebar({
       locations: '/locations',
       missions: '/missions',
       'my-children': '/my-children',
+      // Donation Orders System
+      'donation-orders-donor': '/approved-donation-requests',
+      'my-donation-orders': '/my-donation-orders',
+      'donation-orders': '/donation-orders',
     };
 
     const path = pathMap[id] || '/profile-v2';
