@@ -1,18 +1,18 @@
 :root {
-  --pro-surface: rgba(15, 23, 42, 0.78);
-  --pro-surface-strong: rgba(15, 23, 42, 0.92);
-  --pro-border-soft: rgba(148, 163, 184, 0.18);
-  --pro-border-strong: rgba(96, 165, 250, 0.24);
-  --pro-text-main: #f8fafc;
-  --pro-text-soft: #cbd5e1;
-  --pro-text-muted: #94a3b8;
+  --pro-surface: rgba(255, 255, 255, 0.72);
+  --pro-surface-strong: rgba(255, 255, 255, 0.9);
+  --pro-border-soft: rgba(148, 163, 184, 0.24);
+  --pro-border-strong: rgba(37, 99, 235, 0.22);
+  --pro-text-main: #0f172a;
+  --pro-text-soft: #334155;
+  --pro-text-muted: #64748b;
   --pro-brand: #2563eb;
   --pro-brand-soft: rgba(37, 99, 235, 0.14);
   --pro-success-soft: rgba(16, 185, 129, 0.14);
   --pro-warning-soft: rgba(245, 158, 11, 0.14);
   --pro-danger-soft: rgba(239, 68, 68, 0.14);
-  --pro-shadow-lg: 0 28px 70px rgba(2, 6, 23, 0.28);
-  --pro-shadow-md: 0 18px 40px rgba(2, 6, 23, 0.18);
+  --pro-shadow-lg: 0 28px 70px rgba(15, 23, 42, 0.12);
+  --pro-shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
 }
 
 .mission-page,
@@ -23,9 +23,9 @@
   direction: rtl;
   color: var(--pro-text-main);
   background:
-    radial-gradient(circle at top right, rgba(37, 99, 235, 0.18), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.12), transparent 26%),
-    linear-gradient(135deg, #07111f 0%, #0f172a 52%, #111827 100%);
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 26%),
+    linear-gradient(135deg, rgba(239, 246, 255, 0.96) 0%, rgba(248, 250, 252, 0.98) 52%, rgba(241, 245, 249, 0.98) 100%);
 }
 
 .mission-page__container,
@@ -33,6 +33,7 @@
 .create-donation-page__container {
   max-width: 1240px;
   margin: 0 auto;
+  padding: 28px 20px 48px;
 }
 
 .mission-page__hero,
@@ -46,7 +47,7 @@
   margin-bottom: 32px;
   padding: 28px;
   border-radius: 28px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.74));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(248, 250, 252, 0.74));
   border: 1px solid var(--pro-border-soft);
   box-shadow: var(--pro-shadow-lg);
 }
@@ -206,7 +207,7 @@
   width: 100%;
   border: 1px solid var(--pro-border-soft);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.84);
   color: var(--pro-text-main);
   padding: 18px 20px 18px 52px;
   font-size: 1rem;
@@ -264,7 +265,7 @@
   gap: 18px;
   padding: 24px;
   border-radius: 28px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.78));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(248, 250, 252, 0.8));
   border: 1px solid var(--pro-border-soft);
   box-shadow: var(--pro-shadow-md);
 }
@@ -290,7 +291,7 @@
   gap: 6px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.72);
   border: 1px solid var(--pro-border-soft);
   color: var(--pro-text-soft);
   font-size: 0.76rem;
@@ -342,7 +343,7 @@
 .mission-page__rewardItem {
   padding: 16px 12px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.045);
+  background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(148, 163, 184, 0.12);
   text-align: center;
 }
@@ -398,7 +399,7 @@
   height: 84px;
   margin: 0 auto 16px;
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.76);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -455,7 +456,7 @@
   padding: 0 14px;
   border-radius: 14px;
   border: 1px solid var(--pro-border-soft);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.82);
   color: var(--pro-text-main);
   font-weight: 800;
 }
@@ -518,19 +519,19 @@
 
 .donation-requests-page__chip.is-pending {
   background: var(--pro-warning-soft);
-  color: #fbbf24;
+  color: #b45309;
   border-color: rgba(245, 158, 11, 0.24);
 }
 
 .donation-requests-page__chip.is-approved {
   background: var(--pro-success-soft);
-  color: #34d399;
+  color: #047857;
   border-color: rgba(16, 185, 129, 0.24);
 }
 
 .donation-requests-page__chip.is-rejected {
   background: var(--pro-danger-soft);
-  color: #f87171;
+  color: #b91c1c;
   border-color: rgba(239, 68, 68, 0.24);
 }
 
@@ -607,9 +608,9 @@
   gap: 12px;
   padding: 18px 20px;
   border-radius: 18px;
-  background: rgba(127, 29, 29, 0.26);
+  background: rgba(254, 242, 242, 0.92);
   border: 1px solid rgba(248, 113, 113, 0.24);
-  color: #fca5a5;
+  color: #b91c1c;
   margin-bottom: 24px;
 }
 

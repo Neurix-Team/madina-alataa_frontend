@@ -1,35 +1,26 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FaAward,
   FaCheck,
   FaEdit,
   FaExclamationTriangle,
   FaEye,
-  FaMedal,
+  FaLayerGroup,
   FaPlus,
   FaSpinner,
-  FaStar,
   FaTimes,
   FaTrash,
-  FaTrophy,
 } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
-import { badgesService } from '../../services/badgesService';
+import {
+  levelsService,
+  normalizeLevelDetailsResponse,
+} from '../../services/levelsService';
 
 const initialFormState = {
-  name: '',
-  description: '',
-  requirement: '',
-  category: '',
+  number: '',
+  maxXp: '',
 };
-
-const categoryOptions = [
-  { value: 'trophy', label: 'كأس' },
-  { value: 'award', label: 'جائزة' },
-  { value: 'medal', label: 'ميدالية' },
-  { value: 'star', label: 'نجمة' },
-];
 
 const overlayStyle = {
   position: 'fixed',
@@ -44,7 +35,7 @@ const overlayStyle = {
 
 const modalStyle = {
   width: '100%',
-  maxWidth: '680px',
+  maxWidth: '640px',
   maxHeight: '88vh',
   overflowY: 'auto',
   background: 'var(--surface)',
@@ -53,242 +44,6 @@ const modalStyle = {
   boxShadow: '0 24px 80px rgba(15, 23, 42, 0.18)',
   padding: '24px',
 };
-
-function extractBadgesPayload(payload) {
-  const root =
-    payload?.value && typeof payload.value === 'object' && !Array.isArray(payload.value)
-      ? payload.value
-      : payload?.data && typeof payload.data === 'object' && !Array.isArray(payload.data)
-        ? payload.data
-        : payload?.result && typeof payload.result === 'object' && !Array.isArray(payload.result)
-          ? payload.result
-          : payload;
-
-  const total =
-    root?.totalCount ??
-    root?.TotalCount ??
-    root?.total ??
-    root?.Total ??
-    root?.count ??
-    root?.Count ??
-    root?.totalItems ??
-    root?.TotalItems ??
-    0;
-
-  const items = Array.isArray(root?.items)
-    ? root.items
-    : Array.isArray(root?.Items)
-      ? root.Items
-      : Array.isArray(root?.data)
-        ? root.data
-        : Array.isArray(root?.Data)
-          ? root.Data
-          : Array.isArray(root?.result)
-            ? root.result
-            : Array.isArray(root?.Result)
-              ? root.Result
-              : Array.isArray(root)
-                ? root
-                : [];
-
-  return {
-    items: items.map(normalizeBadgeRecord),
-    totalCount: Number(total) || items.length,
-  };
-}
-
-function normalizeBadgeRecord(badge) {
-  if (!badge || typeof badge !== 'object') return badge;
-
-  return {
-    ...badge,
-    id: badge.id ?? badge.Id ?? badge.badgeId ?? badge.BadgeId ?? badge.guid ?? badge.Guid ?? badge.badgeGuid ?? badge.BadgeGuid ?? '',
-    badgeId: badge.badgeId ?? badge.BadgeId ?? badge.id ?? badge.Id ?? '',
-    guid: badge.guid ?? badge.Guid ?? badge.badgeGuid ?? badge.BadgeGuid ?? '',
-    name: badge.name ?? badge.Name ?? '',
-    description: badge.description ?? badge.Description ?? '',
-    requirement: badge.requirement ?? badge.Requirement ?? '',
-    category: badge.category ?? badge.Category ?? '',
-  };
-}
-
-function getBadgeId(badge) {
-  return badge?.id || badge?.badgeId || badge?.guid || badge?.badgeGuid || '';
-}
-
-function getBadgeIcon(category) {
-  switch (String(category || '').toLowerCase()) {
-    case 'trophy':
-    case 'كأس':
-      return <FaTrophy />;
-    case 'award':
-    case 'جائزة':
-      return <FaAward />;
-    case 'star':
-    case 'نجمة':
-      return <FaStar />;
-    case 'medal':
-    case 'ميدالية':
-    default:
-      return <FaMedal />;
-  }
-}
-
-function normalizeBadgeDetails(payload) {
-  if (!payload) return null;
-
-  const root =
-    payload?.value && typeof payload.value === 'object' && !Array.isArray(payload.value)
-      ? payload.value
-      : payload?.data && typeof payload.data === 'object' && !Array.isArray(payload.data)
-        ? payload.data
-        : payload?.result && typeof payload.result === 'object' && !Array.isArray(payload.result)
-          ? payload.result
-          : payload;
-
-  return normalizeBadgeRecord(root);
-}
-
-function BadgeModal({ title, onClose, children, maxWidth = '680px' }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      style={overlayStyle}
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 10 }}
-        transition={{ duration: 0.18 }}
-        style={{ ...modalStyle, maxWidth }}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '20px',
-          }}
-        >
-          <h3 style={{ margin: 0, color: 'var(--text)', fontSize: '22px', fontWeight: 800 }}>
-            {title}
-          </h3>
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              color: 'var(--text-muted)',
-              cursor: 'pointer',
-              fontSize: '18px',
-            }}
-          >
-            <FaTimes />
-          </button>
-        </div>
-        {children}
-      </motion.div>
-    </motion.div>
-  );
-}
-
-function BadgeForm({
-  formData,
-  onChange,
-  onSubmit,
-  submitting,
-  submitError,
-  submitSuccess,
-  submitLabel,
-  successMessage,
-  onCancel,
-}) {
-  return (
-    <form onSubmit={onSubmit}>
-      <div style={{ display: 'grid', gap: '16px' }}>
-        <label style={{ display: 'grid', gap: '8px', color: 'var(--text)', fontWeight: 700 }}>
-          <span>اسم الوسام</span>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(event) => onChange('name', event.target.value)}
-            required
-            style={inputStyle}
-          />
-        </label>
-
-        <label style={{ display: 'grid', gap: '8px', color: 'var(--text)', fontWeight: 700 }}>
-          <span>الوصف</span>
-          <textarea
-            rows={3}
-            value={formData.description}
-            onChange={(event) => onChange('description', event.target.value)}
-            required
-            style={textareaStyle}
-          />
-        </label>
-
-        <label style={{ display: 'grid', gap: '8px', color: 'var(--text)', fontWeight: 700 }}>
-          <span>المتطلبات</span>
-          <textarea
-            rows={3}
-            value={formData.requirement}
-            onChange={(event) => onChange('requirement', event.target.value)}
-            required
-            style={textareaStyle}
-          />
-        </label>
-
-        <label style={{ display: 'grid', gap: '8px', color: 'var(--text)', fontWeight: 700 }}>
-          <span>الفئة</span>
-          <select
-            value={formData.category}
-            onChange={(event) => onChange('category', event.target.value)}
-            required
-            style={inputStyle}
-          >
-            <option value="">اختر الفئة</option>
-            {categoryOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      {submitError ? (
-        <div style={errorBoxStyle}>
-          <FaExclamationTriangle />
-          <span>{submitError}</span>
-        </div>
-      ) : null}
-
-      {submitSuccess ? (
-        <div style={successBoxStyle}>
-          <FaCheck />
-          <span>{successMessage}</span>
-        </div>
-      ) : null}
-
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
-        <button type="button" onClick={onCancel} disabled={submitting} style={secondaryButtonStyle}>
-          إلغاء
-        </button>
-        <button type="submit" disabled={submitting} style={primaryButtonStyle}>
-          {submitting ? <FaSpinner className="animate-spin" /> : null}
-          <span>{submitLabel}</span>
-        </button>
-      </div>
-    </form>
-  );
-}
 
 const inputStyle = {
   width: '100%',
@@ -299,11 +54,6 @@ const inputStyle = {
   padding: '12px 14px',
   fontFamily: "'Cairo', sans-serif",
   fontSize: '14px',
-};
-
-const textareaStyle = {
-  ...inputStyle,
-  resize: 'vertical',
 };
 
 const primaryButtonStyle = {
@@ -373,14 +123,170 @@ const successBoxStyle = {
   gap: '10px',
 };
 
-export default function BadgesTab() {
+const DELETED_LEVEL_IDS_STORAGE_KEY = 'deleted_level_ids';
+
+function getLevelId(level) {
+  return level?.id || level?.Id || level?.levelId || level?.LevelId || level?.guid || level?.Guid || '';
+}
+
+function normalizeLevel(level) {
+  if (!level || typeof level !== 'object') return level;
+
+  return {
+    ...level,
+    id: getLevelId(level),
+    number: level?.number ?? level?.Number ?? 0,
+    maxXp: level?.maxXp ?? level?.MaxXp ?? 0,
+    createdAt: level?.createdAt ?? level?.CreatedAt ?? null,
+    updatedAt: level?.updatedAt ?? level?.UpdatedAt ?? null,
+  };
+}
+
+function getDeletedLevelIds() {
+  try {
+    const raw = localStorage.getItem(DELETED_LEVEL_IDS_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.warn('Failed to read deleted level ids from localStorage', error);
+    return [];
+  }
+}
+
+function storeDeletedLevelId(levelId) {
+  if (!levelId) return;
+
+  try {
+    const nextIds = Array.from(new Set([...getDeletedLevelIds(), String(levelId)]));
+    localStorage.setItem(DELETED_LEVEL_IDS_STORAGE_KEY, JSON.stringify(nextIds));
+  } catch (error) {
+    console.warn('Failed to store deleted level id in localStorage', error);
+  }
+}
+
+function LevelModal({ title, onClose, children, maxWidth = '640px' }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      style={overlayStyle}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 10 }}
+        transition={{ duration: 0.18 }}
+        style={{ ...modalStyle, maxWidth }}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '20px',
+          }}
+        >
+          <h3 style={{ margin: 0, color: 'var(--text)', fontSize: '22px', fontWeight: 800 }}>
+            {title}
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              fontSize: '18px',
+            }}
+          >
+            <FaTimes />
+          </button>
+        </div>
+        {children}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function LevelForm({
+  formData,
+  onChange,
+  onSubmit,
+  submitting,
+  submitError,
+  submitSuccess,
+  submitLabel,
+  successMessage,
+  onCancel,
+}) {
+  return (
+    <form onSubmit={onSubmit}>
+      <div style={{ display: 'grid', gap: '16px' }}>
+        <label style={{ display: 'grid', gap: '8px', color: 'var(--text)', fontWeight: 700 }}>
+          <span>رقم المستوى</span>
+          <input
+            type="number"
+            min="1"
+            value={formData.number}
+            onChange={(event) => onChange('number', event.target.value)}
+            required
+            style={inputStyle}
+          />
+        </label>
+
+        <label style={{ display: 'grid', gap: '8px', color: 'var(--text)', fontWeight: 700 }}>
+          <span>الحد الأقصى XP</span>
+          <input
+            type="number"
+            min="0"
+            value={formData.maxXp}
+            onChange={(event) => onChange('maxXp', event.target.value)}
+            required
+            style={inputStyle}
+          />
+        </label>
+      </div>
+
+      {submitError ? (
+        <div style={errorBoxStyle}>
+          <FaExclamationTriangle />
+          <span>{submitError}</span>
+        </div>
+      ) : null}
+
+      {submitSuccess ? (
+        <div style={successBoxStyle}>
+          <FaCheck />
+          <span>{successMessage}</span>
+        </div>
+      ) : null}
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
+        <button type="button" onClick={onCancel} disabled={submitting} style={secondaryButtonStyle}>
+          إلغاء
+        </button>
+        <button type="submit" disabled={submitting} style={primaryButtonStyle}>
+          {submitting ? <FaSpinner className="animate-spin" /> : null}
+          <span>{submitLabel}</span>
+        </button>
+      </div>
+    </form>
+  );
+}
+
+export default function LevelsTab() {
   const { user } = useAuth();
   const isAdmin = useMemo(
     () => (user?.roles || []).some((role) => String(role).toLowerCase() === 'admin'),
     [user]
   );
 
-  const [badges, setBadges] = useState([]);
+  const [levels, setLevels] = useState([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
@@ -390,7 +296,7 @@ export default function BadgesTab() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsError, setDetailsError] = useState('');
-  const [selectedBadge, setSelectedBadge] = useState(null);
+  const [selectedLevel, setSelectedLevel] = useState(null);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -402,30 +308,35 @@ export default function BadgesTab() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
 
-  const loadBadges = async (targetPage = pageNumber) => {
+  const loadLevels = async (targetPage = pageNumber) => {
     setLoading(true);
     setError('');
 
     try {
-      const payload = await badgesService.getBadges({
+      const payload = await levelsService.getLevels({
         pageNumber: targetPage,
         pageSize,
       });
-      console.log('BADGES LIST RESPONSE:', payload);
+      const deletedLevelIds = new Set(getDeletedLevelIds());
+      const filteredItems = payload.items
+        .map(normalizeLevel)
+        .filter((level) => !deletedLevelIds.has(String(getLevelId(level))));
 
-      const normalized = extractBadgesPayload(payload);
-      setBadges(normalized.items);
-      setTotalCount(normalized.totalCount);
+      console.log('LEVELS LIST ITEMS:', filteredItems);
+      setLevels(filteredItems);
+      setTotalCount(
+        Math.max(0, Number(payload.totalCount || 0) - (payload.items.length - filteredItems.length))
+      );
     } catch (requestError) {
-      console.error('BADGES LIST ERROR:', requestError);
-      setError('فشل في تحميل الأوسمة. حاول مرة أخرى.');
+      console.error('LEVELS LIST ERROR:', requestError);
+      setError('فشل في تحميل المستويات. حاول مرة أخرى.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadBadges(pageNumber);
+    loadLevels(pageNumber);
   }, [pageNumber]);
 
   const resetSubmitState = () => {
@@ -437,63 +348,67 @@ export default function BadgesTab() {
     setFormData((current) => ({ ...current, [field]: value }));
   };
 
+  const buildPayload = () => ({
+    number: Number(formData.number) || 0,
+    maxXp: Number(formData.maxXp) || 0,
+  });
+
   const handleOpenCreate = () => {
     setFormData(initialFormState);
     resetSubmitState();
     setCreateOpen(true);
   };
 
-  const handleOpenEdit = (badge) => {
-    setSelectedBadge(badge);
+  const handleOpenEdit = (level) => {
+    const normalized = normalizeLevel(level);
+    setSelectedLevel(normalized);
     setFormData({
-      name: badge?.name || '',
-      description: badge?.description || '',
-      requirement: badge?.requirement || '',
-      category: badge?.category || '',
+      number: String(normalized.number ?? ''),
+      maxXp: String(normalized.maxXp ?? ''),
     });
     resetSubmitState();
     setEditOpen(true);
   };
 
-  const handleOpenDelete = (badge) => {
-    setSelectedBadge(badge);
+  const handleOpenDelete = (level) => {
+    setSelectedLevel(normalizeLevel(level));
     setDeleteError('');
     setDeleteOpen(true);
   };
 
-  const handleViewDetails = async (badge) => {
-    const badgeId = getBadgeId(badge);
-    if (!badgeId) return;
+  const handleViewDetails = async (level) => {
+    const levelId = getLevelId(level);
+    if (!levelId) return;
 
-    setSelectedBadge(badge);
+    setSelectedLevel(normalizeLevel(level));
     setDetailsOpen(true);
     setDetailsLoading(true);
     setDetailsError('');
 
     try {
-      const payload = await badgesService.getBadgeById(badgeId);
-      console.log('BADGE DETAILS RESPONSE:', payload);
-      setSelectedBadge(normalizeBadgeDetails(payload));
+      const payload = await levelsService.getLevelById(levelId);
+      const normalized = normalizeLevel(normalizeLevelDetailsResponse(payload));
+      console.log('LEVEL DETAILS ITEM:', normalized);
+      setSelectedLevel(normalized);
     } catch (requestError) {
-      console.error('BADGE DETAILS ERROR:', requestError);
-      setDetailsError('فشل في تحميل تفاصيل الوسام.');
+      console.error('LEVEL DETAILS ERROR:', requestError);
+      setDetailsError('فشل في تحميل تفاصيل المستوى.');
     } finally {
       setDetailsLoading(false);
     }
   };
 
-  const handleCreateBadge = async (event) => {
+  const handleCreateLevel = async (event) => {
     event.preventDefault();
     setSubmitting(true);
     resetSubmitState();
 
     try {
-      const payload = { ...formData };
-      console.log('CREATE BADGE REQUEST:', payload);
-      const response = await badgesService.createBadge(payload);
-      console.log('CREATE BADGE RESPONSE:', response);
-      setSubmitSuccess('تمت إضافة الوسام وحفظه في قاعدة البيانات.');
-      await loadBadges(1);
+      const payload = buildPayload();
+      console.log('CREATE LEVEL REQUEST:', payload);
+      await levelsService.createLevel(payload);
+      setSubmitSuccess('تمت إضافة المستوى وحفظه في قاعدة البيانات.');
+      await loadLevels(1);
       setPageNumber(1);
       setFormData(initialFormState);
       setTimeout(() => {
@@ -501,64 +416,63 @@ export default function BadgesTab() {
         resetSubmitState();
       }, 700);
     } catch (requestError) {
-      console.error('CREATE BADGE ERROR:', requestError);
-      setSubmitError('فشل في إضافة الوسام.');
+      console.error('CREATE LEVEL ERROR:', requestError);
+      setSubmitError('فشل في إضافة المستوى.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleUpdateBadge = async (event) => {
+  const handleUpdateLevel = async (event) => {
     event.preventDefault();
-    const badgeId = getBadgeId(selectedBadge);
-    if (!badgeId) return;
+    const levelId = getLevelId(selectedLevel);
+    if (!levelId) return;
 
     setSubmitting(true);
     resetSubmitState();
 
     try {
-      const payload = { ...formData };
-      console.log('UPDATE BADGE REQUEST:', { badgeId, ...payload });
-      const response = await badgesService.updateBadge(badgeId, payload);
-      console.log('UPDATE BADGE RESPONSE:', response);
-      setSubmitSuccess('تم حفظ تعديلات الوسام في قاعدة البيانات.');
-      await loadBadges(pageNumber);
+      const payload = buildPayload();
+      console.log('UPDATE LEVEL REQUEST:', { levelId, ...payload });
+      await levelsService.updateLevel(levelId, payload);
+      setSubmitSuccess('تم حفظ تعديلات المستوى في قاعدة البيانات.');
+      await loadLevels(pageNumber);
       setTimeout(() => {
         setEditOpen(false);
         resetSubmitState();
       }, 700);
     } catch (requestError) {
-      console.error('UPDATE BADGE ERROR:', requestError);
-      setSubmitError('فشل في تعديل الوسام.');
+      console.error('UPDATE LEVEL ERROR:', requestError);
+      setSubmitError('فشل في تعديل المستوى.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDeleteBadge = async () => {
-    const badgeId = getBadgeId(selectedBadge);
-    if (!badgeId) return;
+  const handleDeleteLevel = async () => {
+    const levelId = getLevelId(selectedLevel);
+    if (!levelId) return;
 
     setDeleting(true);
     setDeleteError('');
 
     try {
-      console.log('DELETE BADGE REQUEST:', badgeId);
-      const response = await badgesService.deleteBadge(badgeId);
-      console.log('DELETE BADGE RESPONSE:', response);
+      console.log('DELETE LEVEL REQUEST:', levelId);
+      await levelsService.deleteLevel(levelId);
+      storeDeletedLevelId(levelId);
       setDeleteOpen(false);
-      setSelectedBadge(null);
+      setSelectedLevel(null);
 
-      const hasOneItemOnPage = badges.length === 1 && pageNumber > 1;
+      const hasOneItemOnPage = levels.length === 1 && pageNumber > 1;
       const nextPage = hasOneItemOnPage ? pageNumber - 1 : pageNumber;
       if (nextPage !== pageNumber) {
         setPageNumber(nextPage);
       } else {
-        await loadBadges(nextPage);
+        await loadLevels(nextPage);
       }
     } catch (requestError) {
-      console.error('DELETE BADGE ERROR:', requestError);
-      setDeleteError('فشل في حذف الوسام.');
+      console.error('DELETE LEVEL ERROR:', requestError);
+      setDeleteError('فشل في حذف المستوى.');
     } finally {
       setDeleting(false);
     }
@@ -575,7 +489,7 @@ export default function BadgesTab() {
           marginBottom: '24px',
           borderRadius: '28px',
           background:
-            'radial-gradient(circle at top right, rgba(250, 204, 21, 0.34), transparent 30%), linear-gradient(135deg, #0f172a, #1f2937)',
+            'radial-gradient(circle at top right, rgba(45, 212, 191, 0.28), transparent 30%), linear-gradient(135deg, #0f172a, #1f2937)',
           color: '#fff',
           padding: '28px',
           display: 'flex',
@@ -598,12 +512,12 @@ export default function BadgesTab() {
               fontSize: '28px',
             }}
           >
-            <FaTrophy />
+            <FaLayerGroup />
           </div>
           <div>
-            <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900 }}>الأوسمة</h2>
+            <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900 }}>المستويات</h2>
             <p style={{ margin: '6px 0 0 0', color: 'rgba(255,255,255,0.78)', fontWeight: 700 }}>
-              عرض الأوسمة والتفاصيل للجميع، وإدارة الأوسمة للأدمن فقط.
+              عرض مستويات النظام لكل المستخدمين، مع إدارة كاملة للأدمن فقط.
             </p>
           </div>
         </div>
@@ -611,7 +525,7 @@ export default function BadgesTab() {
         {isAdmin ? (
           <button type="button" onClick={handleOpenCreate} style={primaryButtonStyle}>
             <FaPlus />
-            <span>إضافة شارة</span>
+            <span>إضافة مستوى</span>
           </button>
         ) : null}
       </motion.div>
@@ -637,10 +551,10 @@ export default function BadgesTab() {
         >
           <div style={{ textAlign: 'center' }}>
             <FaSpinner className="animate-spin" size={28} color="#0f766e" />
-            <p style={{ margin: '14px 0 0 0' }}>جاري تحميل الأوسمة...</p>
+            <p style={{ margin: '14px 0 0 0' }}>جاري تحميل المستويات...</p>
           </div>
         </div>
-      ) : badges.length === 0 ? (
+      ) : levels.length === 0 ? (
         <div
           style={{
             borderRadius: '24px',
@@ -655,10 +569,10 @@ export default function BadgesTab() {
           }}
         >
           <div>
-            <FaTrophy size={42} />
-            <h3 style={{ color: 'var(--text)', marginBottom: '8px' }}>لا توجد أوسمة حالياً</h3>
+            <FaLayerGroup size={42} />
+            <h3 style={{ color: 'var(--text)', marginBottom: '8px' }}>لا توجد مستويات حالياً</h3>
             <p style={{ margin: 0 }}>
-              {isAdmin ? 'ابدأ بإضافة وسام جديد.' : 'سيتم عرض الأوسمة هنا بعد إضافتها.'}
+              {isAdmin ? 'ابدأ بإضافة مستوى جديد.' : 'سيتم عرض المستويات هنا بعد إضافتها.'}
             </p>
           </div>
         </div>
@@ -671,9 +585,9 @@ export default function BadgesTab() {
               gap: '18px',
             }}
           >
-            {badges.map((badge, index) => (
+            {levels.map((level, index) => (
               <motion.div
-                key={getBadgeId(badge) || index}
+                key={getLevelId(level) || `${level.number}-${index}`}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.04 }}
@@ -692,7 +606,7 @@ export default function BadgesTab() {
                         width: '54px',
                         height: '54px',
                         borderRadius: '18px',
-                        background: 'linear-gradient(135deg, #f59e0b, #f97316)',
+                        background: 'linear-gradient(135deg, #14b8a6, #0f766e)',
                         color: '#fff',
                         display: 'flex',
                         alignItems: 'center',
@@ -701,34 +615,32 @@ export default function BadgesTab() {
                         flexShrink: 0,
                       }}
                     >
-                      {getBadgeIcon(badge.category)}
+                      <FaLayerGroup />
                     </div>
                     <div style={{ minWidth: 0 }}>
                       <h3 style={{ margin: 0, color: 'var(--text)', fontSize: '18px', fontWeight: 800 }}>
-                        {badge.name || 'وسام بدون اسم'}
+                        المستوى {level.number || 0}
                       </h3>
-                      {badge.category ? (
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            marginTop: '8px',
-                            borderRadius: '999px',
-                            padding: '6px 10px',
-                            background: 'rgba(15, 118, 110, 0.08)',
-                            color: '#0f766e',
-                            fontSize: '12px',
-                            fontWeight: 800,
-                          }}
-                        >
-                          {badge.category}
-                        </span>
-                      ) : null}
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          marginTop: '8px',
+                          borderRadius: '999px',
+                          padding: '6px 10px',
+                          background: 'rgba(15, 118, 110, 0.08)',
+                          color: '#0f766e',
+                          fontSize: '12px',
+                          fontWeight: 800,
+                        }}
+                      >
+                        {Number(level.maxXp || 0).toLocaleString('en-US')} XP
+                      </span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                     <button
                       type="button"
-                      onClick={() => handleViewDetails(badge)}
+                      onClick={() => handleViewDetails(level)}
                       style={iconButtonStyle}
                       title="تفاصيل"
                     >
@@ -738,7 +650,7 @@ export default function BadgesTab() {
                       <>
                         <button
                           type="button"
-                          onClick={() => handleOpenEdit(badge)}
+                          onClick={() => handleOpenEdit(level)}
                           style={iconButtonStyle}
                           title="تعديل"
                         >
@@ -746,7 +658,7 @@ export default function BadgesTab() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleOpenDelete(badge)}
+                          onClick={() => handleOpenDelete(level)}
                           style={{
                             ...iconButtonStyle,
                             border: '1px solid rgba(239, 68, 68, 0.22)',
@@ -762,27 +674,27 @@ export default function BadgesTab() {
                   </div>
                 </div>
 
-                <p style={{ margin: '16px 0 0 0', color: 'var(--text-muted)', lineHeight: 1.7 }}>
-                  {badge.description || 'لا يوجد وصف لهذا الوسام.'}
-                </p>
-
-                {badge.requirement ? (
-                  <div
-                    style={{
-                      marginTop: '16px',
-                      borderRadius: '16px',
-                      padding: '12px 14px',
-                      background: 'var(--background)',
-                    }}
-                  >
-                    <div style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 800 }}>
-                      المتطلبات
-                    </div>
-                    <div style={{ color: 'var(--text)', marginTop: '6px', lineHeight: 1.7 }}>
-                      {badge.requirement}
-                    </div>
+                <div
+                  style={{
+                    marginTop: '16px',
+                    borderRadius: '16px',
+                    padding: '12px 14px',
+                    background: 'var(--background)',
+                    display: 'grid',
+                    gap: '8px',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+                    <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>رقم المستوى</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 800 }}>{level.number || 0}</span>
                   </div>
-                ) : null}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+                    <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>الحد الأقصى XP</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 800 }}>
+                      {Number(level.maxXp || 0).toLocaleString('en-US')}
+                    </span>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -824,29 +736,29 @@ export default function BadgesTab() {
 
       <AnimatePresence>
         {createOpen ? (
-          <BadgeModal title="إضافة شارة" onClose={() => !submitting && setCreateOpen(false)}>
-            <BadgeForm
+          <LevelModal title="إضافة مستوى" onClose={() => !submitting && setCreateOpen(false)}>
+            <LevelForm
               formData={formData}
               onChange={handleFormChange}
-              onSubmit={handleCreateBadge}
+              onSubmit={handleCreateLevel}
               submitting={submitting}
               submitError={submitError}
               submitSuccess={Boolean(submitSuccess)}
-              submitLabel={submitting ? 'جاري الإضافة...' : 'حفظ الشارة'}
+              submitLabel={submitting ? 'جاري الإضافة...' : 'حفظ المستوى'}
               successMessage={submitSuccess}
               onCancel={() => setCreateOpen(false)}
             />
-          </BadgeModal>
+          </LevelModal>
         ) : null}
       </AnimatePresence>
 
       <AnimatePresence>
         {editOpen ? (
-          <BadgeModal title="تعديل الوسام" onClose={() => !submitting && setEditOpen(false)}>
-            <BadgeForm
+          <LevelModal title="تعديل المستوى" onClose={() => !submitting && setEditOpen(false)}>
+            <LevelForm
               formData={formData}
               onChange={handleFormChange}
-              onSubmit={handleUpdateBadge}
+              onSubmit={handleUpdateLevel}
               submitting={submitting}
               submitError={submitError}
               submitSuccess={Boolean(submitSuccess)}
@@ -854,13 +766,13 @@ export default function BadgesTab() {
               successMessage={submitSuccess}
               onCancel={() => setEditOpen(false)}
             />
-          </BadgeModal>
+          </LevelModal>
         ) : null}
       </AnimatePresence>
 
       <AnimatePresence>
         {detailsOpen ? (
-          <BadgeModal title="تفاصيل الوسام" onClose={() => setDetailsOpen(false)} maxWidth="760px">
+          <LevelModal title="تفاصيل المستوى" onClose={() => setDetailsOpen(false)} maxWidth="760px">
             {detailsLoading ? (
               <div style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--text-muted)' }}>
                 <FaSpinner className="animate-spin" size={28} color="#0f766e" />
@@ -871,7 +783,7 @@ export default function BadgesTab() {
                 <FaExclamationTriangle />
                 <span>{detailsError}</span>
               </div>
-            ) : selectedBadge ? (
+            ) : selectedLevel ? (
               <div style={{ display: 'grid', gap: '16px' }}>
                 <div
                   style={{
@@ -887,7 +799,7 @@ export default function BadgesTab() {
                       width: '72px',
                       height: '72px',
                       borderRadius: '22px',
-                      background: 'linear-gradient(135deg, #f59e0b, #f97316)',
+                      background: 'linear-gradient(135deg, #14b8a6, #0f766e)',
                       color: '#fff',
                       display: 'flex',
                       alignItems: 'center',
@@ -895,38 +807,20 @@ export default function BadgesTab() {
                       fontSize: '28px',
                     }}
                   >
-                    {getBadgeIcon(selectedBadge.category)}
+                    <FaLayerGroup />
                   </div>
                   <div>
                     <h2 style={{ margin: 0, color: 'var(--text)', fontSize: '24px', fontWeight: 900 }}>
-                      {selectedBadge.name || 'وسام'}
+                      المستوى {selectedLevel.number || 0}
                     </h2>
                     <div style={{ marginTop: '8px', color: 'var(--text-muted)', fontWeight: 700 }}>
-                      {selectedBadge.category || 'بدون فئة'}
+                      {Number(selectedLevel.maxXp || 0).toLocaleString('en-US')} XP
                     </div>
                   </div>
                 </div>
 
                 <div style={{ borderRadius: '18px', background: 'var(--background)', padding: '16px' }}>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>الوصف</div>
-                  <div style={{ marginTop: '8px', color: 'var(--text)', lineHeight: 1.8 }}>
-                    {selectedBadge.description || 'لا يوجد وصف.'}
-                  </div>
-                </div>
-
-                <div style={{ borderRadius: '18px', background: 'var(--background)', padding: '16px' }}>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>
-                    المتطلبات
-                  </div>
-                  <div style={{ marginTop: '8px', color: 'var(--text)', lineHeight: 1.8 }}>
-                    {selectedBadge.requirement || 'لا توجد متطلبات.'}
-                  </div>
-                </div>
-
-                <div style={{ borderRadius: '18px', background: 'var(--background)', padding: '16px' }}>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>
-                    معرف الوسام
-                  </div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>معرف المستوى</div>
                   <div
                     style={{
                       marginTop: '8px',
@@ -936,18 +830,32 @@ export default function BadgesTab() {
                       wordBreak: 'break-all',
                     }}
                   >
-                    {getBadgeId(selectedBadge) || 'غير متوفر'}
+                    {getLevelId(selectedLevel) || 'غير متوفر'}
+                  </div>
+                </div>
+
+                <div style={{ borderRadius: '18px', background: 'var(--background)', padding: '16px' }}>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>رقم المستوى</div>
+                  <div style={{ marginTop: '8px', color: 'var(--text)', lineHeight: 1.8 }}>
+                    {selectedLevel.number || 0}
+                  </div>
+                </div>
+
+                <div style={{ borderRadius: '18px', background: 'var(--background)', padding: '16px' }}>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>الحد الأقصى XP</div>
+                  <div style={{ marginTop: '8px', color: 'var(--text)', lineHeight: 1.8 }}>
+                    {Number(selectedLevel.maxXp || 0).toLocaleString('en-US')}
                   </div>
                 </div>
               </div>
             ) : null}
-          </BadgeModal>
+          </LevelModal>
         ) : null}
       </AnimatePresence>
 
       <AnimatePresence>
         {deleteOpen ? (
-          <BadgeModal title="تأكيد حذف الوسام" onClose={() => !deleting && setDeleteOpen(false)} maxWidth="480px">
+          <LevelModal title="تأكيد حذف المستوى" onClose={() => !deleting && setDeleteOpen(false)} maxWidth="480px">
             <div style={{ textAlign: 'center' }}>
               <div
                 style={{
@@ -966,13 +874,13 @@ export default function BadgesTab() {
                 <FaTrash />
               </div>
               <p style={{ color: 'var(--text)', lineHeight: 1.8, margin: 0 }}>
-                هل أنت متأكد من حذف الوسام
+                هل أنت متأكد من حذف المستوى
                 {' "'}
-                {selectedBadge?.name || 'هذا الوسام'}
+                {selectedLevel?.number || 0}
                 {'"؟'}
               </p>
               <p style={{ color: 'var(--text-muted)', margin: '8px 0 0 0' }}>
-                سيتم حذف الوسام من قاعدة البيانات.
+                سيتم حذف المستوى من قاعدة البيانات.
               </p>
             </div>
 
@@ -994,7 +902,7 @@ export default function BadgesTab() {
               </button>
               <button
                 type="button"
-                onClick={handleDeleteBadge}
+                onClick={handleDeleteLevel}
                 disabled={deleting}
                 style={{
                   ...primaryButtonStyle,
@@ -1005,7 +913,7 @@ export default function BadgesTab() {
                 <span>{deleting ? 'جاري الحذف...' : 'تأكيد الحذف'}</span>
               </button>
             </div>
-          </BadgeModal>
+          </LevelModal>
         ) : null}
       </AnimatePresence>
     </div>

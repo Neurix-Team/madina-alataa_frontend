@@ -19,6 +19,7 @@ const UpdateProfilePage = () => {
   const [success, setSuccess] = useState(false);
   const [avatarData, setAvatarData] = useState(null);
   const [avatarLoading, setAvatarLoading] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const avatarPreviewUrl = avatarData
     ? buildAvatarUrlFromProfile(buildAvatarProfileFromApiAvatar(avatarData))
     : '';
@@ -260,12 +261,13 @@ const handleSubmit = async (e) => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => window.location.href = '/avatar'}
+              type="button"
+              onClick={() => setIsEditOpen((current) => !current)}
               className="pro-btn pro-btn-secondary"
               style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             >
               <FaEdit />
-              <span>تعديل الحساب</span>
+              <span>{isEditOpen ? 'إخفاء تعديل الحساب' : 'تعديل الحساب'}</span>
             </motion.button>
           </div>
           
@@ -436,6 +438,15 @@ const handleSubmit = async (e) => {
               <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
                 {avatarData ? `معرف: ${formData.avatarId}` : 'اضغط على تعديل الحساب لإنشاء أفاتار'}
               </p>
+              <button
+                type="button"
+                className="pro-btn pro-btn-primary"
+                style={{ marginTop: '14px' }}
+                onClick={() => window.location.href = '/avatar'}
+              >
+                <FaImage />
+                <span>تعديل الأفاتار</span>
+              </button>
             </div>
           </div>
         </motion.div>
@@ -487,6 +498,7 @@ const handleSubmit = async (e) => {
         )}
 
         {/* Form */}
+        {isEditOpen ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -605,6 +617,7 @@ const handleSubmit = async (e) => {
             </motion.button>
           </form>
         </motion.div>
+        ) : null}
 
         {/* Profile Info Card */}
         <motion.div

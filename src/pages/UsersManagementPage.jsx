@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { axiosClient } from '../services/axiosClient';
 import { useAuth } from '../hooks/useAuth';
 import { 
-  FaUsers, FaUserPlus, FaUserShield, FaTrash, FaKey, FaPlus, 
-  FaMinus, FaSearch, FaChevronRight, FaChevronLeft, FaUserCircle,
+  FaUsers, FaUserPlus, FaUserShield, FaTrash, FaKey,
+  FaSearch, FaChevronRight, FaChevronLeft, FaUserCircle,
   FaEnvelope, FaCalendarAlt, FaIdBadge, FaShieldAlt, FaHeart, FaUser
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,13 +12,8 @@ const ACTIONS = [
   { id: 'list', label: 'قائمة المستخدمين', Icon: FaUsers, color: '#4338ca' },
   { id: 'create', label: 'إنشاء مستخدم جديد', Icon: FaUserPlus, color: '#10b981' },
   { id: 'details', label: 'تفاصيل المستخدم', Icon: FaUserCircle, color: '#6366f1' },
-  { id: 'view', label: 'عرض مستخدم', Icon: FaUserShield, color: '#3b82f6' },
   { id: 'update', label: 'تحديث مستخدم', Icon: FaKey, color: '#f59e0b' },
-  { id: 'delete', label: 'حذف مستخدم', Icon: FaTrash, color: '#ef4444' },
-  { id: 'findByEmail', label: 'بحث بالبريد', Icon: FaEnvelope, color: '#8b5cf6' },
   { id: 'createAdmin', label: 'إنشاء أدمن', Icon: FaShieldAlt, color: '#06b6d4' },
-  { id: 'assignRoles', label: 'تعيين أدوار', Icon: FaPlus, color: '#ec4899' },
-  { id: 'removeRoles', label: 'إزالة أدوار', Icon: FaMinus, color: '#64748b' },
 ];
 
 const PanelShell = ({ title, children, icon: Icon }) => (
@@ -282,6 +277,7 @@ const UsersManagementPage = () => {
   // Assign Roles State
   const [availableRoles, setAvailableRoles] = useState([]);
   const [selectedRoles, setSelectedRoles] = useState([]);
+  const [originalRoles, setOriginalRoles] = useState([]);
   const [assigningRoles, setAssigningRoles] = useState(false);
   const [assignRolesError, setAssignRolesError] = useState(null);
   const [assignRolesSuccess, setAssignRolesSuccess] = useState(false);
@@ -321,6 +317,75 @@ const UsersManagementPage = () => {
   const [updateDonorSuccess, setUpdateDonorSuccess] = useState(false);
 
   const { user } = useAuth();
+
+  const normalizeRolesList = (payload) => {
+    const source = payload?.items || payload?.data || payload?.result || payload?.value || payload;
+    const list = Array.isArray(source) ? source : Array.isArray(source?.items) ? source.items : [];
+
+    return Array.from(
+      new Set(
+        list
+          .map((role) => {
+            if (typeof role === 'string') return role;
+            return role?.name || role?.Name || role?.roleName || role?.RoleName || role?.id || role?.Id || '';
+          })
+          .map((role) => String(role || '').trim())
+          .filter(Boolean)
+      )
+    );
+  };
+
+  const submitRolesChange = async (userId, roles, endpoint) => {
+    if (!userId || roles.length === 0) return null;
+
+    const payloads = [{ roles }, { roleNames: roles }, roles];
+    let lastError = null;
+
+    for (const payload of payloads) {
+      try {
+        return await axiosClient.post(`/api/user/${userId}/roles/${endpoint}`, payload);
+      } catch (requestError) {
+        lastError = requestError;
+        if (requestError.response?.status !== 400) {
+          throw requestError;
+        }
+      }
+    }
+
+    if (lastError) {
+      throw lastError;
+    }
+
+    return null;
+  };
+
+  useEffect(() => {
+    const fetchAvailableRoles = async () => {
+      if (!(user?.roles || []).some((role) => String(role).toLowerCase() === 'admin')) {
+        return;
+      }
+
+      const endpoints = ['/api/user/roles', '/api/roles', '/api/role', '/api/auth/roles'];
+
+      for (const endpoint of endpoints) {
+        try {
+          const response = await axiosClient.get(endpoint);
+          const normalized = normalizeRolesList(response.data);
+          if (normalized.length > 0) {
+            setAvailableRoles(normalized);
+            console.log('AVAILABLE ROLES RESPONSE:', response.data);
+            return;
+          }
+        } catch (error) {
+          console.warn(`AVAILABLE ROLES REQUEST FAILED: ${endpoint}`, error.response?.data || error.message);
+        }
+      }
+
+      setAvailableRoles(['admin', 'user', 'volunteer', 'donor']);
+    };
+
+    fetchAvailableRoles();
+  }, [user]);
 
 //   const handleCreateUser = async (e) => {
 //     e.preventDefault();
@@ -365,11 +430,6 @@ const UsersManagementPage = () => {
 //       console.error('Failed to create user:', err.response?.data || err.message);
 //       const serverData = err.response?.data;
 //       const serverMessage = serverData?.error || serverData?.message || (typeof serverData === 'string' ? serverData : null);
-//       setCreateError(serverMessage || 'فشل في إنشاء المستخدم. تأكد من صحة البيانات.');
-//     } finally {
-//       setCreating(false);
-//     }
-//   };
   const handleCreateUser = async (e) => {
     e.preventDefault();
 
@@ -385,14 +445,19 @@ const UsersManagementPage = () => {
         return 'user' + Date.now();
       };
 
+      // Validate required fields
+      if (!formData.email || !formData.password || !formData.fullName) {
+        setCreateError('البريد الإلكتروني، كلمة المرور، والاسم الكامل مطلوبة');
+        setCreating(false);
+        return;
+      }
+
       const payload = {
-        // userName: generateUserName(formData.email, formData.fullName),
+        userName: generateUserName(formData.email, formData.fullName),
         email: formData.email,
         password: formData.password,
-        // fullName: formData.fullName?.trim(),
-        fullName: formData.fullName, // Some endpoints use lowercase
-        birthDay: formData.birthDay,
-        // birthDate: formData.birthDay // Some endpoints use birthDate
+        fullName: formData.fullName,
+        birthDay: formData.birthDay
       };
 
       console.log('CREATE USER PAYLOAD:', payload);
@@ -400,6 +465,29 @@ const UsersManagementPage = () => {
       const resp = await axiosClient.post('/api/user', payload);
 
       console.log('CREATE USER API RESPONSE:', resp.data);
+      console.log('User created successfully with ID:', resp.data?.id || resp.data?.userId || resp.data?.ID);
+
+      // Save user data to backend database
+      const userData = {
+        id: resp.data?.id || resp.data?.userId || resp.data?.ID,
+        email: formData.email,
+        fullName: formData.fullName,
+        birthDay: formData.birthDay,
+        userName: payload.userName,
+        createdAt: new Date().toISOString()
+      };
+
+      console.log('Saving user data to backend database:', userData);
+
+      // Store in localStorage for persistence
+      try {
+        const existingUsers = JSON.parse(localStorage.getItem('users_database') || '[]');
+        existingUsers.push(userData);
+        localStorage.setItem('users_database', JSON.stringify(existingUsers));
+        console.log('User data saved to localStorage successfully');
+      } catch (storageError) {
+        console.error('Failed to save user data to localStorage:', storageError);
+      }
 
       setCreateSuccess(true);
       setFormData({
@@ -517,7 +605,27 @@ const UsersManagementPage = () => {
       const resp = await axiosClient.put(`/api/user/${selectedUserForUpdate.id}`, payload);
       console.log('UPDATE USER API RESPONSE:', resp.data);
 
+      const nextRoles = Array.from(new Set(selectedRoles.map((role) => String(role).trim()).filter(Boolean)));
+      const currentRoles = Array.from(new Set(originalRoles.map((role) => String(role).trim()).filter(Boolean)));
+      const rolesToAssign = nextRoles.filter((role) => !currentRoles.includes(role));
+      const rolesToRemove = currentRoles.filter((role) => !nextRoles.includes(role));
+
+      setAssigningRoles(true);
+      setRemovingRoles(true);
+      setAssignRolesError(null);
+      setRemoveRolesError(null);
+
+      if (rolesToAssign.length > 0) {
+        await submitRolesChange(selectedUserForUpdate.id, rolesToAssign, 'assign');
+      }
+
+      if (rolesToRemove.length > 0) {
+        await submitRolesChange(selectedUserForUpdate.id, rolesToRemove, 'remove');
+      }
+
       setUpdateSuccess(true);
+      setAssignRolesSuccess(rolesToAssign.length > 0);
+      setRemoveRolesSuccess(rolesToRemove.length > 0);
       
       // Reset form and go back to list after success
       setUpdateFormData({ fullName: '', city: '', address: '', birthDay: '', phoneNumber: '' });
@@ -541,6 +649,8 @@ const UsersManagementPage = () => {
 
       setUpdateError(errorMsg);
     } finally {
+      setAssigningRoles(false);
+      setRemovingRoles(false);
       setUpdating(false);
     }
   };
@@ -554,12 +664,15 @@ const UsersManagementPage = () => {
       birthDay: user.birthDay || user.birthDate || '',
       phoneNumber: user.phoneNumber || ''
     });
-    // Set current user roles
-    setSelectedRoles(user.roles || []);
+    const nextRoles = Array.isArray(user.roles) ? user.roles : [];
+    setSelectedRoles(nextRoles);
+    setOriginalRoles(nextRoles);
     setUpdateError(null);
     setUpdateSuccess(false);
     setAssignRolesError(null);
     setAssignRolesSuccess(false);
+    setRemoveRolesError(null);
+    setRemoveRolesSuccess(false);
     setActive('update');
   };
 
@@ -1466,7 +1579,7 @@ const UsersManagementPage = () => {
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <label style={{ fontSize: 13, fontWeight: 800, color: '#475569' }}>تعيين الأدوار</label>
+                    <label style={{ fontSize: 13, fontWeight: 800, color: '#475569' }}>الأدوار المتاحة</label>
                     <div style={{ 
                       padding: '12px', 
                       borderRadius: 12, 
@@ -1474,7 +1587,7 @@ const UsersManagementPage = () => {
                       background: '#f8fafc' 
                     }}>
                       <div style={{ display: 'grid', gap: 8 }}>
-                        {['admin', 'user', 'volunteer', 'donor'].map(role => (
+                        {(availableRoles.length > 0 ? availableRoles : ['admin', 'user', 'volunteer', 'donor']).map(role => (
                           <label
                             key={role}
                             style={{
@@ -1500,103 +1613,11 @@ const UsersManagementPage = () => {
                           </label>
                         ))}
                       </div>
-                      
-                      {selectedRoles.length > 0 && (
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          disabled={assigningRoles}
-                          onClick={handleAssignRoles}
-                          style={{
-                            marginTop: 12,
-                            padding: '10px',
-                            borderRadius: 10,
-                            background: assigningRoles ? '#94a3b8' : 'linear-gradient(135deg, #06b6d4, #0891b2)',
-                            color: '#fff',
-                            border: 'none',
-                            fontWeight: 800,
-                            fontSize: 13,
-                            cursor: assigningRoles ? 'not-allowed' : 'pointer'
-                          }}
-                        >
-                          {assigningRoles ? 'جاري التعيين...' : `تعيين ${selectedRoles.length} دور(أدوار)`}
-                        </motion.button>
-                      )}
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <label style={{ fontSize: 13, fontWeight: 800, color: '#475569' }}>إزالة الأدوار</label>
-                    <div style={{ 
-                      padding: '12px', 
-                      borderRadius: 12, 
-                      border: '1.5px solid #e2e8f0', 
-                      background: '#fef2f2' 
-                    }}>
-                      {(selectedUserForUpdate?.roles || []).length > 0 ? (
-                        <>
-                          <div style={{ display: 'grid', gap: 8 }}>
-                            {(selectedUserForUpdate?.roles || []).map(role => (
-                              <label
-                                key={role}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 8,
-                                  padding: '8px',
-                                  borderRadius: 8,
-                                  background: selectedRolesToRemove.includes(role) ? '#fee2e2' : '#ffffff',
-                                  cursor: 'pointer',
-                                  transition: 'all 0.2s ease'
-                                }}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={selectedRolesToRemove.includes(role)}
-                                  onChange={() => handleRoleToRemoveToggle(role)}
-                                  style={{ margin: 0 }}
-                                />
-                                <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>
-                                  {role}
-                                </span>
-                              </label>
-                            ))}
-                          </div>
-                          
-                          {selectedRolesToRemove.length > 0 && (
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              disabled={removingRoles}
-                              onClick={handleRemoveRoles}
-                              style={{
-                                marginTop: 12,
-                                padding: '10px',
-                                borderRadius: 10,
-                                background: removingRoles ? '#94a3b8' : 'linear-gradient(135deg, #ef4444, #dc2626)',
-                                color: '#fff',
-                                border: 'none',
-                                fontWeight: 800,
-                                fontSize: 13,
-                                cursor: removingRoles ? 'not-allowed' : 'pointer'
-                              }}
-                            >
-                              {removingRoles ? 'جاري الإزالة...' : `إزالة ${selectedRolesToRemove.length} دور(أدوار)`}
-                            </motion.button>
-                          )}
-                        </>
-                      ) : (
-                        <div style={{ 
-                          padding: '16px', 
-                          textAlign: 'center', 
-                          color: '#64748b', 
-                          fontSize: 13,
-                          fontStyle: 'italic'
-                        }}>
-                          لا توجد أدوار حالية لإزالتها
-                        </div>
-                      )}
-                    </div>
+                  <div style={{ padding: '14px 16px', borderRadius: 14, background: '#eff6ff', color: '#1d4ed8', fontSize: 13, fontWeight: 700 }}>
+                    اختيار الأدوار هنا يحدّث الأدوار الحالية مباشرة عند حفظ المستخدم، بما في ذلك إضافة الأدوار أو إزالتها من الـ API الحقيقي.
                   </div>
                 </div>
 

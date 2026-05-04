@@ -195,24 +195,7 @@ const MyDonationOrdersPage = () => {
           </div>
         </motion.div>
 
-        {apiResponse && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="pro-card"
-            style={{ marginBottom: '24px' }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
-              <h3 style={{ margin: 0, color: 'var(--text)' }}>استجابة API الخام</h3>
-              <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>GET /api/donation-orders/my</span>
-            </div>
-            <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--text)', direction: 'ltr', textAlign: 'left' }}>
-              {JSON.stringify(apiResponse, null, 2)}
-            </pre>
-          </motion.div>
-        )}
-
+        
         {/* Error Message */}
         {error && (
           <motion.div
@@ -499,7 +482,7 @@ const MyDonationOrdersPage = () => {
                     fontSize: '20px'
                   }}
                 >
-                  ×
+                 
                 </motion.button>
               </div>
 
@@ -563,13 +546,6 @@ const MyDonationOrdersPage = () => {
                     <div style={{ color: 'var(--text)' }}>{selectedOrder.impactReport}</div>
                   </div>
                 )}
-
-                <div style={{ padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                  <div style={{ color: 'var(--text-muted)', marginBottom: '8px' }}>Donation Order Response</div>
-                  <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--text)', direction: 'ltr', textAlign: 'left' }}>
-                    {JSON.stringify(selectedOrder, null, 2)}
-                  </pre>
-                </div>
               </div>
             </motion.div>
           </motion.div>

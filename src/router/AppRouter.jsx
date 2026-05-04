@@ -143,6 +143,8 @@ import ProfileTab from '../components/tabs/ProfileTab';
 import ImpactTab from '../components/tabs/ImpactTab';
 import MapTab from '../components/tabs/MapTab';
 import BadgesTab from '../components/tabs/BadgesTab';
+import ActivitiesTab from '../components/tabs/ActivitiesTab';
+import LevelsTab from '../components/tabs/LevelsTab';
 import LeaderboardTab from '../components/tabs/LeaderboardTab';
 import OrdersTab from '../components/tabs/OrdersTab';
 import DailyTasksTab from '../components/tabs/DailyTasksTab';
@@ -193,6 +195,8 @@ export const AppRouter = () => {
           <Route path="/impact" element={<ImpactTab />} />
           <Route path="/map" element={<MapTab />} />
           <Route path="/badges" element={<BadgesTab />} />
+          <Route path="/activities" element={<ActivitiesTab />} />
+          <Route path="/levels" element={<LevelsTab />} />
           <Route path="/leaderboard" element={<LeaderboardTab />} />
           <Route path="/orders" element={<OrdersTab />} />
           <Route path="/daily-tasks" element={<DailyTasksTab />} />

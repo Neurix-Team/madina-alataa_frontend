@@ -36,6 +36,8 @@ import {
   FaPlay,
   FaChild,
   FaHandHoldingHeart,
+  FaLayerGroup,
+  FaBolt,
 } from 'react-icons/fa';
 import { getAvatarImageUrl } from '../../utils/avatarProfile';
 
@@ -227,6 +229,8 @@ const NAV_ITEMS = [
   { id: 'orders',      label: 'الأوامر',          icon: FaBoxOpen, condition: PERMISSIONS.VIEW_ORDERS },
   { id: 'available-missions', label: 'المهام المتاحة',    icon: FaPlay },
   { id: 'locations',    label: 'العناوين',         icon: FaMapMarkerAlt, condition: PERMISSIONS.VIEW_ADMIN },
+  { id: 'activities',   label: 'الأنشطة',          icon: FaBolt, condition: PERMISSIONS.VIEW_ADMIN },
+  { id: 'levels',       label: 'المستويات',        icon: FaLayerGroup, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'missions',    label: 'المهام',           icon: FaFlag, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'admin',       label: 'الإدارة',          icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'incoming-requests', label: 'الطلبات الواردة', icon: FaBell, condition: PERMISSIONS.VIEW_ADMIN },
@@ -421,6 +425,8 @@ export default function Sidebar({
       impact: '/impact',
       map: '/map',
       badges: '/badges',
+      activities: '/activities',
+      levels: '/levels',
       leaderboard: '/leaderboard',
       orders: '/orders',
       daily: '/daily-tasks',
@@ -454,6 +460,8 @@ export default function Sidebar({
       impact: '/impact',
       map: '/map',
       badges: '/badges',
+      activities: '/activities',
+      levels: '/levels',
       leaderboard: '/leaderboard',
       orders: '/orders',
       daily: '/daily-tasks',

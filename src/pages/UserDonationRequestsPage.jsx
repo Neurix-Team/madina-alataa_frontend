@@ -162,20 +162,7 @@ const UserDonationRequestsPage = () => {
           </button>
         </motion.div>
 
-        {apiResponse && (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="donation-requests-page__panel">
-            <div className="donation-requests-page__sectionHead">
-              <p className="donation-requests-page__sectionTitle">استجابة API الخام</p>
-              <span className="donation-requests-page__sectionMeta">
-                {activeTab === 'my' ? 'GET /api/donation-requests/my' : 'GET /api/donation-requests/approved'}
-              </span>
-            </div>
-            <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--text)', direction: 'ltr', textAlign: 'left' }}>
-              {JSON.stringify(apiResponse, null, 2)}
-            </pre>
-          </motion.div>
-        )}
-
+        
         {error && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="donation-requests-page__alert">
             <FaExclamationTriangle />

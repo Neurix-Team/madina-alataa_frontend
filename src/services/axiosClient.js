@@ -67,7 +67,10 @@ if (!token) {
         config.url?.includes('/api/Partners') ||
         config.url?.includes('/api/Child') ||
         config.url?.includes('/api/admin') ||
-        config.url?.includes('/api/donation-requests')
+        config.url?.includes('/api/donation-requests') ||
+        config.url?.includes('/api/Badges') ||
+        config.url?.includes('/api/Levels') ||
+        config.url?.includes('/api/Activities')
       ) {
         // console.log('🔐 Sending auth_token to API:', {
         //   url: config.url,
@@ -91,7 +94,10 @@ if (!token) {
         config.url?.includes('/api/Partners') ||
         config.url?.includes('/api/Child') ||
         config.url?.includes('/api/admin') ||
-        config.url?.includes('/api/donation-requests')
+        config.url?.includes('/api/donation-requests') ||
+        config.url?.includes('/api/Badges') ||
+        config.url?.includes('/api/Levels') ||
+        config.url?.includes('/api/Activities')
       ) {
         console.warn('⚠️ No auth_token found for API request:', {
           url: config.url,

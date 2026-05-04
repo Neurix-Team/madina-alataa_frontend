@@ -3,33 +3,38 @@
 
 /* CSS Variables */
 :root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #818cf8;
-  --secondary: #0ea5e9;
-  --accent: #8b5cf6;
-  
-  --bg-primary: #020617;
-  --bg-secondary: #0f172a;
-  --bg-card: #1e293b;
-  --bg-hover: #334155;
-  
-  --text-primary: #ffffff;
-  --text-secondary: #94a3b8;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #60a5fa;
+  --secondary: #0f766e;
+  --accent: #f97316;
+
+  --bg-primary: linear-gradient(180deg, #f6f9ff 0%, #eef5ff 48%, #f8fbff 100%);
+  --bg-secondary: rgba(255, 255, 255, 0.9);
+  --bg-card: rgba(255, 255, 255, 0.88);
+  --bg-hover: rgba(37, 99, 235, 0.08);
+
+  --surface: rgba(255, 255, 255, 0.92);
+  --background: rgba(241, 245, 249, 0.95);
+
+  --text: #0f172a;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
   --text-muted: #64748b;
-  
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(99, 102, 241, 0.3);
+
+  --border: rgba(148, 163, 184, 0.28);
+  --border-color: rgba(148, 163, 184, 0.24);
+  --border-hover: rgba(37, 99, 235, 0.28);
   
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
   --info: #3b82f6;
   
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+  --shadow-sm: 0 8px 20px rgba(15, 23, 42, 0.06);
+  --shadow: 0 16px 36px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 24px 70px rgba(15, 23, 42, 0.14);
+  --shadow-glow: 0 18px 45px rgba(37, 99, 235, 0.16);
   
   --radius-sm: 6px;
   --radius: 10px;
@@ -53,7 +58,7 @@
   min-height: 100vh;
   background: var(--bg-primary);
   color: var(--text-secondary);
-  padding: 24px;
+  padding: 32px 24px 48px;
   direction: rtl;
 }
 
@@ -100,14 +105,15 @@
 
 .pro-header-title {
   color: var(--text-primary);
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 32px;
+  font-weight: 800;
   margin: 0 0 4px 0;
 }
 
 .pro-header-subtitle {
-  color: var(--text-muted);
-  font-size: 14px;
+  color: var(--text-secondary);
+  font-size: 15px;
+  font-weight: 600;
   margin: 0;
 }
 
@@ -148,13 +154,13 @@
 }
 
 .pro-btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text-primary);
   border: 1px solid var(--border-color);
 }
 
 .pro-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.96);
   color: var(--text-primary);
 }
 
@@ -206,7 +212,7 @@
 /* ============================================ */
 
 .pro-card {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9));
   backdrop-filter: blur(20px);
   border-radius: var(--radius-lg);
   padding: 24px;
@@ -228,8 +234,8 @@
 
 .pro-card-title {
   color: var(--text-primary);
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 21px;
+  font-weight: 800;
   margin: 0 0 8px 0;
 }
 
@@ -342,19 +348,21 @@
 
 .pro-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.88);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  padding: 12px 16px;
+  padding: 13px 16px;
   color: var(--text-primary);
   font-size: 15px;
+  font-weight: 600;
   transition: var(--transition);
 }
 
 .pro-input:focus {
   outline: none;
   border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.05);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
 .pro-input::placeholder {
@@ -378,18 +386,19 @@
   display: block;
   color: var(--text-secondary);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 700;
   margin-bottom: 8px;
 }
 
 .pro-select {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.88);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   padding: 12px 16px;
   color: var(--text-primary);
   font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
 }
@@ -397,6 +406,7 @@
 .pro-select:focus {
   outline: none;
   border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
 /* ============================================ */
@@ -455,7 +465,7 @@
 }
 
 .pro-data-item {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(248, 250, 252, 0.92);
   border-radius: var(--radius);
   padding: 16px;
   border: 1px solid var(--border-color);
@@ -507,7 +517,7 @@
 
 .pro-tab:hover {
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(37, 99, 235, 0.06);
 }
 
 .pro-tab.active {
@@ -522,7 +532,7 @@
 .pro-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(15, 23, 42, 0.42);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -532,7 +542,7 @@
 }
 
 .pro-modal {
-  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-color);
   width: 100%;
@@ -561,7 +571,7 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(37, 99, 235, 0.06);
   border: none;
   color: var(--text-muted);
   cursor: pointer;
@@ -572,7 +582,7 @@
 }
 
 .pro-modal-close:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(37, 99, 235, 0.12);
   color: var(--text-primary);
 }
 
@@ -622,7 +632,7 @@
 .pro-empty {
   text-align: center;
   padding: 60px 20px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.72);
   border-radius: var(--radius-lg);
   border: 1px dashed var(--border-color);
 }
@@ -630,7 +640,7 @@
 .pro-empty-icon {
   width: 64px;
   height: 64px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(37, 99, 235, 0.08);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -669,7 +679,7 @@
   min-width: 40px;
   height: 40px;
   padding: 0 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.82);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
@@ -683,7 +693,7 @@
 }
 
 .pro-page-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 1);
   color: var(--text-primary);
 }
 
@@ -721,6 +731,11 @@
   background: rgba(16, 185, 129, 0.1);
   border: 1px solid rgba(16, 185, 129, 0.3);
   color: var(--success);
+}
+
+button[title="عرض البروفايل"],
+button[title="حذف المستخدم"] {
+  display: none !important;
 }
 
 /* ============================================ */

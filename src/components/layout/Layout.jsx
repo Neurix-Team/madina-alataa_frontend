@@ -25,6 +25,8 @@ const Layout = () => {
     '/daily-tasks': 'daily',
     '/city-exploration': 'explore',
     '/badges': 'badges',
+    '/activities': 'activities',
+    '/levels': 'levels',
     '/profile-v2': 'profile',
   };
 
@@ -36,6 +38,8 @@ const Layout = () => {
       daily: '/daily-tasks',
       explore: '/city-exploration',
       badges: '/badges',
+      activities: '/activities',
+      levels: '/levels',
       profile: '/profile-v2',
     };
     const path = pathMap[id];
