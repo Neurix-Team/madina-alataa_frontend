@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { axiosClient } from '../services/axiosClient';
+import { volunteersService } from '../services/volunteersService';
 import { useAuth } from '../hooks/useAuth';
 import { 
   FaUsers, FaUserPlus, FaUserShield, FaTrash, FaKey,
   FaSearch, FaChevronRight, FaChevronLeft, FaUserCircle,
-  FaEnvelope, FaCalendarAlt, FaIdBadge, FaShieldAlt, FaHeart, FaUser
+  FaEnvelope, FaCalendarAlt, FaIdBadge, FaShieldAlt, FaHeart, FaUser, FaPlus, FaMinus
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,8 +13,13 @@ const ACTIONS = [
   { id: 'list', label: 'قائمة المستخدمين', Icon: FaUsers, color: '#4338ca' },
   { id: 'create', label: 'إنشاء مستخدم جديد', Icon: FaUserPlus, color: '#10b981' },
   { id: 'details', label: 'تفاصيل المستخدم', Icon: FaUserCircle, color: '#6366f1' },
+  { id: 'view', label: 'عرض مستخدم', Icon: FaUserShield, color: '#3b82f6' },
   { id: 'update', label: 'تحديث مستخدم', Icon: FaKey, color: '#f59e0b' },
+  { id: 'delete', label: 'حذف مستخدم', Icon: FaTrash, color: '#ef4444' },
+  { id: 'findByEmail', label: 'بحث بالبريد', Icon: FaEnvelope, color: '#8b5cf6' },
   { id: 'createAdmin', label: 'إنشاء أدمن', Icon: FaShieldAlt, color: '#06b6d4' },
+  { id: 'assignRoles', label: 'تعيين أدوار', Icon: FaPlus, color: '#ec4899' },
+  { id: 'removeRoles', label: 'إزالة أدوار', Icon: FaMinus, color: '#64748b' },
 ];
 
 const PanelShell = ({ title, children, icon: Icon }) => (
@@ -273,6 +279,7 @@ const UsersManagementPage = () => {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [selectedUserForDelete, setSelectedUserForDelete] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteReason, setDeleteReason] = useState('');
 
   // Assign Roles State
   const [availableRoles, setAvailableRoles] = useState([]);
@@ -360,31 +367,11 @@ const UsersManagementPage = () => {
   };
 
   useEffect(() => {
-    const fetchAvailableRoles = async () => {
-      if (!(user?.roles || []).some((role) => String(role).toLowerCase() === 'admin')) {
-        return;
-      }
+    if (!(user?.roles || []).some((role) => String(role).toLowerCase() === 'admin')) {
+      return;
+    }
 
-      const endpoints = ['/api/user/roles', '/api/roles', '/api/role', '/api/auth/roles'];
-
-      for (const endpoint of endpoints) {
-        try {
-          const response = await axiosClient.get(endpoint);
-          const normalized = normalizeRolesList(response.data);
-          if (normalized.length > 0) {
-            setAvailableRoles(normalized);
-            console.log('AVAILABLE ROLES RESPONSE:', response.data);
-            return;
-          }
-        } catch (error) {
-          console.warn(`AVAILABLE ROLES REQUEST FAILED: ${endpoint}`, error.response?.data || error.message);
-        }
-      }
-
-      setAvailableRoles(['admin', 'user', 'volunteer', 'donor']);
-    };
-
-    fetchAvailableRoles();
+    setAvailableRoles(['admin', 'user', 'volunteer', 'donor']);
   }, [user]);
 
 //   const handleCreateUser = async (e) => {
@@ -657,11 +644,28 @@ const UsersManagementPage = () => {
 
   const openUpdateForm = (user) => {
     setSelectedUserForUpdate(user);
+    
+    // Format birthDay to yyyy-MM-dd for date input
+    const formatBirthDay = (dateString) => {
+      if (!dateString) return '';
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString; // Return original if invalid date
+        
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (error) {
+        return dateString; // Return original if parsing fails
+      }
+    };
+    
     setUpdateFormData({
       fullName: user.fullName || '',
       city: user.city || '',
       address: user.address || '',
-      birthDay: user.birthDay || user.birthDate || '',
+      birthDay: formatBirthDay(user.birthDay || user.birthDate || ''),
       phoneNumber: user.phoneNumber || ''
     });
     const nextRoles = Array.isArray(user.roles) ? user.roles : [];
@@ -673,6 +677,7 @@ const UsersManagementPage = () => {
     setAssignRolesSuccess(false);
     setRemoveRolesError(null);
     setRemoveRolesSuccess(false);
+    setSelectedRolesToRemove([]);
     setActive('update');
   };
 
@@ -687,12 +692,15 @@ const UsersManagementPage = () => {
     try {
       console.log('DELETE USER ID:', selectedUserForDelete.id);
 
-      const resp = await axiosClient.delete(`/api/user/${selectedUserForDelete.id}`);
+      const resp = await axiosClient.delete(
+        `/api/user/${selectedUserForDelete.id}?reason=${encodeURIComponent(deleteReason || '')}`
+      );
       console.log('DELETE USER API RESPONSE:', resp.data);
 
       setDeleteSuccess(true);
       setShowDeleteConfirm(false);
       setSelectedUserForDelete(null);
+      setDeleteReason('');
       
       // Refresh list after success
       setTimeout(() => {
@@ -727,6 +735,7 @@ const UsersManagementPage = () => {
     setSelectedUserForDelete(user);
     setDeleteError(null);
     setDeleteSuccess(false);
+    setDeleteReason('');
     setShowDeleteConfirm(true);
   };
 
@@ -873,6 +882,41 @@ const UsersManagementPage = () => {
         ? prev.filter(r => r !== role)
         : [...prev, role]
     );
+  };
+
+  const handleSaveSelectedRoles = async () => {
+    if (!selectedUserForUpdate?.id || selectedRoles.length === 0) return;
+
+    setAssigningRoles(true);
+    setAssignRolesError(null);
+    setAssignRolesSuccess(false);
+
+    try {
+      await submitRolesChange(selectedUserForUpdate.id, selectedRoles, 'assign');
+      setAssignRolesSuccess(true);
+      setOriginalRoles(selectedRoles);
+    } catch (err) {
+      console.error('Failed to save selected roles:', err.response?.data || err.message);
+
+      const serverData = err.response?.data;
+      let errorMsg = 'فشل في حفظ الأدوار.';
+
+      if (serverData) {
+        if (typeof serverData === 'string') errorMsg = serverData;
+        else if (serverData.message) errorMsg = serverData.message;
+        else if (serverData.error) errorMsg = serverData.error;
+        else if (serverData.title && !serverData.errors) errorMsg = serverData.title;
+        else if (serverData.errors) {
+          const firstErrorKey = Object.keys(serverData.errors)[0];
+          const firstError = serverData.errors[firstErrorKey];
+          errorMsg = Array.isArray(firstError) ? firstError[0] : String(firstError);
+        }
+      }
+
+      setAssignRolesError(errorMsg);
+    } finally {
+      setAssigningRoles(false);
+    }
   };
 
   const handleRoleToRemoveToggle = (role) => {
@@ -1050,7 +1094,7 @@ const UsersManagementPage = () => {
         marginBottom: 24 
       }}>
         {ACTIONS.filter(a => {
-          if (a.id === 'create' || a.id === 'createAdmin' || a.id === 'delete' || a.id === 'update') {
+          if (a.id === 'create' || a.id === 'createAdmin' || a.id === 'delete' || a.id === 'update' || a.id === 'assignRoles' || a.id === 'removeRoles') {
             return user?.roles?.map(r => r.toLowerCase()).includes('admin');
           }
           return true;
@@ -1621,6 +1665,39 @@ const UsersManagementPage = () => {
                   </div>
                 </div>
 
+                {selectedUserForUpdate?.roles?.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={{ fontSize: 13, fontWeight: 800, color: '#475569' }}>أدوار المستخدم الحالية للحذف</label>
+                    <div style={{ padding: '12px', borderRadius: 12, border: '1.5px solid #fecaca', background: '#fff7f7' }}>
+                      <div style={{ display: 'grid', gap: 8 }}>
+                        {selectedUserForUpdate.roles.map(role => (
+                          <label
+                            key={role}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                              padding: '8px',
+                              borderRadius: 8,
+                              background: selectedRolesToRemove.includes(role) ? '#fee2e2' : '#ffffff',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedRolesToRemove.includes(role)}
+                              onChange={() => handleRoleToRemoveToggle(role)}
+                              style={{ margin: 0 }}
+                            />
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#991b1b' }}>{role}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {updateError && (
                   <motion.div 
                     initial={{ opacity: 0, y: -10 }} 
@@ -1682,6 +1759,56 @@ const UsersManagementPage = () => {
                 )}
 
                 <div style={{ display: 'flex', gap: 12 }}>
+                  {selectedRoles.length > 0 && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={assigningRoles}
+                      type="button"
+                      onClick={handleSaveSelectedRoles}
+                      style={{
+                        flex: 1,
+                        marginTop: 8,
+                        padding: '14px',
+                        borderRadius: 14,
+                        background: assigningRoles ? '#94a3b8' : 'linear-gradient(135deg, #ec4899, #db2777)',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: 900,
+                        fontSize: 15,
+                        cursor: assigningRoles ? 'not-allowed' : 'pointer',
+                        boxShadow: '0 10px 15px -3px rgba(236, 72, 153, 0.2)'
+                      }}
+                    >
+                      {assigningRoles ? 'جاري حفظ الأدوار...' : `حفظ ${selectedRoles.length} دور(أدوار)`}
+                    </motion.button>
+                  )}
+
+                  {selectedRolesToRemove.length > 0 && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={removingRoles}
+                      type="button"
+                      onClick={handleRemoveRoles}
+                      style={{
+                        flex: 1,
+                        marginTop: 8,
+                        padding: '14px',
+                        borderRadius: 14,
+                        background: removingRoles ? '#94a3b8' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: 900,
+                        fontSize: 15,
+                        cursor: removingRoles ? 'not-allowed' : 'pointer',
+                        boxShadow: '0 10px 15px -3px rgba(239, 68, 68, 0.2)'
+                      }}
+                    >
+                      {removingRoles ? 'جاري حذف الأدوار...' : `حذف ${selectedRolesToRemove.length} دور(أدوار)`}
+                    </motion.button>
+                  )}
+
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -1982,7 +2109,506 @@ const UsersManagementPage = () => {
             )
           )}
 
-          {active !== 'list' && active !== 'create' && active !== 'update' && active !== 'createAdmin' && (
+          {/* Assign Roles Section */}
+          {active === 'assignRoles' && (
+            user?.roles?.map(r => r.toLowerCase()).includes('admin') ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                style={{ maxWidth: 600, margin: '0 auto', background: '#fff', borderRadius: 20, padding: 24, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' }}
+              >
+                <div style={{ marginBottom: 20 }}>
+                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1e293b' }}>تعيين أدوار للمستخدم</h3>
+                  <p style={{ margin: '8px 0 0', color: '#64748b', fontSize: 14 }}>اختر الأدوار التي تريد تعيينها للمستخدم</p>
+                </div>
+
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>اختر المستخدم</label>
+                  <select
+                    value={selectedUserForUpdate?.id || ''}
+                    onChange={(e) => {
+                      const user = users.find(u => u.id === e.target.value);
+                      if (user) {
+                        openUpdateForm(user);
+                        setActive('assignRoles');
+                      }
+                    }}
+                    style={{ 
+                      width: '100%', 
+                      padding: '12px', 
+                      borderRadius: 12, 
+                      border: '1.5px solid #e2e8f0', 
+                      fontSize: 14,
+                      fontFamily: 'Cairo, sans-serif'
+                    }}
+                  >
+                    <option value="">اختر مستخدم...</option>
+                    {users.map(user => (
+                      <option key={user.id} value={user.id}>
+                        {user.fullName || user.email} - {user.roles?.join(', ') || 'لا أدوار'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {selectedUserForUpdate && (
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>الأدوار المتاحة</label>
+                    <div style={{ 
+                      padding: '12px', 
+                      borderRadius: 12, 
+                      border: '1.5px solid #e2e8f0', 
+                      background: '#f8fafc' 
+                    }}>
+                      <div style={{ display: 'grid', gap: 8 }}>
+                        {(availableRoles.length > 0 ? availableRoles : ['admin', 'user', 'volunteer', 'donor']).map(role => (
+                          <label
+                            key={role}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                              padding: '8px',
+                              borderRadius: 8,
+                              background: selectedRoles.includes(role) ? '#e0e7ff' : '#ffffff',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedRoles.includes(role)}
+                              onChange={() => handleRoleToggle(role)}
+                              style={{ margin: 0 }}
+                            />
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>
+                              {role}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {assignRolesError && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ padding: '12px', borderRadius: 12, background: '#fee2e2', color: '#b91c1c', fontSize: 13, fontWeight: 800, textAlign: 'center', marginBottom: 16 }}
+                  >
+                    {assignRolesError}
+                  </motion.div>
+                )}
+
+                {assignRolesSuccess && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ padding: '12px', borderRadius: 12, background: '#dcfce7', color: '#15803d', fontSize: 13, fontWeight: 800, textAlign: 'center', marginBottom: 16 }}
+                  >
+                    تم تعيين الأدوار بنجاح!
+                  </motion.div>
+                )}
+
+                <div style={{ display: 'flex', gap: 12 }}>
+                  {/* Show save button only when roles are selected */}
+                  {selectedRoles.length > 0 && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={assigningRoles || !selectedUserForUpdate}
+                      onClick={handleAssignRoles}
+                      style={{
+                        flex: 1,
+                        padding: '14px',
+                        borderRadius: 14,
+                        background: assigningRoles ? '#94a3b8' : 'linear-gradient(135deg, #ec4899, #db2777)',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: 900,
+                        fontSize: 15,
+                        cursor: assigningRoles || !selectedUserForUpdate ? 'not-allowed' : 'pointer',
+                        boxShadow: '0 10px 15px -3px rgba(236, 72, 153, 0.2)'
+                      }}
+                    >
+                      {assigningRoles ? 'جاري التعيين...' : `حفظ ${selectedRoles.length} دور(أدوار)`}
+                    </motion.button>
+                  )}
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActive('list')}
+                    style={{
+                      flex: selectedRoles.length > 0 ? 1 : 'auto',
+                      padding: '14px',
+                      borderRadius: 14,
+                      background: '#f1f5f9',
+                      color: '#475569',
+                      border: 'none',
+                      fontWeight: 900,
+                      fontSize: 15,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    إلغاء
+                  </motion.button>
+                </div>
+              </motion.div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px', background: '#fff1f2', borderRadius: 16, color: '#be123c' }}>
+                <FaUserShield size={32} style={{ marginBottom: 12 }} />
+                <div style={{ fontWeight: 900 }}>ليس لديك صلاحية الوصول لهذه الصفحة.</div>
+              </div>
+            )
+          )}
+
+          {/* Remove Roles Section */}
+          {active === 'removeRoles' && (
+            user?.roles?.map(r => r.toLowerCase()).includes('admin') ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                style={{ maxWidth: 600, margin: '0 auto', background: '#fff', borderRadius: 20, padding: 24, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' }}
+              >
+                <div style={{ marginBottom: 20 }}>
+                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1e293b' }}>إزالة أدوار من المستخدم</h3>
+                  <p style={{ margin: '8px 0 0', color: '#64748b', fontSize: 14 }}>اختر الأدوار التي تريد إزالتها من المستخدم</p>
+                </div>
+
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>اختر المستخدم</label>
+                  <select
+                    value={selectedUserForUpdate?.id || ''}
+                    onChange={async (e) => {
+                      const selectedId = e.target.value;
+
+                      if (!selectedId) {
+                        setSelectedUserForUpdate(null);
+                        setSelectedRolesToRemove([]);
+                        return;
+                      }
+
+                      const user = users.find(u => u.id === selectedId);
+                      if (!user) return;
+
+                      try {
+                        const resp = await axiosClient.get(`/api/user/${selectedId}`);
+                        console.log('REMOVE ROLES USER DETAILS RESPONSE:', resp.data);
+                        openUpdateForm(resp.data || user);
+                      } catch (err) {
+                        console.error('REMOVE ROLES USER DETAILS ERROR:', err);
+                        openUpdateForm(user);
+                      }
+
+                      setSelectedRolesToRemove([]);
+                      setActive('removeRoles');
+                    }}
+                    style={{ 
+                      width: '100%', 
+                      padding: '12px', 
+                      borderRadius: 12, 
+                      border: '1.5px solid #e2e8f0', 
+                      fontSize: 14,
+                      fontFamily: 'Cairo, sans-serif'
+                    }}
+                  >
+                    <option value="">اختر مستخدم...</option>
+                    {users.map(user => (
+                      <option key={user.id} value={user.id}>
+                        {user.fullName || user.email} - {user.roles?.join(', ') || 'لا أدوار'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {selectedUserForUpdate && selectedUserForUpdate.roles && selectedUserForUpdate.roles.length > 0 && (
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>الأدوار الحالية</label>
+                    <div style={{ 
+                      padding: '12px', 
+                      borderRadius: 12, 
+                      border: '1.5px solid #e2e8f0', 
+                      background: '#fef2f2' 
+                    }}>
+                      <div style={{ display: 'grid', gap: 8 }}>
+                        {selectedUserForUpdate.roles.map(role => (
+                          <label
+                            key={role}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                              padding: '8px',
+                              borderRadius: 8,
+                              background: selectedRolesToRemove.includes(role) ? '#fee2e2' : '#ffffff',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedRolesToRemove.includes(role)}
+                              onChange={() => handleRoleToRemoveToggle(role)}
+                              style={{ margin: 0 }}
+                            />
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>
+                              {role}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedUserForUpdate && (!selectedUserForUpdate.roles || selectedUserForUpdate.roles.length === 0) && (
+                  <div style={{ 
+                    padding: '16px', 
+                    textAlign: 'center', 
+                    color: '#64748b', 
+                    fontSize: 13,
+                    fontStyle: 'italic',
+                    background: '#f8fafc',
+                    borderRadius: 12,
+                    marginBottom: 20
+                  }}>
+                    لا توجد أدوار حالية لإزالتها من هذا المستخدم
+                  </div>
+                )}
+
+                {removeRolesError && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ padding: '12px', borderRadius: 12, background: '#fee2e2', color: '#b91c1c', fontSize: 13, fontWeight: 800, textAlign: 'center', marginBottom: 16 }}
+                  >
+                    {removeRolesError}
+                  </motion.div>
+                )}
+
+                {removeRolesSuccess && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ padding: '12px', borderRadius: 12, background: '#dcfce7', color: '#15803d', fontSize: 13, fontWeight: 800, textAlign: 'center', marginBottom: 16 }}
+                  >
+                    تم إزالة الأدوار بنجاح!
+                  </motion.div>
+                )}
+
+                <div style={{ display: 'flex', gap: 12 }}>
+                  {/* Show save button only when roles are selected for removal */}
+                  {selectedRolesToRemove.length > 0 && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={removingRoles || !selectedUserForUpdate}
+                      onClick={handleRemoveRoles}
+                      style={{
+                        flex: 1,
+                        padding: '14px',
+                        borderRadius: 14,
+                        background: removingRoles ? '#94a3b8' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: 900,
+                        fontSize: 15,
+                        cursor: removingRoles || !selectedUserForUpdate ? 'not-allowed' : 'pointer',
+                        boxShadow: '0 10px 15px -3px rgba(239, 68, 68, 0.2)'
+                      }}
+                    >
+                      {removingRoles ? 'جاري الإزالة...' : `حفظ إزالة ${selectedRolesToRemove.length} دور(أدوار)`}
+                    </motion.button>
+                  )}
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActive('list')}
+                    style={{
+                      flex: selectedRolesToRemove.length > 0 ? 1 : 'auto',
+                      padding: '14px',
+                      borderRadius: 14,
+                      background: '#f1f5f9',
+                      color: '#475569',
+                      border: 'none',
+                      fontWeight: 900,
+                      fontSize: 15,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    إلغاء
+                  </motion.button>
+                </div>
+              </motion.div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px', background: '#fff1f2', borderRadius: 16, color: '#be123c' }}>
+                <FaUserShield size={32} style={{ marginBottom: 12 }} />
+                <div style={{ fontWeight: 900 }}>ليس لديك صلاحية الوصول لهذه الصفحة.</div>
+              </div>
+            )
+          )}
+
+          {active === 'delete' && (
+            user?.roles?.map(r => r.toLowerCase()).includes('admin') ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                style={{ maxWidth: 600, margin: '0 auto', background: '#fff', borderRadius: 20, padding: 24, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' }}
+              >
+                <div style={{ marginBottom: 20 }}>
+                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1e293b' }}>حذف مستخدم</h3>
+                  <p style={{ margin: '8px 0 0', color: '#64748b', fontSize: 14 }}>اختر المستخدم الذي تريد حذفه ثم نفذ الحذف من الـ API الحقيقي</p>
+                </div>
+
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>اختر المستخدم</label>
+                  <select
+                    value={selectedUserForDelete?.id || ''}
+                    onChange={(e) => {
+                      const selectedId = e.target.value;
+
+                      if (!selectedId) {
+                        setSelectedUserForDelete(null);
+                        setDeleteReason('');
+                        return;
+                      }
+
+                      const targetUser = users.find((u) => u.id === selectedId);
+                      if (!targetUser) return;
+
+                      setSelectedUserForDelete(targetUser);
+                      setDeleteError(null);
+                      setDeleteSuccess(false);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: 12,
+                      border: '1.5px solid #e2e8f0',
+                      fontSize: 14,
+                      fontFamily: 'Cairo, sans-serif'
+                    }}
+                  >
+                    <option value="">اختر مستخدم...</option>
+                    {users.map((userItem) => (
+                      <option key={userItem.id} value={userItem.id}>
+                        {userItem.fullName || userItem.email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {selectedUserForDelete && (
+                  <div style={{ marginBottom: 20, padding: '14px', borderRadius: 12, background: '#fff7ed', border: '1px solid #fed7aa' }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#9a3412', marginBottom: 6 }}>
+                      المستخدم المحدد: {selectedUserForDelete.fullName || selectedUserForDelete.email}
+                    </div>
+                    <div style={{ fontSize: 13, color: '#7c2d12' }}>
+                      {selectedUserForDelete.email || 'لا يوجد بريد إلكتروني'}
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>سبب الحذف</label>
+                  <input
+                    type="text"
+                    value={deleteReason}
+                    onChange={(e) => setDeleteReason(e.target.value)}
+                    placeholder="اختياري"
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: 12,
+                      border: '1.5px solid #e2e8f0',
+                      fontSize: 14,
+                      fontFamily: 'Cairo, sans-serif'
+                    }}
+                  />
+                </div>
+
+                {deleteError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ padding: '12px', borderRadius: 12, background: '#fee2e2', color: '#b91c1c', fontSize: 13, fontWeight: 800, textAlign: 'center', marginBottom: 16 }}
+                  >
+                    {deleteError}
+                  </motion.div>
+                )}
+
+                {deleteSuccess && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ padding: '12px', borderRadius: 12, background: '#dcfce7', color: '#15803d', fontSize: 13, fontWeight: 800, textAlign: 'center', marginBottom: 16 }}
+                  >
+                    تم حذف المستخدم بنجاح!
+                  </motion.div>
+                )}
+
+                <div style={{ display: 'flex', gap: 12 }}>
+                  {selectedUserForDelete && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={deleting || !selectedUserForDelete}
+                      onClick={handleDeleteUser}
+                      style={{
+                        flex: 1,
+                        padding: '14px',
+                        borderRadius: 14,
+                        background: deleting ? '#94a3b8' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: 900,
+                        fontSize: 15,
+                        cursor: deleting ? 'not-allowed' : 'pointer',
+                        boxShadow: '0 10px 15px -3px rgba(239, 68, 68, 0.2)'
+                      }}
+                    >
+                      {deleting ? 'جاري الحذف...' : 'حذف المستخدم'}
+                    </motion.button>
+                  )}
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      setSelectedUserForDelete(null);
+                      setDeleteReason('');
+                      setDeleteError(null);
+                      setDeleteSuccess(false);
+                      setActive('list');
+                    }}
+                    style={{
+                      flex: selectedUserForDelete ? 1 : 'auto',
+                      padding: '14px',
+                      borderRadius: 14,
+                      background: '#f1f5f9',
+                      color: '#475569',
+                      border: 'none',
+                      fontWeight: 900,
+                      fontSize: 15,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    إلغاء
+                  </motion.button>
+                </div>
+              </motion.div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px', background: '#fff1f2', borderRadius: 16, color: '#be123c' }}>
+                <FaUserShield size={32} style={{ marginBottom: 12 }} />
+                <div style={{ fontWeight: 900 }}>ليس لديك صلاحية الوصول لهذه الصفحة.</div>
+              </div>
+            )
+          )}
+
+          {active !== 'list' && active !== 'create' && active !== 'update' && active !== 'createAdmin' && active !== 'assignRoles' && active !== 'removeRoles' && active !== 'delete' && (
             <div style={{ textAlign: 'center', padding: '12px 0' }}>
               <div style={{ 
                 width: 64, 

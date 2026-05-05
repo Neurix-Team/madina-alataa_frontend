@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../hooks/useAuth';
 import {
   FaHandHoldingHeart,
   FaCheck,
@@ -12,12 +13,93 @@ import {
   FaBuilding,
   FaEdit,
   FaTrash,
+  FaPlus,
 } from 'react-icons/fa';
 import { donationRequestsService, normalizeDonationRequestsListResponse } from '../services/donationRequestsService';
+import { locationsService } from '../services/locationsService';
 import ViewDonationRequestModal from '../components/modals/ViewDonationRequestModal';
 import EditDonationRequestModal from '../components/modals/EditDonationRequestModal';
+import CreateDonationRequestModal from '../components/modals/CreateDonationRequestModal';
+
+const getTokenFromStorage = () => {
+  return (
+    localStorage.getItem('madina_access_token') ||
+    localStorage.getItem('auth_token') ||
+    localStorage.getItem('token') ||
+    localStorage.getItem('accessToken') ||
+    localStorage.getItem('authToken') ||
+    localStorage.getItem('google_temp_token') ||
+    localStorage.getItem('jwt') ||
+    ''
+  );
+};
+
+const decodeJwtPayload = (token) => {
+  try {
+    if (!token || !token.includes('.')) return null;
+
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
+        .join('')
+    );
+
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.warn('Failed to decode token payload:', error);
+    return null;
+  }
+};
+
+const extractRoles = (user) => {
+  const tokenPayload = decodeJwtPayload(getTokenFromStorage());
+
+  const rawRoles =
+    user?.roles ??
+    user?.role ??
+    user?.Role ??
+    user?.userRoles ??
+    user?.claims?.role ??
+    user?.claims?.roles ??
+    user?.['role'] ??
+    user?.['roles'] ??
+    user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
+    tokenPayload?.roles ??
+    tokenPayload?.role ??
+    tokenPayload?.Role ??
+    tokenPayload?.['role'] ??
+    tokenPayload?.['roles'] ??
+    tokenPayload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
+    [];
+
+  if (Array.isArray(rawRoles)) {
+    return rawRoles.map((role) => String(role).trim()).filter(Boolean);
+  }
+
+  return String(rawRoles || '')
+    .split(',')
+    .map((role) => role.trim())
+    .filter(Boolean);
+};
 
 const DonationRequestsPage = () => {
+  const { user } = useAuth();
+  const roles = extractRoles(user);
+  const isAdmin = roles.some(
+    (role) => String(role).trim().toLowerCase() === 'admin'
+  );
+  
+  // console.log('🔍 Donation Requests Page - User:', user);
+  // console.log('👑 User roles:', user?.roles);
+  // console.log('🛡️ Is Admin:', isAdmin);
+  console.log('🔍 Donation Requests Page - User:', user);
+console.log('👑 Extracted roles:', roles);
+console.log('🛡️ Is Admin:', isAdmin);
+  
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,7 +110,9 @@ const DonationRequestsPage = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState({});
+  const [locations, setLocations] = useState([]);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -51,6 +135,25 @@ const DonationRequestsPage = () => {
   useEffect(() => {
     fetchRequests();
   }, [pageNumber, pageSize]);
+
+  useEffect(() => {
+    const loadLocations = async () => {
+      try {
+        const response = await locationsService.getLocations();
+        const items =
+          Array.isArray(response) ? response :
+          Array.isArray(response?.data) ? response.data :
+          Array.isArray(response?.items) ? response.items :
+          Array.isArray(response?.value) ? response.value :
+          [];
+        setLocations(items);
+      } catch (err) {
+        console.error('Error fetching locations for donation requests:', err);
+      }
+    };
+
+    loadLocations();
+  }, []);
 
   const totalPages = useMemo(() => Math.ceil(totalCount / pageSize), [totalCount, pageSize]);
 
@@ -138,6 +241,27 @@ const DonationRequestsPage = () => {
               <p className="donation-requests-page__heroSubtitle">لوحة مراجعة واعتماد وحذف الطلبات بشكل واضح واحترافي.</p>
             </div>
           </div>
+          
+          {console.log('🔍 About to render admin button...', { isAdmin })}
+          {isAdmin && (
+            <>
+              {console.log('✅ Admin confirmed, rendering add button...')}
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  console.log('🚀 Add button clicked!');
+                  setIsCreateModalOpen(true);
+                }}
+                className="mission-page__heroAction"
+                style={{ minWidth: '220px' }}
+              >
+                <FaPlus />
+                <span>إضافة طلب جديد</span>
+              </motion.button>
+            </>
+          )}
+          {!isAdmin && console.log('❌ User is not admin, button will not show')}
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="donation-requests-page__stats">
@@ -304,6 +428,15 @@ const DonationRequestsPage = () => {
           request={selectedRequest}
           onSuccess={fetchRequests}
         />
+
+        {isAdmin && (
+          <CreateDonationRequestModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onSuccess={fetchRequests}
+            locations={locations}
+          />
+        )}
       </div>
     </div>
   );

@@ -2,6 +2,42 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
 
+const getStoredAuthToken = () => {
+  let token = null;
+
+  try {
+    const userData =
+      localStorage.getItem('madeena_login_user_response') ||
+      localStorage.getItem('user_data');
+
+    if (userData) {
+      const parsed = JSON.parse(userData);
+
+      token =
+        parsed.token ||
+        parsed.accessToken ||
+        parsed.AccessToken ||
+        parsed.data?.token ||
+        parsed.data?.accessToken ||
+        null;
+    }
+  } catch (e) {
+    console.warn('axiosClient: Failed to parse token from JSON storage', e);
+  }
+
+  if (!token) {
+    token =
+      localStorage.getItem('madina_access_token') ||
+      localStorage.getItem('auth_token') ||
+      localStorage.getItem('accessToken') ||
+      localStorage.getItem('token') ||
+      localStorage.getItem('google_temp_token') ||
+      null;
+  }
+
+  return token;
+};
+
 export const axiosClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
@@ -13,51 +49,8 @@ export const axiosClient = axios.create({
 // Add a request interceptor to add the auth token to every request
 axiosClient.interceptors.request.use(
   (config) => {
-    // Try to get token from multiple common keys
-    // let token = localStorage.getItem('auth_token') || 
-    //               localStorage.getItem('madina_access_token') || 
-    //               localStorage.getItem('accessToken');
-    
-    // // Fallback: Check if it's stored inside a JSON object (common in some auth implementations)
-    // if (!token) {
-    //   try {
-    //     const userData = localStorage.getItem('user_data') || localStorage.getItem('madeena_login_user_response');
-    //     if (userData) {
-    //       const parsed = JSON.parse(userData);
-    //       token = parsed.token || parsed.accessToken || parsed.AccessToken;
-    //     }
-    //   } catch (e) {
-    //     console.warn('axiosClient: Failed to parse token from JSON storage', e);
-    //   }
-    // Get token from the current logged-in user only
-let token = null;
+    const token = getStoredAuthToken();
 
-try {
-  const userData =
-    localStorage.getItem('madeena_login_user_response') ||
-    localStorage.getItem('user_data');
-
-  if (userData) {
-    const parsed = JSON.parse(userData);
-
-    token =
-      parsed.token ||
-      parsed.accessToken ||
-      parsed.AccessToken ||
-      parsed.data?.token ||
-      parsed.data?.accessToken ||
-      null;
-  }
-} catch (e) {
-  console.warn('axiosClient: Failed to parse token from JSON storage', e);
-}
-
-// Fallback to the main token key used after login
-if (!token) {
-  token = localStorage.getItem('madina_access_token');
-}
-    
-    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
       // Log when token is being sent to mission, location, and partners APIs specifically
@@ -68,6 +61,7 @@ if (!token) {
         config.url?.includes('/api/Child') ||
         config.url?.includes('/api/admin') ||
         config.url?.includes('/api/donation-requests') ||
+        config.url?.includes('/api/Volunteer') ||
         config.url?.includes('/api/Badges') ||
         config.url?.includes('/api/Levels') ||
         config.url?.includes('/api/Activities')
@@ -95,6 +89,7 @@ if (!token) {
         config.url?.includes('/api/Child') ||
         config.url?.includes('/api/admin') ||
         config.url?.includes('/api/donation-requests') ||
+        config.url?.includes('/api/Volunteer') ||
         config.url?.includes('/api/Badges') ||
         config.url?.includes('/api/Levels') ||
         config.url?.includes('/api/Activities')

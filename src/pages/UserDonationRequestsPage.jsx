@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../hooks/useAuth';
 import {
   FaHandHoldingHeart,
   FaCheck,
@@ -21,8 +22,10 @@ import ViewDonationRequestModal from '../components/modals/ViewDonationRequestMo
 import EditDonationRequestModal from '../components/modals/EditDonationRequestModal';
 
 const UserDonationRequestsPage = () => {
+  const { user } = useAuth();
   const location = useLocation();
   const isApprovedRoute = location.pathname === '/approved-donation-requests';
+  const isAdmin = user?.roles?.some((role) => String(role).toLowerCase() === 'admin');
   const [activeTab, setActiveTab] = useState(isApprovedRoute ? 'approved' : 'my');
   const [myRequests, setMyRequests] = useState([]);
   const [approvedRequests, setApprovedRequests] = useState([]);
@@ -239,7 +242,7 @@ const UserDonationRequestsPage = () => {
                           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleViewDetails(request)} className="donation-requests-page__actionBtn is-info" title="عرض التفاصيل">
                             <FaEye />
                           </motion.button>
-                          {activeTab === 'approved' && (
+                          {activeTab === 'approved' && !isAdmin && (
                             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleDonate(request)} className="donation-requests-page__actionBtn is-success" title="أريد التبرع">
                               <FaDonate />
                             </motion.button>
@@ -279,7 +282,7 @@ const UserDonationRequestsPage = () => {
             setSelectedRequest(null);
           }}
           requestId={selectedRequest?.id}
-          showDonateButton={activeTab === 'approved'}
+          showDonateButton={activeTab === 'approved' && !isAdmin}
           onDonate={handleDonateFromDetails}
         />
 

@@ -9,7 +9,11 @@ export const availableMissionsService = {
       const params = new URLSearchParams();
       params.append('PageNumber', pageNumber);
       params.append('PageSize', pageSize);
-      if (userLevel) params.append('userLevel', userLevel);
+      
+      // Only append userLevel if it's a valid number
+      if (userLevel !== null && userLevel !== undefined && userLevel !== '' && !isNaN(Number(userLevel))) {
+        params.append('userLevel', String(userLevel));
+      }
 
       const response = await axiosClient.get(`${AVAILABLE_MISSIONS_API_URL}?${params.toString()}`);
       console.log('Available Missions API Response:', response.data);
@@ -27,7 +31,11 @@ export const availableMissionsService = {
       params.append('search', searchTerm);
       params.append('PageNumber', pageNumber);
       params.append('PageSize', pageSize);
-      if (userLevel) params.append('userLevel', userLevel);
+      
+      // Only append userLevel if it's a valid number
+      if (userLevel !== null && userLevel !== undefined && userLevel !== '' && !isNaN(Number(userLevel))) {
+        params.append('userLevel', String(userLevel));
+      }
 
       const response = await axiosClient.get(`${AVAILABLE_MISSIONS_API_URL}?${params.toString()}`);
       console.log('Search Available Missions API Response:', response.data);

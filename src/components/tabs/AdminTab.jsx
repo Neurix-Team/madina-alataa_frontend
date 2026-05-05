@@ -11,7 +11,7 @@
  */
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-const UsersManagementLazy = React.lazy(() => import('../../pages/UsersManagementPage'));
+const UsersManagementLazy = React.lazy(() => import('../../pages/UsersManagementEnhancedPage'));
 const PartnersTabLazy = React.lazy(() => import('./PartnersTab'));
 const PendingChildrenTabLazy = React.lazy(() => import('./PendingChildrenTab'));
 import '../../styles/admin.css';

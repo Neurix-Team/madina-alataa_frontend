@@ -1,8 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes, FaEdit, FaMapMarkerAlt, FaTasks, FaShieldAlt, FaStar, FaTrophy, FaLeaf } from 'react-icons/fa';
+import {
+  FaEdit,
+  FaLeaf,
+  FaMapMarkerAlt,
+  FaShieldAlt,
+  FaStar,
+  FaTasks,
+  FaTimes,
+  FaTrophy,
+} from 'react-icons/fa';
+import LocationIdMapSelector from '../shared/LocationIdMapSelector';
 
-const EditMissionModal = ({ isOpen, onClose, onSubmit, mission }) => {
+const fieldShell =
+  'w-full rounded-2xl border border-white/10 bg-[#08101d]/80 px-4 py-3.5 text-white outline-none transition focus:border-blue-400/35 focus:bg-[#0d1728]';
+
+const cardShell = 'rounded-[28px] border border-white/8 bg-white/5 p-6 md:p-7';
+
+const rewardConfig = [
+  { key: 'kpReward', label: 'نقاط الخير', icon: FaTrophy, accent: 'text-yellow-300' },
+  { key: 'xpReward', label: 'نقاط الخبرة', icon: FaStar, accent: 'text-fuchsia-300' },
+  { key: 'impactReward', label: 'نقاط التأثير', icon: FaLeaf, accent: 'text-emerald-300' },
+];
+
+export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, locations = [] }) {
   const [formData, setFormData] = useState({
     title: '',
     difficulty: 0,
@@ -11,75 +32,75 @@ const EditMissionModal = ({ isOpen, onClose, onSubmit, mission }) => {
     xpReward: '',
     impactReward: '',
     locationId: '',
-    status: 1
+    status: 1,
   });
   const [loading, setLoading] = useState(false);
 
-  // Populate form when mission data is available
   useEffect(() => {
-    if (mission) {
-      setFormData({
-        title: mission.title || '',
-        difficulty: mission.difficulty || 0,
-        requiredLevel: mission.requiredLevel?.toString() || '',
-        kpReward: mission.kpReward?.toString() || '',
-        xpReward: mission.xpReward?.toString() || '',
-        impactReward: mission.impactReward?.toString() || '',
-        locationId: mission.locationId || '',
-        status: mission.status !== undefined ? mission.status : 1
-      });
-    }
+    if (!mission) return;
+    setFormData({
+      title: mission.title || '',
+      difficulty: mission.difficulty || 0,
+      requiredLevel: mission.requiredLevel?.toString() || '',
+      kpReward: mission.kpReward?.toString() || '',
+      xpReward: mission.xpReward?.toString() || '',
+      impactReward: mission.impactReward?.toString() || '',
+      locationId: mission.locationId || '',
+      status: mission.status !== undefined ? mission.status : 1,
+    });
   }, [mission]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'difficulty' || name === 'status' 
-        ? parseInt(value) || 0 
-        : value
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((current) => ({
+      ...current,
+      [name]: name === 'difficulty' || name === 'status' ? parseInt(value, 10) || 0 : value,
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleLocationSelect = (location) => {
+    setFormData((current) => ({
+      ...current,
+      locationId: String(location?.id || ''),
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
     if (!formData.title.trim()) {
       alert('يرجى إدخال عنوان المهمة');
       return;
     }
-    
+
     if (!formData.locationId.trim()) {
-      alert('يرجى إدخال معرف الموقع (Location ID) بصيغة صحيحة (Guid)');
+      alert('يرجى اختيار العنوان من الخريطة');
       return;
     }
 
     setLoading(true);
     try {
-      const submitData = {
-        title: formData.title,
+      await onSubmit(mission.id, {
+        title: formData.title.trim(),
         difficulty: formData.difficulty,
         requiredLevel: formData.requiredLevel,
         kpReward: formData.kpReward,
         xpReward: formData.xpReward,
         impactReward: formData.impactReward,
         locationId: formData.locationId,
-        status: formData.status
-      };
-      
-      await onSubmit(mission.id, submitData);
+        status: formData.status,
+      });
       onClose();
-    } catch (err) {
-      console.error('Error updating mission:', err);
-      // Extract specific validation errors from the backend
-      let errorMsg = 'فشل في تحديث المهمة.';
-      if (err.response?.data?.errors) {
-        const validationErrors = err.response.data.errors;
-        const messages = Object.values(validationErrors).flat().join('\\n');
-        errorMsg += `\\nالأخطاء:\\n${messages}`;
-      } else if (err.response?.data?.message || err.response?.data?.title) {
-        errorMsg += `\\n${err.response.data.message || err.response.data.title}`;
+    } catch (error) {
+      console.error('Error updating mission:', error);
+      const apiErrors = error.response?.data?.errors;
+      let errorMessage = 'فشل في تحديث المهمة.';
+      if (apiErrors) {
+        errorMessage += `\n${Object.values(apiErrors).flat().join('\n')}`;
+      } else if (error.response?.data?.message || error.response?.data?.title) {
+        errorMessage += `\n${error.response.data.message || error.response.data.title}`;
       }
-      alert(errorMsg);
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -88,229 +109,175 @@ const EditMissionModal = ({ isOpen, onClose, onSubmit, mission }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4" dir="rtl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020617]/88 backdrop-blur-xl p-4" dir="rtl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.96, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", duration: 0.5 }}
-            className="bg-gradient-to-br from-[#0a192f] to-[#112240] rounded-3xl border border-blue-800/50 w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-[0_0_50px_rgba(30,58,138,0.3)]"
+            exit={{ opacity: 0, scale: 0.96, y: 24 }}
+            transition={{ duration: 0.2 }}
+            className="relative w-full max-w-5xl max-h-[92vh] overflow-hidden rounded-[34px] border border-white/10 bg-[#0b1220] shadow-[0_30px_120px_rgba(15,23,42,0.55)]"
           >
-            {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b border-blue-900/50 bg-[#0a192f]/50 sticky top-0 z-10 backdrop-blur-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center border border-orange-500/30">
-                  <FaEdit className="text-orange-400 text-lg" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.14),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(249,115,22,0.10),transparent_25%)] pointer-events-none" />
+
+            <div className="relative flex items-center justify-between gap-4 border-b border-white/8 bg-white/5 px-6 py-5 md:px-8">
+              <div className="flex items-center gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-[20px] bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-xl">
+                  <FaEdit className="text-xl" />
                 </div>
-                <h3 className="text-2xl font-bold text-white tracking-wide">تعديل المهمة</h3>
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-black tracking-tight text-white">تعديل المهمة</h3>
+                  <p className="mt-1 text-sm font-bold text-slate-400">واجهة أوضح لتعديل البيانات والمكافآت والعنوان</p>
+                </div>
               </div>
+
               <motion.button
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.06, rotate: 90 }}
+                whileTap={{ scale: 0.94 }}
                 onClick={onClose}
-                className="w-10 h-10 flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors text-red-400 hover:text-red-300 border border-red-500/20"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/8 bg-white/5 text-slate-300"
               >
-                <FaTimes className="text-lg" />
+                <FaTimes />
               </motion.button>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {/* Title */}
-              <div className="group">
-                <label className="flex items-center gap-2 text-base font-bold text-blue-200 mb-3">
-                  <FaTasks className="text-blue-400" />
-                  عنوان المهمة <span className="text-red-400">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    required
-                    className="w-full bg-[#0a192f]/50 border-2 border-blue-900/50 rounded-xl px-4 py-3.5 text-lg text-white placeholder-blue-300/30 focus:outline-none focus:border-blue-500 focus:bg-[#112240] focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 shadow-inner"
-                    placeholder="أدخل عنوان المهمة بشكل واضح"
+            <form onSubmit={handleSubmit} className="relative max-h-[calc(92vh-88px)] overflow-y-auto px-6 py-6 md:px-8 md:py-8">
+              <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
+                <div className="grid gap-6">
+                  <section className={cardShell}>
+                    <div className="mb-5 flex items-center gap-3 text-sm font-black uppercase tracking-[0.18em] text-blue-300">
+                      <FaTasks />
+                      <span>المعلومات الأساسية</span>
+                    </div>
+                    <div className="grid gap-5">
+                      <div>
+                        <label className="mb-2 flex items-center gap-2 text-sm font-black text-slate-300">
+                          <FaTasks className="text-blue-300" />
+                          <span>عنوان المهمة</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="title"
+                          value={formData.title}
+                          onChange={handleChange}
+                          required
+                          className={fieldShell}
+                          placeholder="أدخل عنوان المهمة"
+                        />
+                      </div>
+
+                      <div className="grid gap-5 md:grid-cols-2">
+                        <div>
+                          <label className="mb-2 flex items-center gap-2 text-sm font-black text-slate-300">
+                            <FaShieldAlt className="text-indigo-300" />
+                            <span>مستوى الصعوبة</span>
+                          </label>
+                          <select name="difficulty" value={formData.difficulty} onChange={handleChange} className={fieldShell}>
+                            <option value={0}>سهل</option>
+                            <option value={1}>متوسط</option>
+                            <option value={2}>صعب</option>
+                            <option value={3}>أسطوري</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="mb-2 flex items-center gap-2 text-sm font-black text-slate-300">
+                            <FaStar className="text-yellow-300" />
+                            <span>الحالة</span>
+                          </label>
+                          <select name="status" value={formData.status} onChange={handleChange} className={fieldShell}>
+                            <option value={1}>نشطة</option>
+                            <option value={0}>غير نشطة</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="mb-2 flex items-center gap-2 text-sm font-black text-slate-300">
+                          <FaLayerGroupSafe />
+                          <span>المستوى المطلوب</span>
+                        </label>
+                        <input
+                          type="number"
+                          name="requiredLevel"
+                          value={formData.requiredLevel}
+                          onChange={handleChange}
+                          min="1"
+                          max="100"
+                          className={fieldShell}
+                        />
+                      </div>
+                    </div>
+                  </section>
+
+                  <LocationIdMapSelector
+                    locations={locations}
+                    selectedLocationId={formData.locationId}
+                    onSelect={handleLocationSelect}
+                    title="تعديل العنوان"
+                    subtitle="اختر عنوانًا واضحًا من الخريطة ليتم تحديث locationId."
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Difficulty */}
-                <div className="group">
-                  <label className="flex items-center gap-2 text-base font-bold text-blue-200 mb-3">
-                    <FaShieldAlt className="text-blue-400" />
-                    مستوى الصعوبة
-                  </label>
-                  <select
-                    name="difficulty"
-                    value={formData.difficulty}
-                    onChange={handleChange}
-                    className="w-full bg-[#0a192f]/50 border-2 border-blue-900/50 rounded-xl px-4 py-3.5 text-lg text-white focus:outline-none focus:border-blue-500 focus:bg-[#112240] focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 shadow-inner appearance-none cursor-pointer"
-                  >
-                    <option value={0}>سهل (Easy)</option>
-                    <option value={1}>متوسط (Normal)</option>
-                    <option value={2}>صعب (Hard)</option>
-                    <option value={3}>صعب جداً (Very Hard)</option>
-                  </select>
-                </div>
-
-                {/* Status */}
-                <div className="group">
-                  <label className="flex items-center gap-2 text-base font-bold text-blue-200 mb-3">
-                    <FaStar className="text-yellow-500" />
-                    حالة المهمة
-                  </label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    className="w-full bg-[#0a192f]/50 border-2 border-blue-900/50 rounded-xl px-4 py-3.5 text-lg text-white focus:outline-none focus:border-blue-500 focus:bg-[#112240] focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 shadow-inner appearance-none cursor-pointer"
-                  >
-                    <option value={1}>نشطة</option>
-                    <option value={0}>غير نشطة</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Required Level */}
-              <div className="group">
-                <label className="flex items-center gap-2 text-base font-bold text-blue-200 mb-3">
-                  <FaStar className="text-yellow-500" />
-                  المستوى المطلوب
-                </label>
-                <input
-                  type="number"
-                  name="requiredLevel"
-                  value={formData.requiredLevel}
-                  onChange={handleChange}
-                  min="1"
-                  max="100"
-                  className="w-full bg-[#0a192f]/50 border-2 border-blue-900/50 rounded-xl px-4 py-3.5 text-lg text-white placeholder-blue-300/30 focus:outline-none focus:border-yellow-500 focus:bg-[#112240] focus:ring-4 focus:ring-yellow-500/20 transition-all duration-300 shadow-inner"
-                  placeholder="من 1 إلى 100 (اتركه فارغاً إذا لم يكن مطلوباً)"
-                />
-              </div>
-
-              {/* Rewards Grid */}
-              <div className="bg-[#0a192f]/30 p-5 rounded-2xl border border-blue-900/30">
-                <h4 className="text-blue-300 font-bold mb-4 flex items-center gap-2">
-                  <FaTrophy className="text-yellow-400" /> مكافآت المهمة
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {/* KP Reward */}
-                  <div className="group">
-                    <label className="block text-sm font-bold text-yellow-400/80 mb-2">
-                      نقاط الخير (KP)
-                    </label>
-                    <div className="relative">
-                      <FaTrophy className="absolute right-4 top-1/2 transform -translate-y-1/2 text-yellow-500/50" />
-                      <input
-                        type="number"
-                        name="kpReward"
-                        value={formData.kpReward}
-                        onChange={handleChange}
-                        min="1"
-                        className="w-full bg-[#0a192f]/80 border border-yellow-900/50 rounded-xl pr-12 pl-4 py-3 text-lg text-yellow-400 placeholder-yellow-700/30 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all duration-300 font-bold"
-                        placeholder="0"
-                      />
+                <div className="grid gap-6">
+                  <section className={cardShell}>
+                    <div className="mb-5 flex items-center gap-3 text-sm font-black uppercase tracking-[0.18em] text-amber-300">
+                      <FaTrophy />
+                      <span>المكافآت</span>
                     </div>
-                  </div>
-
-                  {/* XP Reward */}
-                  <div className="group">
-                    <label className="block text-sm font-bold text-purple-400/80 mb-2">
-                      نقاط الخبرة (XP)
-                    </label>
-                    <div className="relative">
-                      <FaStar className="absolute right-4 top-1/2 transform -translate-y-1/2 text-purple-500/50" />
-                      <input
-                        type="number"
-                        name="xpReward"
-                        value={formData.xpReward}
-                        onChange={handleChange}
-                        min="1"
-                        className="w-full bg-[#0a192f]/80 border border-purple-900/50 rounded-xl pr-12 pl-4 py-3 text-lg text-purple-400 placeholder-purple-700/30 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 font-bold"
-                        placeholder="0"
-                      />
+                    <div className="grid gap-4">
+                      {rewardConfig.map(({ key, label, icon: Icon, accent }) => (
+                        <div key={key} className="rounded-[22px] border border-white/8 bg-black/20 p-4">
+                          <label className={`mb-3 flex items-center gap-2 text-sm font-black ${accent}`}>
+                            <Icon />
+                            <span>{label}</span>
+                          </label>
+                          <input
+                            type="number"
+                            name={key}
+                            value={formData[key]}
+                            onChange={handleChange}
+                            min="1"
+                            className={fieldShell}
+                          />
+                        </div>
+                      ))}
                     </div>
-                  </div>
+                  </section>
 
-                  {/* Impact Reward */}
-                  <div className="group">
-                    <label className="block text-sm font-bold text-green-400/80 mb-2">
-                      نقاط التأثير
-                    </label>
-                    <div className="relative">
-                      <FaLeaf className="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-500/50" />
-                      <input
-                        type="number"
-                        name="impactReward"
-                        value={formData.impactReward}
-                        onChange={handleChange}
-                        min="1"
-                        className="w-full bg-[#0a192f]/80 border border-green-900/50 rounded-xl pr-12 pl-4 py-3 text-lg text-green-400 placeholder-green-700/30 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300 font-bold"
-                        placeholder="0"
-                      />
+                  <section className={cardShell}>
+                    <div className="mb-5 flex items-center gap-3 text-sm font-black uppercase tracking-[0.18em] text-slate-300">
+                      <FaMapMarkerAlt />
+                      <span>مراجعة سريعة</span>
                     </div>
-                  </div>
+                    <div className="grid gap-3">
+                      <ReviewRow label="معرف المهمة" value={mission?.id || 'غير متوفر'} mono />
+                      <ReviewRow label="Location ID" value={formData.locationId || 'غير محدد'} mono />
+                      <ReviewRow label="الصعوبة" value={['سهل', 'متوسط', 'صعب', 'أسطوري'][formData.difficulty] || 'غير محدد'} />
+                      <ReviewRow label="الحالة" value={Number(formData.status) === 1 ? 'نشطة' : 'غير نشطة'} />
+                    </div>
+                  </section>
                 </div>
               </div>
 
-              {/* Location ID */}
-              <div className="group">
-                <label className="flex items-center gap-2 text-base font-bold text-blue-200 mb-3">
-                  <FaMapMarkerAlt className="text-blue-400" />
-                  معرف الموقع (Location ID) <span className="text-red-400">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="locationId"
-                    value={formData.locationId}
-                    onChange={handleChange}
-                    required
-                    className="w-full bg-[#0a192f]/50 border-2 border-blue-900/50 rounded-xl px-4 py-3.5 text-lg text-white placeholder-blue-300/30 focus:outline-none focus:border-blue-500 focus:bg-[#112240] focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 shadow-inner font-mono text-left"
-                    placeholder="e.g. 3fa85f64-5717-4562-b3fc-2c963f66afa6"
-                    dir="ltr"
-                  />
-                </div>
-              </div>
-
-              {/* Mission ID Display */}
-              <div className="bg-[#112240]/50 rounded-2xl p-4 border border-blue-900/30">
-                <h4 className="text-sm font-bold text-blue-300 mb-2 flex items-center gap-2">
-                  <FaTasks className="text-blue-500/70" /> معرف المهمة
-                </h4>
-                <p className="text-blue-100 font-mono text-sm tracking-wider bg-[#0a192f] p-3 rounded-xl border border-blue-900/50">{mission?.id}</p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-4 pt-6 mt-6 border-t border-blue-900/50">
+              <div className="mt-6 flex gap-4 border-t border-white/8 pt-6">
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-6 py-4 bg-[#112240] hover:bg-[#1a365d] text-blue-200 rounded-xl transition-colors font-bold text-lg border border-blue-800/50"
+                  className="flex-1 rounded-[22px] border border-white/8 bg-white/5 px-6 py-4 text-lg font-black text-slate-200"
                   disabled={loading}
                 >
                   إلغاء
                 </motion.button>
                 <motion.button
-                  whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(251,146,60,0.4)" }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
                   type="submit"
-                  className="flex-[2] px-6 py-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white rounded-xl transition-all duration-300 flex items-center justify-center gap-3 font-bold text-lg shadow-lg shadow-orange-900/50 border border-orange-400/30"
+                  className="flex-[1.4] rounded-[22px] bg-gradient-to-r from-orange-500 to-red-600 px-6 py-4 text-lg font-black text-white shadow-xl"
                   disabled={loading}
                 >
-                  {loading ? (
-                    <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                  ) : (
-                    <>
-                      <FaEdit />
-                      تحديث المهمة
-                    </>
-                  )}
+                  {loading ? 'جاري تحديث المهمة...' : 'حفظ التعديلات'}
                 </motion.button>
               </div>
             </form>
@@ -319,6 +286,19 @@ const EditMissionModal = ({ isOpen, onClose, onSubmit, mission }) => {
       )}
     </AnimatePresence>
   );
-};
+}
 
-export default EditMissionModal;
+function ReviewRow({ label, value, mono = false }) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/8 bg-black/20 px-4 py-3">
+      <span className="text-sm font-bold text-slate-400">{label}</span>
+      <span className={`text-sm font-black text-white ${mono ? 'font-mono break-all text-left' : ''}`} dir={mono ? 'ltr' : undefined}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function FaLayerGroupSafe() {
+  return <span className="inline-block h-2.5 w-2.5 rounded-full bg-blue-300" />;
+}

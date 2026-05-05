@@ -497,7 +497,7 @@ export default function Sidebar({
     if (isAdmin && (item.id === 'parents' || item.id === 'create-request' || item.id === 'my-children')) {
       return false;
     }
-    if ((isAdmin || isParent) && item.id === 'my-donations') {
+    if (isAdmin && item.id === 'my-donations') {
       return false;
     }
     // my-children is shown to all non-admin users (donors, volunteers, parents)

@@ -160,14 +160,17 @@ const sanitizedData = {
  
 
   // Get available locations for user
-getAvailableLocations: async (userLevel = 100) => {
+getAvailableLocations: async (userLevel = '') => {
   try {
-    const safeUserLevel = Number(userLevel) > 0 ? Number(userLevel) : 100;
+    const queryValue =
+      userLevel === '' || userLevel === null || typeof userLevel === 'undefined'
+        ? ''
+        : String(userLevel).trim();
 
-    console.log('🔍 Fetching available locations for user level:', safeUserLevel);
+    console.log('🔍 Fetching available locations for user level:', queryValue);
 
     const response = await axiosClient.get(
-      `${LOCATIONS_API_URL}/available?userLevel=${safeUserLevel}`
+      `${LOCATIONS_API_URL}/available?userLevel=${encodeURIComponent(queryValue)}`
     );
 
     console.log('✅ Available Locations API Response:', response.data);

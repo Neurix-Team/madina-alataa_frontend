@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { missionsService } from '../../services/missionsService';
+import { locationsService } from '../../services/locationsService';
 import AddMissionModal from '../modals/AddMissionModal';
 import MissionDetailModal from '../modals/MissionDetailModal';
 import EditMissionModal from '../modals/EditMissionModal';
@@ -38,6 +39,7 @@ const MissionsTab = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedMission, setSelectedMission] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [locations, setLocations] = useState([]);
 
   const stats = [
     { label: 'إجمالي المهام', value: missions.length, icon: FaTasks, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
@@ -91,6 +93,25 @@ const MissionsTab = () => {
 
     return () => clearTimeout(delayDebounceFn);
   }, [currentPage, searchTerm]);
+
+  useEffect(() => {
+    const loadLocations = async () => {
+      try {
+        const response = await locationsService.getLocations();
+        const items =
+          Array.isArray(response) ? response :
+          Array.isArray(response?.data) ? response.data :
+          Array.isArray(response?.items) ? response.items :
+          Array.isArray(response?.value) ? response.value :
+          [];
+        setLocations(items);
+      } catch (err) {
+        console.error('Error fetching locations for missions:', err);
+      }
+    };
+
+    loadLocations();
+  }, []);
 
   const handleAddMission = async (missionData) => {
     try {
@@ -395,7 +416,7 @@ const MissionsTab = () => {
       </div>
 
       <AnimatePresence>
-        {showAddModal && <AddMissionModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} onSubmit={handleAddMission} />}
+        {showAddModal && <AddMissionModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} onSubmit={handleAddMission} locations={locations} />}
         {showDetailModal && <MissionDetailModal isOpen={showDetailModal} onClose={() => setShowDetailModal(false)} mission={selectedMission} />}
         {showEditModal && (
           <EditMissionModal
@@ -406,6 +427,7 @@ const MissionsTab = () => {
             }}
             onSubmit={handleUpdateMission}
             mission={selectedMission}
+            locations={locations}
           />
         )}
       </AnimatePresence>

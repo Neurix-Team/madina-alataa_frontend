@@ -60,8 +60,7 @@ const LocationsTab = () => {
   const fetchAvailableLocations = async (level = userLevel) => {
     try {
       setAvailableLoading(true);
-      const safeLevel = Number(level) > 0 ? Number(level) : 100;
-      const response = await locationsService.getAvailableLocations(safeLevel);
+      const response = await locationsService.getAvailableLocations(level);
       const fetchedAvailableLocations =
         Array.isArray(response) ? response :
         Array.isArray(response?.data) ? response.data :
@@ -98,9 +97,18 @@ const LocationsTab = () => {
     }
   };
 
-  const handleEditLocation = (location) => {
-    setSelectedLocation(location);
-    setShowEditModal(true);
+  const handleEditLocation = async (location) => {
+    try {
+      const response = await locationsService.getLocationById(location.id);
+      const locationDetails = response?.value ?? response?.data ?? response?.result ?? response;
+      console.log('EDIT LOCATION DETAILS RESPONSE:', locationDetails);
+      setSelectedLocation(locationDetails || location);
+      setShowEditModal(true);
+    } catch (err) {
+      console.error('Error fetching location details for edit:', err);
+      setSelectedLocation(location);
+      setShowEditModal(true);
+    }
   };
 
   const handleUpdateLocation = async (locationId, locationData) => {
@@ -147,8 +155,7 @@ const LocationsTab = () => {
     const nextShowAvailable = !showAvailable;
     setShowAvailable(nextShowAvailable);
     if (nextShowAvailable) {
-      const safeLevel = Number(userLevel) > 0 ? Number(userLevel) : 100;
-      fetchAvailableLocations(safeLevel);
+      fetchAvailableLocations(userLevel);
     }
   };
 
@@ -400,7 +407,14 @@ const LocationsTab = () => {
       </div>
 
       <AnimatePresence>
-        {showAddModal && <AddLocationModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} onSubmit={handleAddLocation} />}
+        {showAddModal && (
+          <AddLocationModal
+            isOpen={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            onSubmit={handleAddLocation}
+            existingLocations={locations}
+          />
+        )}
         {showEditModal && <EditLocationModal isOpen={showEditModal} onClose={() => { setShowEditModal(false); setSelectedLocation(null); }} onSubmit={handleUpdateLocation} location={selectedLocation} />}
         {showDetailModal && <LocationDetailModal isOpen={showDetailModal} onClose={() => { setShowDetailModal(false); setSelectedLocation(null); }} location={selectedLocation} />}
       </AnimatePresence>
