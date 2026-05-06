@@ -9,12 +9,14 @@ import { partnersService } from '../../services/partnersService';
 import AddPartnerModal from '../modals/AddPartnerModal';
 import PartnerDetailModal from '../modals/PartnerDetailModal';
 import EditPartnerModal from '../modals/EditPartnerModal';
+import EntityHistoryModal from '../modals/EntityHistoryModal';
 
 import {
   FaBuilding,
   FaPlus,
   FaSearch,
   FaEye,
+  FaHistory,
   FaEdit,
   FaTrash,
   FaPhone,
@@ -433,6 +435,7 @@ const PartnersTab = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState(null);
+  const [historyEntityId, setHistoryEntityId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -741,6 +744,13 @@ const PartnersTab = () => {
                         عرض
                       </button>
                       <button
+                        className="partner-card__btn partner-card__btn--view"
+                        onClick={() => setHistoryEntityId(partner.id)}
+                      >
+                        <FaHistory />
+                        History
+                      </button>
+                      <button
                         className="partner-card__btn partner-card__btn--edit"
                         onClick={() => handleEditPartner(partner)}
                       >
@@ -812,6 +822,13 @@ const PartnersTab = () => {
         }}
         onSubmit={handleUpdatePartner}
         partner={selectedPartner}
+      />
+
+      <EntityHistoryModal
+        isOpen={Boolean(historyEntityId)}
+        entityId={historyEntityId}
+        title="Ø³Ø¬Ù„ Ø§Ù„Ù…Ø¤Ø³Ø³Ø©"
+        onClose={() => setHistoryEntityId(null)}
       />
     </div>
   );

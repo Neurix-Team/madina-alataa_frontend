@@ -49,19 +49,28 @@ const AvatarEditPage = () => {
         setLoading(true);
         setError(null);
 
-        // Get profile data first to get avatarId
-        const profileData = await profilesService.fetchMyProfile();
-        console.log('Profile data for avatar:', profileData);
+        let resolvedAvatarId = avatarService.getStoredAvatarId();
+        try {
+          if (!resolvedAvatarId) {
+            const profileData = await profilesService.fetchMyProfile();
+            console.log('Profile data for avatar:', profileData);
+            if (profileData?.avatarId) {
+              resolvedAvatarId = profileData.avatarId;
+            }
+          }
+        } catch (profileError) {
+          console.warn('AvatarEditPage profile fallback:', profileError);
+        }
 
-        if (!profileData.avatarId) {
+        if (!resolvedAvatarId) {
           setError('لا يوجد معرف أفاتار. يرجى إنشاء أفاتار أولاً.');
           return;
         }
 
-        setAvatarId(profileData.avatarId);
+        setAvatarId(resolvedAvatarId);
 
         // Load avatar data
-        const avatarResponse = await avatarService.getAvatarById(profileData.avatarId);
+        const avatarResponse = await avatarService.getAvatarById(resolvedAvatarId);
         console.log('Avatar data loaded:', avatarResponse);
         avatarService.saveAvatarToStorage(avatarResponse);
         syncAvatarProfileFromApiAvatar(avatarResponse);

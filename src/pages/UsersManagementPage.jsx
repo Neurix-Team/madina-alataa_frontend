@@ -188,6 +188,39 @@ const UserCard = ({ user, index }) => {
   );
 };
 
+const getStoredAuthToken = () => {
+  try {
+    const userData =
+      localStorage.getItem('madeena_login_user_response') ||
+      localStorage.getItem('user_data');
+
+    if (userData) {
+      const parsed = JSON.parse(userData);
+      const parsedToken =
+        parsed?.token ||
+        parsed?.accessToken ||
+        parsed?.AccessToken ||
+        parsed?.data?.token ||
+        parsed?.data?.accessToken;
+
+      if (parsedToken) {
+        return parsedToken;
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to parse auth token from storage:', error);
+  }
+
+  return (
+    localStorage.getItem('madina_access_token') ||
+    localStorage.getItem('auth_token') ||
+    localStorage.getItem('accessToken') ||
+    localStorage.getItem('token') ||
+    localStorage.getItem('google_temp_token') ||
+    null
+  );
+};
+
 const UsersManagementPage = () => {
   const [active, setActive] = useState('list');
   const [selectedUser, setSelectedUser] = useState(null);
@@ -795,17 +828,158 @@ const UsersManagementPage = () => {
     }, 5000);
   };
 
+  const submitDonorProfileUpdate = async (e) => {
+    e.preventDefault();
+    setUpdatingDonorProfile(true);
+    setUpdateDonorError(null);
+    setUpdateDonorSuccess(false);
+
+    const userId =
+      selectedDonorUser?.id ||
+      selectedDonorUser?.userId ||
+      selectedDonorUser?.userID ||
+      selectedDonorUser?.ID ||
+      null;
+    const profileId =
+      donorProfileData?.id ||
+      donorProfileData?.profileId ||
+      selectedDonorUser?.profileId ||
+      null;
+    const token = getStoredAuthToken();
+
+    if (!userId && !profileId) {
+      setUpdateDonorError('معرف المستخدم غير متوفر لتحديث ملف المتبرع.');
+      setUpdatingDonorProfile(false);
+      return;
+    }
+
+    try {
+      const donorDto = {
+        preferredCategory: donorForm.preferredCategory ?? '',
+        totalDonated: donorForm.totalDonated === '' ? null : Number(donorForm.totalDonated)
+      };
+
+      const requestConfig = {
+        url: `/api/donor/user/${userId}`,
+        payload: {
+          ...donorDto,
+          userId,
+          profileId
+        }
+      };
+
+      console.log('UPDATE DONOR PROFILE ADMIN API CALL:', {
+        url: requestConfig.url,
+        payload: requestConfig.payload,
+        userId,
+        profileId,
+        hasToken: !!token,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : 'none'
+      });
+
+      const resp = await axiosClient.put(
+        requestConfig.url,
+        requestConfig.payload,
+        token
+          ? {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
+          : undefined
+      );
+
+      console.log('UPDATE DONOR PROFILE ADMIN API RESPONSE:', resp.data);
+
+      const updatedProfile = resp?.data?.value || resp?.data?.profile || resp?.data || {
+        ...donorProfileData,
+        ...donorDto,
+        userId,
+        profileId
+      };
+
+      setDonorProfileData(updatedProfile);
+      setDonorForm({
+        preferredCategory: updatedProfile.preferredCategory || '',
+        totalDonated:
+          updatedProfile.totalDonated || updatedProfile.totalDonated === 0
+            ? String(updatedProfile.totalDonated)
+            : ''
+      });
+      setUpdateDonorSuccess(true);
+      setEditingDonorProfile(false);
+
+      if (userId) {
+        await fetchDonorProfileByUser(userId);
+      }
+
+      setTimeout(() => {
+        setUpdateDonorSuccess(false);
+      }, 3000);
+    } catch (err) {
+      console.error('Failed to update donor profile:', err.response?.data || err.message);
+
+      const serverData = err.response?.data;
+      let errorMsg = 'فشل في تحديث بيانات المتبرع.';
+
+      if (err.response?.status === 404) {
+        errorMsg = 'مسار تحديث ملف المتبرع غير موجود في الـ backend: PUT /api/donor/user/{userId}.';
+      } else if (err.response?.status === 405) {
+        errorMsg = 'الـ backend لا يدعم PUT على مسار donor profile الحالي.';
+      } else if (err.response?.status === 403) {
+        errorMsg = 'الـ backend رفض صلاحية الأدمن لتحديث donor profile رغم إرسال التوكن.';
+      }
+
+      if (serverData && ![403, 404, 405].includes(err.response?.status)) {
+        if (serverData.errors) {
+          const validationErrors = [];
+          Object.keys(serverData.errors).forEach((key) => {
+            if (Array.isArray(serverData.errors[key])) {
+              validationErrors.push(...serverData.errors[key]);
+            } else {
+              validationErrors.push(serverData.errors[key]);
+            }
+          });
+          errorMsg = validationErrors.join(', ');
+        } else if (typeof serverData === 'string') {
+          errorMsg = serverData;
+        } else if (serverData.message) {
+          errorMsg = serverData.message;
+        } else if (serverData.error) {
+          errorMsg = serverData.error;
+        } else if (serverData.detail) {
+          errorMsg = serverData.detail;
+        }
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+
+      setUpdateDonorError(errorMsg);
+    } finally {
+      setUpdatingDonorProfile(false);
+    }
+  };
+
   const openDonorProfile = (user) => {
+    const donorUserId = user?.id || user?.userId || user?.userID || user?.ID || null;
     setSelectedDonorUser(user);
     setDonorProfileError(null);
     setShowDonorProfile(true);
-    fetchDonorProfileByUser(user.id);
+    if (donorUserId) {
+      fetchDonorProfileByUser(donorUserId);
+    } else {
+      setDonorProfileData(null);
+      setDonorProfileError('معرف المستخدم غير متوفر لعرض ملف المتبرع.');
+    }
   };
 
   const closeDonorProfile = () => {
     setShowDonorProfile(false);
     setDonorProfileData(null);
     setSelectedDonorUser(null);
+    setEditingDonorProfile(false);
+    setUpdateDonorError(null);
+    setUpdateDonorSuccess(false);
   };
 
   // Assign Roles Functions
@@ -2783,7 +2957,7 @@ const UsersManagementPage = () => {
 
                 {/* Edit Form */}
                 {editingDonorProfile && (
-                  <form onSubmit={updateDonorProfileByAdmin} style={{ display: 'grid', gap: 12 }}>
+                  <form onSubmit={submitDonorProfileUpdate} style={{ display: 'grid', gap: 12 }}>
                     <div style={{
                       padding: '16px',
                       borderRadius: 12,

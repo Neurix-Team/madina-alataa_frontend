@@ -38,6 +38,7 @@ import {
   FaHandHoldingHeart,
   FaLayerGroup,
   FaBolt,
+  FaHandsHelping,
 } from 'react-icons/fa';
 import { getAvatarImageUrl } from '../../utils/avatarProfile';
 
@@ -235,6 +236,8 @@ const NAV_ITEMS = [
   { id: 'admin',       label: 'الإدارة',          icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'incoming-requests', label: 'الطلبات الواردة', icon: FaBell, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'my-children', label: 'أطفالي', icon: FaChild },
+  { id: 'volunteer-requests', label: 'طلبات التطوع', icon: FaHandsHelping, dividerBefore: true },
+  { id: 'volunteer-orders', label: 'تطوعاتي', icon: FaHandsHelping },
   // Donation Orders System
   { id: 'donation-orders-donor', label: 'طلبات التبرع', icon: FaHandHoldingHeart, dividerBefore: true },
   { id: 'my-donation-orders', label: 'تبرعاتي', icon: FaCoins },
@@ -445,6 +448,8 @@ export default function Sidebar({
       locations: '/locations',
       missions: '/missions',
       'my-children': '/my-children',
+      'volunteer-requests': '/volunteer-requests',
+      'volunteer-orders': '/volunteer-orders',
       // Donation Orders System
       'donation-orders-donor': '/approved-donation-requests',
       'my-donation-orders': '/my-donation-orders',
@@ -480,6 +485,8 @@ export default function Sidebar({
       locations: '/locations',
       missions: '/missions',
       'my-children': '/my-children',
+      'volunteer-requests': '/volunteer-requests',
+      'volunteer-orders': '/volunteer-orders',
       // Donation Orders System
       'donation-orders-donor': '/approved-donation-requests',
       'my-donation-orders': '/my-donation-orders',
@@ -505,6 +512,13 @@ export default function Sidebar({
       return false;
     }
     return !item.condition || can(item.condition);
+  });
+
+  const displayItems = visibleItems.map((item) => {
+    if (isAdmin && item.id === 'volunteer-orders') {
+      return { ...item, label: 'طلبات المتطوعين' };
+    }
+    return item;
   });
 
   return (
@@ -845,7 +859,7 @@ export default function Sidebar({
           </div>
 
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-            {visibleItems.map((item) => (
+            {displayItems.map((item) => (
               <React.Fragment key={item.id}>
                 {item.dividerBefore && (
                   <div

@@ -1100,13 +1100,7 @@ const AdminTab = () => {
                     <DashboardSectionCard key={section.key} section={section} />
                   ))}
 
-                  <div className="admin-api-card">
-                    <div className="admin-api-card__head">
-                      <div className="admin-api-card__title">الاستجابة الخام</div>
-                      <div className="admin-api-card__badge">raw json</div>
-                    </div>
-                    <pre className="admin-api-raw">{JSON.stringify(dashboardData, null, 2)}</pre>
-                  </div>
+                 
                 </div>
               )}
 

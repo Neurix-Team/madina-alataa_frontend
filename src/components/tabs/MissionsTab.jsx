@@ -5,10 +5,12 @@ import { locationsService } from '../../services/locationsService';
 import AddMissionModal from '../modals/AddMissionModal';
 import MissionDetailModal from '../modals/MissionDetailModal';
 import EditMissionModal from '../modals/EditMissionModal';
+import EntityHistoryModal from '../modals/EntityHistoryModal';
 import {
   FaPlus,
   FaSearch,
   FaEye,
+  FaHistory,
   FaLock,
   FaStar,
   FaRocket,
@@ -38,6 +40,7 @@ const MissionsTab = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedMission, setSelectedMission] = useState(null);
+  const [historyEntityId, setHistoryEntityId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [locations, setLocations] = useState([]);
 
@@ -431,6 +434,13 @@ const MissionsTab = () => {
           />
         )}
       </AnimatePresence>
+
+      <EntityHistoryModal
+        isOpen={Boolean(historyEntityId)}
+        entityId={historyEntityId}
+        title="History"
+        onClose={() => setHistoryEntityId(null)}
+      />
     </div>
   );
 };

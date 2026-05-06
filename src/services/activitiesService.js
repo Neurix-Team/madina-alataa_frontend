@@ -119,6 +119,22 @@ export const activitiesService = {
     return normalized;
   },
 
+  async getActivitiesByEntityId(entityId, pageNumber = 1, pageSize = 10) {
+    const response = await axiosClient.get(
+      `${ACTIVITIES_ENDPOINT}/entity/${entityId}`,
+      {
+        params: {
+          PageNumber: pageNumber,
+          PageSize: pageSize,
+        }
+      }
+    );
+    const normalized = normalizeActivitiesListResponse(response.data);
+    console.log('ACTIVITY ENTITY HISTORY RAW RESPONSE:', normalized.raw);
+    console.log('ACTIVITY ENTITY HISTORY ITEMS:', normalized.items);
+    return normalized;
+  },
+
   async createActivity(payload) {
     const response = await axiosClient.post(ACTIVITIES_ENDPOINT, payload);
     console.log('CREATE ACTIVITY RESPONSE:', response.data);

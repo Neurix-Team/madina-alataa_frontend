@@ -28,6 +28,8 @@ const Layout = () => {
     '/activities': 'activities',
     '/levels': 'levels',
     '/profile-v2': 'profile',
+    '/volunteer-requests': 'volunteer-requests',
+    '/volunteer-orders': 'volunteer-orders',
   };
 
   const activeTab = PATH_TO_TAB[location.pathname] || 'profile';
@@ -41,6 +43,8 @@ const Layout = () => {
       activities: '/activities',
       levels: '/levels',
       profile: '/profile-v2',
+      'volunteer-requests': '/volunteer-requests',
+      'volunteer-orders': '/volunteer-orders',
     };
     const path = pathMap[id];
     if (path) {

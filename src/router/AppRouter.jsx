@@ -132,6 +132,8 @@ import DonationOrdersPage from '../pages/DonationOrdersPage';
 import DonationRequestPage from '../pages/DonationRequestPage';
 import MyDonationOrdersPage from '../pages/MyDonationOrdersPage';
 import DonorDonationOrdersPage from '../pages/DonorDonationOrdersPage';
+import VolunteerRequestsPage from '../pages/VolunteerRequestsPage';
+import VolunteerOrdersPage from '../pages/VolunteerOrdersPage';
 
 // Social Auth Pages
 // اعملي الصفحتين دول بعدين أو سيبيهم commented لحد ما تجهزيهم
@@ -222,6 +224,8 @@ export const AppRouter = () => {
           <Route path="/donation-orders-donor" element={<DonorDonationOrdersPage />} />
           <Route path="/my-donation-requests" element={<UserDonationRequestsPage />} />
           <Route path="/approved-donation-requests" element={<UserDonationRequestsPage />} />
+          <Route path="/volunteer-requests" element={<VolunteerRequestsPage />} />
+          <Route path="/volunteer-orders" element={<VolunteerOrdersPage />} />
 
           {/* Request creation */}
           <Route path="/create-request" element={<CreateRequestPage />} />

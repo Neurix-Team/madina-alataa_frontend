@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  FaDonate, FaSearch, FaCheck, FaTimes, FaEdit, FaEye, FaSpinner, 
+  FaDonate, FaSearch, FaCheck, FaTimes, FaEdit, FaEye, FaHistory, FaSpinner, 
   FaExclamationTriangle, FaCheckCircle, FaChevronLeft, FaChevronRight,
   FaMoneyBillWave, FaMapMarkerAlt, FaCreditCard, FaTag, FaFileAlt
 } from 'react-icons/fa';
 import { donationOrdersService, normalizeDonationOrdersListResponse } from '../services/donationOrdersService';
+import EntityHistoryModal from '../components/modals/EntityHistoryModal';
 
 const DonationOrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -21,6 +22,7 @@ const DonationOrdersPage = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [historyEntityId, setHistoryEntityId] = useState(null);
 
   // Load donation orders on mount and when page changes
   useEffect(() => {
@@ -343,6 +345,26 @@ const DonationOrdersPage = () => {
                             <FaEye size={12} />
                           </motion.button>
 
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setHistoryEntityId(order.id)}
+                            title="Ø¹Ø±Ø¶ Ø§Ù„Ù€ history"
+                            style={{
+                              padding: '6px',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: 'linear-gradient(135deg, #0f172a, #334155)',
+                              color: '#fff',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <FaHistory size={12} />
+                          </motion.button>
+
                           {/* Approve Button */}
                           {order.status?.toLowerCase() === 'pending' && (
                             <motion.button
@@ -557,6 +579,13 @@ const DonationOrdersPage = () => {
             </motion.div>
           </motion.div>
         )}
+
+        <EntityHistoryModal
+          isOpen={Boolean(historyEntityId)}
+          entityId={historyEntityId}
+          title="Ø³Ø¬Ù„ Ø·Ù„Ø¨ Ø§Ù„ØªØ¨Ø±Ø¹"
+          onClose={() => setHistoryEntityId(null)}
+        />
       </div>
     </div>
   );

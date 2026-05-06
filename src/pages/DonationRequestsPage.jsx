@@ -8,6 +8,7 @@ import {
   FaExclamationTriangle,
   FaSpinner,
   FaEye,
+  FaHistory,
   FaMoneyBillWave,
   FaMapMarkerAlt,
   FaBuilding,
@@ -20,6 +21,7 @@ import { locationsService } from '../services/locationsService';
 import ViewDonationRequestModal from '../components/modals/ViewDonationRequestModal';
 import EditDonationRequestModal from '../components/modals/EditDonationRequestModal';
 import CreateDonationRequestModal from '../components/modals/CreateDonationRequestModal';
+import EntityHistoryModal from '../components/modals/EntityHistoryModal';
 
 const getTokenFromStorage = () => {
   return (
@@ -113,6 +115,7 @@ console.log('🛡️ Is Admin:', isAdmin);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState({});
   const [locations, setLocations] = useState([]);
+  const [historyEntityId, setHistoryEntityId] = useState(null);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -437,9 +440,17 @@ console.log('🛡️ Is Admin:', isAdmin);
             locations={locations}
           />
         )}
+        <EntityHistoryModal
+          isOpen={Boolean(historyEntityId)}
+          entityId={historyEntityId}
+          title="?????? ?????? ????????????"
+          onClose={() => setHistoryEntityId(null)}
+        />
       </div>
     </div>
   );
 };
 
 export default DonationRequestsPage;
+
+
