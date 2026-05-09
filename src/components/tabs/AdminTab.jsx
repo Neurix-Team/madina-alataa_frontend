@@ -698,6 +698,23 @@ const extractDashboardOverview = (data) => {
   return { stats, sections };
 };
 
+const buildDashboardKpis = (dashboardOverview, fallbackKpis) => {
+  const iconCycle = [FaChartBar, FaUsers, FaClipboardList, FaStar];
+  const toneCycle = ['indigo', 'green', 'blue', 'red'];
+
+  const apiKpis = dashboardOverview.stats
+    .filter((item) => typeof item.value === 'number')
+    .slice(0, 4)
+    .map((item, index) => ({
+      icon: iconCycle[index] || FaChartBar,
+      value: formatDashboardValue(item.value),
+      label: formatDashboardLabel(item.key),
+      tone: toneCycle[index] || 'indigo',
+    }));
+
+  return apiKpis.length > 0 ? apiKpis : fallbackKpis;
+};
+
 const DashboardObjectRows = ({ data }) => (
   <div className="admin-api-list">
     {Object.entries(data).map(([key, value]) => (
@@ -933,6 +950,16 @@ const AdminTab = () => {
   const openRequests = requests.filter((r) => r.status === 'open').length;
   const totalKP = userStats?.kp ?? 0;
   const dashboardOverview = useMemo(() => extractDashboardOverview(dashboardData), [dashboardData]);
+  const overviewKpis = useMemo(
+    () =>
+      buildDashboardKpis(dashboardOverview, [
+        { icon: FaHome, value: beneficiariesData.length, label: 'Ù…Ø³ØªÙÙŠØ¯ Ù…Ø³Ø¬Ù„', tone: 'indigo' },
+        { icon: FaHandshake, value: partnersData.length, label: 'Ø´Ø±ÙŠÙƒ ÙØ§Ø¹Ù„', tone: 'green' },
+        { icon: FaClipboardList, value: openRequests, label: 'Ø·Ù„Ø¨ Ù…ÙØªÙˆØ­', tone: 'blue' },
+        { icon: FaStar, value: totalKP.toLocaleString(), label: 'Ù†Ù‚Ø§Ø· Ø§Ù„Ø®ÙŠØ±', tone: 'red' },
+      ]),
+    [dashboardOverview, openRequests, totalKP]
+  );
 
   const requestsFiltered = useMemo(() => {
     const normalizedSearch = requestSearch.trim().toLowerCase();
@@ -1007,6 +1034,18 @@ const AdminTab = () => {
         {activeSection === 'overview' && (
           <>
             <div className="admin-kpi-grid">
+              {overviewKpis.map((item) => (
+                <KpiCard
+                  key={`api-${item.label}`}
+                  icon={item.icon}
+                  value={item.value}
+                  label={item.label}
+                  tone={item.tone}
+                />
+              ))}
+            </div>
+
+            <div className="admin-kpi-grid" style={{ display: 'none' }}>
               <KpiCard icon={FaHome} value={beneficiariesData.length} label="مستفيد مسجل" tone="indigo" />
               <KpiCard icon={FaHandshake} value={partnersData.length} label="شريك فاعل" tone="green" />
               <KpiCard icon={FaClipboardList} value={openRequests} label="طلب مفتوح" tone="blue" />

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { axiosClient } from '../services/axiosClient';
 import { volunteersService } from '../services/volunteersService';
+import { userLevelsService } from '../services/userLevelsService';
 import { useAuth } from '../hooks/useAuth';
 import { 
   FaUsers, FaUserPlus, FaUserShield, FaTrash, FaKey,
-  FaSearch, FaChevronRight, FaChevronLeft, FaUserCircle,
-  FaEnvelope, FaCalendarAlt, FaIdBadge, FaShieldAlt, FaHeart, FaUser, FaPlus, FaMinus
+  FaSearch, FaChevronRight, FaChevronLeft, FaUserCircle, FaEdit,
+  FaEnvelope, FaCalendarAlt, FaIdBadge, FaShieldAlt, FaHeart, FaUser, FaPlus, FaMinus, FaStar
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -236,6 +237,9 @@ const UsersManagementPage = () => {
       const resp = await axiosClient.get(`/api/user/${id}`);
       console.log('GET USER BY ID API RESPONSE:', resp.data);
       setSelectedUser(resp.data);
+      
+      // جلب بيانات المستوى للمستخدم
+      fetchUserLevel(id);
     } catch (err) {
       console.error('Failed to fetch user details:', err);
       setDetailsError('فشل في جلب تفاصيل المستخدم. قد يكون المعرف غير صحيح.');
@@ -356,7 +360,77 @@ const UsersManagementPage = () => {
   const [updateDonorError, setUpdateDonorError] = useState(null);
   const [updateDonorSuccess, setUpdateDonorSuccess] = useState(false);
 
+  // User Levels State
+  const [userLevelData, setUserLevelData] = useState(null);
+  const [loadingLevel, setLoadingLevel] = useState(false);
+  const [levelError, setLevelError] = useState(null);
+  const [editingLevel, setEditingLevel] = useState(false);
+  const [levelForm, setLevelForm] = useState({
+    xp: 0,
+    kp: 0,
+    levelId: ''
+  });
+  const [updatingLevel, setUpdatingLevel] = useState(false);
+
   const { user } = useAuth();
+
+  const fetchUserLevel = async (userId) => {
+    try {
+      setLoadingLevel(true);
+      setLevelError(null);
+      const data = await userLevelsService.getUserLevelAdmin(userId);
+      setUserLevelData(data);
+      setLevelForm({
+        xp: data.xp || 0,
+        kp: data.kp || 0,
+        levelId: data.level?.id || data.level?.levelId || data.levelId || ''
+      });
+    } catch (err) {
+      console.error('Failed to fetch user level:', err);
+      // إذا كان الخطأ 404، فهذا يعني أن المستخدم ليس لديه سجل مستويات بعد، لا نعتبرها مشكلة كبيرة
+      if (err.response?.status === 404) {
+        setUserLevelData(null);
+        setLevelForm({ xp: 0, kp: 0, levelId: '' });
+      } else {
+        setLevelError('فشل في جلب بيانات المستوى.');
+      }
+    } finally {
+      setLoadingLevel(false);
+    }
+  };
+
+  const handleUpdateLevel = async (e) => {
+    e.preventDefault();
+    const userId = selectedUser?.id || selectedUser?.userId;
+    if (!userId) return;
+
+    try {
+      setUpdatingLevel(true);
+      await userLevelsService.updateUserLevelAdmin(userId, levelForm);
+      setEditingLevel(false);
+      fetchUserLevel(userId); // Refresh data
+    } catch (err) {
+      console.error('Failed to update level:', err);
+      alert('فشل في تحديث المستوى.');
+    } finally {
+      setUpdatingLevel(false);
+    }
+  };
+
+  const handleDeleteLevel = async () => {
+    const userId = selectedUser?.id || selectedUser?.userId;
+    if (!userId) return;
+
+    if (!window.confirm('هل أنت متأكد من حذف بيانات المستوى لهذا المستخدم؟')) return;
+
+    try {
+      await userLevelsService.deleteUserLevelAdmin(userId);
+      fetchUserLevel(userId); // Refresh data
+    } catch (err) {
+      console.error('Failed to delete level:', err);
+      alert('فشل في حذف المستوى.');
+    }
+  };
 
   const normalizeRolesList = (payload) => {
     const source = payload?.items || payload?.data || payload?.result || payload?.value || payload;
@@ -1330,7 +1404,7 @@ const UsersManagementPage = () => {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
                     <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
                       <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>الاسم الكامل</span>
                       <span style={{ fontSize: 13, fontWeight: 700 }}>{selectedUser.fullName || selectedUser.fullname || 'غير متوفر'}</span>
@@ -1356,6 +1430,83 @@ const UsersManagementPage = () => {
                         )) || 'مستخدم'}
                       </div>
                     </div>
+                  </div>
+
+                  {/* قسم المستوى والـ XP */}
+                  <div style={{ padding: 16, borderRadius: 16, border: '1.5px solid #e2e8f0', background: '#f8faff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                      <h4 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <FaStar color="#f59e0b" />
+                        بيانات المستوى والـ XP
+                      </h4>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button 
+                          onClick={() => setEditingLevel(!editingLevel)}
+                          title="تعديل المستوى"
+                          style={{ border: 'none', background: '#6366f1', color: '#fff', width: 34, height: 34, borderRadius: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'grid', placeItems: 'center' }}
+                        >
+                          <FaEdit size={13} />
+                        </button>
+                        <button 
+                          onClick={handleDeleteLevel}
+                          title="حذف المستوى"
+                          style={{ border: 'none', background: '#ef4444', color: '#fff', width: 34, height: 34, borderRadius: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'grid', placeItems: 'center' }}
+                        >
+                          <FaTrash size={13} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {loadingLevel ? (
+                      <div style={{ fontSize: 12, color: '#64748b' }}>جاري التحميل...</div>
+                    ) : editingLevel ? (
+                      <form onSubmit={handleUpdateLevel} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
+                        <div>
+                          <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginBottom: 4 }}>XP</label>
+                          <input 
+                            type="number" 
+                            value={levelForm.xp} 
+                            onChange={(e) => setLevelForm({...levelForm, xp: Number(e.target.value)})}
+                            style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13 }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginBottom: 4 }}>KP</label>
+                          <input 
+                            type="number" 
+                            value={levelForm.kp} 
+                            onChange={(e) => setLevelForm({...levelForm, kp: Number(e.target.value)})}
+                            style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13 }}
+                          />
+                        </div>
+                        <div style={{ gridColumn: 'span 2' }}>
+                          <button 
+                            type="submit"
+                            disabled={updatingLevel}
+                            style={{ width: '100%', padding: '10px', borderRadius: 10, border: 'none', background: '#10b981', color: '#fff', fontWeight: 700, cursor: 'pointer', marginTop: 8 }}
+                          >
+                            {updatingLevel ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+                          </button>
+                        </div>
+                      </form>
+                    ) : userLevelData ? (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12 }}>
+                        <div style={{ textAlign: 'center', padding: 8, borderRadius: 10, background: '#fff', border: '1px solid #e2e8f0' }}>
+                          <span style={{ fontSize: 10, color: '#94a3b8', display: 'block' }}>المستوى</span>
+                          <span style={{ fontSize: 14, fontWeight: 900, color: '#4338ca' }}>{userLevelData.level?.levelNumber || 0}</span>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: 8, borderRadius: 10, background: '#fff', border: '1px solid #e2e8f0' }}>
+                          <span style={{ fontSize: 10, color: '#94a3b8', display: 'block' }}>XP</span>
+                          <span style={{ fontSize: 14, fontWeight: 900, color: '#f59e0b' }}>{userLevelData.xp || 0}</span>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: 8, borderRadius: 10, background: '#fff', border: '1px solid #e2e8f0' }}>
+                          <span style={{ fontSize: 10, color: '#94a3b8', display: 'block' }}>KP</span>
+                          <span style={{ fontSize: 14, fontWeight: 900, color: '#10b981' }}>{userLevelData.kp || 0}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>لا توجد بيانات مستوى لهذا المستخدم.</div>
+                    )}
                   </div>
                   
                   <button 

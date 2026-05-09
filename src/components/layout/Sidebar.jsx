@@ -42,6 +42,39 @@ import {
 } from 'react-icons/fa';
 import { getAvatarImageUrl } from '../../utils/avatarProfile';
 
+const NAV_PATHS = {
+  profile: '/profile-v2',
+  avatar: '/avatar',
+  impact: '/impact',
+  map: '/map',
+  badges: '/badges',
+  activities: '/activities',
+  levels: '/levels',
+  leaderboard: '/leaderboard',
+  orders: '/orders',
+  daily: '/daily-tasks',
+  explore: '/city-exploration',
+  city: '/city-map',
+  geo: '/geo-quests',
+  team: '/team-challenges',
+  'my-donations': '/my-donations',
+  notifications: '/notifications',
+  parents: '/parents',
+  admin: '/admin',
+  cases: '/cases',
+  'create-request': '/create-request',
+  'incoming-requests': '/incoming-requests',
+  'available-missions': '/available-missions',
+  locations: '/locations',
+  missions: '/missions',
+  'my-children': '/my-children',
+  'volunteer-requests': '/volunteer-requests',
+  'volunteer-orders': '/volunteer-orders',
+  'donation-orders-donor': '/approved-donation-requests',
+  'my-donation-orders': '/my-donation-orders',
+  'donation-orders': '/donation-orders',
+};
+
 
 
 // ── Injected CSS (keyframes + class-based styles) ─────────────────────────
@@ -421,79 +454,10 @@ export default function Sidebar({
   const isAdmin = user?.roles?.includes('admin');
   const isParent = user?.roles?.includes('parent');
 
-  const isItemActive = (id) => {
-    const pathMap = {
-      profile: '/profile-v2',
-      avatar: '/avatar',
-      impact: '/impact',
-      map: '/map',
-      badges: '/badges',
-      activities: '/activities',
-      levels: '/levels',
-      leaderboard: '/leaderboard',
-      orders: '/orders',
-      daily: '/daily-tasks',
-      explore: '/city-exploration',
-      city: '/city-map',
-      geo: '/geo-quests',
-      team: '/team-challenges',
-      'my-donations': '/my-donations',
-      notifications: '/notifications',
-      parents: '/parents',
-      admin: '/admin',
-      cases: '/cases',
-      'create-request': '/create-request',
-      'incoming-requests': '/incoming-requests',
-      'available-missions': '/available-missions',
-      locations: '/locations',
-      missions: '/missions',
-      'my-children': '/my-children',
-      'volunteer-requests': '/volunteer-requests',
-      'volunteer-orders': '/volunteer-orders',
-      // Donation Orders System
-      'donation-orders-donor': '/approved-donation-requests',
-      'my-donation-orders': '/my-donation-orders',
-      'donation-orders': '/donation-orders',
-    };
-    return location.pathname === pathMap[id] || activeTab === id;
-  };
+  const isItemActive = (id) => location.pathname === NAV_PATHS[id];
 
   const handleNavClick = (id) => {
-    const pathMap = {
-      profile: '/profile-v2',
-      avatar: '/avatar',
-      impact: '/impact',
-      map: '/map',
-      badges: '/badges',
-      activities: '/activities',
-      levels: '/levels',
-      leaderboard: '/leaderboard',
-      orders: '/orders',
-      daily: '/daily-tasks',
-      explore: '/city-exploration',
-      city: '/city-map',
-      geo: '/geo-quests',
-      team: '/team-challenges',
-      'my-donations': '/my-donations',
-      notifications: '/notifications',
-      parents: '/parents',
-      admin: '/admin',
-      cases: '/cases',
-      'create-request': '/create-request',
-      'incoming-requests': '/incoming-requests',
-      'available-missions': '/available-missions',
-      locations: '/locations',
-      missions: '/missions',
-      'my-children': '/my-children',
-      'volunteer-requests': '/volunteer-requests',
-      'volunteer-orders': '/volunteer-orders',
-      // Donation Orders System
-      'donation-orders-donor': '/approved-donation-requests',
-      'my-donation-orders': '/my-donation-orders',
-      'donation-orders': '/donation-orders',
-    };
-
-    const path = pathMap[id] || '/profile-v2';
+    const path = NAV_PATHS[id] || '/profile-v2';
 
     setActiveTab?.(id);
     setSidebarOpen(false);
@@ -504,7 +468,7 @@ export default function Sidebar({
     if (isAdmin && (item.id === 'parents' || item.id === 'create-request' || item.id === 'my-children')) {
       return false;
     }
-    if (isAdmin && item.id === 'my-donations') {
+    if (isAdmin && (item.id === 'my-donations' || item.id === 'my-donation-orders')) {
       return false;
     }
     // my-children is shown to all non-admin users (donors, volunteers, parents)

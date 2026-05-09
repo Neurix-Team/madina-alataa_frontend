@@ -13,9 +13,9 @@ import {
 import LocationIdMapSelector from '../shared/LocationIdMapSelector';
 
 const fieldShell =
-  'w-full rounded-2xl border border-white/10 bg-[#08101d]/80 px-4 py-3.5 text-white outline-none transition focus:border-blue-400/35 focus:bg-[#0d1728]';
+  'w-full rounded-2xl border border-white/10 bg-[#08101d]/80 px-5 py-4 text-lg text-white outline-none transition focus:border-blue-500/50 focus:bg-[#0d1728] focus:ring-4 focus:ring-blue-500/10 shadow-lg';
 
-const cardShell = 'rounded-[28px] border border-white/8 bg-white/5 p-6 md:p-7';
+const cardShell = 'rounded-[2.5rem] border border-white/8 bg-white/5 p-8 md:p-10 shadow-2xl';
 
 const rewardConfig = [
   { key: 'kpReward', label: 'نقاط الخير', icon: FaTrophy, accent: 'text-yellow-300' },
@@ -140,18 +140,19 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
               </motion.button>
             </div>
 
-            <form onSubmit={handleSubmit} className="relative max-h-[calc(92vh-88px)] overflow-y-auto px-6 py-6 md:px-8 md:py-8">
-              <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
-                <div className="grid gap-6">
+            <form onSubmit={handleSubmit} className="relative max-h-[calc(92vh-88px)] overflow-y-auto px-8 py-8 md:px-10 md:py-10">
+              <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+                <div className="grid gap-10">
                   <section className={cardShell}>
-                    <div className="mb-5 flex items-center gap-3 text-sm font-black uppercase tracking-[0.18em] text-blue-300">
-                      <FaTasks />
-                      <span>المعلومات الأساسية</span>
+                    <div className="mb-8 flex items-center gap-4 text-sm font-black uppercase tracking-[0.2em] text-blue-300 px-1">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                        <FaTasks className="text-blue-400" />
+                      </div>
+                      <span>المعلومات الجوهرية للمهمة</span>
                     </div>
-                    <div className="grid gap-5">
-                      <div>
-                        <label className="mb-2 flex items-center gap-2 text-sm font-black text-slate-300">
-                          <FaTasks className="text-blue-300" />
+                    <div className="grid gap-8">
+                      <div className="space-y-3">
+                        <label className="flex items-center gap-3 text-xs font-black uppercase tracking-widest text-slate-400 px-1">
                           <span>عنوان المهمة</span>
                         </label>
                         <input
@@ -161,14 +162,13 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                           onChange={handleChange}
                           required
                           className={fieldShell}
-                          placeholder="أدخل عنوان المهمة"
+                          placeholder="أدخل عنوان المهمة بشكل احترافي"
                         />
                       </div>
 
-                      <div className="grid gap-5 md:grid-cols-2">
-                        <div>
-                          <label className="mb-2 flex items-center gap-2 text-sm font-black text-slate-300">
-                            <FaShieldAlt className="text-indigo-300" />
+                      <div className="grid gap-8 md:grid-cols-2">
+                        <div className="space-y-3">
+                          <label className="flex items-center gap-3 text-xs font-black uppercase tracking-widest text-slate-400 px-1">
                             <span>مستوى الصعوبة</span>
                           </label>
                           <select name="difficulty" value={formData.difficulty} onChange={handleChange} className={fieldShell}>
@@ -179,10 +179,9 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                           </select>
                         </div>
 
-                        <div>
-                          <label className="mb-2 flex items-center gap-2 text-sm font-black text-slate-300">
-                            <FaStar className="text-yellow-300" />
-                            <span>الحالة</span>
+                        <div className="space-y-3">
+                          <label className="flex items-center gap-3 text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+                            <span>الحالة التشغيلية</span>
                           </label>
                           <select name="status" value={formData.status} onChange={handleChange} className={fieldShell}>
                             <option value={1}>نشطة</option>
@@ -191,10 +190,9 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                         </div>
                       </div>
 
-                      <div>
-                        <label className="mb-2 flex items-center gap-2 text-sm font-black text-slate-300">
-                          <FaLayerGroupSafe />
-                          <span>المستوى المطلوب</span>
+                      <div className="space-y-3">
+                        <label className="flex items-center gap-3 text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+                          <span>الحد الأدنى للمستوى</span>
                         </label>
                         <input
                           type="number"
@@ -209,26 +207,30 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                     </div>
                   </section>
 
-                  <LocationIdMapSelector
-                    locations={locations}
-                    selectedLocationId={formData.locationId}
-                    onSelect={handleLocationSelect}
-                    title="تعديل العنوان"
-                    subtitle="اختر عنوانًا واضحًا من الخريطة ليتم تحديث locationId."
-                  />
+                  <div className="rounded-[2.5rem] overflow-hidden border border-white/8 shadow-2xl">
+                    <LocationIdMapSelector
+                      locations={locations}
+                      selectedLocationId={formData.locationId}
+                      onSelect={handleLocationSelect}
+                      title="تحديث الإحداثيات"
+                      subtitle="قم بتحديد الموقع الجغرافي الدقيق للمهمة عبر الخريطة التفاعلية."
+                    />
+                  </div>
                 </div>
 
-                <div className="grid gap-6">
+                <div className="grid gap-10">
                   <section className={cardShell}>
-                    <div className="mb-5 flex items-center gap-3 text-sm font-black uppercase tracking-[0.18em] text-amber-300">
-                      <FaTrophy />
-                      <span>المكافآت</span>
+                    <div className="mb-8 flex items-center gap-4 text-sm font-black uppercase tracking-[0.2em] text-amber-300 px-1">
+                      <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                        <FaTrophy className="text-amber-400" />
+                      </div>
+                      <span>نظام المكافآت الاستحقاقية</span>
                     </div>
-                    <div className="grid gap-4">
+                    <div className="grid gap-6">
                       {rewardConfig.map(({ key, label, icon: Icon, accent }) => (
-                        <div key={key} className="rounded-[22px] border border-white/8 bg-black/20 p-4">
-                          <label className={`mb-3 flex items-center gap-2 text-sm font-black ${accent}`}>
-                            <Icon />
+                        <div key={key} className="rounded-[2rem] border border-white/5 bg-black/30 p-6 shadow-inner space-y-4">
+                          <label className={`flex items-center gap-3 text-xs font-black uppercase tracking-widest ${accent}`}>
+                            <Icon className="text-lg" />
                             <span>{label}</span>
                           </label>
                           <input
@@ -245,39 +247,41 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                   </section>
 
                   <section className={cardShell}>
-                    <div className="mb-5 flex items-center gap-3 text-sm font-black uppercase tracking-[0.18em] text-slate-300">
-                      <FaMapMarkerAlt />
-                      <span>مراجعة سريعة</span>
+                    <div className="mb-8 flex items-center gap-4 text-sm font-black uppercase tracking-[0.2em] text-slate-400 px-1">
+                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
+                        <FaMapMarkerAlt className="text-slate-400" />
+                      </div>
+                      <span>ملخص التغييرات</span>
                     </div>
-                    <div className="grid gap-3">
-                      <ReviewRow label="معرف المهمة" value={mission?.id || 'غير متوفر'} mono />
-                      <ReviewRow label="Location ID" value={formData.locationId || 'غير محدد'} mono />
-                      <ReviewRow label="الصعوبة" value={['سهل', 'متوسط', 'صعب', 'أسطوري'][formData.difficulty] || 'غير محدد'} />
-                      <ReviewRow label="الحالة" value={Number(formData.status) === 1 ? 'نشطة' : 'غير نشطة'} />
+                    <div className="grid gap-4">
+                      <ReviewRow label="كود المهمة" value={mission?.id || 'غير متوفر'} mono />
+                      <ReviewRow label="معرف الموقع" value={formData.locationId || 'غير محدد'} mono />
+                      <ReviewRow label="درجة الصعوبة" value={['سهل', 'متوسط', 'صعب', 'أسطوري'][formData.difficulty] || 'غير محدد'} />
+                      <ReviewRow label="حالة المهمة" value={Number(formData.status) === 1 ? 'نشطة' : 'غير نشطة'} />
                     </div>
                   </section>
                 </div>
               </div>
 
-              <div className="mt-6 flex gap-4 border-t border-white/8 pt-6">
+              <div className="mt-10 flex flex-col md:flex-row gap-5 border-t border-white/8 pt-10">
                 <motion.button
-                  whileHover={{ scale: 1.01 }}
+                  whileHover={{ scale: 1.01, backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                   whileTap={{ scale: 0.99 }}
                   type="button"
                   onClick={onClose}
-                  className="flex-1 rounded-[22px] border border-white/8 bg-white/5 px-6 py-4 text-lg font-black text-slate-200"
+                  className="flex-1 rounded-[1.5rem] border border-white/8 bg-white/5 px-8 py-5 text-lg font-black text-slate-400 shadow-xl transition-all"
                   disabled={loading}
                 >
-                  إلغاء
+                  إلغاء وحذف التعديلات
                 </motion.button>
                 <motion.button
-                  whileHover={{ scale: 1.01 }}
+                  whileHover={{ scale: 1.01, boxShadow: '0 20px 40px rgba(249,115,22,0.2)' }}
                   whileTap={{ scale: 0.99 }}
                   type="submit"
-                  className="flex-[1.4] rounded-[22px] bg-gradient-to-r from-orange-500 to-red-600 px-6 py-4 text-lg font-black text-white shadow-xl"
+                  className="flex-[1.6] rounded-[1.5rem] bg-gradient-to-r from-orange-600 to-red-600 px-8 py-5 text-xl font-black text-white shadow-2xl transition-all border border-white/10"
                   disabled={loading}
                 >
-                  {loading ? 'جاري تحديث المهمة...' : 'حفظ التعديلات'}
+                  {loading ? 'جاري المزامنة...' : 'اعتماد وحفظ المهمة'}
                 </motion.button>
               </div>
             </form>

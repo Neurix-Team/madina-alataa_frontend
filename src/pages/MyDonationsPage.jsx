@@ -51,12 +51,12 @@ const CSS = `
   }
 
   .md-header {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    border-radius: 0 0 24px 24px;
-    padding: 24px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 0 0 32px 32px;
+    padding: 32px 24px;
     margin-bottom: 24px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(30, 144, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.3);
     position: relative;
     overflow: hidden;
     animation: mdSlideInDown 0.5s ease-out;
@@ -100,19 +100,18 @@ const CSS = `
   }
 
   .md-title {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 900;
-    background: linear-gradient(135deg, #1d4ed8 0%, #7c3aed 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #ffffff;
     margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
   }
 
   .md-subtitle {
-    color: #64748b;
-    font-size: 13px;
+    font-size: 16px;
+    color: #cbd5e1;
     font-weight: 600;
-    margin: 4px 0 0 0;
+    margin-top: 8px;
   }
 
   .md-stats-grid {

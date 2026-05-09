@@ -4,7 +4,6 @@ import {
   FaHandsHelping,
   FaEye,
   FaHistory,
-  FaTrash,
   FaSpinner,
   FaExclamationTriangle,
   FaCheck,
@@ -17,8 +16,22 @@ import { volunteerOrdersService } from '../services/volunteerOrdersService';
 import EntityHistoryModal from '../components/modals/EntityHistoryModal';
 
 const getOrderId = (order) => order?.id || order?.volunteerOrderId || order?.orderId || null;
-const getOrderStatus = (order) => order?.status ?? order?.orderStatus ?? order?.state ?? order?.requestStatus ?? null;
+const getOrderStatus = (order) =>
+  order?.status ??
+  order?.orderStatus ??
+  order?.state ??
+  order?.requestStatus ??
+  order?.approvalStatus ??
+  order?.approvalState ??
+  order?.volunteerOrderStatus ??
+  order?.adminStatus ??
+  null;
 const getOrderProgress = (order) => order?.progress ?? order?.currentProgress ?? order?.completionProgress ?? 0;
+const PROGRESS_OPTIONS = [
+  { value: 0, label: 'لم يبدأ' },
+  { value: 1, label: 'قيد التنفيذ' },
+  { value: 2, label: 'مكتمل' },
+];
 
 const parseRoles = (user) => {
   const rawRoles = user?.roles || user?.role || [];
@@ -41,9 +54,30 @@ const normalizeStatus = (status) => {
 
   const normalized = String(status || '').trim().toLowerCase();
   if (['approved', 'approve', 'accepted', '2'].includes(normalized)) return 'approved';
+  if (['in_progress', 'in progress', 'processing', 'running', 'active', '4'].includes(normalized)) return 'in_progress';
   if (['rejected', 'reject', 'declined', '3'].includes(normalized)) return 'rejected';
   if (['pending', 'awaiting', '1'].includes(normalized)) return 'pending';
   return normalized || 'pending';
+};
+
+const deriveOrderStatus = (order) => {
+  const progress = Number(getOrderProgress(order)) || 0;
+  if (progress > 0) return 'in_progress';
+
+  const normalized = normalizeStatus(getOrderStatus(order));
+  if (normalized !== 'pending') return normalized;
+
+  if (
+    order?.isApproved === true ||
+    order?.approved === true ||
+    order?.approvalStatus === true ||
+    order?.approvedAt ||
+    order?.approvedBy
+  ) {
+    return 'approved';
+  }
+
+  return normalized;
 };
 
 const VolunteerOrdersPage = () => {
@@ -121,7 +155,7 @@ const VolunteerOrdersPage = () => {
       setSelectedOrder(response);
       setProgressDrafts((prev) => ({
         ...prev,
-        [orderId]: Number(response?.progress) || 0
+        [orderId]: Number(getOrderProgress(response)) || 0
       }));
     } catch (requestError) {
       setDetailsError(requestError.message || 'فشل في جلب التفاصيل');
@@ -221,6 +255,12 @@ const VolunteerOrdersPage = () => {
       const progressValue = Number(progressDrafts[orderId]) || 0;
       const updatedResponse = await volunteerOrdersService.updateVolunteerOrderProgress(orderId, progressValue);
       const updatedOrder = updatedResponse?.value || updatedResponse?.data || updatedResponse || {};
+      const nextProgress =
+        updatedOrder?.progress ??
+        updatedOrder?.currentProgress ??
+        updatedOrder?.completionProgress ??
+        progressValue;
+      const nextStatus = nextProgress > 0 ? 'in_progress' : (getOrderStatus(updatedOrder) || 'approved');
 
       const mergeUpdatedOrder = (order) => {
         if (getOrderId(order) !== orderId) return order;
@@ -228,20 +268,20 @@ const VolunteerOrdersPage = () => {
         return {
           ...order,
           ...updatedOrder,
-          progress: getOrderProgress(updatedOrder) || progressValue,
-          status: getOrderStatus(updatedOrder) || getOrderStatus(order) || 'approved',
+          progress: nextProgress,
+          status: nextStatus,
         };
       };
 
       setOrders((prev) => prev.map(mergeUpdatedOrder));
       setPendingOrders((prev) => prev.map(mergeUpdatedOrder));
-      setProgressDrafts((prev) => ({ ...prev, [orderId]: getOrderProgress(updatedOrder) || progressValue }));
+      setProgressDrafts((prev) => ({ ...prev, [orderId]: nextProgress }));
       if (getOrderId(selectedOrder) === orderId) {
         setSelectedOrder((prev) => ({
           ...prev,
           ...updatedOrder,
-          progress: getOrderProgress(updatedOrder) || progressValue,
-          status: getOrderStatus(updatedOrder) || getOrderStatus(prev) || 'approved',
+          progress: nextProgress,
+          status: nextStatus,
         }));
       }
 
@@ -262,6 +302,9 @@ const VolunteerOrdersPage = () => {
     if (normalized === 'approved') {
       return { label: 'approved', color: '#16a34a', bg: 'rgba(34,197,94,.14)' };
     }
+    if (normalized === 'in_progress') {
+      return { label: 'in progress', color: '#2563eb', bg: 'rgba(59,130,246,.14)' };
+    }
     if (normalized === 'rejected') {
       return { label: 'rejected', color: '#dc2626', bg: 'rgba(239,68,68,.14)' };
     }
@@ -269,7 +312,6 @@ const VolunteerOrdersPage = () => {
   };
 
   const pageTitle = isAdmin ? 'طلبات المتطوعين' : 'تطوعاتي';
-
   return (
     <div style={pageStyle}>
       <div style={containerStyle}>
@@ -371,8 +413,11 @@ const VolunteerOrdersPage = () => {
                 <AnimatePresence mode="wait">
                   {currentOrders.map((order, index) => {
                     const orderId = getOrderId(order);
-                    const chip = statusChip(getOrderStatus(order));
-                    const isApproved = normalizeStatus(getOrderStatus(order)) === 'approved';
+                    const derivedStatus = deriveOrderStatus(order);
+                    const chip = statusChip(derivedStatus);
+                    const normalizedStatus = normalizeStatus(derivedStatus);
+                    const isApproved = normalizedStatus === 'approved';
+                    const isPending = normalizedStatus === 'pending';
 
                     return (
                       <motion.div
@@ -405,24 +450,58 @@ const VolunteerOrdersPage = () => {
 
                           {isApproved && (
                             <div style={progressRowStyle}>
-                              <input
-                                type="number"
-                                min="0"
+                              <select
                                 value={progressDrafts[orderId] ?? getOrderProgress(order)}
-                                onChange={(event) => setProgressDrafts((prev) => ({
-                                  ...prev,
-                                  [orderId]: Number(event.target.value)
-                                }))}
-                                style={{ ...inputStyle, maxWidth: 120 }}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => handleProgressSave(orderId)}
+                                onChange={async (event) => {
+                                  const newProgress = Number(event.target.value);
+                                  setProgressDrafts((prev) => ({
+                                    ...prev,
+                                    [orderId]: newProgress
+                                  }));
+                                  
+                                  // Immediate API call on change
+                                  setActionLoading((prev) => ({ ...prev, [orderId]: 'progress' }));
+                                  try {
+                                    const updatedResponse = await volunteerOrdersService.updateVolunteerOrderProgress(orderId, newProgress);
+                                    const updatedOrder = updatedResponse?.value || updatedResponse?.data || updatedResponse || {};
+                                    const nextStatus = newProgress > 0 ? 'in_progress' : (getOrderStatus(updatedOrder) || 'approved');
+                                    
+                                    const mergeUpdatedOrder = (order) => {
+                                      if (getOrderId(order) !== orderId) return order;
+                                      return {
+                                        ...order,
+                                        ...updatedOrder,
+                                        progress: getOrderProgress(updatedOrder) || newProgress,
+                                        status: nextStatus,
+                                      };
+                                    };
+                                    
+                                    setOrders((prev) => prev.map(mergeUpdatedOrder));
+                                    setPendingOrders((prev) => prev.map(mergeUpdatedOrder));
+                                    if (getOrderId(selectedOrder) === orderId) {
+                                      setSelectedOrder((prev) => ({
+                                        ...prev,
+                                        ...updatedOrder,
+                                        progress: getOrderProgress(updatedOrder) || newProgress,
+                                        status: nextStatus,
+                                      }));
+                                    }
+                                  } catch (error) {
+                                    console.error('Failed to update progress:', error);
+                                    alert(error.message || 'فشل في تحديث التقدم');
+                                  } finally {
+                                    setActionLoading((prev) => ({ ...prev, [orderId]: null }));
+                                  }
+                                }}
                                 disabled={actionLoading[orderId] === 'progress'}
-                                style={primaryButtonStyle}
+                                style={{ ...inputStyle, maxWidth: 120 }}
                               >
-                                {actionLoading[orderId] === 'progress' ? 'جاري...' : 'حفظ التقدم'}
-                              </button>
+                                {PROGRESS_OPTIONS.map((option) => (
+                                  <option key={option.value} value={option.value}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                              </select>
                             </div>
                           )}
                         </div>
@@ -439,16 +518,7 @@ const VolunteerOrdersPage = () => {
                           >
                             <FaHistory />
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(orderId)}
-                            disabled={actionLoading[orderId] === 'delete'}
-                            style={{ ...iconButtonStyle, color: '#dc2626', borderColor: 'rgba(239,68,68,.22)' }}
-                            title="حذف"
-                          >
-                            {actionLoading[orderId] === 'delete' ? <FaSpinner className="animate-spin" /> : <FaTrash />}
-                          </button>
-                          {isAdmin && activeTab === 'pending' && (
+                          {isAdmin && isPending && (
                             <>
                               <button
                                 type="button"
@@ -499,7 +569,7 @@ const VolunteerOrdersPage = () => {
             </div>
           </div>
 
-          <div style={panelStyle}>
+          <div style={{ ...panelStyle, display: 'none' }}>
             <div style={panelHeaderStyle}>
               <div>
                 <h2 style={sectionTitleStyle}>تفاصيل عنصر التطوع</h2>
@@ -523,14 +593,63 @@ const VolunteerOrdersPage = () => {
               <div style={{ display: 'grid', gap: 16 }}>
                 <DetailItem label="المعرف" value={getOrderId(selectedOrder) || '-'} />
                 <DetailItem label="ServiceRequestId" value={selectedOrder.serviceRequestId || '-'} />
-                <DetailItem label="الحالة" value={String(getOrderStatus(selectedOrder) || '-')} />
-                <DetailItem label="التقدم" value={String(getOrderProgress(selectedOrder))} />
-                <DetailItem label="سبب الرفض" value={selectedOrder.rejectionReason || '-'} />
+                <DetailItem label="الحالة" value={String(deriveOrderStatus(selectedOrder) || '-')} />
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {(detailsLoading || detailsError || selectedOrder) && (
+        <div
+          style={overlayStyle}
+          onClick={() => {
+            setSelectedOrder(null);
+            setDetailsError(null);
+            setDetailsLoading(false);
+          }}
+        >
+          <div style={modalStyle} onClick={(event) => event.stopPropagation()}>
+            <div style={modalHeaderStyle}>
+              <div>
+                <h3 style={{ margin: 0, color: '#0f172a' }}>تفاصيل طلب التطوع</h3>
+                <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
+                  معلومات الطلب وحالته الحالية
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedOrder(null);
+                  setDetailsError(null);
+                  setDetailsLoading(false);
+                }}
+                style={iconButtonStyle}
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            {detailsLoading ? (
+              <div style={loadingBoxStyle}>
+                <FaSpinner className="animate-spin" />
+                <span>جاري تحميل التفاصيل...</span>
+              </div>
+            ) : detailsError ? (
+              <div style={errorAlertStyle}>
+                <FaExclamationTriangle />
+                <span>{detailsError}</span>
+              </div>
+            ) : selectedOrder ? (
+              <div style={{ display: 'grid', gap: 16 }}>
+                <DetailItem label="المعرف" value={getOrderId(selectedOrder) || '-'} />
+                <DetailItem label="معرف طلب الخدمة" value={selectedOrder.serviceRequestId || '-'} />
+                <DetailItem label="الحالة" value={String(deriveOrderStatus(selectedOrder) || '-')} />
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
 
       {showRejectModal && (
         <div style={overlayStyle} onClick={() => setShowRejectModal(false)}>
@@ -572,103 +691,121 @@ const DetailItem = ({ label, value }) => (
   </div>
 );
 
-const pageStyle = { padding: 24 };
-const containerStyle = { display: 'grid', gap: 18 };
+const pageStyle = { padding: 16 };
+const containerStyle = { display: 'grid', gap: 16 };
 const heroStyle = {
   display: 'flex',
   justifyContent: 'space-between',
   gap: 16,
   alignItems: 'center',
-  padding: 24,
+  padding: '24px 32px',
   borderRadius: 24,
-  background: 'linear-gradient(135deg, rgba(14,165,233,.12), rgba(37,99,235,.08))',
-  border: '1px solid rgba(59,130,246,.16)',
+  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+  border: '1px solid rgba(59,130,246,0.3)',
   flexWrap: 'wrap',
+  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
+  marginBottom: 24
 };
 const heroIconStyle = {
-  width: 64, height: 64, borderRadius: 18, display: 'grid', placeItems: 'center',
-  background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', color: '#fff', fontSize: 28,
+  width: 48, height: 48, borderRadius: 16, display: 'grid', placeItems: 'center',
+  background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', color: '#fff', fontSize: 24,
   boxShadow: '0 18px 34px rgba(37,99,235,.25)',
 };
-const heroTitleStyle = { margin: 0, fontSize: 28, fontWeight: 900, color: '#0f172a' };
-const heroSubtitleStyle = { margin: '8px 0 0', color: '#475569', fontSize: 14 };
-const statsGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 };
-const statCardStyle = {
-  padding: 18, borderRadius: 20, background: '#fff', border: '1px solid rgba(226,232,240,.9)',
-  boxShadow: '0 10px 30px rgba(15,23,42,.04)', display: 'grid', gap: 8,
+const heroTitleStyle = { 
+  margin: 0, 
+  fontSize: 28, 
+  fontWeight: 900, 
+  color: '#ffffff',
+  textShadow: '0 2px 4px rgba(0,0,0,0.3)'
 };
-const statLabelStyle = { color: '#64748b', fontSize: 13, fontWeight: 700 };
-const statValueStyle = { color: '#0f172a', fontSize: 24, fontWeight: 900 };
-const tabsStyle = { display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' };
+const heroSubtitleStyle = { 
+  margin: '8px 0 0', 
+  color: '#cbd5e1', 
+  fontSize: 14,
+  fontWeight: 600
+};
+const statsGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 };
+const statCardStyle = {
+  padding: 14, borderRadius: 16, background: '#fff', border: '1px solid rgba(226,232,240,.9)',
+  boxShadow: '0 8px 20px rgba(15,23,42,.04)', display: 'grid', gap: 6,
+};
+const statLabelStyle = { color: '#64748b', fontSize: 12, fontWeight: 700 };
+const statValueStyle = { color: '#0f172a', fontSize: 20, fontWeight: 900 };
+const tabsStyle = { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' };
 const tabButtonStyle = {
-  border: '1px solid rgba(148,163,184,.25)', borderRadius: 14, padding: '10px 16px',
-  background: '#fff', color: '#334155', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+  border: '1px solid rgba(148,163,184,.25)', borderRadius: 12, padding: '8px 12px',
+  background: '#fff', color: '#334155', fontSize: 12, fontWeight: 700, cursor: 'pointer',
 };
 const activeTabStyle = { background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', color: '#fff', borderColor: 'transparent' };
-const contentGridStyle = { display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(320px, .9fr)', gap: 18 };
+const contentGridStyle = { display: 'grid', gridTemplateColumns: '1fr', gap: 14 };
 const panelStyle = {
-  padding: 20, borderRadius: 24, background: '#fff', border: '1px solid rgba(226,232,240,.9)',
-  boxShadow: '0 18px 40px rgba(15,23,42,.05)', display: 'grid', gap: 18,
+  padding: 16, borderRadius: 20, background: '#fff', border: '1px solid rgba(226,232,240,.9)',
+  boxShadow: '0 12px 24px rgba(15,23,42,.05)', display: 'grid', gap: 14,
 };
 const panelHeaderStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 };
-const sectionTitleStyle = { margin: 0, color: '#0f172a', fontSize: 20, fontWeight: 900 };
-const sectionMetaStyle = { margin: '6px 0 0', color: '#64748b', fontSize: 12 };
+const sectionTitleStyle = { margin: 0, color: '#0f172a', fontSize: 16, fontWeight: 900 };
+const sectionMetaStyle = { margin: '4px 0 0', color: '#64748b', fontSize: 11 };
 const loadingBoxStyle = {
-  minHeight: 220, borderRadius: 20, border: '1px dashed rgba(148,163,184,.45)',
-  display: 'grid', placeItems: 'center', gap: 12, color: '#64748b', textAlign: 'center', padding: 24,
+  minHeight: 180, borderRadius: 16, border: '1px dashed rgba(148,163,184,.45)',
+  display: 'grid', placeItems: 'center', gap: 8, color: '#64748b', textAlign: 'center', padding: 16,
 };
 const emptyBoxStyle = {
-  minHeight: 220, borderRadius: 20, background: 'rgba(248,250,252,.9)', border: '1px dashed rgba(148,163,184,.45)',
-  display: 'grid', placeItems: 'center', color: '#64748b', textAlign: 'center', padding: 24,
+  minHeight: 180, borderRadius: 16, background: 'rgba(248,250,252,.9)', border: '1px dashed rgba(148,163,184,.45)',
+  display: 'grid', placeItems: 'center', color: '#64748b', textAlign: 'center', padding: 16,
 };
 const errorAlertStyle = {
-  display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderRadius: 16,
+  display: 'flex', alignItems: 'center', gap: 8, padding: '12px 12px', borderRadius: 12,
   background: 'rgba(239,68,68,.12)', color: '#dc2626', border: '1px solid rgba(239,68,68,.18)',
 };
 const cardStyle = {
-  padding: 18, borderRadius: 20, border: '1px solid rgba(226,232,240,.9)',
-  background: 'linear-gradient(180deg, #fff, #f8fbff)', display: 'grid', gap: 14,
+  padding: 14, borderRadius: 16, border: '1px solid rgba(226,232,240,.9)',
+  background: 'linear-gradient(180deg, #fff, #f8fbff)', display: 'grid', gap: 12,
 };
-const chipStyle = { borderRadius: 999, padding: '7px 12px', fontSize: 12, fontWeight: 800, whiteSpace: 'nowrap' };
-const metaGridStyle = { display: 'flex', gap: 12, flexWrap: 'wrap' };
+const chipStyle = { borderRadius: 999, padding: '6px 10px', fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap' };
+const metaGridStyle = { display: 'flex', gap: 8, flexWrap: 'wrap' };
 const metaItemStyle = {
-  display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', borderRadius: 999,
-  background: 'rgba(241,245,249,.9)', color: '#475569', fontSize: 12, fontWeight: 700,
+  display: 'inline-flex', alignItems: 'center', gap: 4, padding: '6px 10px', borderRadius: 999,
+  background: 'rgba(241,245,249,.9)', color: '#475569', fontSize: 11, fontWeight: 700,
 };
-const actionsRowStyle = { display: 'flex', gap: 10, justifyContent: 'flex-end', flexWrap: 'wrap' };
+const actionsRowStyle = { display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' };
 const iconButtonStyle = {
-  width: 42, height: 42, borderRadius: 12, border: '1px solid rgba(148,163,184,.2)', background: '#fff',
+  width: 36, height: 36, borderRadius: 10, border: '1px solid rgba(148,163,184,.2)', background: '#fff',
   color: '#2563eb', display: 'grid', placeItems: 'center', cursor: 'pointer',
 };
 const primaryButtonStyle = {
-  border: 'none', borderRadius: 14, padding: '12px 18px', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
-  color: '#fff', fontSize: 14, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+  border: 'none', borderRadius: 12, padding: '10px 14px', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
+  color: '#fff', fontSize: 12, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
 };
 const secondaryButtonStyle = {
-  border: '1px solid rgba(148,163,184,.25)', borderRadius: 14, padding: '10px 16px', background: '#fff',
-  color: '#334155', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+  border: '1px solid rgba(148,163,184,.25)', borderRadius: 12, padding: '8px 12px', background: '#fff',
+  color: '#334155', fontSize: 12, fontWeight: 700, cursor: 'pointer',
 };
-const paginationStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' };
-const progressRowStyle = { display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' };
+const paginationStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' };
+const progressRowStyle = { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' };
 const detailItemStyle = {
-  padding: 14, borderRadius: 16, background: 'rgba(248,250,252,.95)', border: '1px solid rgba(226,232,240,.9)',
-  display: 'grid', gap: 6,
+  padding: 12, borderRadius: 12, background: 'rgba(248,250,252,.95)', border: '1px solid rgba(226,232,240,.9)',
+  display: 'grid', gap: 4,
 };
-const detailLabelStyle = { color: '#64748b', fontSize: 12, fontWeight: 700 };
-const detailValueStyle = { color: '#0f172a', fontSize: 14, fontWeight: 800, wordBreak: 'break-word' };
+const detailLabelStyle = { color: '#64748b', fontSize: 11, fontWeight: 700 };
+const detailValueStyle = { color: '#0f172a', fontSize: 12, fontWeight: 800, wordBreak: 'break-word' };
 const inputStyle = {
-  width: '100%', padding: '11px 12px', borderRadius: 12, border: '1px solid rgba(203,213,225,.95)',
-  background: '#fff', color: '#0f172a', fontSize: 14,
+  width: '100%', padding: '8px 10px', borderRadius: 10, border: '1px solid rgba(203,213,225,.95)',
+  background: '#fff', color: '#0f172a', fontSize: 12,
 };
 const overlayStyle = {
-  position: 'fixed', inset: 0, background: 'rgba(15,23,42,.52)', display: 'grid', placeItems: 'center', zIndex: 1100, padding: 20,
+  position: 'fixed', inset: 0, background: 'rgba(15,23,42,.52)', display: 'grid', placeItems: 'center', zIndex: 1100, padding: 16,
 };
 const modalStyle = {
-  width: 'min(620px, 100%)', padding: 22, borderRadius: 24, background: '#fff', boxShadow: '0 30px 70px rgba(15,23,42,.22)', display: 'grid', gap: 16,
+  width: 'min(520px, 95%)', padding: 18, borderRadius: 20, background: '#fff', boxShadow: '0 24px 48px rgba(15,23,42,.22)', display: 'grid', gap: 12,
 };
+const modalHeaderStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 };
 const preStyle = {
   margin: 0, padding: 14, borderRadius: 16, background: '#0f172a', color: '#e2e8f0',
   whiteSpace: 'pre-wrap', wordBreak: 'break-word', direction: 'ltr', textAlign: 'left',
 };
 
 export default VolunteerOrdersPage;
+
+
+
+

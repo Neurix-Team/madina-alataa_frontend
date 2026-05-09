@@ -22,6 +22,20 @@
   min-height: 100vh;
   direction: rtl;
   color: var(--pro-text-main);
+}
+
+.mission-page {
+  background: transparent;
+}
+
+.donation-requests-page,
+.create-donation-page,
+.donation-modal-shell {
+  background: transparent;
+}
+
+.create-donation-page,
+.donation-modal-shell {
   background:
     radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 30%),
     radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 26%),
@@ -36,6 +50,83 @@
   padding: 28px 20px 48px;
 }
 
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .mission-page__container,
+  .donation-requests-page__container,
+  .create-donation-page__container {
+    padding: 16px 12px 24px;
+  }
+  
+  .mission-page__hero,
+  .donation-requests-page__hero,
+  .create-donation-page__hero {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .mission-page__stats,
+  .donation-requests-page__stats,
+  .create-donation-page__stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .mission-page__tabs,
+  .donation-requests-page__tabs {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .mission-page__content-grid,
+  .donation-requests-page__content-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .mission-page__panel,
+  .donation-requests-page__panel {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .mission-page__container,
+  .donation-requests-page__container,
+  .create-donation-page__container {
+    padding: 12px 8px 16px;
+  }
+  
+  .mission-page__hero,
+  .donation-requests-page__hero,
+  .create-donation-page__hero {
+    padding: 16px;
+  }
+  
+  .mission-page__stats,
+  .donation-requests-page__stats {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  
+  .mission-page__tabs,
+  .donation-requests-page__tabs {
+    font-size: 14px;
+  }
+  
+  .mission-page__card,
+  .donation-requests-page__card {
+    padding: 12px;
+  }
+  
+  .mission-page__actions,
+  .donation-requests-page__actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
 .mission-page__hero,
 .donation-requests-page__hero,
 .create-donation-page__hero {
@@ -45,11 +136,11 @@
   gap: 24px;
   flex-wrap: wrap;
   margin-bottom: 32px;
-  padding: 28px;
-  border-radius: 28px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(248, 250, 252, 0.74));
-  border: 1px solid var(--pro-border-soft);
-  box-shadow: var(--pro-shadow-lg);
+  padding: 32px;
+  border-radius: 32px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 .mission-page__heroGroup,
@@ -97,10 +188,11 @@
 .create-donation-page__heroTitle,
 .donation-modal__heroTitle {
   margin: 0;
-  font-size: clamp(2rem, 3vw, 3.5rem);
+  font-size: clamp(2.5rem, 4vw, 4rem);
   font-weight: 900;
   line-height: 1.05;
-  color: var(--pro-text-main);
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .mission-page__heroSubtitle,
@@ -108,8 +200,8 @@
 .create-donation-page__heroSubtitle,
 .donation-modal__heroSubtitle {
   margin: 0;
-  color: var(--pro-text-soft);
-  font-size: 1rem;
+  color: #cbd5e1;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 

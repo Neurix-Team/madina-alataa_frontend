@@ -39,6 +39,14 @@ export const normalizeDonationRequestsListResponse = (responseData) => {
   };
 };
 
+const buildEmptyDonationRequestsListResponse = (pageNumber = 1, pageSize = 10) => ({
+  items: [],
+  totalCount: 0,
+  pageNumber,
+  pageSize,
+  totalPages: 1,
+});
+
 export const donationRequestsService = {
   /**
    * Create a new donation request (User)
@@ -98,9 +106,12 @@ export const donationRequestsService = {
       return response.data;
     } catch (error) {
       console.error('❌ Error fetching donation requests:', error);
-
       if (error.response) {
         console.error('❌ API Error:', error.response.data);
+        if (error.response.status === 403) {
+          console.warn('⚠️ Returning an empty donation requests list for forbidden access.');
+          return buildEmptyDonationRequestsListResponse(pageNumber, pageSize);
+        }
         throw new Error(error.response.data?.message || 'فشل في جلب طلبات التبرع');
       }
 
@@ -124,9 +135,12 @@ export const donationRequestsService = {
       return response.data;
     } catch (error) {
       console.error('❌ Error fetching approved donation requests:', error);
-
       if (error.response) {
         console.error('❌ API Error:', error.response.data);
+        if (error.response.status === 403) {
+          console.warn('⚠️ Returning an empty approved donation requests list for forbidden access.');
+          return buildEmptyDonationRequestsListResponse(pageNumber, pageSize);
+        }
         throw new Error(error.response.data?.message || 'فشل في جلب الطلبات المقبولة');
       }
 
@@ -150,9 +164,12 @@ export const donationRequestsService = {
       return response.data;
     } catch (error) {
       console.error('❌ Error fetching my donation requests:', error);
-
       if (error.response) {
         console.error('❌ API Error:', error.response.data);
+        if (error.response.status === 403) {
+          console.warn('⚠️ Returning an empty personal donation requests list for forbidden access.');
+          return buildEmptyDonationRequestsListResponse(pageNumber, pageSize);
+        }
         throw new Error(error.response.data?.message || 'فشل في جلب طلباتي');
       }
 

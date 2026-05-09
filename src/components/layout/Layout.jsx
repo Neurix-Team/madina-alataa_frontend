@@ -2,51 +2,59 @@
 
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import DashboardCards from '../common/DashboardCards';
 import Notification from '../common/Notification';
 import RocketBackground from '../common/RocketBackground';
 import CanvasBackground from '../common/CanvasBackground';
 import ConfettiOverlay from '../common/ConfettiOverlay';
-import XpBar from '../common/XpBar';
 import LevelUpModal from '../modals/LevelUpModal';
 import useGameState from '../../hooks/useGameState';
 import { useState } from 'react';
 
+const TAB_TO_PATH = {
+  map: '/map',
+  profile: '/profile-v2',
+  avatar: '/avatar',
+  cases: '/cases',
+  daily: '/daily-tasks',
+  explore: '/city-exploration',
+  city: '/city-map',
+  geo: '/geo-quests',
+  team: '/team-challenges',
+  badges: '/badges',
+  leaderboard: '/leaderboard',
+  impact: '/impact',
+  parents: '/parents',
+  'create-request': '/create-request',
+  'my-donations': '/my-donations',
+  orders: '/orders',
+  'available-missions': '/available-missions',
+  locations: '/locations',
+  activities: '/activities',
+  levels: '/levels',
+  missions: '/missions',
+  admin: '/admin',
+  'incoming-requests': '/incoming-requests',
+  'my-children': '/my-children',
+  'volunteer-requests': '/volunteer-requests',
+  'volunteer-orders': '/volunteer-orders',
+  'donation-orders-donor': '/approved-donation-requests',
+  'my-donation-orders': '/my-donation-orders',
+  'donation-orders': '/donation-orders',
+  notifications: '/notifications',
+};
+
+const PATH_TO_TAB = Object.fromEntries(
+  Object.entries(TAB_TO_PATH).map(([tab, path]) => [path, tab])
+);
+
 const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-
-  const PATH_TO_TAB = {
-    '/map': 'map',
-    '/daily-tasks': 'daily',
-    '/city-exploration': 'explore',
-    '/badges': 'badges',
-    '/activities': 'activities',
-    '/levels': 'levels',
-    '/profile-v2': 'profile',
-    '/volunteer-requests': 'volunteer-requests',
-    '/volunteer-orders': 'volunteer-orders',
-  };
-
-  const activeTab = PATH_TO_TAB[location.pathname] || 'profile';
+  const activeTab = PATH_TO_TAB[location.pathname] || '';
 
   const handleNavClick = (id) => {
-    const pathMap = {
-      map: '/map',
-      daily: '/daily-tasks',
-      explore: '/city-exploration',
-      badges: '/badges',
-      activities: '/activities',
-      levels: '/levels',
-      profile: '/profile-v2',
-      'volunteer-requests': '/volunteer-requests',
-      'volunteer-orders': '/volunteer-orders',
-    };
-    const path = pathMap[id];
+    const path = TAB_TO_PATH[id];
     if (path) {
       navigate(path);
     }
@@ -54,7 +62,7 @@ const Layout = () => {
 
   const { state, actions } = useGameState();
   const {
-    userStats, avatarTheme, completedQuests,
+    userStats, avatarTheme,
     showLevelUp, levelUpData,
     notification,
   } = state;
@@ -62,12 +70,6 @@ const Layout = () => {
     setActiveTab,
     setShowLevelUp,
   } = actions;
-
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const completedCount = completedQuests instanceof Set
-    ? completedQuests.size
-    : (completedQuests?.length ?? 0);
 
   // ── Mobile Nav ────────────────────────────────────────────────────────────
   const MOBILE_NAV = [
@@ -121,14 +123,6 @@ const Layout = () => {
       ))}
     </nav>
   );
-
-  const setActiveTabWithPath = (tab) => {
-    setActiveTab(tab);
-    const path = TAB_TO_PATH[tab];
-    if (path) {
-      navigate(path);
-    }
-  };
 
   return (
     <>
@@ -204,23 +198,6 @@ const Layout = () => {
 
         {/* Mobile Nav Bar */}
         <MobileNavBar activeTab={activeTab} onNavClick={handleNavClick} />
-
-        {/* Mobile sidebar overlay */}
-        {isSidebarOpen && (
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.5)',
-              zIndex: 55,
-              display: window.innerWidth <= 768 ? 'block' : 'none',
-            }}
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
 
         {/* Modals and overlays */}
         {showLevelUp && (

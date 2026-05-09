@@ -5,6 +5,42 @@ import { avatarService } from '../services/avatarService';
 import { profilesService } from '../services/profilesService';
 import { syncAvatarProfileFromApiAvatar } from '../utils/avatarProfile';
 
+const AvatarPortrait = ({ avatarData }) => {
+  const isFemale = Number(avatarData.gender) === 2;
+  const skinColor = avatarData.skinColor || '#F1C27D';
+  const hairColor = avatarData.hairColor || '#2f1f15';
+  const clothesColor = avatarData.clothesColor || '#2563eb';
+
+  return (
+    <svg viewBox="0 0 160 160" width="100%" height="100%" aria-hidden="true">
+      <defs>
+        <linearGradient id="avatarPreviewBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#f8fbff" />
+          <stop offset="100%" stopColor="#dbeafe" />
+        </linearGradient>
+      </defs>
+      <rect width="160" height="160" rx="80" fill="url(#avatarPreviewBg)" />
+      <ellipse cx="80" cy="145" rx="54" ry="34" fill={clothesColor} opacity="0.95" />
+      <rect x="58" y="88" width="44" height="24" rx="14" fill={skinColor} />
+      <ellipse cx="80" cy="70" rx="30" ry="34" fill={skinColor} />
+      {isFemale ? (
+        <>
+          <path d="M44 72c0-30 18-46 36-46s36 16 36 46v20c-7-16-19-24-36-24s-29 8-36 24V72z" fill={hairColor} />
+          <path d="M52 66c4-18 16-28 28-28s24 10 28 28c-9-8-18-12-28-12S61 58 52 66z" fill={hairColor} />
+        </>
+      ) : (
+        <>
+          <path d="M50 66c2-22 18-34 30-34s28 12 30 34c-10-9-20-13-30-13S60 57 50 66z" fill={hairColor} />
+          <path d="M54 54c6-10 14-16 26-16 11 0 20 6 26 16-9-4-17-6-26-6-10 0-18 2-26 6z" fill={hairColor} opacity="0.92" />
+        </>
+      )}
+      <circle cx="69" cy="72" r="3" fill="#1f2937" />
+      <circle cx="91" cy="72" r="3" fill="#1f2937" />
+      <path d="M71 88c4 5 14 5 18 0" fill="none" stroke="#7c2d12" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+};
+
 const AvatarEditPage = () => {
   const [avatarData, setAvatarData] = useState({
     gender: 1,
@@ -158,7 +194,7 @@ const AvatarEditPage = () => {
         width: '120px',
         height: '120px',
         borderRadius: '50%',
-        background: `linear-gradient(135deg, ${avatarData.skinColor}, ${avatarData.clothesColor})`,
+        background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -168,9 +204,17 @@ const AvatarEditPage = () => {
         margin: '0 auto 24px'
       }}>
         <div style={{
+          position: 'absolute',
+          inset: '10px',
+          zIndex: 1
+        }}>
+          <AvatarPortrait avatarData={avatarData} />
+        </div>
+        <div style={{
           fontSize: '48px',
           color: avatarData.hairColor,
-          textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+          textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+          opacity: 0
         }}>
           {avatarData.gender === 1 ? '👨' : '👩'}
         </div>

@@ -166,14 +166,13 @@ const MyDonationOrdersPage = () => {
   }
 
   return (
-    <div className="my-donation-orders-page" style={{ padding: '24px', minHeight: '100vh' }}>
+    <div className="pro-page" style={{ background: 'transparent' }} dir="rtl">
       <div className="pro-container">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="pro-header"
-          style={{ marginBottom: '24px' }}
         >
           <div className="pro-header-left">
             <motion.button
@@ -181,16 +180,16 @@ const MyDonationOrdersPage = () => {
               whileTap={{ scale: 0.95 }}
               onClick={() => window.history.back()}
               className="pro-btn pro-btn-secondary"
-              style={{ marginRight: '16px', padding: '8px 16px' }}
+              style={{ marginLeft: '16px', padding: '12px' }}
             >
-              <FaArrowLeft />
+              <FaArrowRight />
             </motion.button>
             <div className="pro-header-icon" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               <FaDonate />
             </div>
             <div>
-              <h2 className="pro-header-title">تبرعاتي</h2>
-              <p className="pro-header-subtitle">عرض جميع تبرعاتي وحالتها</p>
+              <h1 className="pro-header-title">تبرعاتي</h1>
+              <p className="pro-header-subtitle">عرض ومتابعة جميع تبرعاتي الشخصية وحالتها</p>
             </div>
           </div>
         </motion.div>

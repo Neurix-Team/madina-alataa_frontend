@@ -70,13 +70,46 @@ const normalizeVolunteerOrderStatus = (status) => {
   if (typeof status === 'number') {
     if (status === 2) return 'approved';
     if (status === 3) return 'rejected';
+    if (status === 4) return 'in_progress';
     return 'pending';
   }
 
   const normalized = String(status || '').trim().toLowerCase();
   if (['approved', 'approve', 'accepted', '2'].includes(normalized)) return 'approved';
+  if (['in_progress', 'in progress', 'processing', 'running', 'active', '4'].includes(normalized)) return 'in_progress';
   if (['rejected', 'reject', 'declined', '3'].includes(normalized)) return 'rejected';
   return 'pending';
+};
+
+const getVolunteerOrderProgress = (order) =>
+  order?.progress ?? order?.currentProgress ?? order?.completionProgress ?? 0;
+
+const deriveVolunteerRequestStatus = (order) => {
+  const normalized = normalizeVolunteerOrderStatus(
+    order?.status ?? order?.orderStatus ?? order?.state ?? order?.requestStatus
+  );
+
+  if (normalized === 'approved' && Number(getVolunteerOrderProgress(order)) > 0) {
+    return 'in_progress';
+  }
+
+  return normalized;
+};
+
+const getVolunteerRequestChip = (status) => {
+  if (status === 'approved') {
+    return { label: 'approved', color: '#16a34a', bg: 'rgba(34,197,94,.14)' };
+  }
+  if (status === 'in_progress') {
+    return { label: 'in progress', color: '#2563eb', bg: 'rgba(59,130,246,.14)' };
+  }
+  if (status === 'rejected') {
+    return { label: 'rejected', color: '#dc2626', bg: 'rgba(239,68,68,.14)' };
+  }
+  if (status === 'pending') {
+    return { label: 'pending', color: '#ca8a04', bg: 'rgba(234,179,8,.18)' };
+  }
+  return null;
 };
 
 const VolunteerRequestsPage = () => {
@@ -121,6 +154,12 @@ const VolunteerRequestsPage = () => {
     () => Math.max(1, Math.ceil(totalCount / pageSize)),
     [pageSize, totalCount]
   );
+  const selectedRequestVolunteerOrder = selectedRequest
+    ? volunteerOrdersByRequestId[getRequestId(selectedRequest)]
+    : null;
+  const selectedRequestVolunteerChip = selectedRequestVolunteerOrder
+    ? getVolunteerRequestChip(selectedRequestVolunteerOrder.status)
+    : null;
 
   const fetchRequests = async (targetPage = pageNumber, targetSize = pageSize) => {
     setLoading(true);
@@ -177,9 +216,8 @@ const VolunteerRequestsPage = () => {
           if (!serviceRequestId) return;
 
           nextMap[serviceRequestId] = {
-            status: normalizeVolunteerOrderStatus(
-              order?.status ?? order?.orderStatus ?? order?.state ?? order?.requestStatus
-            ),
+            status: deriveVolunteerRequestStatus(order),
+            progress: Number(getVolunteerOrderProgress(order)) || 0,
             raw: order,
           };
         });
@@ -591,6 +629,10 @@ const VolunteerRequestsPage = () => {
                   {requests.map((request, index) => {
                     const urgency = getUrgencyLabel(request.urgencyLevel);
                     const requestId = getRequestId(request);
+                    const currentVolunteerOrder = volunteerOrdersByRequestId[requestId];
+                    const volunteerStatusChip = currentVolunteerOrder
+                      ? getVolunteerRequestChip(currentVolunteerOrder.status)
+                      : null;
 
                     return (
                       <motion.div
@@ -610,6 +652,13 @@ const VolunteerRequestsPage = () => {
                               <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
                                 {request.serviceType || 'نوع خدمة غير محدد'}
                               </p>
+                              {volunteerStatusChip && (
+                                <div style={{ marginTop: 8 }}>
+                                  <span style={{ ...chipStyle, color: volunteerStatusChip.color, background: volunteerStatusChip.bg }}>
+                                    {volunteerStatusChip.label}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                             <span style={{ ...chipStyle, color: urgency.color, background: urgency.bg }}>
                               {urgency.label}
@@ -683,7 +732,7 @@ const VolunteerRequestsPage = () => {
             </div>
           </div>
 
-          <div style={panelStyle}>
+          <div style={{ ...panelStyle, display: 'none' }}>
             <div style={panelHeaderStyle}>
               <div>
                 <h2 style={sectionTitleStyle}>تفاصيل الطلب</h2>
@@ -713,12 +762,12 @@ const VolunteerRequestsPage = () => {
                 <div style={detailsGridStyle}>
                   <DetailItem label="المعرف" value={getRequestId(selectedRequest) || '-'} />
                   <DetailItem label="المهارة المطلوبة" value={selectedRequest.requiredSkill || '-'} />
+                  <DetailItem label="الحالة" value={selectedRequestVolunteerChip?.label || String(selectedRequest.status ?? 1)} />
                   <DetailItem label="الاستعجال" value={getUrgencyLabel(selectedRequest.urgencyLevel).label} />
                   <DetailItem label="التاريخ" value={selectedRequest.scheduleDate || '-'} />
                   <DetailItem label="المدة" value={`${selectedRequest.duration || 0} ساعة`} />
                   <DetailItem label="الشريك" value={selectedRequest.partnerId || '-'} />
                   <DetailItem label="الخريطة" value={locationNameById[selectedRequest.locationId] || selectedRequest.locationId || '-'} />
-                  <DetailItem label="الحالة" value={String(selectedRequest.status ?? 1)} />
                 </div>
 
                 <div>
@@ -728,7 +777,7 @@ const VolunteerRequestsPage = () => {
                   </p>
                 </div>
 
-                {canVolunteerForRequest(getRequestId(selectedRequest)) && (
+                {!isAdmin && canVolunteerForRequest(getRequestId(selectedRequest)) && (
                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <button
                       type="button"
@@ -745,6 +794,89 @@ const VolunteerRequestsPage = () => {
           </div>
         </div>
       </div>
+
+      {(detailsLoading || detailsError || selectedRequest) && (
+        <div
+          style={overlayStyle}
+          onClick={() => {
+            setSelectedRequest(null);
+            setDetailsError(null);
+            setDetailsLoading(false);
+          }}
+        >
+          <div style={modalStyle} onClick={(event) => event.stopPropagation()}>
+            <div style={detailsModalHeaderStyle}>
+              <div>
+                <h3 style={{ margin: 0, color: '#0f172a' }}>تفاصيل طلب التطوع</h3>
+                <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
+                  بيانات الطلب والوصف والحالة الحالية
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedRequest(null);
+                  setDetailsError(null);
+                  setDetailsLoading(false);
+                }}
+                style={iconButtonStyle}
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            {detailsLoading ? (
+              <div style={loadingBoxStyle}>
+                <FaSpinner className="animate-spin" />
+                <span>جاري تحميل التفاصيل...</span>
+              </div>
+            ) : detailsError ? (
+              <div style={errorAlertStyle}>
+                <FaExclamationTriangle />
+                <span>{detailsError}</span>
+              </div>
+            ) : selectedRequest ? (
+              <div style={{ display: 'grid', gap: 16 }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 21, color: '#0f172a' }}>{selectedRequest.title || 'بدون عنوان'}</h3>
+                  <p style={{ margin: '6px 0 0', color: '#64748b' }}>{selectedRequest.serviceType || 'نوع خدمة غير محدد'}</p>
+                </div>
+
+                <div style={detailsGridStyle}>
+                  <DetailItem label="المعرف" value={getRequestId(selectedRequest) || '-'} />
+                  <DetailItem label="المهارة المطلوبة" value={selectedRequest.requiredSkill || '-'} />
+                  <DetailItem label="الحالة" value={selectedRequestVolunteerChip?.label || String(selectedRequest.status ?? 1)} />
+                  <DetailItem label="الاستعجال" value={getUrgencyLabel(selectedRequest.urgencyLevel).label} />
+                  <DetailItem label="التاريخ" value={selectedRequest.scheduleDate || '-'} />
+                  <DetailItem label="المدة" value={`${selectedRequest.duration || 0} ساعة`} />
+                  <DetailItem label="الشريك" value={selectedRequest.partnerId || '-'} />
+                  <DetailItem label="الخريطة" value={locationNameById[selectedRequest.locationId] || selectedRequest.locationId || '-'} />
+                </div>
+
+                <div>
+                  <h4 style={detailLabelStyle}>الوصف</h4>
+                  <p style={{ margin: '6px 0 0', color: '#334155', lineHeight: 1.8 }}>
+                    {selectedRequest.briefDescription || 'لا يوجد وصف.'}
+                  </p>
+                </div>
+
+                {!isAdmin && canVolunteerForRequest(getRequestId(selectedRequest)) && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleVolunteer(getRequestId(selectedRequest))}
+                      disabled={volunteerActionLoading[getRequestId(selectedRequest)]}
+                      style={primaryButtonStyle}
+                    >
+                      {volunteerActionLoading[getRequestId(selectedRequest)] ? 'جاري الإرسال...' : 'أريد التطوع'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
 
       {renderRequestModal()}
 
@@ -779,11 +911,13 @@ const heroStyle = {
   justifyContent: 'space-between',
   gap: 16,
   alignItems: 'center',
-  padding: 24,
+  padding: '24px 32px',
   borderRadius: 24,
-  background: 'linear-gradient(135deg, rgba(14,165,233,.12), rgba(37,99,235,.08))',
-  border: '1px solid rgba(59,130,246,.16)',
+  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+  border: '1px solid rgba(59,130,246,0.3)',
   flexWrap: 'wrap',
+  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
+  marginBottom: 24
 };
 
 const heroIconStyle = {
@@ -800,15 +934,17 @@ const heroIconStyle = {
 
 const heroTitleStyle = {
   margin: 0,
-  fontSize: 28,
+  fontSize: 32,
   fontWeight: 900,
-  color: '#0f172a',
+  color: '#ffffff',
+  textShadow: '0 2px 4px rgba(0,0,0,0.3)'
 };
 
 const heroSubtitleStyle = {
   margin: '8px 0 0',
-  color: '#475569',
-  fontSize: 14,
+  color: '#cbd5e1',
+  fontSize: 16,
+  fontWeight: 600
 };
 
 const statsGridStyle = {
@@ -841,7 +977,7 @@ const statValueStyle = {
 
 const contentGridStyle = {
   display: 'grid',
-  gridTemplateColumns: 'minmax(0, 1.4fr) minmax(320px, .9fr)',
+  gridTemplateColumns: 'minmax(0, 1fr)',
   gap: 18,
 };
 
@@ -853,6 +989,12 @@ const panelStyle = {
   boxShadow: '0 18px 40px rgba(15,23,42,.05)',
   display: 'grid',
   gap: 18,
+};
+const detailsModalHeaderStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'flex-start',
+  gap: 12,
 };
 
 const panelHeaderStyle = {

@@ -232,61 +232,60 @@ console.log('🛡️ Is Admin:', isAdmin);
   };
 
   return (
-    <div className="donation-requests-page p-6">
-      <div className="donation-requests-page__container">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="donation-requests-page__hero">
-          <div className="donation-requests-page__heroGroup">
-            <div className="donation-requests-page__heroIcon">
+    <div className="pro-page" style={{ background: 'transparent' }} dir="rtl">
+      <div className="pro-container space-y-12">
+        {/* Header */}
+        <div className="pro-header">
+          <div className="pro-header-left">
+            <div className="pro-header-icon" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
               <FaHandHoldingHeart />
             </div>
-            <div className="donation-requests-page__heroText">
-              <h1 className="donation-requests-page__heroTitle">طلبات التبرع</h1>
-              <p className="donation-requests-page__heroSubtitle">لوحة مراجعة واعتماد وحذف الطلبات بشكل واضح واحترافي.</p>
+            <div>
+              <h1 className="pro-header-title">طلبات التبرع</h1>
+              <p className="pro-header-subtitle">إدارة ومراجعة جميع طلبات التبرع والمساهمات الإنسانية</p>
             </div>
           </div>
           
-          {console.log('🔍 About to render admin button...', { isAdmin })}
-          {isAdmin && (
-            <>
-              {console.log('✅ Admin confirmed, rendering add button...')}
+          <div className="pro-header-actions">
+            {isAdmin && (
               <motion.button
-                whileHover={{ scale: 1.03 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  console.log('🚀 Add button clicked!');
-                  setIsCreateModalOpen(true);
-                }}
-                className="mission-page__heroAction"
-                style={{ minWidth: '220px' }}
+                onClick={() => setIsCreateModalOpen(true)}
+                className="pro-btn pro-btn-primary"
+                style={{ background: 'linear-gradient(135deg, #f43f5e, #e11d48)' }}
               >
                 <FaPlus />
                 <span>إضافة طلب جديد</span>
               </motion.button>
-            </>
-          )}
-          {!isAdmin && console.log('❌ User is not admin, button will not show')}
-        </motion.div>
+            )}
+          </div>
+        </div>
 
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="donation-requests-page__stats">
-          <div className="donation-requests-page__stat">
-            <div>
-              <p className="donation-requests-page__statLabel">إجمالي الطلبات</p>
-              <p className="donation-requests-page__statValue">{totalCount}</p>
-            </div>
-          </div>
-          <div className="donation-requests-page__stat">
-            <div>
-              <p className="donation-requests-page__statLabel">قيد الانتظار</p>
-              <p className="donation-requests-page__statValue">{requests.filter((r) => r.status?.toLowerCase() === 'pending').length}</p>
-            </div>
-          </div>
-          <div className="donation-requests-page__stat">
-            <div>
-              <p className="donation-requests-page__statLabel">تمت الموافقة</p>
-              <p className="donation-requests-page__statValue">{requests.filter((r) => r.status?.toLowerCase() === 'approved').length}</p>
-            </div>
-          </div>
-        </motion.div>
+        {/* Stats */}
+        <div className="pro-stats">
+          {[
+            { label: 'إجمالي الطلبات', value: totalCount, icon: FaHandHoldingHeart, type: 'primary' },
+            { label: 'قيد الانتظار', value: requests.filter((r) => r.status?.toLowerCase() === 'pending').length, icon: FaSpinner, type: 'warning' },
+            { label: 'تمت الموافقة', value: requests.filter((r) => r.status?.toLowerCase() === 'approved').length, icon: FaCheck, type: 'success' },
+          ].map((stat, i) => (
+            <motion.div 
+              key={i} 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: i * 0.1 }} 
+              className="pro-stat pro-animate-in"
+            >
+              <div className={`pro-stat-icon ${stat.type}`}>
+                <stat.icon className={stat.label === 'قيد الانتظار' ? 'animate-spin' : ''} />
+              </div>
+              <div>
+                <p className="pro-stat-label">{stat.label}</p>
+                <p className="pro-stat-value">{stat.value}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
 
         {/* {apiResponse && (
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="donation-requests-page__panel">
@@ -443,7 +442,7 @@ console.log('🛡️ Is Admin:', isAdmin);
         <EntityHistoryModal
           isOpen={Boolean(historyEntityId)}
           entityId={historyEntityId}
-          title="?????? ?????? ????????????"
+          title="Donation Request History"
           onClose={() => setHistoryEntityId(null)}
         />
       </div>

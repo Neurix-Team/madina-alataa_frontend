@@ -191,8 +191,8 @@ const LocationsTab = () => {
         <div className="pro-flex pro-items-center pro-gap-3">
           <div className="pro-number">{index + 1}</div>
           <div>
-            <h3 className="pro-card-title">{location.name}</h3>
-            <p className="pro-card-subtitle">
+            <h3 className="pro-card-title" style={{ color: '#0f172a' }}>{location.name}</h3>
+            <p className="pro-card-subtitle" style={{ color: '#475569' }}>
               <FaMapPin style={{ display: 'inline', marginLeft: '4px' }} />
               {location.id?.substring(0, 12)}...
             </p>
@@ -211,14 +211,14 @@ const LocationsTab = () => {
               <FaCompass style={{ color: 'var(--primary-light)' }} />
               خط الطول
             </p>
-            <p className="pro-data-value">{location.longitude || '0.0000'}</p>
+            <p className="pro-data-value" style={{ color: '#0f172a' }}>{location.longitude || '0.0000'}</p>
           </div>
           <div className="pro-data-item">
             <p className="pro-data-label">
               <FaGlobe style={{ color: 'var(--accent)' }} />
               خط العرض
             </p>
-            <p className="pro-data-value">{location.latitude || '0.0000'}</p>
+            <p className="pro-data-value" style={{ color: '#0f172a' }}>{location.latitude || '0.0000'}</p>
           </div>
         </div>
       </div>
@@ -266,12 +266,12 @@ const LocationsTab = () => {
   );
 
   return (
-    <div className="pro-page">
+    <div className="pro-page" style={{ background: 'transparent' }}>
       <div className="pro-container">
         {/* Header */}
         <div className="pro-header">
           <div className="pro-header-left">
-            <div className="pro-header-icon">
+            <div className="pro-header-icon" style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', boxShadow: '0 10px 25px rgba(217, 119, 6, 0.25)' }}>
               <FaMapMarkerAlt />
             </div>
             <div>

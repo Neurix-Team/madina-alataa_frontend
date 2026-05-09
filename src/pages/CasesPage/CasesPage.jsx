@@ -359,24 +359,48 @@ export default function CasesPage() {
         <div className="cases-content">
           <section
             style={{
-              borderRadius: 24,
-              padding: 18,
-              marginBottom: 16,
-              background: 'linear-gradient(130deg,#0b2545 0%, #0f172a 40%, #1d4ed8 100%)',
-              boxShadow: '0 16px 34px rgba(15, 23, 42, 0.35)',
-              border: '1px solid rgba(148, 163, 184, 0.28)',
-              animation: 'casesTitleDown 380ms ease-out both',
+              borderRadius: 40,
+              padding: '40px 32px',
+              marginBottom: 32,
+              background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #1e40af 100%)',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.45)',
+              border: '1px solid rgba(148, 163, 184, 0.35)',
+              animation: 'casesTitleDown 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
               position: 'relative',
               overflow: 'hidden',
             }}
           >
-            <span style={{ position: 'absolute', top: 10, left: 14, fontSize: 24, animation: 'emojiFloat 4s ease-in-out infinite' }}><FaHeart /></span>
-            <span style={{ position: 'absolute', top: 44, right: 20, fontSize: 22, animation: 'emojiFloat 5s ease-in-out infinite' }}><FaHandsHelping /></span>
-            <span style={{ position: 'absolute', bottom: 12, left: 80, fontSize: 20, animation: 'emojiFloat 4.4s ease-in-out infinite' }}><FaStar /></span>
-            <h1 style={{ margin: 0, color: '#fff', fontSize: 30, fontWeight: 900, position: 'relative', zIndex: 1 }}><FaClipboardList style={{ marginLeft: 8 }} />الحالات</h1>
-            <p style={{ margin: '6px 0 0', color: '#dbeafe', fontSize: 14, fontWeight: 700 }}>
-              تصفح الحالات وساهم في تغيير حياة الأسر المحتاجة
-            </p>
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 20% 30%, rgba(30, 64, 175, 0.3) 0%, transparent 70%)' }} />
+            <span style={{ position: 'absolute', top: 15, left: 20, fontSize: 36, color: '#f43f5e', animation: 'emojiFloat 4s ease-in-out infinite', filter: 'drop-shadow(0 0 10px rgba(244,63,94,0.4))' }}><FaHeart /></span>
+            <span style={{ position: 'absolute', top: 70, right: 40, fontSize: 32, color: '#3b82f6', animation: 'emojiFloat 5.5s ease-in-out infinite', filter: 'drop-shadow(0 0 10px rgba(59,130,246,0.4))' }}><FaHandsHelping /></span>
+            <span style={{ position: 'absolute', bottom: 25, left: 140, fontSize: 30, color: '#f59e0b', animation: 'emojiFloat 4.8s ease-in-out infinite', filter: 'drop-shadow(0 0 10px rgba(245,158,11,0.4))' }}><FaStar /></span>
+            
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <h1 style={{ 
+                margin: 0, 
+                color: '#ffffff', 
+                fontSize: 48, 
+                fontWeight: 900, 
+                textShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16
+              }}>
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 border border-white/20">
+                  <FaClipboardList className="text-4xl text-blue-400" />
+                </div>
+                الحالات المستحقة
+              </h1>
+              <p style={{ 
+                margin: '16px 0 0', 
+                color: '#93c5fd', 
+                fontSize: 20, 
+                fontWeight: 800,
+                textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }}>
+                ساهم معنا في تغيير حياة الأسر المحتاجة عبر دعم الحالات الموثقة
+              </p>
+            </div>
           </section>
 
           <div style={{ marginBottom: 14 }}>

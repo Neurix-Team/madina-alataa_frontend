@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { axiosClient } from '../services/axiosClient';
+import { userLevelsService } from '../services/userLevelsService';
 import {
   FaUser,
   FaMap,
@@ -198,6 +199,9 @@ export default function ProfileV2Page() {
   const [activePanel, setActivePanel] = useState('profile');
   const [levelCount, setLevelCount] = useState(0);
   const [pointsCount, setPointsCount] = useState(0);
+  const [kpCount, setKpCount] = useState(0);
+  const [levelName, setLevelName] = useState('مبتدئ');
+  const [levelData, setLevelData] = useState(null);
   const [progressFill, setProgressFill] = useState(0);
   const [donations, setDonations] = useState(initialDonations);
   const [selectedDonation, setSelectedDonation] = useState(null);
@@ -260,6 +264,8 @@ export default function ProfileV2Page() {
   useEffect(() => {
     // Fetch latest user data when profile is mounted
     fetchMe();
+    // Fetch level data
+    fetchLevelData();
     // Fetch donor profile if user is a donor
     if (user?.roles?.includes('donor') || user?.roles?.includes('donor')) {
       fetchDonorProfile();
@@ -356,6 +362,33 @@ export default function ProfileV2Page() {
       setUpdateDonorError(errorMsg);
     } finally {
       setUpdatingDonorProfile(false);
+    }
+  };
+
+  const fetchLevelData = async () => {
+    try {
+      const data = await userLevelsService.getMyLevel();
+      if (data) {
+        setLevelData(data);
+        setLevelCount(data.level?.levelNumber || 0);
+        setPointsCount(data.xp || 0);
+        setKpCount(data.kp || 0);
+        setLevelName(data.level?.name || 'مبتدئ');
+        
+        // Calculate progress based on next level XP if available
+        if (data.level?.nextLevelXpRequired) {
+          const progress = Math.min(100, Math.round((data.xp / data.level.nextLevelXpRequired) * 100));
+          setProgressFill(progress);
+        } else {
+          setProgressFill(100);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch level data:', err);
+      // في حالة 404 نترك القيم الافتراضية كما هي (مبتدئ، مستوى 0)
+      if (err.response?.status === 404) {
+        setLevelData(null);
+      }
     }
   };
 
@@ -763,8 +796,8 @@ export default function ProfileV2Page() {
 
           <div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: 12, marginBottom: 12 }}>
-              <StatCard icon={FaBolt} title={`المستوى ${levelCount}`} value={levelCount} grad="linear-gradient(135deg,#7c3aed,#4f46e5)" sub="تقدم ممتاز" />
-              <StatCard icon={FaGem} title={`${pointsCount} نقطة`} value={pointsCount} grad="linear-gradient(135deg,#f59e0b,#f97316)" sub="رصيد النقاط" />
+              <StatCard icon={FaBolt} title={levelName} value={`المستوى ${levelCount}`} grad="linear-gradient(135deg,#7c3aed,#4f46e5)" sub={`${pointsCount} XP`} />
+              <StatCard icon={FaGem} title={`${kpCount} KP`} value={kpCount} grad="linear-gradient(135deg,#f59e0b,#f97316)" sub="نقاط الكرم" />
               <StatCard
                 icon={FaMapMarkerAlt}
                 title={settingsForm.address || `${settingsForm.city}, مصر`}
@@ -776,8 +809,8 @@ export default function ProfileV2Page() {
 
             <div style={{ ...styles.card, padding: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
-                <span>المستوى التالي: 1000 نقطة</span>
-                <span>550 / 1000</span>
+                <span>{levelData?.level?.nextLevelName ? `المستوى التالي: ${levelData.level.nextLevelName}` : 'أعلى مستوى وصلته!'}</span>
+                <span>{pointsCount} / {levelData?.level?.nextLevelXpRequired || pointsCount} XP</span>
               </div>
               <div style={{ height: 10, borderRadius: 999, background: 'rgba(255,255,255,.12)', overflow: 'hidden' }}>
                 <div style={{

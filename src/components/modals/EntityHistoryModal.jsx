@@ -1,7 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaHistory, FaSpinner, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
+import { FaExclamationTriangle, FaHistory, FaSpinner, FaTimes } from 'react-icons/fa';
 import { activitiesService } from '../../services/activitiesService';
+
+const ACTIVITY_STATUS_LABELS = {
+  logged: 'تم تسجيله',
+  created: 'تم الإنشاء',
+  create: 'تم الإنشاء',
+  updated: 'تم التحديث',
+  update: 'تم التحديث',
+  edited: 'تم التعديل',
+  edit: 'تم التعديل',
+  approved: 'تمت الموافقة',
+  rejected: 'تم الرفض',
+  pending: 'قيد المراجعة',
+  completed: 'مكتمل',
+  deleted: 'تم الحذف',
+  archived: 'مؤرشف',
+  in_progress: 'قيد التنفيذ',
+  progress: 'قيد التنفيذ',
+};
+
+const prettifyValue = (value) =>
+  String(value)
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const formatActivityText = (value, fallback) => {
+  if (value === undefined || value === null || value === '') return fallback;
+  return prettifyValue(value);
+};
 
 const formatActivityDate = (value) => {
   if (!value) return 'غير محدد';
@@ -21,12 +50,10 @@ const formatActivityDate = (value) => {
 };
 
 const getActivityTitle = (item, index) =>
-  item?.name ||
-  item?.title ||
-  item?.actionType ||
-  item?.activityType ||
-  item?.eventType ||
-  `Activity #${index + 1}`;
+  formatActivityText(
+    item?.name || item?.title || item?.actionType || item?.activityType || item?.eventType,
+    `عملية رقم ${index + 1}`
+  );
 
 const getActivityDescription = (item) =>
   item?.description ||
@@ -36,128 +63,20 @@ const getActivityDescription = (item) =>
   item?.summary ||
   '';
 
-const getActivityStatus = (item) => String(item?.status || item?.state || 'logged');
+const getActivityStatus = (item) => {
+  const rawStatus = String(item?.status || item?.state || 'logged').toLowerCase();
+  return ACTIVITY_STATUS_LABELS[rawStatus] || formatActivityText(rawStatus, 'تم تسجيل النشاط');
+};
 
 const getActivityMeta = (item) => {
   const pairs = [
-    ['نوع العملية', item?.actionType || item?.activityType || item?.eventType],
-    ['المستخدم', item?.userName || item?.actorName || item?.createdBy || item?.userId],
-    ['الكيان', item?.entityType || item?.targetType],
-    ['المعرّف', item?.id || item?.activityId],
+    ['نوع العملية', formatActivityText(item?.actionType || item?.activityType || item?.eventType, '')],
+    ['نفذها', item?.userName || item?.actorName || item?.createdBy || item?.userId],
+    ['مرتبطة بـ', formatActivityText(item?.entityType || item?.targetType, '')],
+    ['المعرف', item?.id || item?.activityId],
   ];
 
   return pairs.filter(([, value]) => value !== undefined && value !== null && value !== '');
-};
-
-const EntityHistoryModal = ({ isOpen, entityId, title = 'سجل النشاط', onClose }) => {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!isOpen || !entityId) return;
-
-    const loadHistory = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await activitiesService.getActivitiesByEntityId(entityId, 1, 20);
-        setItems(response.items);
-      } catch (requestError) {
-        console.error('ENTITY HISTORY MODAL ERROR:', requestError);
-        setError(requestError.message || 'فشل في جلب سجل النشاط');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadHistory();
-  }, [isOpen, entityId]);
-
-  if (!isOpen) return null;
-
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        style={overlayStyle}
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 14, scale: 0.97 }}
-          transition={{ duration: 0.2 }}
-          onClick={(event) => event.stopPropagation()}
-          style={modalStyle}
-        >
-          <div style={headerStyle}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={iconWrapStyle}>
-                <FaHistory />
-              </div>
-              <div>
-                <h3 style={{ margin: 0, color: '#0f172a', fontSize: 22, fontWeight: 900 }}>{title}</h3>
-                <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 13 }}>
-                  سجل زمني منظم لكل العمليات المرتبطة بهذا العنصر
-                </p>
-              </div>
-            </div>
-            <button type="button" onClick={onClose} style={closeBtnStyle}>
-              <FaTimes />
-            </button>
-          </div>
-
-          {loading ? (
-            <div style={stateBoxStyle}>
-              <FaSpinner className="animate-spin" />
-              <span>جاري تحميل السجل...</span>
-            </div>
-          ) : error ? (
-            <div style={{ ...stateBoxStyle, color: '#dc2626', borderColor: 'rgba(239,68,68,.2)', background: 'rgba(254,242,242,.9)' }}>
-              <FaExclamationTriangle />
-              <span>{error}</span>
-            </div>
-          ) : items.length === 0 ? (
-            <div style={stateBoxStyle}>
-              <span>لا يوجد سجل نشاط لهذا العنصر.</span>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gap: 12 }}>
-              {items.map((item, index) => (
-                <div key={item.id || index} style={itemCardStyle}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
-                    <div>
-                      <div style={itemTitleStyle}>{getActivityTitle(item, index)}</div>
-                      <div style={itemMetaStyle}>
-                        {formatActivityDate(item.createdAt || item.timestamp || item.date || item.updatedAt)}
-                      </div>
-                    </div>
-                    <span style={chipStyle}>{getActivityStatus(item)}</span>
-                  </div>
-
-                  {getActivityDescription(item) && (
-                    <p style={itemDescriptionStyle}>{getActivityDescription(item)}</p>
-                  )}
-
-                  <div style={metaListStyle}>
-                    {getActivityMeta(item).map(([label, value]) => (
-                      <div key={`${item.id || index}-${label}`} style={metaRowStyle}>
-                        <span style={metaLabelStyle}>{label}</span>
-                        <strong style={metaValueStyle}>{String(value)}</strong>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  );
 };
 
 const overlayStyle = {
@@ -286,6 +205,124 @@ const metaValueStyle = {
   fontSize: 13,
   fontWeight: 800,
   wordBreak: 'break-word',
+};
+
+const EntityHistoryModal = ({ isOpen, entityId, title = 'سجل النشاط', onClose }) => {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!isOpen || !entityId) return;
+
+    const loadHistory = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await activitiesService.getActivitiesByEntityId(entityId, 1, 20);
+        setItems(response.items);
+      } catch (requestError) {
+        console.error('ENTITY HISTORY MODAL ERROR:', requestError);
+        setError(requestError.message || 'فشل في تحميل سجل النشاط');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadHistory();
+  }, [isOpen, entityId]);
+
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        style={overlayStyle}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 14, scale: 0.97 }}
+          transition={{ duration: 0.2 }}
+          onClick={(event) => event.stopPropagation()}
+          style={modalStyle}
+        >
+          <div style={headerStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={iconWrapStyle}>
+                <FaHistory />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, color: '#0f172a', fontSize: 22, fontWeight: 900 }}>{title}</h3>
+                <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 13 }}>
+                  تسلسل زمني واضح لكل العمليات والتحديثات المرتبطة بهذا العنصر
+                </p>
+              </div>
+            </div>
+            <button type="button" onClick={onClose} style={closeBtnStyle}>
+              <FaTimes />
+            </button>
+          </div>
+
+          {loading ? (
+            <div style={stateBoxStyle}>
+              <FaSpinner className="animate-spin" />
+              <span>جاري تحميل السجل...</span>
+            </div>
+          ) : error ? (
+            <div
+              style={{
+                ...stateBoxStyle,
+                color: '#dc2626',
+                borderColor: 'rgba(239,68,68,.2)',
+                background: 'rgba(254,242,242,.9)',
+              }}
+            >
+              <FaExclamationTriangle />
+              <span>{error}</span>
+            </div>
+          ) : items.length === 0 ? (
+            <div style={stateBoxStyle}>
+              <span>لا توجد عمليات مسجلة لهذا العنصر حتى الآن.</span>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: 12 }}>
+              {items.map((item, index) => (
+                <div key={item.id || index} style={itemCardStyle}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+                    <div>
+                      <div style={itemTitleStyle}>{getActivityTitle(item, index)}</div>
+                      <div style={itemMetaStyle}>
+                        {formatActivityDate(item.createdAt || item.timestamp || item.date || item.updatedAt)}
+                      </div>
+                    </div>
+                    <span style={chipStyle}>{getActivityStatus(item)}</span>
+                  </div>
+
+                  {getActivityDescription(item) ? (
+                    <p style={itemDescriptionStyle}>{getActivityDescription(item)}</p>
+                  ) : null}
+
+                  <div style={metaListStyle}>
+                    {getActivityMeta(item).map(([label, value]) => (
+                      <div key={`${item.id || index}-${label}`} style={metaRowStyle}>
+                        <span style={metaLabelStyle}>{label}</span>
+                        <strong style={metaValueStyle}>{String(value)}</strong>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
 };
 
 export default EntityHistoryModal;

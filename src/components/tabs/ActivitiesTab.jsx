@@ -434,16 +434,17 @@ export default function ActivitiesTab() {
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1240px', margin: '0 auto' }}>
+    <div style={{ padding: '24px', maxWidth: '1240px', margin: '0 auto', background: 'transparent' }}>
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         style={{
           marginBottom: '24px',
           borderRadius: '28px',
-          background:
-            'radial-gradient(circle at top right, rgba(249, 115, 22, 0.28), transparent 30%), linear-gradient(135deg, #0f172a, #1f2937)',
-          color: '#fff',
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.96), rgba(248,250,252,0.98))',
+          color: 'var(--text)',
+          border: '1px solid var(--border)',
+          boxShadow: '0 18px 42px rgba(15, 23, 42, 0.08)',
           padding: '28px',
           display: 'flex',
           gap: '18px',
@@ -458,18 +459,19 @@ export default function ActivitiesTab() {
               width: '64px',
               height: '64px',
               borderRadius: '20px',
-              background: 'rgba(255,255,255,0.14)',
+              background: 'linear-gradient(135deg, #ea580c, #fb923c)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '28px',
+              color: '#fff',
             }}
           >
             <FaBolt />
           </div>
           <div>
             <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900 }}>الأنشطة</h2>
-            <p style={{ margin: '6px 0 0 0', color: 'rgba(255,255,255,0.78)', fontWeight: 700 }}>
+            <p style={{ margin: '6px 0 0 0', color: 'var(--text-muted)', fontWeight: 700 }}>
               عرض الأنشطة والتفاصيل لكل المستخدمين، مع إدارة كاملة للأدمن فقط.
             </p>
           </div>
