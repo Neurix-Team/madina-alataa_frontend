@@ -315,4 +315,3 @@ const MetaRow = ({ icon: Icon, label, value, valueClass = 'text-white' }) => (
     <div className={`font-black ${valueClass}`}>{value}</div>
   </div>
 );
-}

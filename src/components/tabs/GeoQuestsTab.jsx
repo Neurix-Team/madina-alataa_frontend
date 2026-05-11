@@ -21,6 +21,7 @@ import {
   getGeoQuestId,
   normalizeGeoQuest,
 } from '../../services/geoQuestsService';
+import UserGeoQuestsPanel from '../userGeoQuests/UserGeoQuestsPanel';
 
 const initialFormState = {
   title: '',
@@ -516,6 +517,7 @@ export default function GeoQuestsTab() {
   const [deleteError, setDeleteError] = useState('');
   const [startingId, setStartingId] = useState('');
   const [startedQuestIds, setStartedQuestIds] = useState(() => new Set());
+  const [refreshPanelKey, setRefreshPanelKey] = useState(0);
 
   const loadLocations = async () => {
     setLocationsLoading(true);
@@ -714,6 +716,7 @@ export default function GeoQuestsTab() {
       const response = await geoQuestsService.startGeoQuest(geoQuestId);
       console.log('GEOQUEST START RESPONSE IN PAGE:', response);
       setStartedQuestIds((current) => new Set([...current, String(geoQuestId)]));
+      setRefreshPanelKey((prev) => prev + 1);
       window.alert('Started successfully');
     } catch (requestError) {
       if (requestError?.response?.status === 409) {
@@ -1048,6 +1051,18 @@ export default function GeoQuestsTab() {
           ) : null}
         </>
       )}
+
+      <div style={{ marginTop: '40px' }}>
+        <UserGeoQuestsPanel
+          key={refreshPanelKey}
+          mode={isAdmin ? 'admin' : 'profile'}
+          isAdmin={isAdmin}
+          targetUser={user}
+          title={isAdmin ? 'كل المهام الجغرافية للمستخدمين' : 'مهامي الجغرافية النشطة'}
+          light={true}
+          disableFilter={isAdmin}
+        />
+      </div>
 
       <AnimatePresence>
         {createOpen ? (

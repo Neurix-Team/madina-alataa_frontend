@@ -32,6 +32,7 @@ import {
 } from 'react-icons/fa';
 import secureStorage from '../utils/secureStorage';
 import { AVATAR_PROFILE_UPDATED_EVENT, getAvatarImageUrl } from '../utils/avatarProfile';
+import UserGeoQuestsPanel from '../components/userGeoQuests/UserGeoQuestsPanel';
 
 const styles = {
   page: {
@@ -402,21 +403,25 @@ export default function ProfileV2Page() {
   useEffect(() => {
     setMounted(true);
     setAvatarUrl(getAvatarImageUrl());
-    let l = 0;
-    let p = 0;
-    const maxL = 5;
-    const maxP = 550;
-    const interval = setInterval(() => {
-      l = Math.min(maxL, l + 1);
-      p = Math.min(maxP, p + 25);
-      setLevelCount(l);
-      setPointsCount(p);
-      if (l === maxL && p === maxP) clearInterval(interval);
-    }, 55);
+    
+    // الأنميشن يكون فقط إذا لم تكن البيانات قد وصلت بعد
+    if (!levelData) {
+      let l = 0;
+      let p = 0;
+      const maxL = 1;
+      const maxP = 0;
+      const interval = setInterval(() => {
+        l = Math.min(maxL, l + 1);
+        p = Math.min(maxP, p + 25);
+        setLevelCount(l);
+        setPointsCount(p);
+        if (l === maxL && p === maxP) clearInterval(interval);
+      }, 55);
 
-    setTimeout(() => setProgressFill(55), 200);
-    return () => clearInterval(interval);
-  }, [location]);
+      setTimeout(() => setProgressFill(10), 200);
+      return () => clearInterval(interval);
+    }
+  }, [location, levelData]);
 
   useEffect(() => {
     const refreshAvatar = () => {
@@ -1128,6 +1133,15 @@ export default function ProfileV2Page() {
             )}
           </section>
         )}
+
+        <section style={{ ...styles.card, padding: 16, animation: mounted ? 'slideUp .8s ease both' : 'none' }}>
+          <UserGeoQuestsPanel
+            mode="profile"
+            isAdmin={(user?.roles || []).some((role) => String(role).toLowerCase() === 'admin')}
+            targetUser={user}
+            title="مهام المستخدم الجغرافية"
+          />
+        </section>
       </main>
 
       {selectedDonation && (

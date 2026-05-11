@@ -64,7 +64,10 @@ axiosClient.interceptors.request.use(
         config.url?.includes('/api/Volunteer') ||
         config.url?.includes('/api/Badges') ||
         config.url?.includes('/api/Levels') ||
-        config.url?.includes('/api/Activities')
+        config.url?.includes('/api/UserLevels') ||
+        config.url?.includes('/api/Activities') ||
+        config.url?.includes('/api/GeoQuests') ||
+        config.url?.includes('/api/UserGeoQuests')
       ) {
         // console.log('🔐 Sending auth_token to API:', {
         //   url: config.url,
@@ -92,7 +95,10 @@ axiosClient.interceptors.request.use(
         config.url?.includes('/api/Volunteer') ||
         config.url?.includes('/api/Badges') ||
         config.url?.includes('/api/Levels') ||
-        config.url?.includes('/api/Activities')
+        config.url?.includes('/api/UserLevels') ||
+        config.url?.includes('/api/Activities') ||
+        config.url?.includes('/api/GeoQuests') ||
+        config.url?.includes('/api/UserGeoQuests')
       ) {
         console.warn('⚠️ No auth_token found for API request:', {
           url: config.url,
