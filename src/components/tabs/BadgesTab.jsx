@@ -726,14 +726,16 @@ export default function BadgesTab() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                    <button
-                      type="button"
-                      onClick={() => handleViewDetails(badge)}
-                      style={iconButtonStyle}
-                      title="تفاصيل"
-                    >
-                      <FaEye />
-                    </button>
+                    {isAdmin ? (
+                      <button
+                        type="button"
+                        onClick={() => handleViewDetails(badge)}
+                        style={iconButtonStyle}
+                        title="تفاصيل"
+                      >
+                        <FaEye />
+                      </button>
+                    ) : null}
                     {isAdmin ? (
                       <>
                         <button

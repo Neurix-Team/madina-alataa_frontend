@@ -67,16 +67,27 @@ export const donationRequestsService = {
 
       console.log('📤 Final donation request payload:', JSON.stringify(payload, null, 2));
 
+      // AxiosClient automatically adds the Bearer token from localStorage
       const response = await axiosClient.post(DONATION_REQUESTS_API_URL, payload);
 
       console.log('✅ Create Donation Request Success:', response.data);
       return response.data;
     } catch (error) {
       console.error('❌ Error creating donation request:', error);
-
+      if (error.response?.status === 401) {
+        throw new Error('غير مصرح لك بالقيام بهذا الإجراء. يرجى تسجيل الدخول مجدداً.');
+      }
+      if (error.response?.status === 403) {
+        throw new Error('ليس لديك صلاحيات كافية لإنشاء طلب تبرع.');
+      }
       if (error.response) {
         const responseData = error.response.data;
         console.error('❌ RAW_API_ERROR:', JSON.stringify(responseData, null, 2));
+        // Provide a more actionable message when the backend reports activity service misconfiguration
+        const detail = String(responseData?.detail || '').toLowerCase();
+        if (detail.includes('activity service') || detail.includes('activity service is not configured')) {
+          throw new Error('الخادم غير مُهيأ لمعالجة الطلبات (Activity service غير مفعّل). تواصل مع الفريق المسؤول عن الـ API.');
+        }
 
         throw new Error(
           responseData?.title ||
@@ -85,7 +96,6 @@ export const donationRequestsService = {
           'فشل في إنشاء طلب التبرع'
         );
       }
-
       throw error;
     }
   },

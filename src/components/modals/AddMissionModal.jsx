@@ -12,6 +12,18 @@ import {
 } from 'react-icons/fa';
 import LocationIdMapSelector from '../shared/LocationIdMapSelector';
 
+const cardClass =
+  'rounded-[28px] border border-white/12 bg-white/[0.06] p-5 md:p-6 shadow-[0_16px_48px_rgba(15,23,42,0.28)]';
+
+const fieldClass =
+  'w-full rounded-2xl border border-white/12 bg-[#112033] px-4 py-3 text-base font-medium text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-sky-400/45 focus:bg-[#16283d]';
+
+const rewardsConfig = [
+  { name: 'kpReward', icon: FaTrophy, color: 'text-yellow-300', label: 'نقاط الخير' },
+  { name: 'xpReward', icon: FaStar, color: 'text-fuchsia-300', label: 'نقاط الخبرة' },
+  { name: 'impactReward', icon: FaLeaf, color: 'text-emerald-300', label: 'نقاط التأثير' },
+];
+
 const AddMissionModal = ({ isOpen, onClose, onSubmit, locations = [] }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -91,173 +103,195 @@ const AddMissionModal = ({ isOpen, onClose, onSubmit, locations = [] }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 bg-[#020617]/80 backdrop-blur-2xl flex items-center justify-center z-[100] p-4 md:p-8" dir="rtl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/75 p-4 md:p-8 backdrop-blur-md" dir="rtl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 40, rotateX: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 40, rotateX: 15 }}
-            transition={{ type: 'spring', duration: 0.7, bounce: 0.3 }}
-            className="bg-[#0f172a]/90 rounded-[3rem] border border-white/10 w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-[0_0_100px_rgba(37,99,235,0.2)] flex flex-col relative"
+            initial={{ opacity: 0, scale: 0.96, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 24 }}
+            transition={{ duration: 0.2 }}
+            className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[30px] border border-white/12 bg-[#0f1b2d] shadow-[0_28px_90px_rgba(15,23,42,0.5)]"
           >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] -z-10" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-600/10 rounded-full blur-[80px] -z-10" />
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.12),transparent_25%)]" />
 
-            <div className="flex justify-between items-center p-10 border-b border-white/5 bg-white/5 backdrop-blur-3xl sticky top-0 z-20">
-              <div className="flex items-center gap-5">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center shadow-2xl border border-white/20">
-                  <FaPlus className="text-white text-xl" />
+            <div className="relative flex items-start justify-between gap-4 border-b border-white/10 bg-white/[0.05] px-6 py-5 md:px-8">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-sky-400 to-indigo-500 text-white shadow-lg">
+                  <FaPlus className="text-lg" />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-black text-white tracking-tighter">إنشاء مهمة جديدة</h3>
-                  <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mt-1">تحديد تفاصيل العملية الميدانية</p>
+                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white">إضافة مهمة جديدة</h3>
+                  <p className="mt-1 text-sm font-medium text-slate-300">واجهة واضحة لإدخال بيانات المهمة والمكافآت وربطها بعنوان محدد.</p>
                 </div>
               </div>
               <motion.button
-                whileHover={{ scale: 1.1, rotate: 90, backgroundColor: 'rgba(239, 68, 68, 0.2)' }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.05, rotate: 90 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onClose}
-                className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-2xl transition-all text-slate-400 border border-white/5"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-slate-200"
               >
-                <FaTimes className="text-xl" />
+                <FaTimes />
               </motion.button>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
-              <div className="bg-white/5 rounded-[2rem] p-8 border border-white/5 space-y-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-2 h-8 bg-blue-500 rounded-full" />
-                  <h4 className="text-white font-black text-lg">البيانات الأساسية</h4>
-                </div>
-                <div className="group space-y-3">
-                  <label className="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest px-1">
-                    <FaTasks className="text-blue-500" />
-                    عنوان العملية <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    required
-                    className="w-full bg-black/40 border-2 border-white/5 rounded-[1.5rem] px-6 py-5 text-xl text-white placeholder-slate-700 focus:outline-none focus:border-blue-500/50 focus:ring-8 focus:ring-blue-500/5 transition-all duration-300 shadow-inner font-bold"
-                    placeholder="أدخل عنوانًا مميزًا للمهمة..."
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white/5 rounded-[2rem] p-8 border border-white/5 space-y-6">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-2 h-8 bg-purple-500 rounded-full" />
-                    <h4 className="text-white font-black text-lg">الإعدادات</h4>
-                  </div>
-                  <div className="space-y-6">
-                    <div className="group space-y-3">
-                      <label className="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest px-1">
-                        <FaShieldAlt className="text-purple-500" />
-                        درجة الصعوبة
-                      </label>
-                      <div className="relative">
-                        <select
-                          name="difficulty"
-                          value={formData.difficulty}
-                          onChange={handleChange}
-                          className="w-full bg-black/40 border-2 border-white/5 rounded-[1.5rem] px-6 py-5 text-xl text-white focus:outline-none focus:border-purple-500/50 focus:ring-8 focus:ring-purple-500/5 transition-all duration-300 shadow-inner appearance-none cursor-pointer font-bold"
-                        >
-                          <option value={0}>سهل</option>
-                          <option value={1}>متوسط</option>
-                          <option value={2}>صعب</option>
-                          <option value={3}>أسطوري</option>
-                        </select>
-                        <FaChartPie className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none" />
+            <form onSubmit={handleSubmit} className="relative flex-1 overflow-y-auto px-6 py-6 md:px-8 md:py-8">
+              <div className="grid gap-7 lg:grid-cols-[1.1fr_0.9fr]">
+                <div className="grid gap-7">
+                  <section className={cardClass}>
+                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-200">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
+                        <FaTasks className="text-sky-300" />
                       </div>
+                      <span>البيانات الأساسية</span>
                     </div>
 
-                    <div className="group space-y-3">
-                      <label className="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest px-1">
-                        <FaStar className="text-yellow-500" />
-                        المستوى الأدنى
-                      </label>
-                      <input
-                        type="number"
-                        name="requiredLevel"
-                        value={formData.requiredLevel}
-                        onChange={handleChange}
-                        min="1"
-                        max="100"
-                        className="w-full bg-black/40 border-2 border-white/5 rounded-[1.5rem] px-6 py-5 text-xl text-white focus:outline-none focus:border-yellow-500/50 focus:ring-8 focus:ring-yellow-500/5 transition-all duration-300 shadow-inner font-bold"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white/5 rounded-[2rem] p-8 border border-white/5 space-y-6">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-2 h-8 bg-emerald-500 rounded-full" />
-                    <h4 className="text-white font-black text-lg">المكافآت</h4>
-                  </div>
-                  <div className="space-y-6">
-                    {[
-                      { name: 'kpReward', icon: FaTrophy, color: 'text-yellow-500', label: 'نقاط الخير' },
-                      { name: 'xpReward', icon: FaStar, color: 'text-purple-500', label: 'نقاط الخبرة' },
-                      { name: 'impactReward', icon: FaLeaf, color: 'text-emerald-500', label: 'نقاط التأثير' },
-                    ].map((reward) => (
-                      <div key={reward.name} className="group space-y-2">
-                        <div className="flex items-center justify-between px-1">
-                          <label className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                            <reward.icon className={reward.color} />
-                            {reward.label}
-                          </label>
-                          <span className="text-white font-black text-xs tabular-nums">{formData[reward.name]}</span>
-                        </div>
+                    <div className="grid gap-6">
+                      <div className="space-y-2.5">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+                          <FaTasks className="text-sky-300" />
+                          <span>عنوان المهمة</span>
+                        </label>
                         <input
-                          type="number"
-                          name={reward.name}
-                          value={formData[reward.name]}
+                          type="text"
+                          name="title"
+                          value={formData.title}
                           onChange={handleChange}
-                          min="0"
-                          className="w-full bg-black/40 border-2 border-white/5 rounded-2xl px-5 py-3 text-lg text-white focus:outline-none focus:border-white/20 transition-all font-bold"
+                          required
+                          className={fieldClass}
+                          placeholder="أدخل عنوان المهمة"
                         />
                       </div>
-                    ))}
+
+                      <div className="grid gap-6 md:grid-cols-2">
+                        <div className="space-y-2.5">
+                          <label className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+                            <FaShieldAlt className="text-violet-300" />
+                            <span>درجة الصعوبة</span>
+                          </label>
+                          <div className="relative">
+                            <select
+                              name="difficulty"
+                              value={formData.difficulty}
+                              onChange={handleChange}
+                              className={fieldClass}
+                            >
+                              <option value={0}>سهل</option>
+                              <option value={1}>متوسط</option>
+                              <option value={2}>صعب</option>
+                              <option value={3}>أسطوري</option>
+                            </select>
+                            <FaChartPie className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2.5">
+                          <label className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+                            <FaStar className="text-amber-300" />
+                            <span>المستوى الأدنى</span>
+                          </label>
+                          <input
+                            type="number"
+                            name="requiredLevel"
+                            value={formData.requiredLevel}
+                            onChange={handleChange}
+                            min="1"
+                            max="100"
+                            className={fieldClass}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  <div className="overflow-hidden rounded-[28px] border border-white/10 shadow-2xl">
+                    <LocationIdMapSelector
+                      locations={locations}
+                      selectedLocationId={formData.locationId}
+                      onSelect={handleLocationSelect}
+                      title="تحديد عنوان المهمة"
+                      subtitle="اختر عنوانًا من العناوين المضافة ليتم إرسال `locationId` داخل الطلب."
+                    />
                   </div>
                 </div>
-              </div>
 
-              <LocationIdMapSelector
-                locations={locations}
-                selectedLocationId={formData.locationId}
-                onSelect={handleLocationSelect}
-                title="تحديد العنوان للمهمة"
-                subtitle="اختر عنوانًا من العناوين المضافة ليتم إرسال locationId في body المهمة."
-              />
+                <div className="grid gap-7">
+                  <section className={cardClass}>
+                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-emerald-200">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
+                        <FaTrophy className="text-emerald-300" />
+                      </div>
+                      <span>المكافآت</span>
+                    </div>
+
+                    <div className="grid gap-5">
+                      {rewardsConfig.map((reward) => (
+                        <div key={reward.name} className="rounded-[20px] border border-white/10 bg-[#112033] p-4 shadow-inner">
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <label className={`flex items-center gap-2 text-sm font-semibold ${reward.color}`}>
+                              <reward.icon />
+                              <span>{reward.label}</span>
+                            </label>
+                            <span className="text-sm font-semibold text-slate-100">{formData[reward.name]}</span>
+                          </div>
+                          <input
+                            type="number"
+                            name={reward.name}
+                            value={formData[reward.name]}
+                            onChange={handleChange}
+                            min="0"
+                            className={fieldClass}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section className={cardClass}>
+                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-200">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
+                        <FaTasks className="text-sky-300" />
+                      </div>
+                      <span>مراجعة سريعة</span>
+                    </div>
+
+                    <div className="grid gap-4">
+                      <ReviewRow label="عنوان المهمة" value={formData.title || 'غير محدد'} />
+                      <ReviewRow label="الصعوبة" value={['سهل', 'متوسط', 'صعب', 'أسطوري'][Number(formData.difficulty)] || 'غير محدد'} />
+                      <ReviewRow label="المستوى المطلوب" value={formData.requiredLevel || 1} />
+                      <ReviewRow label="معرف العنوان" value={formData.locationId || 'غير محدد'} mono />
+                    </div>
+                  </section>
+                </div>
+              </div>
             </form>
 
-            <div className="p-10 border-t border-white/5 bg-white/5 backdrop-blur-3xl sticky bottom-0 z-20 flex gap-6">
+            <div className="relative flex gap-4 border-t border-white/10 bg-white/[0.05] px-6 py-5 md:px-8">
               <motion.button
-                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.08)' }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-8 py-5 bg-white/5 text-slate-400 rounded-2xl transition-all font-black text-xl border border-white/5"
+                className="flex-1 rounded-[22px] border border-white/10 bg-white/[0.06] px-6 py-4 text-base font-semibold text-slate-200"
                 disabled={loading}
               >
                 إلغاء
               </motion.button>
               <motion.button
-                whileHover={{ scale: 1.02, boxShadow: '0 20px 40px -10px rgba(37,99,235,0.5)' }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 type="submit"
                 onClick={handleSubmit}
-                className="flex-[2] px-8 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl transition-all duration-300 flex items-center justify-center gap-4 font-black text-xl shadow-2xl border border-white/10"
+                className="flex flex-[1.4] items-center justify-center gap-3 rounded-[22px] bg-gradient-to-r from-sky-400 to-indigo-500 px-6 py-4 text-base font-semibold text-white shadow-xl"
                 disabled={loading}
               >
                 {loading ? (
-                  <div className="w-8 h-8 border-[4px] border-white/20 border-t-white rounded-full animate-spin" />
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    <span>جاري الحفظ...</span>
+                  </span>
                 ) : (
                   <>
-                    <FaPlus className="text-lg" />
-                    <span>اعتماد المهمة</span>
+                    <FaPlus />
+                    <span>إضافة المهمة</span>
                   </>
                 )}
               </motion.button>
@@ -268,5 +302,16 @@ const AddMissionModal = ({ isOpen, onClose, onSubmit, locations = [] }) => {
     </AnimatePresence>
   );
 };
+
+function ReviewRow({ label, value, mono = false }) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-[#112033] px-4 py-3.5">
+      <span className="text-sm font-medium text-slate-300">{label}</span>
+      <span className={`text-sm font-semibold text-slate-100 ${mono ? 'font-mono break-all text-left' : ''}`} dir={mono ? 'ltr' : undefined}>
+        {value}
+      </span>
+    </div>
+  );
+}
 
 export default AddMissionModal;

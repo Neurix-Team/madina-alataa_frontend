@@ -40,6 +40,43 @@ getLocations: async () => {
   }
 },
 
+getAllLocations: async (pageNumber = 1, pageSize = 1000) => {
+  try {
+    const response = await axiosClient.get(
+      `${LOCATIONS_API_URL}?PageNumber=${pageNumber}&PageSize=${pageSize}`
+    );
+
+    console.log('Get All Locations API Full Response:', response.data);
+
+    const raw = response.data;
+
+    const items =
+      Array.isArray(raw) ? raw :
+      Array.isArray(raw?.data) ? raw.data :
+      Array.isArray(raw?.data?.items) ? raw.data.items :
+      Array.isArray(raw?.items) ? raw.items :
+      Array.isArray(raw?.value) ? raw.value :
+      Array.isArray(raw?.value?.items) ? raw.value.items :
+      Array.isArray(raw?.result) ? raw.result :
+      Array.isArray(raw?.result?.items) ? raw.result.items :
+      [];
+
+    return {
+      raw,
+      items,
+      totalCount:
+        raw?.totalCount ??
+        raw?.TotalCount ??
+        raw?.data?.totalCount ??
+        raw?.value?.totalCount ??
+        items.length,
+    };
+  } catch (error) {
+    console.error('❌ Error fetching all locations:', error);
+    throw error;
+  }
+},
+
   // Get location by ID
   
   getLocationById: async (locationId) => {

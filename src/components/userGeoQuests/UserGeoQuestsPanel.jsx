@@ -391,73 +391,88 @@ pageSize: 10,
 //     setLoading(false);
 //   }
 // };
+// const loadItems = async (nextPage = pageNumber, nextSize = pageSize) => {
+//   try {
+//     setLoading(true);
+//     setError(null);
+
+//     const safePage = Math.max(1, Number(nextPage) || 1);
+//     const safeSize = Math.min(100, Math.max(1, Number(nextSize) || 10));
+
+//     console.log('🔍 Loading UserGeoQuests - Page:', safePage, 'Size:', safeSize, 'Admin:', isAdmin);
+
+//     const response = await userGeoQuestsService.getUserGeoQuests(safePage, safeSize);
+    
+//     const normalizedItems = Array.isArray(response?.items)
+//       ? response.items.map(normalizeUserGeoQuest)
+//       : [];
+
+//     // const finalItems = (mode === 'admin' || isAdmin || disableFilter)
+//     //   ? normalizedItems
+//     //   : normalizedItems.filter(item => {
+//     //       const itemUserId = String(item.userId || '').toLowerCase();
+//     //       const targetId = String(targetUser?.id || targetUser?.userId || '').toLowerCase();
+//     //       return itemUserId === targetId;
+//     //     });
+
+//     // console.log('✅ USER GEOQUESTS FINAL ITEMS TO DISPLAY:', finalItems);
+//     // setItems(finalItems);
+//     const finalItems = normalizedItems;
+
+// console.log('✅ USER GEOQUESTS FINAL ITEMS TO DISPLAY:', finalItems);
+// setItems(finalItems);
+
+//     setPagination({
+//       currentPage: Number(response?.pagination?.currentPage || response?.pagination?.pageNumber || safePage) || safePage,
+//       totalPages: Number(response?.pagination?.totalPages || 1) || 1,
+//       totalItems: Number(response?.pagination?.totalItems || response?.pagination?.totalCount || finalItems.length) || finalItems.length,
+//       pageSize: Number(response?.pagination?.pageSize || safeSize) || safeSize,
+//     });
+//   } catch (requestError) {
+//     console.error('FAILED TO LOAD USER GEOQUESTS:', requestError);
+//     setError(
+//       requestError?.response?.data?.message ||
+//       requestError?.message ||
+//       'فشل في تحميل UserGeoQuests.'
+//     );
+//     setItems([]);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 const loadItems = async (nextPage = pageNumber, nextSize = pageSize) => {
   try {
     setLoading(true);
     setError(null);
 
     const safePage = Math.max(1, Number(nextPage) || 1);
-    const safeSize = Math.min(100, Math.max(1, Number(nextSize) || 100));
+    const safeSize = Math.min(100, Math.max(1, Number(nextSize) || 10));
 
-    const fetchPage = async (page) => {
-      const response = await userGeoQuestsService.getUserGeoQuests(page, safeSize);
+    console.log('🔍 Loading UserGeoQuests - Page:', safePage, 'Size:', safeSize);
 
-      const normalizedItems = Array.isArray(response?.items)
-        ? response.items.map(normalizeUserGeoQuest)
-        : [];
+    const response = await userGeoQuestsService.getUserGeoQuests(safePage, safeSize);
 
-      return { response, normalizedItems };
-    };
+    const normalizedItems = Array.isArray(response?.items)
+      ? response.items.map(normalizeUserGeoQuest)
+      : [];
 
-    let { response, normalizedItems } = await fetchPage(safePage);
+    // مهم: لا تعمل filter هنا لأن API response لا يحتوي userId
+    const finalItems = normalizedItems;
 
-    const responseTotalPages = Number(response?.pagination?.totalPages || 1) || 1;
-    const responseTotalItems =
-      Number(response?.pagination?.totalItems || normalizedItems.length) || normalizedItems.length;
+    console.log('✅ USER GEOQUESTS FINAL ITEMS TO DISPLAY:', finalItems);
 
-    // لو واقفة على صفحة غلط زي PageNumber=100 وهي أصلاً totalPages=1
-    if (normalizedItems.length === 0 && responseTotalItems > 0 && safePage > responseTotalPages) {
-      setPageNumber(1);
-      const retry = await fetchPage(1);
-      response = retry.response;
-      normalizedItems = retry.normalizedItems;
-    }
+    setItems(finalItems);
 
-    // const finalItems =
-    //   mode === 'admin' || disableFilter
-    //     ? normalizedItems
-    //     : filterItemsForTargetUser(normalizedItems, targetUser);
-
-    // console.log('✅ USER GEOQUESTS FINAL ITEMS TO SET:', finalItems);
-
-    // setItems(finalItems);
-//     const finalItems = normalizedItems;
-
-// console.log('✅ USER GEOQUESTS FINAL ITEMS TO SET:', finalItems);
-
-// setItems(finalItems);
-// const finalItems =
-//   mode === 'admin' || isAdmin || disableFilter
-//     ? normalizedItems
-//     : filterItemsForTargetUser(normalizedItems, targetUser);
-
-// console.log('✅ USER GEOQUESTS FINAL ITEMS TO SET:', finalItems);
-
-// setItems(finalItems);
-const finalItems = normalizedItems;
-
-console.log('✅ USER GEOQUESTS FINAL ITEMS TO SET:', finalItems);
-
-setItems(finalItems);
-
-   setPagination({
-  currentPage: Number(response?.pagination?.currentPage || response?.pagination?.pageNumber || nextPage) || nextPage,
-  totalPages: Number(response?.pagination?.totalPages || 1) || 1,
-  totalItems:
-    Number(response?.pagination?.totalItems || response?.pagination?.totalCount || finalItems.length) ||
-    finalItems.length,
-  pageSize: Number(response?.pagination?.pageSize || nextSize) || nextSize,
-});
+    setPagination({
+      currentPage:
+        Number(response?.pagination?.currentPage || response?.pagination?.pageNumber || safePage) ||
+        safePage,
+      totalPages: Number(response?.pagination?.totalPages || 1) || 1,
+      totalItems:
+        Number(response?.pagination?.totalItems || response?.pagination?.totalCount || finalItems.length) ||
+        finalItems.length,
+      pageSize: Number(response?.pagination?.pageSize || safeSize) || safeSize,
+    });
   } catch (requestError) {
     console.error('FAILED TO LOAD USER GEOQUESTS:', requestError);
     setError(

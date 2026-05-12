@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaUser, FaStar, FaChartLine, FaImage, FaArrowUp, FaSave, FaSpinner, FaExclamationTriangle, FaCheckCircle, FaEdit } from 'react-icons/fa';
+import { FaUser, FaStar, FaChartLine, FaImage, FaArrowUp, FaSave, FaSpinner, FaExclamationTriangle, FaCheckCircle, FaEdit, FaMedal, FaSearch } from 'react-icons/fa';
 import { profilesService } from '../services/profilesService';
 import { avatarService } from '../services/avatarService';
 import { buildAvatarProfileFromApiAvatar, buildAvatarUrlFromProfile } from '../utils/avatarProfile';
+import { useAuth } from '../hooks/useAuth';
+import { userBadgesService, normalizeBadgeItem } from '../services/userBadgesService';
+import { userLevelsService } from '../services/userLevelsService';
+import { certificatesService } from '../services/certificatesService';
 
 const UpdateProfilePage = () => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     rating: 0,
     impact: 0,
@@ -20,9 +25,25 @@ const UpdateProfilePage = () => {
   const [avatarData, setAvatarData] = useState(null);
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [userBadges, setUserBadges] = useState([]);
+  const [userBadgesLoading, setUserBadgesLoading] = useState(false);
+  const [userBadgesError, setUserBadgesError] = useState(null);
+  const [selectedBadgeDetails, setSelectedBadgeDetails] = useState(null);
+  const [selectedBadgeLoadingId, setSelectedBadgeLoadingId] = useState(null);
+  const [myLevelData, setMyLevelData] = useState(null);
+  const [myLevelRaw, setMyLevelRaw] = useState(null);
+  const [myLevelLoading, setMyLevelLoading] = useState(false);
+  const [myLevelError, setMyLevelError] = useState(null);
+  const [myCertificates, setMyCertificates] = useState([]);
+  const [myCertificatesRaw, setMyCertificatesRaw] = useState(null);
+  const [myCertificatesLoading, setMyCertificatesLoading] = useState(false);
+  const [myCertificatesError, setMyCertificatesError] = useState(null);
   const avatarPreviewUrl = avatarData
     ? buildAvatarUrlFromProfile(buildAvatarProfileFromApiAvatar(avatarData))
     : '';
+  const isAdmin = Array.isArray(user?.roles)
+    ? user.roles.some((role) => String(role).toLowerCase() === 'admin')
+    : String(user?.roles || '').toLowerCase() === 'admin';
 
   const canSubmit =
   !saving &&
@@ -107,6 +128,113 @@ const UpdateProfilePage = () => {
 
     loadProfile();
   }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      setUserBadges([]);
+      setUserBadgesError(null);
+      return;
+    }
+
+    const loadUserBadges = async () => {
+      try {
+        setUserBadgesLoading(true);
+        setUserBadgesError(null);
+        const response = await userBadgesService.getMyBadges();
+        console.log('USER BADGES PROFILE RESPONSE ITEMS:', response.items);
+        console.log('USER BADGES PROFILE RAW RESPONSE:', response.raw);
+        setUserBadges(response.items);
+      } catch (err) {
+        console.error('Failed to fetch user badges for profile page:', err);
+        setUserBadgesError('فشل في تحميل شارات المستخدم.');
+      } finally {
+        setUserBadgesLoading(false);
+      }
+    };
+
+    loadUserBadges();
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      setMyLevelData(null);
+      setMyLevelRaw(null);
+      setMyLevelError(null);
+      return;
+    }
+
+    const loadMyLevel = async () => {
+      try {
+        setMyLevelLoading(true);
+        setMyLevelError(null);
+        const response = await userLevelsService.getMyLevelResponse();
+        console.log('USER LEVEL PROFILE RESPONSE ITEM:', response.item);
+        console.log('USER LEVEL PROFILE RAW RESPONSE:', response.raw);
+        setMyLevelData(response.item);
+        setMyLevelRaw(response.raw);
+      } catch (err) {
+        console.error('Failed to fetch user level for profile page:', err);
+        setMyLevelError('فشل في تحميل بيانات المستوى.');
+      } finally {
+        setMyLevelLoading(false);
+      }
+    };
+
+    loadMyLevel();
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      setMyCertificates([]);
+      setMyCertificatesRaw(null);
+      setMyCertificatesError(null);
+      return;
+    }
+
+    const loadMyCertificates = async () => {
+      try {
+        setMyCertificatesLoading(true);
+        setMyCertificatesError(null);
+        const response = await certificatesService.getMyCertificates({ pageNumber: 1, pageSize: 1 });
+        console.log('PROFILE CERTIFICATES RESPONSE ITEMS:', response.items);
+        console.log('PROFILE CERTIFICATES RAW RESPONSE:', response.raw);
+        setMyCertificates(response.items);
+        setMyCertificatesRaw(response.raw);
+      } catch (err) {
+        console.error('Failed to fetch profile certificates:', err);
+        setMyCertificatesError('فشل في تحميل الشهادات.');
+      } finally {
+        setMyCertificatesLoading(false);
+      }
+    };
+
+    loadMyCertificates();
+  }, [isAdmin]);
+
+  const handleBadgeDetails = async (badge) => {
+    const badgeId = badge?.badgeId || badge?.id;
+    if (!badgeId) return;
+
+    try {
+      setSelectedBadgeLoadingId(badgeId);
+      const response = await userBadgesService.getBadgeDetails(badgeId);
+      console.log('USER BADGE DETAILS RESPONSE:', response.item);
+      
+      // If 404 occurred, response.item will be null. Fallback to existing badge data.
+      if (response.item) {
+        setSelectedBadgeDetails(response.item);
+      } else {
+        console.info('Using fallback badge details from list data.');
+        setSelectedBadgeDetails(normalizeBadgeItem(badge));
+      }
+    } catch (err) {
+      console.error('Failed to fetch badge details:', err);
+      // Fallback even on actual error
+      setSelectedBadgeDetails(normalizeBadgeItem(badge));
+    } finally {
+      setSelectedBadgeLoadingId(null);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
@@ -619,7 +747,7 @@ const handleSubmit = async (e) => {
         </motion.div>
         ) : null}
 
-        {/* Profile Info Card */}
+        {/* Profile Info Card
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -632,10 +760,10 @@ const handleSubmit = async (e) => {
             معلومات الملف الشخصي المخزنة
           </h3>
           <div style={{ display: 'grid', gap: '12px', color: 'var(--text-muted)' }}>
-            {/* <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
               <span>Profile ID:</span>
               <span style={{ color: 'var(--text)', fontFamily: 'monospace' }}>{profileId || 'غير متوفر'}</span>
-            </div> */}
+            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
               <span>Avatar ID:</span>
               <span style={{ color: 'var(--text)', fontFamily: 'monospace' }}>{formData.avatarId || 'غير محدد'}</span>
@@ -646,6 +774,213 @@ const handleSubmit = async (e) => {
             </div>
           </div>
         </motion.div>
+        */}
+
+        {!isAdmin && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22 }}
+            className="pro-card"
+            style={{ maxWidth: '900px', marginTop: '24px' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <FaArrowUp style={{ color: 'var(--success)' }} />
+              <h3 style={{ color: 'var(--text)', margin: 0 }}>بيانات المستوى</h3>
+            </div>
+
+            {myLevelLoading ? (
+              <div style={{ color: 'var(--text-muted)' }}>جاري تحميل بيانات المستوى...</div>
+            ) : myLevelError ? (
+              <div style={{ color: 'var(--danger)' }}>{myLevelError}</div>
+            ) : myLevelData ? (
+              <div style={{ display: 'grid', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+       
+                  <div style={{ padding: '14px', borderRadius: '14px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.03)' }}>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '6px' }}>XP</div>
+                    <div style={{ color: 'var(--text)', fontWeight: 700 }}>{myLevelData.xp ?? 0}</div>
+                  </div>
+                  <div style={{ padding: '14px', borderRadius: '14px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.03)' }}>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '6px' }}>KP</div>
+                    <div style={{ color: 'var(--text)', fontWeight: 700 }}>{myLevelData.kp ?? 0}</div>
+                  </div>
+                </div>
+
+                {/* <div style={{ padding: '16px', borderRadius: '16px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.04)' }}>
+                  <div style={{ color: 'var(--text)', fontWeight: 700, marginBottom: '10px' }}>الريسبونس</div>
+                  <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--text-muted)', fontSize: '12px' }}>
+                    {JSON.stringify(myLevelRaw, null, 2)}
+                  </pre>
+                </div> */}
+              </div>
+            ) : (
+              <div style={{ color: 'var(--text-muted)' }}>لا توجد بيانات مستوى متاحة.</div>
+            )}
+          </motion.div>
+        )}
+
+        {!isAdmin && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.23 }}
+            className="pro-card"
+            style={{ maxWidth: '900px', marginTop: '24px' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <FaMedal style={{ color: '#d97706' }} />
+              <h3 style={{ color: 'var(--text)', margin: 0 }}>شهاداتي</h3>
+            </div>
+
+            {myCertificatesLoading ? (
+              <div style={{ color: 'var(--text-muted)' }}>جاري تحميل الشهادات...</div>
+            ) : myCertificatesError ? (
+              <div style={{ color: 'var(--danger)' }}>{myCertificatesError}</div>
+            ) : (
+              <div style={{ display: 'grid', gap: 16 }}>
+                {myCertificates.length === 0 ? (
+                  <div style={{ color: 'var(--text-muted)' }}>لا توجد شهادات متاحة.</div>
+                ) : (
+                  myCertificates.map((certificate, index) => (
+                    <div
+                      key={certificate.id || `profile-certificate-${index}`}
+                      style={{
+                        padding: 16,
+                        borderRadius: 16,
+                        border: '1px solid var(--border)',
+                        background: 'rgba(255,255,255,0.03)',
+                      }}
+                    >
+                      <div style={{ color: 'var(--text)', fontWeight: 800, marginBottom: 8 }}>
+                        {certificate.title || 'Certificate'}
+                      </div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: 14, marginBottom: 6 }}>
+                        {certificate.description || 'لا يوجد وصف'}
+                      </div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>ID: {certificate.id || 'غير متوفر'}</div>
+                      {certificate.issuedAt ? (
+                        <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Issued At: {certificate.issuedAt}</div>
+                      ) : null}
+                    </div>
+                  ))
+                )}
+
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {!isAdmin && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="pro-card"
+            style={{ maxWidth: '900px', marginTop: '24px' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <FaMedal style={{ color: '#f59e0b' }} />
+              <h3 style={{ color: 'var(--text)', margin: 0 }}>شارات المستخدم</h3>
+            </div>
+
+            {userBadgesLoading ? (
+              <div style={{ color: 'var(--text-muted)' }}>جاري تحميل الشارات...</div>
+            ) : userBadgesError ? (
+              <div style={{ color: 'var(--danger)' }}>{userBadgesError}</div>
+            ) : userBadges.length === 0 ? (
+              <div style={{ color: 'var(--text-muted)' }}>لا توجد شارات متاحة لهذا المستخدم.</div>
+            ) : (
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {userBadges.map((badge, index) => {
+                  const badgeId = badge.badgeId || badge.id || `badge-${index}`;
+                  return (
+                    <div
+                      key={badgeId}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '16px',
+                        padding: '14px 16px',
+                        borderRadius: '14px',
+                        border: '1px solid var(--border)',
+                        background: 'rgba(255,255,255,0.03)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                        {badge.imageUrl ? (
+                          <img
+                            src={badge.imageUrl}
+                            alt={badge.name}
+                            style={{ width: '44px', height: '44px', borderRadius: '12px', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: '44px',
+                              height: '44px',
+                              borderRadius: '12px',
+                              display: 'grid',
+                              placeItems: 'center',
+                              background: 'rgba(245,158,11,0.15)',
+                              color: '#f59e0b',
+                            }}
+                          >
+                            <FaMedal />
+                          </div>
+                        )}
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ color: 'var(--text)', fontWeight: 700 }}>{badge.name || 'Badge'}</div>
+                          <div style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+                            {badge.description || badge.category || 'لا يوجد وصف'}
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleBadgeDetails(badge)}
+                        disabled={selectedBadgeLoadingId === badgeId}
+                        className="pro-btn pro-btn-secondary"
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                      >
+                        <FaSearch />
+                        <span>{selectedBadgeLoadingId === badgeId ? 'جاري التحميل...' : 'التفاصيل'}</span>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {selectedBadgeDetails && (
+              <div
+                style={{
+                  marginTop: '20px',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  border: '1px solid var(--border)',
+                  background: 'rgba(255,255,255,0.04)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <FaMedal style={{ color: '#f59e0b' }} />
+                  <strong style={{ color: 'var(--text)' }}>تفاصيل الشارة</strong>
+                </div>
+                <div style={{ display: 'grid', gap: '8px', color: 'var(--text-muted)' }}>
+                  <div><span style={{ color: 'var(--text)' }}>الاسم:</span> {selectedBadgeDetails.name || 'غير متوفر'}</div>
+                  <div><span style={{ color: 'var(--text)' }}>الوصف:</span> {selectedBadgeDetails.description || 'غير متوفر'}</div>
+                  <div><span style={{ color: 'var(--text)' }}>التصنيف:</span> {selectedBadgeDetails.category || 'غير متوفر'}</div>
+                  <div><span style={{ color: 'var(--text)' }}>المعرف:</span> {selectedBadgeDetails.badgeId || selectedBadgeDetails.id || 'غير متوفر'}</div>
+                  {selectedBadgeDetails.earnedAt ? (
+                    <div><span style={{ color: 'var(--text)' }}>تاريخ الاكتساب:</span> {selectedBadgeDetails.earnedAt}</div>
+                  ) : null}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
       </div>
     </div>
   );

@@ -200,55 +200,29 @@ getUserGeoQuests: async (pageNumber = 1, pageSize = 10) => {
   const safePageNumber = Math.max(1, Number(pageNumber) || 1);
   const safePageSize = Math.min(100, Math.max(1, Number(pageSize) || 10));
 
-  const candidates = [
-    [safePageNumber, safePageSize],
-    [1, 20],
-    [1, 10],
-    [1, 5],
-    [1, 2],
-    [1, 1],
-  ];
+  const url = `${USER_GEOQUESTS_API_URL}?PageNumber=${safePageNumber}&PageSize=${safePageSize}`;
+  console.log('🌐 USER GEOQUESTS API REQUEST:', { url, pageNumber: safePageNumber, pageSize: safePageSize });
 
-  const uniqueCandidates = candidates.filter(
-    ([page, size], index, arr) =>
-      arr.findIndex(([p, s]) => p === page && s === size) === index
-  );
-
-  let firstResult = null;
-
-  for (const [page, size] of uniqueCandidates) {
-    const url = `${USER_GEOQUESTS_API_URL}?PageNumber=${page}&PageSize=${size}`;
-
-    console.log('USER GEOQUESTS LIST REQUEST:', { pageNumber: page, pageSize: size, url });
-
+  try {
     const response = await axiosClient.get(url);
-
-    console.log('USER GEOQUESTS LIST RAW RESPONSE:', response.data);
-
-    const normalized = normalizeCollection(response.data, page, size);
-
-    console.log('USER GEOQUESTS LIST ITEMS:', normalized.items);
-
-    if (!firstResult) {
-      firstResult = normalized;
+    
+    // Log the full response for debugging as requested by the user
+    console.log('📥 USER GEOQUESTS API FULL RESPONSE:', response.data);
+    
+    if (response.data?.value?.items) {
+      console.log('📦 USER GEOQUESTS ITEMS (from .value.items):', response.data.value.items);
+    } else if (response.data?.items) {
+      console.log('📦 USER GEOQUESTS ITEMS (from .items):', response.data.items);
     }
 
-    if (normalized.items.length > 0) {
-      return normalized;
-    }
+    const normalized = normalizeCollection(response.data, safePageNumber, safePageSize);
+    console.log('✨ USER GEOQUESTS NORMALIZED ITEMS:', normalized.items);
+
+    return normalized;
+  } catch (error) {
+    console.error('❌ USER GEOQUESTS API ERROR:', error);
+    throw error;
   }
-
-  return (
-    firstResult || {
-      items: [],
-      pagination: {
-        currentPage: safePageNumber,
-        totalPages: 1,
-        totalItems: 0,
-        pageSize: safePageSize,
-      },
-    }
-  );
 },
 
   getUserGeoQuestById: async (id) => {

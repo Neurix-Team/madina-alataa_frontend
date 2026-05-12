@@ -21,6 +21,9 @@ import { donationOrdersService } from '../services/donationOrdersService';
 import ViewDonationRequestModal from '../components/modals/ViewDonationRequestModal';
 import EditDonationRequestModal from '../components/modals/EditDonationRequestModal';
 
+import CreateDonationRequestModal from '../components/modals/CreateDonationRequestModal';
+import { locationsService } from '../services/locationsService';
+
 const UserDonationRequestsPage = () => {
   const { user } = useAuth();
   const location = useLocation();
@@ -38,6 +41,8 @@ const UserDonationRequestsPage = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [locations, setLocations] = useState([]);
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
   const [selectedRequestForDonation, setSelectedRequestForDonation] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
@@ -74,6 +79,18 @@ const UserDonationRequestsPage = () => {
   }, [activeTab, pageNumber, pageSize]);
 
   useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const data = await locationsService.getAllLocations(1, 1000);
+        setLocations(data.items || []);
+      } catch (err) {
+        console.error('Error fetching locations:', err);
+      }
+    };
+    if (isAdmin) fetchLocations();
+  }, [isAdmin]);
+
+  useEffect(() => {
     setActiveTab(isApprovedRoute ? 'approved' : 'my');
   }, [isApprovedRoute]);
 
@@ -97,6 +114,11 @@ const UserDonationRequestsPage = () => {
   const handleViewDetails = (request) => {
     setSelectedRequest(request);
     setIsViewModalOpen(true);
+  };
+
+  const handleCreateSuccess = async () => {
+    setIsCreateModalOpen(false);
+    await fetchRequests();
   };
 
   const handleEdit = (request) => {
@@ -140,6 +162,18 @@ const UserDonationRequestsPage = () => {
               <p className="donation-requests-page__heroSubtitle">إدارة الطلبات الخاصة بك والطلبات المقبولة من نفس الواجهة.</p>
             </div>
           </div>
+          {isAdmin && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setIsCreateModalOpen(true)}
+              className="pro-btn pro-btn-primary"
+              style={{ background: 'linear-gradient(135deg, #f43f5e, #e11d48)', padding: '12px 24px', borderRadius: '14px', border: 'none', color: '#fff', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+            >
+              <FaPlus />
+              <span>إضافة طلب تبرع</span>
+            </motion.button>
+          )}
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="donation-requests-page__tabs">
@@ -295,6 +329,15 @@ const UserDonationRequestsPage = () => {
           request={selectedRequest}
           onSuccess={fetchRequests}
         />
+
+        {isAdmin && (
+          <CreateDonationRequestModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onSuccess={handleCreateSuccess}
+            locations={locations}
+          />
+        )}
 
         {/* Donation Modal */}
         {isDonateModalOpen && selectedRequestForDonation && (

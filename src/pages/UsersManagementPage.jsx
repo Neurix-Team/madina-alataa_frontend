@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { axiosClient } from '../services/axiosClient';
 import { volunteersService } from '../services/volunteersService';
 import { userLevelsService } from '../services/userLevelsService';
+import { userBadgesService } from '../services/userBadgesService';
+import { certificatesService } from '../services/certificatesService';
 import { useAuth } from '../hooks/useAuth';
 import { 
   FaUsers, FaUserPlus, FaUserShield, FaTrash, FaKey,
@@ -255,6 +257,9 @@ const normalizedUser = {
 };
 
 setSelectedUser(normalizedUser);
+setSelectedBadgeDetails(null);
+fetchUserBadges(normalizedUser.id);
+fetchUserCertificates(normalizedUser.id);
       
       // جلب بيانات المستوى للمستخدم باستخدام الـ profileId إذا وجد، وإلا نستخدم الـ id
       fetchUserLevel(normalizedUser.profileId || normalizedUser.id);
@@ -398,25 +403,105 @@ const [pagination, setPagination] = useState({
     levelId: ''
   });
   const [updatingLevel, setUpdatingLevel] = useState(false);
+  const [userLevelRaw, setUserLevelRaw] = useState(null);
+  const [selectedUserBadges, setSelectedUserBadges] = useState([]);
+  const [selectedUserBadgesLoading, setSelectedUserBadgesLoading] = useState(false);
+  const [selectedUserBadgesError, setSelectedUserBadgesError] = useState(null);
+  const [selectedBadgeDetails, setSelectedBadgeDetails] = useState(null);
+  const [selectedBadgeLoadingId, setSelectedBadgeLoadingId] = useState(null);
+  const [selectedUserCertificates, setSelectedUserCertificates] = useState([]);
+  const [selectedUserCertificatesRaw, setSelectedUserCertificatesRaw] = useState(null);
+  const [selectedUserCertificatesLoading, setSelectedUserCertificatesLoading] = useState(false);
+  const [selectedUserCertificatesError, setSelectedUserCertificatesError] = useState(null);
 
   const { user } = useAuth();
+
+  const fetchUserBadges = async (userId) => {
+    if (!userId) {
+      setSelectedUserBadges([]);
+      return;
+    }
+
+    try {
+      setSelectedUserBadgesLoading(true);
+      setSelectedUserBadgesError(null);
+      const response = await userBadgesService.getUserBadgesByProfileId(userId);
+      console.log('ADMIN USER BADGES RESPONSE ITEMS:', response.items);
+      console.log('ADMIN USER BADGES RAW RESPONSE:', response.raw);
+      setSelectedUserBadges(response.items);
+    } catch (err) {
+      console.error('Failed to fetch admin user badges:', err);
+      setSelectedUserBadgesError('فشل في تحميل شارات المستخدم.');
+      setSelectedUserBadges([]);
+    } finally {
+      setSelectedUserBadgesLoading(false);
+    }
+  };
+
+  const fetchUserCertificates = async (userId) => {
+    if (!userId) {
+      setSelectedUserCertificates([]);
+      setSelectedUserCertificatesRaw(null);
+      return;
+    }
+
+    try {
+      setSelectedUserCertificatesLoading(true);
+      setSelectedUserCertificatesError(null);
+      const response = await certificatesService.getUserCertificates(userId, { pageNumber: 1, pageSize: 1 });
+      console.log('ADMIN USER CERTIFICATES RESPONSE ITEMS:', response.items);
+      console.log('ADMIN USER CERTIFICATES RAW RESPONSE:', response.raw);
+      setSelectedUserCertificates(response.items);
+      setSelectedUserCertificatesRaw(response.raw);
+    } catch (err) {
+      console.error('Failed to fetch admin user certificates:', err);
+      setSelectedUserCertificatesError('فشل في تحميل شهادات المستخدم.');
+      setSelectedUserCertificates([]);
+      setSelectedUserCertificatesRaw(null);
+    } finally {
+      setSelectedUserCertificatesLoading(false);
+    }
+  };
+
+  const handleBadgeDetails = async (badge) => {
+    const badgeId = badge?.badgeId || badge?.id;
+    if (!badgeId) return;
+
+    try {
+      setSelectedBadgeLoadingId(badgeId);
+      const response = await userBadgesService.getBadgeDetails(badgeId);
+      console.log('ADMIN USER BADGE DETAILS RESPONSE:', response.item);
+      console.log('ADMIN USER BADGE DETAILS RAW RESPONSE:', response.raw);
+      setSelectedBadgeDetails(response.item);
+    } catch (err) {
+      console.error('Failed to fetch admin badge details:', err);
+      setSelectedUserBadgesError('فشل في تحميل تفاصيل الشارة.');
+    } finally {
+      setSelectedBadgeLoadingId(null);
+    }
+  };
 
   const fetchUserLevel = async (userId) => {
     try {
       setLoadingLevel(true);
       setLevelError(null);
-      const data = await userLevelsService.getUserLevelAdmin(userId);
+      const response = await userLevelsService.getUserLevelAdminResponse(userId);
+      console.log('ADMIN USER LEVEL RESPONSE ITEM:', response.item);
+      console.log('ADMIN USER LEVEL RAW RESPONSE:', response.raw);
+      const data = response.item;
       setUserLevelData(data);
+      setUserLevelRaw(response.raw);
       setLevelForm({
         xp: data.xp || 0,
         kp: data.kp || 0,
-        levelId: data.level?.id || data.level?.levelId || data.levelId || ''
+        levelId: data.levelId || data.level?.id || data.level?.levelId || ''
       });
     } catch (err) {
       console.error('Failed to fetch user level:', err);
       // إذا كان الخطأ 404، فهذا يعني أن المستخدم ليس لديه سجل مستويات بعد، لا نعتبرها مشكلة كبيرة
       if (err.response?.status === 404) {
         setUserLevelData(null);
+        setUserLevelRaw(null);
         setLevelForm({ xp: 0, kp: 0, levelId: '' });
       } else {
         setLevelError('فشل في جلب بيانات المستوى.');
@@ -430,9 +515,10 @@ const [pagination, setPagination] = useState({
     e.preventDefault();
     const userId = selectedUser?.id || selectedUser?.userId;
     const profileId = selectedUser?.profileId;
+    const levelRecordId = userLevelData?.id || userLevelData?.userLevelId;
     
     // نفضل استخدام الـ profileId إذا كان متاحاً للـ PUT أيضاً، أو نستخدم الـ userId
-    const targetId = profileId || userId;
+    const targetId = levelRecordId || profileId || userId;
     
     if (!targetId) return;
 
@@ -450,11 +536,14 @@ const [pagination, setPagination] = useState({
         levelId: levelForm.levelId
       };
       // استخدام المعرف المستهدف (profileId أو userId)
-      await userLevelsService.updateUserLevelAdmin(targetId, payload);
+      console.log('ADMIN UPDATE USER LEVEL REQUEST:', { targetId, payload });
+      const response = await userLevelsService.updateUserLevelAdminResponse(targetId, payload);
+      console.log('ADMIN UPDATE USER LEVEL RESPONSE ITEM:', response.item);
+      console.log('ADMIN UPDATE USER LEVEL RAW RESPONSE:', response.raw);
       setEditingLevel(false);
       
       // تحديث البيانات بعد الحفظ باستخدام نفس المعرف
-      fetchUserLevel(targetId); 
+      fetchUserLevel(profileId || userId); 
     } catch (err) {
       console.error('Failed to update level:', err);
       const errorMsg = err.response?.data?.message || err.message || 'فشل في تحديث المستوى.';
@@ -1465,10 +1554,6 @@ const [pagination, setPagination] = useState({
                       <span style={{ fontSize: 13, fontWeight: 700, wordBreak: 'break-all' }}>{selectedUser.email}</span>
                     </div>
                     <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
-                      <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>المعرف (ID)</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, wordBreak: 'break-all' }}>{selectedUser.id}</span>
-                    </div>
-                    <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
                       <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>تاريخ الميلاد</span>
                       <span style={{ fontSize: 13, fontWeight: 700 }}>{selectedUser.birthDay || selectedUser.birthDate || 'غير محدد'}</span>
                     </div>
@@ -1480,6 +1565,117 @@ const [pagination, setPagination] = useState({
                         )) || 'مستخدم'}
                       </div>
                     </div>
+                  </div>
+
+                  <div style={{ padding: 16, borderRadius: 16, border: '1.5px solid rgb(226, 232, 240)', background: 'rgb(248, 250, 255)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                      <h4 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: 'rgb(30, 41, 59)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <FaStar color="#d97706" />
+                        شهادات المستخدم
+                      </h4>
+                    </div>
+
+                    {selectedUserCertificatesLoading ? (
+                      <div style={{ color: '#64748b' }}>جاري تحميل الشهادات...</div>
+                    ) : selectedUserCertificatesError ? (
+                      <div style={{ color: '#ef4444' }}>{selectedUserCertificatesError}</div>
+                    ) : (
+                      <div style={{ display: 'grid', gap: 12 }}>
+                        {selectedUserCertificates.length === 0 ? (
+                          <div style={{ color: '#64748b' }}>لا توجد شهادات متاحة لهذا المستخدم.</div>
+                        ) : (
+                          selectedUserCertificates.map((certificate, index) => (
+                            <div
+                              key={certificate.id || `user-certificate-${index}`}
+                              style={{ padding: 12, borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff' }}
+                            >
+                              <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>
+                                {certificate.title || 'Certificate'}
+                              </div>
+                              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
+                                {certificate.description || 'لا يوجد وصف'}
+                              </div>
+                              <div style={{ fontSize: 12, color: '#475569' }}>ID: {certificate.id || 'غير متوفر'}</div>
+                              {certificate.issuedAt ? (
+                                <div style={{ fontSize: 12, color: '#475569' }}>Issued At: {certificate.issuedAt}</div>
+                              ) : null}
+                            </div>
+                          ))
+                        )}
+
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ padding: 16, borderRadius: 16, border: '1.5px solid rgb(226, 232, 240)', background: 'rgb(248, 250, 255)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                      <h4 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: 'rgb(30, 41, 59)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <FaStar color="#f59e0b" />
+                        شارات المستخدم
+                      </h4>
+                    </div>
+
+                    {selectedUserBadgesLoading ? (
+                      <div style={{ color: '#64748b' }}>جاري تحميل الشارات...</div>
+                    ) : selectedUserBadgesError ? (
+                      <div style={{ color: '#ef4444' }}>{selectedUserBadgesError}</div>
+                    ) : selectedUserBadges.length === 0 ? (
+                      <div style={{ color: '#64748b' }}>لا توجد شارات متاحة لهذا المستخدم.</div>
+                    ) : (
+                      <div style={{ display: 'grid', gap: 10 }}>
+                        {selectedUserBadges.map((badge, index) => {
+                          const badgeId = badge.badgeId || badge.id || `badge-${index}`;
+                          return (
+                            <div
+                              key={badgeId}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: 12,
+                                padding: 12,
+                                borderRadius: 12,
+                                border: '1px solid #e2e8f0',
+                                background: '#fff',
+                              }}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+                                {badge.imageUrl ? (
+                                  <img
+                                    src={badge.imageUrl}
+                                    alt={badge.name}
+                                    style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'cover' }}
+                                  />
+                                ) : (
+                                  <div style={{ width: 40, height: 40, borderRadius: 10, display: 'grid', placeItems: 'center', background: '#fef3c7', color: '#d97706' }}>
+                                    <FaStar />
+                                  </div>
+                                )}
+                                <div style={{ minWidth: 0 }}>
+                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>{badge.name || 'Badge'}</div>
+                                  <div style={{ fontSize: 12, color: '#64748b' }}>{badge.description || badge.category || 'لا يوجد وصف'}</div>
+                                </div>
+                              </div>
+
+                              {/* زر "التفاصيل" للشارات أزيل من واجهة تفاصيل المستخدم كما طُلب */}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {selectedBadgeDetails && (
+                      <div style={{ marginTop: 14, padding: 12, borderRadius: 12, background: '#fff', border: '1px solid #e2e8f0', display: 'grid', gap: 6 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>تفاصيل الشارة</div>
+                        <div style={{ fontSize: 12, color: '#475569' }}>الاسم: {selectedBadgeDetails.name || 'غير متوفر'}</div>
+                        <div style={{ fontSize: 12, color: '#475569' }}>الوصف: {selectedBadgeDetails.description || 'غير متوفر'}</div>
+                        <div style={{ fontSize: 12, color: '#475569' }}>التصنيف: {selectedBadgeDetails.category || 'غير متوفر'}</div>
+                        <div style={{ fontSize: 12, color: '#475569', wordBreak: 'break-all' }}>المعرف: {selectedBadgeDetails.badgeId || selectedBadgeDetails.id || 'غير متوفر'}</div>
+                        {selectedBadgeDetails.earnedAt ? (
+                          <div style={{ fontSize: 12, color: '#475569' }}>تاريخ الاكتساب: {selectedBadgeDetails.earnedAt}</div>
+                        ) : null}
+                      </div>
+                    )}
                   </div>
 
                   <div style={{ padding: 16, borderRadius: 16, border: '1.5px solid rgb(226, 232, 240)', background: 'rgb(248, 250, 255)' }}>
@@ -1505,13 +1701,7 @@ const [pagination, setPagination] = useState({
                         >
                           <FaEdit size={13} />
                         </button>
-                        <button 
-                          title="حذف المستوى" 
-                          onClick={handleDeleteLevel}
-                          style={{ border: 'none', background: 'rgb(239, 68, 68)', color: '#fff', width: 34, height: 34, borderRadius: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'grid', placeItems: 'center' }}
-                        >
-                          <FaTrash size={13} />
-                        </button>
+                        {/* حذف زر حذف المستوى: تمت إزالته بناءً على متطلبات الواجهة */}
                       </div>
                     </div>
 
@@ -1562,6 +1752,7 @@ const [pagination, setPagination] = useState({
                             <span style={{ fontSize: 10, color: '#94a3b8', display: 'block' }}>KP</span>
                             <span style={{ fontSize: 14, fontWeight: 900, color: '#10b981' }}>{userLevelData.kp || 0}</span>
                           </div>
+                         
                         </div>
                       </div>
                     ) : (
@@ -2043,10 +2234,6 @@ const [pagination, setPagination] = useState({
                         ))}
                       </div>
                     </div>
-                  </div>
-
-                  <div style={{ padding: '14px 16px', borderRadius: 14, background: '#eff6ff', color: '#1d4ed8', fontSize: 13, fontWeight: 700 }}>
-                    اختيار الأدوار هنا يحدّث الأدوار الحالية مباشرة عند حفظ المستخدم، بما في ذلك إضافة الأدوار أو إزالتها من الـ API الحقيقي.
                   </div>
                 </div>
 
@@ -3114,7 +3301,7 @@ const [pagination, setPagination] = useState({
               <div style={{ display: 'grid', gap: 16, textAlign: 'right' }}>
                 {/* Edit Button */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
-                  <button
+                  {/* <button
                     onClick={() => setEditingDonorProfile(!editingDonorProfile)}
                     style={{
                       padding: '8px 16px',
@@ -3131,7 +3318,7 @@ const [pagination, setPagination] = useState({
                     }}
                   >
                     {editingDonorProfile ? 'إلغاء' : 'تعديل'}
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* Update Success Message */}

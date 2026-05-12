@@ -167,37 +167,36 @@ const MissionsTab = () => {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-100 p-6 md:p-12" dir="rtl">
-      <div className="relative mx-auto max-w-7xl space-y-12">
-        {/* Hero Header */}
-        <div className="flex flex-col gap-8 rounded-[40px] border border-white/10 bg-[#0f172a]/60 backdrop-blur-2xl p-8 md:flex-row md:items-center md:justify-between md:p-10 shadow-[0_25px_70px_rgba(0,0,0,0.4)]">
+    <div className="min-h-screen bg-transparent p-6 text-slate-100 md:p-10" dir="rtl">
+      <div className="relative mx-auto flex max-w-7xl flex-col gap-8">
+        <div className="flex flex-col gap-6 rounded-[32px] border border-white/12 bg-[#0f1b2d]/80 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.35)] backdrop-blur-xl md:flex-row md:items-center md:justify-between md:p-8">
           <div className="flex items-center gap-6">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[28px] bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-[0_18px_40px_rgba(37,99,235,0.3)] border border-white/20">
-              <FaTasks className="text-3xl" />
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] border border-white/20 bg-gradient-to-br from-sky-400 to-indigo-500 text-white shadow-[0_18px_40px_rgba(37,99,235,0.28)]">
+              <FaTasks className="text-2xl" />
             </div>
             <div>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">إدارة العمليات</h2>
-              <p className="mt-3 text-base md:text-lg font-bold text-slate-400 max-w-md leading-relaxed">التحكم الكامل في المهام الميدانية، المكافآت، وتوزيع الموارد الجغرافية.</p>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white">إدارة المهام</h2>
+              <p className="mt-2 max-w-xl text-sm md:text-base font-medium leading-7 text-slate-300">إدارة المهام الميدانية والمكافآت والعناوين المرتبطة بها من واجهة أوضح وأكثر تنظيمًا.</p>
             </div>
           </div>
 
-          <div className="grid w-full gap-5 md:w-auto md:grid-cols-[minmax(300px,420px)_auto]">
+          <div className="grid w-full gap-4 md:w-auto md:grid-cols-[minmax(280px,380px)_auto]">
             <div className="relative group">
-              <FaSearch className="absolute right-5 top-1/2 -translate-y-1/2 text-blue-500/50 group-focus-within:text-blue-500 transition-colors" />
+              <FaSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-sky-300/70 transition-colors group-focus-within:text-sky-300" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                 placeholder="ابحث عن مهمة محددة..."
-                className="w-full rounded-[24px] border border-white/10 bg-black/40 py-4 pr-14 pl-5 text-white outline-none transition focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 shadow-inner"
+                className="w-full rounded-[22px] border border-white/12 bg-[#112033] py-3.5 pr-12 pl-4 text-sm font-medium text-white outline-none transition placeholder:text-slate-400 focus:border-sky-400/45 focus:bg-[#16283d]"
               />
             </div>
 
             <motion.button
-              whileHover={{ scale: 1.02, boxShadow: '0 15px 35px rgba(37,99,235,0.25)' }}
+              whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowAddModal(true)}
-              className="flex items-center justify-center gap-3 rounded-[24px] bg-blue-600 px-8 py-4 font-black text-lg text-white shadow-xl transition-all border border-white/10"
+              className="flex items-center justify-center gap-2 rounded-[22px] border border-white/10 bg-gradient-to-r from-sky-400 to-indigo-500 px-6 py-3.5 text-base font-semibold text-white shadow-xl transition-all"
             >
               <FaPlus />
               <span>إضافة مهمة</span>
@@ -205,35 +204,39 @@ const MissionsTab = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid gap-6 md:grid-cols-3">
+        {error && (
+          <div className="rounded-[24px] border border-red-400/25 bg-red-500/10 px-5 py-4 text-sm font-medium text-red-200">
+            {error}
+          </div>
+        )}
+
+        <div className="grid gap-5 md:grid-cols-3">
           {stats.map((stat, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="flex items-center gap-6 rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-xl">
-              <div className={`flex h-16 w-16 items-center justify-center rounded-2xl ${stat.bg} ${stat.border} ${stat.accent} text-2xl shadow-inner`}>
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="flex items-center gap-4 rounded-[26px] border border-white/12 bg-white/[0.06] p-5 shadow-xl">
+              <div className={`flex h-14 w-14 items-center justify-center rounded-2xl border ${stat.bg} ${stat.border} ${stat.accent} text-xl shadow-inner`}>
                 <stat.icon />
               </div>
               <div>
-                <div className="text-sm font-black text-slate-500 uppercase tracking-widest mb-1">{stat.label}</div>
-                <div className="text-4xl font-black text-white tabular-nums">{stat.value}</div>
+                <div className="mb-1 text-sm font-medium text-slate-300">{stat.label}</div>
+                <div className="text-2xl font-semibold text-white tabular-nums">{stat.value}</div>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Missions Grid */}
         {loading && missions.length === 0 ? (
-          <div className="flex min-h-[400px] flex-col items-center justify-center gap-6 rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-xl">
-            <FaSpinner className="animate-spin text-5xl text-blue-500" />
-            <div className="text-xl font-black text-white tracking-tight">جاري استدعاء سجلات المهام...</div>
+          <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-[30px] border border-white/12 bg-white/[0.06] backdrop-blur-xl">
+            <FaSpinner className="animate-spin text-4xl text-sky-300" />
+            <div className="text-lg font-semibold tracking-tight text-white">جاري استدعاء سجلات المهام...</div>
           </div>
         ) : missions.length === 0 ? (
-          <div className="rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-xl p-16 text-center">
-            <FaTasks className="mx-auto mb-6 text-5xl text-blue-500/50" />
-            <h3 className="text-3xl font-black text-white">لا توجد مهام مسجلة</h3>
-            <p className="mt-4 text-slate-400 font-bold text-lg">لم يتم العثور على أي مهام في قاعدة البيانات حاليًا.</p>
+          <div className="rounded-[30px] border border-white/12 bg-white/[0.06] p-12 text-center backdrop-blur-xl">
+            <FaTasks className="mx-auto mb-5 text-4xl text-sky-300/70" />
+            <h3 className="text-2xl font-semibold text-white">لا توجد مهام مسجلة</h3>
+            <p className="mt-3 text-sm md:text-base font-medium text-slate-300">لم يتم العثور على أي مهام في قاعدة البيانات حاليًا.</p>
           </div>
         ) : (
-          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {missions.map((mission, index) => {
               const diff = getDifficultyInfo(mission.difficulty);
               const DiffIcon = diff.icon;
@@ -244,53 +247,54 @@ const MissionsTab = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="group relative rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl hover:shadow-[0_30px_70px_rgba(0,0,0,0.5)] transition-all duration-500 flex flex-col"
+                  className="group relative flex flex-col gap-5 rounded-[28px] border border-white/12 bg-white/[0.06] p-6 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_70px_rgba(0,0,0,0.45)]"
                 >
-                  <div className="mb-6 flex items-start justify-between gap-4">
-                    <div className="space-y-4 min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1 space-y-3">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest ${diff.badge}`}>
+                        <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium ${diff.badge}`}>
                           <DiffIcon />
                           <span>{diff.label}</span>
                         </span>
-                        <span className={`inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest ${mission.status === 1 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                        <span className={`inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-xs font-medium ${mission.status === 1 ? 'bg-emerald-500/10 text-emerald-300' : 'bg-red-500/10 text-red-300'}`}>
                           {mission.status === 1 ? <FaCheckCircle /> : <FaTimesCircle />}
                           <span>{mission.status === 1 ? 'نشطة' : 'متوقفة'}</span>
                         </span>
                       </div>
-                      <h3 className="text-2xl font-black text-white leading-tight group-hover:text-blue-400 transition-colors">{mission.title}</h3>
-                      <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                        ID: <span className="font-mono text-blue-500/70">{mission.id || 'N/A'}</span>
+                      <h3 className="text-xl font-semibold leading-8 text-white transition-colors group-hover:text-sky-200">{mission.title}</h3>
+                      <div className="flex items-center gap-2 text-xs font-medium text-slate-300">
+                        <span>ID:</span>
+                        <span className="font-mono text-sky-200/80" dir="ltr">{mission.id || 'N/A'}</span>
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-3">
-                      <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleViewMission(mission.id)} className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-blue-400"><FaEye /></motion.button>
-                      <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleEditMission(mission)} className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-yellow-500"><FaEdit /></motion.button>
-                      <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleDeleteMission(mission.id)} className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-red-500"><FaTrash /></motion.button>
+                    <div className="flex flex-col gap-2">
+                      <motion.button whileHover={{ scale: 1.06 }} onClick={() => handleViewMission(mission.id)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-sky-300"><FaEye /></motion.button>
+                      <motion.button whileHover={{ scale: 1.06 }} onClick={() => handleEditMission(mission)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-amber-300"><FaEdit /></motion.button>
+                      <motion.button whileHover={{ scale: 1.06 }} onClick={() => handleDeleteMission(mission.id)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-red-300"><FaTrash /></motion.button>
                     </div>
                   </div>
 
-                  <div className="mb-6 rounded-[2rem] border border-white/5 bg-black/30 p-5 space-y-4 shadow-inner">
-                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                      <FaMapMarkerAlt className="text-blue-500" />
+                  <div className="rounded-[22px] border border-white/10 bg-[#112033] p-4 shadow-inner">
+                    <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-300">
+                      <FaMapMarkerAlt className="text-sky-300" />
                       <span>الموقع الجغرافي</span>
                     </div>
-                    <div className="font-mono text-xs break-all text-blue-300/80 bg-black/40 rounded-xl px-4 py-3 border border-white/5 tracking-wider" dir="ltr">
+                    <div className="break-all rounded-xl border border-white/10 bg-slate-950/25 px-4 py-3 font-mono text-xs text-sky-100" dir="ltr">
                       {mission.locationId || 'UNSPECIFIED_LOCATION'}
                     </div>
                   </div>
 
-                  <div className="mt-auto grid grid-cols-3 gap-4">
+                  <div className="mt-auto grid grid-cols-3 gap-3">
                     {[
                       { icon: FaTrophy, val: mission.kpReward, label: 'نقاط خير', accent: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
                       { icon: FaStar, val: mission.xpReward, label: 'خبرة', accent: 'text-fuchsia-500', bg: 'bg-fuchsia-500/10', border: 'border-fuchsia-500/20' },
                       { icon: FaLeaf, val: mission.impactReward, label: 'تأثير', accent: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
                     ].map((reward, i) => (
-                      <div key={i} className={`rounded-[1.5rem] border ${reward.border} ${reward.bg} p-4 text-center`}>
-                        <reward.icon className={`mx-auto mb-2 text-xl ${reward.accent}`} />
-                        <div className="text-xl font-black text-white">{reward.val || 0}</div>
-                        <div className={`mt-1 text-[8px] font-black uppercase tracking-widest ${reward.accent} opacity-70`}>{reward.label}</div>
+                      <div key={i} className={`rounded-[18px] border ${reward.border} ${reward.bg} p-3 text-center`}>
+                        <reward.icon className={`mx-auto mb-2 text-lg ${reward.accent}`} />
+                        <div className="text-lg font-semibold text-white">{reward.val || 0}</div>
+                        <div className={`mt-1 text-[10px] font-medium ${reward.accent} opacity-80`}>{reward.label}</div>
                       </div>
                     ))}
                   </div>
@@ -302,10 +306,10 @@ const MissionsTab = () => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 mt-12">
-            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-white disabled:opacity-30"><FaArrowRight /> السابق</button>
-            <div className="text-white font-black">صفحة {currentPage} من {totalPages}</div>
-            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-white disabled:opacity-30">التالي <FaArrowLeft /></button>
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-medium text-white disabled:opacity-30"><FaArrowRight /> السابق</button>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm font-medium text-white">صفحة {currentPage} من {totalPages}</div>
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-medium text-white disabled:opacity-30">التالي <FaArrowLeft /></button>
           </div>
         )}
       </div>

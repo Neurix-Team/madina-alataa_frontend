@@ -21,6 +21,7 @@ const TAB_TO_PATH = {
   geo: '/geo-quests',
   team: '/team-challenges',
   badges: '/badges',
+  certificates: '/certificates',
   leaderboard: '/leaderboard',
   impact: '/impact',
   parents: '/parents',

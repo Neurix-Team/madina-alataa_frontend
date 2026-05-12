@@ -113,20 +113,22 @@ function LocationCoordinatePicker({ existingLocations, longitude, latitude, onPi
   };
 
   return (
-    <div className="bg-white/5 rounded-[2rem] p-8 border border-white/5 space-y-6 shadow-inner">
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-2 h-8 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-        <h4 className="text-white font-black text-lg">اختيار العنوان من الخريطة</h4>
+    <div className="rounded-[28px] border border-white/12 bg-white/[0.06] p-5 md:p-6 shadow-[0_16px_48px_rgba(15,23,42,0.28)]">
+      <div className="mb-5 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-200">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
+          <FaSatellite className="text-sky-300" />
+        </div>
+        <h4>اختيار العنوان من الخريطة</h4>
       </div>
 
-      <div className="bg-blue-500/5 rounded-2xl p-5 border border-blue-500/10 flex items-start gap-4">
-        <FaSatellite className="text-blue-400 text-2xl mt-1" />
+      <div className="mb-5 flex items-start gap-4 rounded-2xl border border-sky-400/15 bg-sky-400/10 p-4">
+        <FaSatellite className="mt-1 text-xl text-sky-300" />
         <div>
-          <p className="text-blue-200 text-sm font-bold leading-relaxed m-0">
+          <p className="m-0 text-sm font-medium leading-7 text-slate-100">
             اضغط داخل الخريطة لتحديد مكان العنوان الجديد، وسيتم ملء `longitude` و`latitude` تلقائيًا وإرسالهم في body
             الـ API.
           </p>
-          <p className="text-blue-300/60 text-xs font-medium leading-relaxed mt-2 mb-0">
+          <p className="mb-0 mt-2 text-xs font-medium leading-6 text-slate-300">
             النقاط الصغيرة تمثل العناوين الحالية كمرجع فقط، أما العلامة الحمراء فهي العنوان الجديد الذي تختاره الآن.
           </p>
         </div>
@@ -238,23 +240,23 @@ function LocationCoordinatePicker({ existingLocations, longitude, latitude, onPi
         </svg>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-black/30 border border-white/10 rounded-2xl px-5 py-4">
-          <div className="flex items-center gap-2 text-slate-300 text-sm font-bold mb-2">
-            <FaCompass className="text-blue-400" />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="rounded-[20px] border border-white/10 bg-[#112033] px-4 py-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-300">
+            <FaCompass className="text-sky-300" />
             خط الطول المحدد
           </div>
-          <div className="text-white font-mono font-bold text-lg" dir="ltr">
+          <div className="font-mono text-sm font-semibold text-white" dir="ltr">
             {formatCoordinate(longitude) || 'غير محدد'}
           </div>
         </div>
 
-        <div className="bg-black/30 border border-white/10 rounded-2xl px-5 py-4">
-          <div className="flex items-center gap-2 text-slate-300 text-sm font-bold mb-2">
-            <FaGlobe className="text-blue-400" />
+        <div className="rounded-[20px] border border-white/10 bg-[#112033] px-4 py-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-300">
+            <FaGlobe className="text-sky-300" />
             خط العرض المحدد
           </div>
-          <div className="text-white font-mono font-bold text-lg" dir="ltr">
+          <div className="font-mono text-sm font-semibold text-white" dir="ltr">
             {formatCoordinate(latitude) || 'غير محدد'}
           </div>
         </div>
@@ -332,172 +334,189 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
     }
   };
 
+  const fieldClass =
+    'w-full rounded-2xl border border-white/12 bg-[#112033] px-4 py-3 text-base font-medium text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-sky-400/45 focus:bg-[#16283d]';
+
+  const cardClass =
+    'rounded-[28px] border border-white/12 bg-white/[0.06] p-5 md:p-6 shadow-[0_16px_48px_rgba(15,23,42,0.28)]';
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 bg-[#020617]/80 backdrop-blur-2xl flex items-center justify-center z-[100] p-4 md:p-8" dir="rtl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/75 p-4 md:p-8 backdrop-blur-md" dir="rtl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 40, rotateX: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 40, rotateX: 15 }}
-            transition={{ type: 'spring', duration: 0.7, bounce: 0.3 }}
-            className="bg-[#0f172a]/90 rounded-[3rem] border border-white/10 w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-[0_0_100px_rgba(79,70,229,0.2)] flex flex-col relative"
+            initial={{ opacity: 0, scale: 0.96, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 24 }}
+            transition={{ duration: 0.2 }}
+            className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[30px] border border-white/12 bg-[#0f1b2d] shadow-[0_28px_90px_rgba(15,23,42,0.5)]"
           >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-[80px] -z-10" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] -z-10" />
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(96,165,250,0.16),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.10),transparent_25%)]" />
 
-            <div className="flex justify-between items-center p-10 border-b border-white/5 bg-white/5 backdrop-blur-3xl sticky top-0 z-20">
-              <div className="flex items-center gap-5">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-800 flex items-center justify-center shadow-2xl border border-white/20">
-                  <FaPlus className="text-white text-xl" />
+            <div className="relative flex items-start justify-between gap-4 border-b border-white/10 bg-white/[0.05] px-6 py-5 md:px-8">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-sky-400 to-indigo-500 text-white shadow-lg">
+                  <FaPlus className="text-lg" />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-black text-white tracking-tighter">إضافة عنوان جديد</h3>
-                  <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mt-1">
-                    اختيار الموقع من الخريطة وإرساله إلى API
+                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white">إضافة عنوان جديد</h3>
+                  <p className="mt-1 text-sm font-medium text-slate-300">
+                    واجهة أوضح لإضافة العنوان واختيار الإحداثيات من الخريطة.
                   </p>
                 </div>
               </div>
               <motion.button
-                whileHover={{ scale: 1.1, rotate: 90, backgroundColor: 'rgba(239, 68, 68, 0.2)' }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.05, rotate: 90 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   resetForm();
                   onClose();
                 }}
-                className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-2xl transition-all text-slate-400 border border-white/5"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-slate-200"
               >
-                <FaTimes className="text-xl" />
+                <FaTimes />
               </motion.button>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
-              <div className="bg-white/5 rounded-[2rem] p-8 border border-white/5 space-y-6 shadow-inner">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-2 h-8 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
-                  <h4 className="text-white font-black text-lg">البيانات الأساسية</h4>
+            <form onSubmit={handleSubmit} className="relative flex-1 overflow-y-auto px-6 py-6 md:px-8 md:py-8">
+              <div className="grid gap-7 lg:grid-cols-[1.02fr_0.98fr]">
+                <div className="grid gap-7">
+                  <section className={cardClass}>
+                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-200">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
+                        <FaMapMarkerAlt className="text-sky-300" />
+                      </div>
+                      <h4>البيانات الأساسية</h4>
+                    </div>
+
+                    <div className="grid gap-6">
+                      <div className="space-y-2.5">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+                          <FaMapMarkerAlt className="text-sky-300" />
+                          <span>اسم العنوان</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          required
+                          className={fieldClass}
+                          placeholder="أدخل اسمًا واضحًا للعنوان"
+                        />
+                      </div>
+
+                      <div className="space-y-2.5">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+                          <FaStar className="text-amber-300" />
+                          <span>المستوى المطلوب</span>
+                        </label>
+                        <input
+                          type="number"
+                          name="requiredLevel"
+                          value={formData.requiredLevel}
+                          onChange={handleChange}
+                          min="1"
+                          max="100"
+                          className={fieldClass}
+                        />
+                      </div>
+                    </div>
+                  </section>
+
+                  <LocationCoordinatePicker
+                    existingLocations={existingLocations}
+                    longitude={formData.longitude}
+                    latitude={formData.latitude}
+                    onPick={handleCoordinatePick}
+                  />
                 </div>
 
-                <div className="space-y-6">
-                  <div className="group space-y-3">
-                    <label className="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest px-1">
-                      <FaMapMarkerAlt className="text-indigo-500" />
-                      اسم العنوان <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="w-full bg-black/40 border-2 border-white/5 rounded-[1.5rem] px-6 py-5 text-xl text-white placeholder-slate-700 focus:outline-none focus:border-indigo-500/50 focus:ring-8 focus:ring-indigo-500/5 transition-all duration-300 shadow-inner font-bold"
-                      placeholder="أدخل اسمًا واضحًا للعنوان..."
-                    />
-                  </div>
+                <div className="grid gap-7">
+                  <section className={cardClass}>
+                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-200">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
+                        <FaGlobe className="text-sky-300" />
+                      </div>
+                      <h4>الإحداثيات المرسلة</h4>
+                    </div>
 
-                  <div className="group space-y-3">
-                    <label className="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest px-1">
-                      <FaStar className="text-yellow-500" />
-                      المستوى المطلوب
-                    </label>
-                    <input
-                      type="number"
-                      name="requiredLevel"
-                      value={formData.requiredLevel}
-                      onChange={handleChange}
-                      min="1"
-                      max="100"
-                      className="w-full bg-black/40 border-2 border-white/5 rounded-[1.5rem] px-6 py-5 text-xl text-white focus:outline-none focus:border-yellow-500/50 focus:ring-8 focus:ring-yellow-500/5 transition-all duration-300 shadow-inner font-bold"
-                    />
-                  </div>
+                    <div className="grid gap-4">
+                      <div className="rounded-[20px] border border-white/10 bg-[#112033] p-4">
+                        <label className="mb-2 block text-sm font-medium text-slate-300">Longitude</label>
+                        <input
+                          type="text"
+                          name="longitude"
+                          value={formData.longitude}
+                          readOnly
+                          className={`${fieldClass} font-mono`}
+                          dir="ltr"
+                        />
+                      </div>
+
+                      <div className="rounded-[20px] border border-white/10 bg-[#112033] p-4">
+                        <label className="mb-2 block text-sm font-medium text-slate-300">Latitude</label>
+                        <input
+                          type="text"
+                          name="latitude"
+                          value={formData.latitude}
+                          readOnly
+                          className={`${fieldClass} font-mono`}
+                          dir="ltr"
+                        />
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className={cardClass}>
+                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-200">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
+                        <FaCrosshairs className="text-sky-300" />
+                      </div>
+                      <h4>ملخص الإرسال</h4>
+                    </div>
+
+                    <div className="rounded-[22px] border border-white/10 bg-[#112033] p-4 text-sm font-medium leading-7 text-slate-100">
+                      عند الضغط على حفظ، سيتم إرسال البيانات بهذه الصيغة:
+                      <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/30 px-4 py-3 font-mono text-xs text-sky-100" dir="ltr">
+                        {'{ name, requiredLevel, longitude, latitude }'}
+                      </div>
+                    </div>
+                  </section>
                 </div>
-              </div>
-
-              <LocationCoordinatePicker
-                existingLocations={existingLocations}
-                longitude={formData.longitude}
-                latitude={formData.latitude}
-                onPick={handleCoordinatePick}
-              />
-
-              <div className="bg-white/5 rounded-[2rem] p-8 border border-white/5 space-y-6 shadow-inner">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-2 h-8 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                  <h4 className="text-white font-black text-lg">الإحداثيات المرسلة إلى الـ API</h4>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="group space-y-3">
-                    <label className="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest px-1">
-                      <FaCompass className="text-blue-500" />
-                      Longitude
-                    </label>
-                    <input
-                      type="text"
-                      name="longitude"
-                      value={formData.longitude}
-                      readOnly
-                      className="w-full bg-black/40 border-2 border-white/5 rounded-[1.5rem] px-6 py-5 text-xl text-white focus:outline-none shadow-inner font-mono font-bold tabular-nums"
-                      dir="ltr"
-                    />
-                  </div>
-
-                  <div className="group space-y-3">
-                    <label className="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest px-1">
-                      <FaGlobe className="text-blue-500" />
-                      Latitude
-                    </label>
-                    <input
-                      type="text"
-                      name="latitude"
-                      value={formData.latitude}
-                      readOnly
-                      className="w-full bg-black/40 border-2 border-white/5 rounded-[1.5rem] px-6 py-5 text-xl text-white focus:outline-none shadow-inner font-mono font-bold tabular-nums"
-                      dir="ltr"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-indigo-500/5 rounded-2xl p-6 border border-indigo-500/10 flex items-start gap-4">
-                <FaCrosshairs className="text-indigo-400 text-2xl mt-1" />
-                <p className="text-indigo-200/70 text-sm font-medium leading-relaxed m-0">
-                  عند الضغط على حفظ، سيتم إرسال body بهذه الصيغة:
-                  <br />
-                  <span className="font-mono text-xs text-indigo-200">
-                    {`{ name, requiredLevel, longitude, latitude }`}
-                  </span>
-                </p>
               </div>
             </form>
 
-            <div className="p-10 border-t border-white/5 bg-white/5 backdrop-blur-3xl sticky bottom-0 z-20 flex gap-6">
+            <div className="relative flex gap-4 border-t border-white/10 bg-white/[0.05] px-6 py-5 md:px-8">
               <motion.button
-                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.08)' }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 type="button"
                 onClick={() => {
                   resetForm();
                   onClose();
                 }}
-                className="flex-1 px-8 py-5 bg-white/5 text-slate-400 rounded-2xl transition-all font-black text-xl border border-white/5 shadow-lg"
+                className="flex-1 rounded-[22px] border border-white/10 bg-white/[0.06] px-6 py-4 text-base font-semibold text-slate-200 shadow-lg"
                 disabled={loading}
               >
-                تراجع
+                إلغاء
               </motion.button>
               <motion.button
-                whileHover={{ scale: 1.02, boxShadow: '0 20px 40px -10px rgba(79,70,229,0.5)' }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 type="submit"
                 onClick={handleSubmit}
-                className="flex-[2] px-8 py-5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-2xl transition-all duration-300 flex items-center justify-center gap-4 font-black text-xl shadow-2xl border border-white/10"
+                className="flex flex-[1.4] items-center justify-center gap-3 rounded-[22px] bg-gradient-to-r from-sky-400 to-indigo-500 px-6 py-4 text-base font-semibold text-white shadow-xl"
                 disabled={loading}
               >
                 {loading ? (
-                  <div className="w-8 h-8 border-[4px] border-white/20 border-t-white rounded-full animate-spin" />
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    <span>جاري الحفظ...</span>
+                  </span>
                 ) : (
                   <>
-                    <FaPlus className="text-lg" />
+                    <FaPlus />
                     <span>حفظ العنوان</span>
                   </>
                 )}

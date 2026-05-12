@@ -63,6 +63,8 @@ axiosClient.interceptors.request.use(
         config.url?.includes('/api/donation-requests') ||
         config.url?.includes('/api/Volunteer') ||
         config.url?.includes('/api/Badges') ||
+        config.url?.includes('/api/Certificate') ||
+        config.url?.includes('/api/UserBadges') ||
         config.url?.includes('/api/Levels') ||
         config.url?.includes('/api/UserLevels') ||
         config.url?.includes('/api/Activities') ||
@@ -94,6 +96,8 @@ axiosClient.interceptors.request.use(
         config.url?.includes('/api/donation-requests') ||
         config.url?.includes('/api/Volunteer') ||
         config.url?.includes('/api/Badges') ||
+        config.url?.includes('/api/Certificate') ||
+        config.url?.includes('/api/UserBadges') ||
         config.url?.includes('/api/Levels') ||
         config.url?.includes('/api/UserLevels') ||
         config.url?.includes('/api/Activities') ||

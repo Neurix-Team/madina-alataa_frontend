@@ -59,6 +59,7 @@ const NAV_PATHS = {
   team: '/team-challenges',
   'my-donations': '/my-donations',
   notifications: '/notifications',
+  certificates: '/certificates',
   parents: '/parents',
   admin: '/admin',
   cases: '/cases',
@@ -255,6 +256,7 @@ const NAV_ITEMS = [
   { id: 'geo',         label: 'مهام جغرافية',     icon: FaMapMarkerAlt, condition: PERMISSIONS.VIEW_GEO_QUESTS },
   { id: 'team',        label: 'تحديات الفريق',    icon: FaUsers, condition: PERMISSIONS.VIEW_TEAM_CHALLENGES },
   { id: 'badges',      label: 'الأوسمة',          icon: FaTrophy, condition: PERMISSIONS.VIEW_BADGES },
+  { id: 'certificates', label: 'الشهادات',         icon: FaRibbon },
   { id: 'leaderboard', label: 'المتصدرون',        icon: FaChartBar, condition: PERMISSIONS.VIEW_LEADERBOARD },
   { id: 'impact',      label: 'أثري',             icon: FaHeart, condition: PERMISSIONS.VIEW_IMPACT },
   { id: 'parents',     label: 'الاباء',           icon: FaUserFriends, dividerBefore: true, condition: PERMISSIONS.VIEW_PARENTS },
@@ -453,6 +455,8 @@ export default function Sidebar({
   const { user } = useAuth();
   const isAdmin = user?.roles?.includes('admin');
   const isParent = user?.roles?.includes('parent');
+  const isVolunteer = user?.roles?.includes('volunteer');
+  const isDonor = user?.roles?.includes('donor');
 
   const isItemActive = (id) => location.pathname === NAV_PATHS[id];
 
@@ -465,6 +469,16 @@ export default function Sidebar({
   };
 
   const visibleItems = NAV_ITEMS.filter((item) => {
+    // Volunteer-related items: only show to admin or volunteer
+    if (['volunteer-requests', 'volunteer-orders'].includes(item.id)) {
+      if (!(isAdmin || isVolunteer)) return false;
+    }
+
+    // Donation-related items (donor view + my donations): only show to admin or donor
+    if (['donation-orders-donor', 'my-donation-orders', 'my-donations'].includes(item.id)) {
+      if (!(isAdmin || isDonor)) return false;
+    }
+
     if (isAdmin && (item.id === 'parents' || item.id === 'create-request' || item.id === 'my-children')) {
       return false;
     }
