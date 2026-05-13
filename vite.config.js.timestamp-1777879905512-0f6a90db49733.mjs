@@ -12,7 +12,7 @@ var vite_config_default = defineConfig(({ mode }) => {
       strictPort: true,
       proxy: {
         "/api": {
-          target: env.VITE_API_BASE_URL || "http://localhost:5128",
+          target: env.VITE_API_BASE_URL || "http://champapi.neurix.uk:5001",
           changeOrigin: true,
           secure: false
         }

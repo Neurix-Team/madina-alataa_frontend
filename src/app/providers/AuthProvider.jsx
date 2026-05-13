@@ -142,7 +142,7 @@ roles: normalizeRoles(parsed.roles || parsed.role || parsed.user?.roles),
     try {
       setAuthError(null);
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
       const loginUrl = `${apiBase.replace(/\/$/, '')}/api/auth/login`;
       
       const response = await axios.post(loginUrl, payload);
@@ -190,7 +190,7 @@ roles: normalizeRoles(responseData.roles || responseData.role || responseData.us
 
         // perform an admin-dashboard check by calling the admin API with the stored token
         try {
-          const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+          const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
           const adminApi = `${apiBase.replace(/\/$/, '')}/api/admin/dashboard`;
           const headerToken = token || localStorage.getItem('auth_token') || localStorage.getItem('madina_access_token');
           const adminResp = await axios.get(adminApi, {
@@ -313,7 +313,7 @@ const googleLogin = async () => {
     setLoading(true);
     setAuthError(null);
 
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
     const callbackUrl = `${window.location.origin}/auth/callback`; // بدل /signin-google
     const loginUrl = `${apiBase.replace(/\/$/, '')}/api/auth/google/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 
@@ -352,7 +352,7 @@ const continueRegistration = async (userId, newPassword, extra = null) => {
       return null;
     }
 
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
     const url = `${apiBase.replace(/\/$/, '')}/api/auth/continue-registration`;
 
     const payload = {
@@ -433,7 +433,7 @@ const continueRegistration = async (userId, newPassword, extra = null) => {
 
 //     const apiBase =
 //       import.meta.env.VITE_API_BASE_URL ||
-//       'http://api-givingchampion.dev.localhost:5128';
+//       'http://champapi.neurix.uk:5001';
 
 //     const url = `${apiBase.replace(/\/$/, '')}/api/auth/continue-registration`;
 

@@ -2,7 +2,7 @@ const axios = require('axios');
 
 async function testPost() {
   try {
-    const res = await axios.post('http://localhost:5128/api/mission', {
+    const res = await axios.post('http://champapi.neurix.uk:5001/api/mission', {
       title: "Test",
       description: "Test desc",
       difficulty: 1,

@@ -588,13 +588,16 @@ const [pagination, setPagination] = useState({
         levelId: data.levelId || data.level?.id || data.level?.levelId || ''
       });
     } catch (err) {
-      console.error('Failed to fetch user level:', err);
+      // نتحقق من الخطأ في الكونسول للتصحيح
+      console.log('Fetch user level detail error:', err);
+      
       // إذا كان الخطأ 404، فهذا يعني أن المستخدم ليس لديه سجل مستويات بعد، لا نعتبرها مشكلة كبيرة
-      if (err.response?.status === 404) {
+      if (err.response?.status === 404 || err.message?.includes('404')) {
         setUserLevelData(null);
         setUserLevelRaw(null);
         setLevelForm({ xp: 0, kp: 0, levelId: '' });
       } else {
+        console.error('Failed to fetch user level:', err);
         setLevelError('فشل في جلب بيانات المستوى.');
       }
     } finally {

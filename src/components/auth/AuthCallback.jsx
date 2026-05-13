@@ -78,7 +78,7 @@ try {
           return;
         }
 
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5128';
+        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
         const exchangeUrl = `${apiBase.replace(/\/$/, '')}/api/auth/google/exchange`;
 
         const redirectUri = `${window.location.origin}/auth/callback`;
