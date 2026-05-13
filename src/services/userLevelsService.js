@@ -14,7 +14,9 @@ export const userLevelsService = {
   getMyLevel: async () => {
     try {
       const response = await axiosClient.get(`${USER_LEVELS_API_URL}/my`);
-      return unwrapUserLevelResponse(response.data);
+      const raw = response.data;
+      const item = unwrapUserLevelResponse(raw);
+      return { raw, item };
     } catch (error) {
       console.error('Error fetching my level:', error);
       throw error;

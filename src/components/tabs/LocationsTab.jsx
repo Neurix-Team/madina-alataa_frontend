@@ -185,8 +185,13 @@ const LocationsTab = () => {
     <motion.div 
       variants={cardVariants}
       whileHover={{ y: -8, scale: 1.01 }}
-      className="pro-card pro-hover-scale"
+      className="pro-card pro-hover-scale relative overflow-hidden"
     >
+      {/* gradient overlays (non-interactive) */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(240,249,255,0.98),rgba(255,255,255,0.5)_45%,rgba(236,253,245,0.58))]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(240,249,255,0.98),rgba(255,255,255,0.56)_48%,rgba(236,253,245,0.65))]" />
+
+      <div className="relative z-10 p-4">
       <div className="pro-card-header">
         <div className="pro-flex pro-items-center pro-gap-3">
           <div className="pro-number">{index + 1}</div>
@@ -223,8 +228,10 @@ const LocationsTab = () => {
         </div>
       </div>
 
+      </div>
+
       {showActions ? (
-        <div className="pro-card-footer">
+        <div className="pro-card-actions" style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
           <motion.button 
             whileHover={{ scale: 1.05 }} 
             whileTap={{ scale: 0.95 }} 

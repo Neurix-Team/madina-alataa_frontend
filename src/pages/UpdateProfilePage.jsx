@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   FaUser,
@@ -115,6 +116,8 @@ const UpdateProfilePage = () => {
   const canSubmit =
   !saving &&
   !!String(profileId || '').trim();
+
+  const navigate = useNavigate();
 
  
 
@@ -234,7 +237,7 @@ const UpdateProfilePage = () => {
       try {
         setMyLevelLoading(true);
         setMyLevelError(null);
-        const response = await userLevelsService.getMyLevelResponse();
+        const response = await userLevelsService.getMyLevel();
         console.log('USER LEVEL PROFILE RESPONSE ITEM:', response.item);
         console.log('USER LEVEL PROFILE RAW RESPONSE:', response.raw);
         setMyLevelData(response.item);
@@ -391,14 +394,14 @@ const handleSubmit = async (e) => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="pro-header border border-sky-100 bg-white/90 shadow-2xl shadow-sky-100/70"
+          className="pro-header border border-sky-100  shadow-2xl shadow-sky-100/70"
           style={{
             marginBottom: '24px',
             borderRadius: '30px',
             padding: '24px',
           }}
         >
-          <div className="pro-header-left">
+          <div className="pro-header-left bg-white/90">
             <div className="pro-header-icon" style={{ background: 'linear-gradient(135deg, #38bdf8, #6366f1)' }}>
               <FaUser />
             </div>
@@ -438,124 +441,92 @@ const handleSubmit = async (e) => {
             </motion.button>
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.3fr) minmax(280px, 0.9fr)', gap: '24px', alignItems: 'stretch' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '18px', padding: '20px', borderRadius: '22px', border: '1px solid #e0f2fe', background: '#f8fafc' }}>
-            {avatarLoading ? (
-              <div style={{ 
-                width: '80px', 
-                height: '80px', 
-                borderRadius: '50%', 
-                background: 'var(--background)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '2px solid #dbeafe'
-              }}>
-                <FaSpinner className="animate-spin" />
-              </div>
-            ) : avatarData ? (
-              <div style={{ 
-                width: '80px', 
-                height: '80px', 
-                borderRadius: '50%', 
-                background: `linear-gradient(135deg, ${avatarData.skinColor || '#fbbf24'}, ${avatarData.clothesColor || '#3b82f6'})`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '3px solid var(--primary)',
-                position: 'relative',
-                overflow: 'hidden'
-              }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px', alignItems: 'stretch' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '18px', padding: '20px', borderRadius: '22px' }}>
+              {avatarLoading ? (
                 <div style={{
-                  fontSize: '32px',
-                  color: avatarData.hairColor || '#000'
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '50%',
+                  background: 'var(--background)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px solid #dbeafe'
                 }}>
-                  {avatarData.gender === 1 ? '👨' : '👩'}
+                  <FaSpinner className="animate-spin" />
                 </div>
-                {avatarData.characterName && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '-5px',
-                    right: '-5px',
-                    background: 'var(--primary)',
-                    color: 'white',
-                    borderRadius: '50%',
-                    width: '24px',
-                    height: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '10px',
-                    fontWeight: 'bold'
-                  }}>
-                    {avatarData.characterName.charAt(0).toUpperCase()}
+              ) : avatarData ? (
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '50%',
+                  background: `linear-gradient(135deg, ${avatarData.skinColor || '#fbbf24'}, ${avatarData.clothesColor || '#3b82f6'})`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '3px solid var(--primary)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{ fontSize: '32px', color: avatarData.hairColor || '#000' }}>
+                    {avatarData.gender === 1 ? '👨' : '👩'}
                   </div>
-                )}
-              </div>
-            ) : (
-              <div style={{ 
-                width: '80px', 
-                height: '80px', 
-                borderRadius: '50%', 
-                background: 'var(--background)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '2px dashed #bae6fd',
-                color: '#64748b'
-              }}>
-                <FaUser size={24} />
-              </div>
-            )}
-            <div>
-              <p style={{ color: '#0f172a', fontWeight: '700', fontSize: '18px', marginBottom: '4px' }}>
-                {avatarData ? avatarData.characterName || 'الأفاتار الخاص بك' : 'لا يوجد أفاتار'}
-              </p>
-              <p style={{ color: '#475569', fontSize: '14px', lineHeight: '1.8' }}>
-                {avatarData ? 'تم ربط الأفاتار الحالي بحسابك ويمكنك تعديله أو تحديث بيانات البروفايل من هنا.' : 'اضغط على تعديل الحساب لإنشاء أو تعديل الأفاتار الخاص بك.'}
-              </p>
-              <button
-                type="button"
-                className="pro-btn pro-btn-primary"
-                style={{ marginTop: '14px' }}
-                onClick={() => window.location.href = '/avatar'}
-              >
-                <FaImage />
-                <span>تعديل الأفاتار</span>
-              </button>
-            </div>
-            </div>
-
-            <div style={{ padding: '20px', borderRadius: '22px', border: '1px solid #e0f2fe', background: '#f8fafc' }}>
-              <div style={{ color: '#0f172a', fontWeight: 700, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FaImage size={14} style={{ color: 'var(--primary)' }} />
-                <span>ملخص الأفاتار</span>
-              </div>
-              {avatarData ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px' }}>
-                  {avatarTraits.map((trait) => (
-                    <motion.div
-                      key={trait.label}
-                      whileHover={{ scale: 1.02, backgroundColor: '#eff6ff' }}
-                      style={{
-                        padding: '12px',
-                        borderRadius: '14px',
-                        border: '1px solid #dbeafe',
-                        background: '#ffffff',
-                        transition: 'all 0.2s ease',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '14px' }}>{trait.icon}</span>
-                        <div style={{ color: '#64748b', fontSize: '11px' }}>{trait.label}</div>
-                      </div>
-                      <div style={{ color: '#0f172a', fontWeight: 700, fontSize: '13px', wordBreak: 'break-word', paddingRight: '20px' }}>{trait.value}</div>
-                    </motion.div>
-                  ))}
+                  {avatarData.characterName && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '-5px',
+                      right: '-5px',
+                      background: 'var(--primary)',
+                      color: 'white',
+                      borderRadius: '50%',
+                      width: '24px',
+                      height: '24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '10px',
+                      fontWeight: 'bold'
+                    }}>
+                      {avatarData.characterName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div style={{ color: '#64748b', fontSize: '14px' }}>لا توجد تفاصيل أفاتار متاحة حاليًا.</div>
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '50%',
+                  background: 'var(--background)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px dashed #bae6fd',
+                  color: '#64748b'
+                }}>
+                  <FaUser size={24} />
+                </div>
               )}
+
+              <div>
+                <p style={{ color: '#0f172a', fontWeight: '700', fontSize: '18px', marginBottom: '4px' }}>
+                  {avatarData ? avatarData.characterName || 'الأفاتار الخاص بك' : 'لا يوجد أفاتار'}
+                </p>
+                {!avatarData && (
+                  <p style={{ color: '#475569', fontSize: '14px', lineHeight: '1.8' }}>
+                    اضغط على تعديل الحساب لإنشاء أو تعديل الأافاتار الخاص بك.
+                  </p>
+                )}
+                <button
+                  type="button"
+                  className="pro-btn pro-btn-primary"
+                  style={{ marginTop: '14px' }}
+                  onClick={() => navigate('/avatar')}
+                >
+                  <FaImage />
+                  <span>تعديل الأافاتار</span>
+                </button>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -634,7 +605,7 @@ const handleSubmit = async (e) => {
               ))}
             </div>
 
-            {(hasDonorRole || donorData) && (
+            {(hasDonorRole || donorData) && !isAdmin && (
               <RoleSection
                 title="بيانات المتبرع"
                 subtitle="معلومات العضوية والمساهمات الخاصة بالمتبرع"
@@ -645,7 +616,7 @@ const handleSubmit = async (e) => {
               />
             )}
 
-            {(hasVolunteerRole || volunteerData) && (
+            {(hasVolunteerRole || volunteerData) && !isAdmin && (
               <RoleSection
                 title="بيانات المتطوع"
                 subtitle="معلومات المهارات والمشاركات الخاصة بالمتطوع"
@@ -658,116 +629,141 @@ const handleSubmit = async (e) => {
           </motion.div>
         )}
 
-        {isEditOpen ? (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
-          style={{
-            maxWidth: '680px',
-            borderRadius: '28px',
-            border: '1px solid #e0f2fe',
-            background: '#ffffff',
-            padding: '24px',
-          }}
-        >
-          <form onSubmit={handleSubmit}>
-            <>
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <FaStar style={{ color: 'var(--warning)' }} />
-                <label style={{ fontWeight: '600', color: '#0f172a' }}>التقييم (Rating)</label>
+        {isAdmin && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
+            style={{
+              maxWidth: '1100px',
+              marginBottom: '24px',
+              borderRadius: '20px',
+              border: '1px solid #e6eefb',
+              background: '#ffffff',
+              padding: '20px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <FaMapMarkerAlt style={{ color: 'var(--primary)' }} />
+              <h4 style={{ color: '#0f172a', margin: 0, fontSize: '16px', fontWeight: 700 }}>تفاصيل العنوان وتفاصيل المهام</h4>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ padding: '14px', borderRadius: '12px', border: '1px solid #eef6ff', background: '#fcfeff' }}>
+                <div style={{ color: '#64748b', fontSize: '13px', marginBottom: '8px' }}>تفاصيل العنوان</div>
+                <div style={{ color: '#0f172a', fontWeight: 700, fontSize: '14px', marginBottom: '12px' }}>{myProfileData?.address || 'لا يوجد عنوان مسجل'}</div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button className="pro-btn pro-btn-secondary" style={{ padding: '10px 12px' }}>تحديث العنوان</button>
+                  <button className="pro-btn" style={{ padding: '10px 12px' }}>إضافة عنوان</button>
+                </div>
               </div>
-              <input
-                type="number"
-                name="rating"
-                value={formData.rating}
-                onChange={handleInputChange}
-                min="0"
-                step="0.1"
-                className="pro-input border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-sky-400 focus:bg-sky-50 focus:ring-4 focus:ring-sky-100"
-                placeholder="أدخل التقييم"
-              />
+
+              <div style={{ padding: '14px', borderRadius: '12px', border: '1px solid #eef6ff', background: '#fcfeff' }}>
+                <div style={{ color: '#64748b', fontSize: '13px', marginBottom: '8px' }}>تفاصيل المهام</div>
+                <div style={{ color: '#0f172a', fontWeight: 700, fontSize: '14px', marginBottom: '12px' }}>{(myProfileData?.tasks || []).length ? (myProfileData.tasks.join('، ')) : 'لا توجد مهام مسجلة'}</div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button className="pro-btn pro-btn-secondary" style={{ padding: '10px 12px' }}>تحديث المهام</button>
+                  <button className="pro-btn" style={{ padding: '10px 12px' }}>إضافة مهام</button>
+                </div>
+              </div>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <FaChartLine style={{ color: 'var(--info)' }} />
-                <label style={{ fontWeight: '600', color: '#0f172a' }}>التأثير (Impact)</label>
-              </div>
-              <input
-                type="number"
-                name="impact"
-                value={formData.impact}
-                onChange={handleInputChange}
-                min="0"
-                step="1"
-                className="pro-input border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-sky-400 focus:bg-sky-50 focus:ring-4 focus:ring-sky-100"
-                placeholder="أدخل قيمة التأثير"
-              />
+            <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'flex-start' }}>
+              <button className="pro-btn pro-btn-primary" style={{ padding: '10px 14px' }}>إضافة طلب تبرع</button>
             </div>
+          </motion.div>
+        )}
 
-            <div style={{ marginBottom: '20px', display: 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <FaImage style={{ color: 'var(--accent)' }} />
-                <label style={{ fontWeight: '600', color: '#0f172a' }}>معرف الصورة الرمزية (Avatar ID)</label>
+        {isEditOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
+            style={{
+              maxWidth: '680px',
+              borderRadius: '28px',
+              border: '1px solid #e0f2fe',
+              background: '#ffffff',
+              padding: '24px',
+            }}
+          >
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <FaStar style={{ color: 'var(--warning)' }} />
+                  <label style={{ fontWeight: '600', color: '#0f172a' }}>التقييم (Rating)</label>
+                </div>
+                <input
+                  type="number"
+                  name="rating"
+                  value={formData.rating}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="0.1"
+                  className="pro-input border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-sky-400 focus:bg-sky-50 focus:ring-4 focus:ring-sky-100"
+                  placeholder="أدخل التقييم"
+                />
               </div>
-              <input
-                type="text"
-                name="avatarId"
-                value={formData.avatarId}
-                onChange={handleInputChange}
-                className="pro-input"
-                placeholder="أدخل معرف الصورة الرمزية"
-              />
-            </div>
-            </>
 
-            {false && (
-            <div style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <FaArrowUp style={{ color: 'var(--success)' }} />
-                <label style={{ fontWeight: '600', color: '#0f172a' }}>معرف المستوى (Level ID)</label>
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <FaChartLine style={{ color: 'var(--info)' }} />
+                  <label style={{ fontWeight: '600', color: '#0f172a' }}>التأثير (Impact)</label>
+                </div>
+                <input
+                  type="number"
+                  name="impact"
+                  value={formData.impact}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="1"
+                  className="pro-input border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-sky-400 focus:bg-sky-50 focus:ring-4 focus:ring-sky-100"
+                  placeholder="أدخل قيمة التأثير"
+                />
               </div>
-              <input
-                type="text"
-                name="levelId"
-                value={formData.levelId}
-                onChange={handleInputChange}
-                className="pro-input"
-                placeholder="أدخل معرف المستوى"
-              />
-            </div>
-            )}
 
-<motion.button
-  type="submit"
-  whileHover={canSubmit ? { scale: 1.02 } : {}}
-  whileTap={canSubmit ? { scale: 0.98 } : {}}
-  disabled={!canSubmit}
-  className="pro-btn pro-btn-primary bg-gradient-to-r from-sky-500 to-emerald-500 text-white shadow-lg shadow-sky-100"
-  style={{
-    width: '100%',
-    opacity: canSubmit ? 1 : 0.5,
-    cursor: canSubmit ? 'pointer' : 'not-allowed',
-  }}
->
-              {saving ? (
-                <>
-                  <FaSpinner className="animate-spin" />
-                  <span>جاري الحفظ...</span>
-                </>
-              ) : (
-                <>
-                  <FaSave />
-                  <span>حفظ التغييرات</span>
-                </>
-              )}
-            </motion.button>
-          </form>
-        </motion.div>
-        ) : null}
+              <div style={{ marginBottom: '20px', display: 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <FaImage style={{ color: 'var(--accent)' }} />
+                  <label style={{ fontWeight: '600', color: '#0f172a' }}>معرف الصورة الرمزية (Avatar ID)</label>
+                </div>
+                <input
+                  type="text"
+                  name="avatarId"
+                  value={formData.avatarId}
+                  onChange={handleInputChange}
+                  className="pro-input"
+                  placeholder="أدخل معرف الصورة الرمزية"
+                />
+              </div>
+
+              <motion.button
+                type="submit"
+                whileHover={canSubmit ? { scale: 1.02 } : {}}
+                whileTap={canSubmit ? { scale: 0.98 } : {}}
+                disabled={!canSubmit}
+                className="pro-btn pro-btn-primary bg-gradient-to-r from-sky-500 to-emerald-500 text-white shadow-lg shadow-sky-100"
+                style={{
+                  width: '100%',
+                  opacity: canSubmit ? 1 : 0.5,
+                  cursor: canSubmit ? 'pointer' : 'not-allowed',
+                }}
+              >
+                {saving ? (
+                  <>
+                    <FaSpinner className="animate-spin" />
+                    <span>جاري الحفظ...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaSave />
+                    <span>حفظ التغييرات</span>
+                  </>
+                )}
+              </motion.button>
+            </form>
+          </motion.div>
+        )}
 
         {!isAdmin && (
           <motion.div

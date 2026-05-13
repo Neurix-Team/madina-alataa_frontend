@@ -1,7 +1,7 @@
 // src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 import { AuthProvider } from './app/providers/AuthProvider';
 import './styles/tailwind.css';
 import './styles/variables.css';
@@ -45,11 +45,11 @@ if (import.meta.env.DEV && 'serviceWorker' in navigator) {
 const renderApp = () => {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-      <BrowserRouter>
+      <Router>
         <AuthProvider>
           <App />
         </AuthProvider>
-      </BrowserRouter>
+      </Router>
     </React.StrictMode>
   );
 };

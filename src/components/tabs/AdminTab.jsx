@@ -657,7 +657,7 @@ const formatDashboardLabel = (key = '') =>
 const formatDashboardValue = (value) => {
   if (value === null || value === undefined || value === '') return '—';
   if (typeof value === 'number') return value.toLocaleString('ar-EG');
-  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (typeof value === 'boolean') return value ? 'نعم' : 'لا';
   if (typeof value === 'string') return value;
   return JSON.stringify(value);
 };
@@ -702,17 +702,18 @@ const buildDashboardKpis = (dashboardOverview, fallbackKpis) => {
   const iconCycle = [FaChartBar, FaUsers, FaClipboardList, FaStar];
   const toneCycle = ['indigo', 'green', 'blue', 'red'];
 
-  const apiKpis = dashboardOverview.stats
+  const apiKpis = (dashboardOverview.stats || [])
     .filter((item) => typeof item.value === 'number')
-    .slice(0, 4)
+    .slice(0, 8)
     .map((item, index) => ({
-      icon: iconCycle[index] || FaChartBar,
+      icon: iconCycle[index % iconCycle.length] || FaChartBar,
       value: formatDashboardValue(item.value),
       label: formatDashboardLabel(item.key),
-      tone: toneCycle[index] || 'indigo',
+      tone: toneCycle[index % toneCycle.length] || 'indigo',
     }));
 
-  return apiKpis.length > 0 ? apiKpis : fallbackKpis;
+  // Merge API KPIs with fallback KPIs so both sets appear in the KPI grid
+  return [...fallbackKpis, ...apiKpis];
 };
 
 const DashboardObjectRows = ({ data }) => (
@@ -733,7 +734,7 @@ const DashboardSectionCard = ({ section }) => (
     <div className="admin-api-card__head">
       <div className="admin-api-card__title">{formatDashboardLabel(section.key)}</div>
       <div className="admin-api-card__badge">
-        {section.type === 'array' ? `${section.value.length} items` : section.type}
+        {section.type === 'array' ? `${section.value.length} عنصر` : section.type}
       </div>
     </div>
 
@@ -750,7 +751,7 @@ const DashboardSectionCard = ({ section }) => (
                 <DashboardObjectRows data={item} />
               ) : (
                 <div className="admin-api-row">
-                  <div className="admin-api-row__label">Item {index + 1}</div>
+                  <div className="admin-api-row__label">عنصر {index + 1}</div>
                   <div className="admin-api-row__value">{formatDashboardValue(item)}</div>
                 </div>
               )}
@@ -1052,28 +1053,7 @@ const AdminTab = () => {
               <KpiCard icon={FaStar} value={totalKP.toLocaleString()} label="نقاط الخير" tone="red" />
             </div>
 
-            <div className="admin-section">
-              <div className="admin-section__title">
-                <span className="admin-section__title-icon">
-                  <FiTrendingUp />
-                </span>
-                <span>إحصائيات الأوامر</span>
-              </div>
-
-              {[
-                { label: 'أوامر التطوع المكتملة', value: volunteerOrders.length, color: '#1d4ed8', bg: '#eff6ff' },
-                { label: 'أوامر التبرع المكتملة', value: donationOrders.length, color: '#059669', bg: '#f0fdf4' },
-                { label: 'طلبات الخدمة المفتوحة', value: openRequests, color: '#d97706', bg: '#fef3c7' },
-                { label: 'إجمالي المستفيدين', value: beneficiariesData.length, color: '#7c3aed', bg: '#ede9fe' },
-              ].map((item) => (
-                <div key={item.label} className="admin-row-box" style={{ background: item.bg }}>
-                  <span className="admin-row-box__label">{item.label}</span>
-                  <span className="admin-row-box__value" style={{ color: item.color }}>
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {/* Removed: إحصائيات الأوامر (moved into KPI grid) */}
 
             <div className="admin-section">
               <div className="admin-section__title">
@@ -1104,49 +1084,7 @@ const AdminTab = () => {
             </div>
 
             {/* Dashboard API Response Display */}
-            <div className="admin-section">
-              <div className="admin-section__title">
-                <span className="admin-section__title-icon">
-                  <FaChartBar />
-                </span>
-                <span>بيانات لوحة التحكم (API)</span>
-              </div>
-
-              {dashboardLoading && (
-                <div className="admin-empty">جاري تحميل بيانات لوحة التحكم...</div>
-              )}
-
-              {dashboardError && (
-                <div className="admin-empty" style={{ color: '#ef4444', borderColor: '#ef4444' }}>
-                  خطأ في تحميل البيانات: {dashboardError}
-                </div>
-              )}
-
-              {!dashboardLoading && !dashboardError && dashboardData && (
-                <div className="admin-api-sections">
-                  {dashboardOverview.stats.length > 0 && (
-                    <div className="admin-api-grid">
-                      {dashboardOverview.stats.map((item) => (
-                        <div key={item.key} className="admin-api-stat">
-                          <div className="admin-api-stat__label">{formatDashboardLabel(item.key)}</div>
-                          <div className="admin-api-stat__value">{formatDashboardValue(item.value)}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {dashboardOverview.sections.map((section) => (
-                    <DashboardSectionCard key={section.key} section={section} />
-                  ))}
-
-                 
-                </div>
-              )}
-
-              {!dashboardLoading && !dashboardError && !dashboardData && (
-                <div className="admin-empty">لا توجد بيانات متاحة</div>
-              )}
-            </div>
+            {/* Removed: Dashboard API details (summary stats merged into KPI grid) */}
           </>
         )}
 
