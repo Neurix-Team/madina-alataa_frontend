@@ -61,24 +61,24 @@ export default function LocationIdMapSelector({
   };
 
   return (
-    <div className="bg-white/5 rounded-[2rem] p-8 border border-white/5 space-y-6">
+    <div className="space-y-6 rounded-[2rem] border border-sky-100 bg-white p-8 shadow-xl shadow-sky-100/70">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-2 h-8 bg-indigo-500 rounded-full" />
-        <h4 className="text-white font-black text-lg">{title}</h4>
+        <div className="h-8 w-2 rounded-full bg-sky-500" />
+        <h4 className="text-lg font-black text-slate-950">{title}</h4>
       </div>
 
-      <div className="rounded-3xl border border-white/10 bg-blue-500/5 p-5">
+      <div className="rounded-3xl border border-sky-100 bg-sky-50 p-5">
         <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
           <div>
-            <div className="text-blue-300 font-black text-base">{title}</div>
-            <div className="text-slate-400 text-sm mt-1">{subtitle}</div>
+            <div className="text-base font-black text-sky-700">{title}</div>
+            <div className="mt-1 text-sm text-slate-600">{subtitle}</div>
           </div>
-          <div className="px-4 py-2 rounded-2xl bg-white/10 text-white text-sm font-bold">
+          <div className="rounded-2xl border border-sky-100 bg-white px-4 py-2 text-sm font-bold text-slate-800 shadow-sm">
             {selectedLocation ? `المحدد: ${selectedLocation.name}` : 'لا يوجد عنوان محدد'}
           </div>
         </div>
 
-        <div className="rounded-[1.5rem] overflow-hidden border border-blue-500/20 bg-white/5">
+        <div className="overflow-hidden rounded-[1.5rem] border border-sky-200 bg-white">
           {validMapLocations.length > 0 ? (
             <svg viewBox="0 0 360 200" style={{ width: '100%', display: 'block' }}>
               <defs>
@@ -140,25 +140,25 @@ export default function LocationIdMapSelector({
               })}
             </svg>
           ) : (
-            <div className="p-8 text-center text-slate-400 text-sm">
+            <div className="p-8 text-center text-sm text-slate-500">
               لا توجد عناوين مضافة بإحداثيات صالحة حاليًا لعرضها على الخريطة.
             </div>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-          <div className="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">Location ID</div>
-          <div className="text-blue-300 font-mono text-sm break-all" dir="ltr">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
+          <div className="mb-2 text-xs font-black uppercase tracking-widest text-slate-500">Location ID</div>
+          <div className="break-all font-mono text-sm font-bold text-sky-700" dir="ltr">
             {selectedLocationId || 'غير محدد'}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+        <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
           <div className="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">الاسم</div>
-          <div className="text-white font-bold text-sm flex items-center gap-2">
-            <FaMapMarkerAlt className="text-indigo-400" />
+          <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
+            <FaMapMarkerAlt className="text-sky-600" />
             <span>{selectedLocation?.name || 'غير محدد'}</span>
           </div>
         </div>

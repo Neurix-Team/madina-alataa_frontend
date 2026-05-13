@@ -22,8 +22,8 @@ import {
   FaTrophy,
 } from 'react-icons/fa';
 
-const panel = 'rounded-[28px] border border-white/12 bg-white/[0.06] p-5 md:p-6 shadow-[0_16px_48px_rgba(15,23,42,0.28)]';
-const smallPanel = 'rounded-[20px] border border-white/10 bg-[#112033] px-4 py-4 shadow-inner';
+const panel = 'rounded-[28px] border border-sky-100 bg-white p-5 shadow-xl shadow-sky-100/70 md:p-6';
+const smallPanel = 'rounded-[20px] border border-sky-100 bg-sky-50 px-4 py-4 text-slate-900 shadow-inner';
 
 const getDifficultyInfo = (level) => {
   const normalized = typeof level === 'string' ? level.toLowerCase() : Number(level);
@@ -39,7 +39,7 @@ const getDifficultyInfo = (level) => {
   if (normalized === 3 || normalized === 'veryhard' || normalized === 'very hard' || normalized === 'أسطوري') {
     return { text: 'أسطوري', badge: 'bg-fuchsia-500/10 text-fuchsia-300 border-fuchsia-400/20', icon: FaGem };
   }
-  return { text: 'غير محدد', badge: 'bg-slate-500/10 text-slate-300 border-slate-400/20', icon: FaTasks };
+  return { text: 'غير محدد', badge: 'bg-slate-100 text-slate-700 border-slate-200', icon: FaTasks };
 };
 
 const formatDate = (dateString) => {
@@ -82,26 +82,26 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/75 p-4 md:p-8 backdrop-blur-md" dir="rtl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-md md:p-8" dir="rtl">
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 24 }}
-            className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[30px] border border-white/12 bg-[#0f1b2d] shadow-[0_28px_90px_rgba(15,23,42,0.5)]"
+            className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[30px] border border-sky-100 bg-slate-50 shadow-2xl shadow-slate-300/60"
           >
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.16),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(168,85,247,0.10),transparent_25%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(240,249,255,0.98),rgba(255,255,255,0.5)_45%,rgba(238,242,255,0.58))]" />
 
-            <div className="relative sticky top-0 z-20 flex items-start justify-between gap-4 border-b border-white/10 bg-white/[0.05] px-6 py-5 md:px-8">
+            <div className="sticky top-0 z-20 flex items-start justify-between gap-4 border-b border-slate-200 bg-white/90 px-6 py-5 md:px-8">
               <div className="flex-1">
                 <div className="mb-5 flex items-center gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-sky-400 to-indigo-500 text-white shadow-lg">
                     <FaTasks className="text-lg" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white">
+                    <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-950">
                       {missionData.title || 'بدون عنوان'}
                     </h3>
-                    <p className="mt-1 text-sm font-medium text-slate-300">
+                    <p className="mt-1 text-sm font-medium text-slate-600">
                       عرض منظم لبيانات المهمة مع تفاصيل الحالة والمكافآت والجدول الزمني.
                     </p>
                     <div className="mt-3 flex flex-wrap gap-3">
@@ -109,7 +109,7 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
                         <DifficultyIcon />
                         <span>الصعوبة: {difficulty.text}</span>
                       </span>
-                      <span className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-medium ${isActive ? 'bg-emerald-500/10 text-emerald-200 border-emerald-400/20' : 'bg-red-500/10 text-red-200 border-red-400/20'}`}>
+                      <span className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-medium ${isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
                         {isActive ? <FaCheckCircle /> : <FaLock />}
                         <span>الحالة: {isActive ? 'نشطة' : 'مغلقة'}</span>
                       </span>
@@ -117,8 +117,8 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
                   </div>
                 </div>
                 
-                <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[#112033] px-3 py-2 text-xs font-medium text-slate-200">
-                  <FaFingerprint className="text-sky-300" />
+                <div className="inline-flex items-center gap-2 rounded-xl border border-sky-100 bg-sky-50 px-3 py-2 text-xs font-medium text-sky-700">
+                  <FaFingerprint className="text-sky-600" />
                   <span dir="ltr">ID: {missionData.id || 'N/A'}</span>
                 </div>
               </div>
@@ -127,7 +127,7 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
                 whileHover={{ scale: 1.05, rotate: 90 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-slate-200"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm"
               >
                 <FaTimes />
               </motion.button>
@@ -137,52 +137,52 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
               <div className="grid gap-7 lg:grid-cols-[1.08fr_0.92fr]">
                 <div className="grid gap-7">
                   <section className={panel}>
-                    <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-200">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                        <FaTasks className="text-sky-300" />
+                    <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-700">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
+                        <FaTasks className="text-sky-600" />
                       </div>
                       <span>ملخص المهمة</span>
                     </div>
-                    <p className="mt-5 text-base font-medium leading-7 text-slate-100">
+                    <p className="mt-5 text-base font-medium leading-7 text-slate-700">
                       {missionData.description || 'لا يوجد وصف تفصيلي لهذه المهمة حاليًا.'}
                     </p>
                   </section>
 
                   <section className={panel}>
-                    <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-200">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                        <FaMapMarkerAlt className="text-sky-300" />
+                    <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-700">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
+                        <FaMapMarkerAlt className="text-sky-600" />
                       </div>
                       <span>الموقع المرتبط</span>
                     </div>
                     <div className={`${smallPanel} mt-5`}>
-                      <div className="mb-2 text-sm font-medium text-slate-300">معرف العنوان</div>
-                      <div className="break-all font-mono text-sm font-semibold text-white" dir="ltr">
+                      <div className="mb-2 text-sm font-medium text-slate-600">معرف العنوان</div>
+                      <div className="break-all font-mono text-sm font-semibold text-slate-900" dir="ltr">
                         {missionData.locationId || 'غير محدد'}
                       </div>
                     </div>
                   </section>
 
                   <section className={panel}>
-                    <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-amber-200">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                        <FaTrophy className="text-amber-300" />
+                    <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-amber-700">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
+                        <FaTrophy className="text-amber-600" />
                       </div>
                       <span>المكافآت</span>
                     </div>
                     <div className="mt-5 grid gap-4 md:grid-cols-3">
-                      <StatCard icon={FaTrophy} label="نقاط الخير" value={missionData.kpReward} accent="text-yellow-400" />
-                      <StatCard icon={FaStar} label="الخبرة" value={missionData.xpReward} accent="text-fuchsia-400" />
-                      <StatCard icon={FaLeaf} label="التأثير" value={missionData.impactReward} accent="text-emerald-400" />
+                      <StatCard icon={FaTrophy} label="نقاط الخير" value={missionData.kpReward} accent="text-yellow-600" />
+                      <StatCard icon={FaStar} label="الخبرة" value={missionData.xpReward} accent="text-fuchsia-600" />
+                      <StatCard icon={FaLeaf} label="التأثير" value={missionData.impactReward} accent="text-emerald-600" />
                     </div>
                   </section>
                 </div>
 
                 <div className="grid gap-7">
                   <section className={panel}>
-                    <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-200">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                        <FaLayerGroup className="text-sky-300" />
+                    <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-700">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
+                        <FaLayerGroup className="text-sky-600" />
                       </div>
                       <span>البيانات الأساسية</span>
                     </div>
@@ -195,9 +195,9 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
                   </section>
 
                   <section className={panel}>
-                    <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-200">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                        <FaCalendarAlt className="text-sky-300" />
+                    <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-700">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
+                        <FaCalendarAlt className="text-sky-600" />
                       </div>
                       <span>الجدول الزمني</span>
                     </div>
@@ -205,11 +205,11 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
                       {timeline.length > 0 ? (
                         timeline.map((item) => (
                           <div key={item.label} className={`${smallPanel} space-y-2.5`}>
-                            <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                              <item.icon className="text-sky-300" />
+                            <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                              <item.icon className="text-sky-600" />
                               {item.label}
                             </div>
-                            <span className="block text-sm font-semibold text-white">
+                            <span className="block text-sm font-semibold text-slate-900">
                               {formatDate(item.value)}
                             </span>
                           </div>
@@ -225,19 +225,19 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
                   {/* Tags & Requirements */}
                   {(missionData.tags?.length > 0 || missionData.prerequisites?.length > 0) && (
                     <section className={panel}>
-                      <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-200">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                          <FaTags className="text-sky-300" />
+                      <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-700">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
+                          <FaTags className="text-sky-600" />
                         </div>
                         <span>وسوم ومتطلبات</span>
                       </div>
                       <div className="mt-5 space-y-6">
                         {missionData.tags?.length > 0 && (
                           <div className="space-y-4">
-                            <div className="px-1 text-sm font-semibold text-slate-300">الوسوم النشطة</div>
+                            <div className="px-1 text-sm font-semibold text-slate-600">الوسوم النشطة</div>
                             <div className="flex flex-wrap gap-3">
                               {missionData.tags.map((tag, index) => (
-                                <span key={`${tag}-${index}`} className="rounded-2xl border border-sky-400/20 bg-sky-400/10 px-4 py-2.5 text-sm font-medium text-sky-200">
+                                <span key={`${tag}-${index}`} className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm font-medium text-sky-700">
                                   #{tag}
                                 </span>
                               ))}
@@ -246,10 +246,10 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
                         )}
                         {missionData.prerequisites?.length > 0 && (
                           <div className="space-y-4">
-                            <div className="px-1 text-sm font-semibold text-slate-300">المتطلبات المسبقة</div>
+                            <div className="px-1 text-sm font-semibold text-slate-600">المتطلبات المسبقة</div>
                             <div className="grid gap-4">
                               {missionData.prerequisites.map((item, index) => (
-                                <div key={`${item}-${index}`} className={`${smallPanel} flex items-center gap-3 text-sm font-medium text-slate-100`}>
+                                <div key={`${item}-${index}`} className={`${smallPanel} flex items-center gap-3 text-sm font-medium text-slate-700`}>
                                   <FaCheckCircle className="text-emerald-300" />
                                   <span>{item}</span>
                                 </div>
@@ -264,12 +264,12 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
               </div>
             </div>
 
-            <div className="relative border-t border-white/10 bg-white/[0.05] px-6 py-5 md:px-8">
+            <div className="relative border-t border-slate-200 bg-white/90 px-6 py-5 md:px-8">
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 onClick={onClose}
-                className="w-full rounded-[22px] border border-white/10 bg-white/[0.06] px-6 py-4 text-base font-semibold text-slate-100"
+                className="w-full rounded-[22px] border border-slate-200 bg-white px-6 py-4 text-base font-semibold text-slate-700 shadow-sm"
               >
                 إغلاق التفاصيل
               </motion.button>
@@ -282,21 +282,21 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
 }
 
 const StatCard = ({ icon: Icon, label, value, accent = 'text-blue-300' }) => (
-  <div className="rounded-[20px] border border-white/10 bg-[#112033] px-4 py-4 shadow-inner">
-    <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-300">
+  <div className="rounded-[20px] border border-sky-100 bg-white px-4 py-4 shadow-sm">
+    <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-600">
       <Icon className={accent} />
       <span>{label}</span>
     </div>
-    <div className="text-lg font-semibold text-white tabular-nums">
+    <div className="text-lg font-semibold text-slate-950 tabular-nums">
       {value ?? 0}
     </div>
   </div>
 );
 
-const MetaRow = ({ icon: Icon, label, value, valueClass = 'text-white' }) => (
-  <div className="flex items-center justify-between gap-4 rounded-[20px] border border-white/10 bg-[#112033] px-4 py-4">
-    <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
-      <Icon className="text-sky-300" />
+const MetaRow = ({ icon: Icon, label, value, valueClass = 'text-slate-950' }) => (
+  <div className="flex items-center justify-between gap-4 rounded-[20px] border border-sky-100 bg-white px-4 py-4 shadow-sm">
+    <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+      <Icon className="text-sky-600" />
       <span>{label}</span>
     </div>
     <div className={`text-sm font-semibold ${valueClass}`}>{value}</div>

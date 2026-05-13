@@ -13,6 +13,9 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const labelClass = "flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-700";
+  const inputClass = (hasError = false) =>
+    `w-full rounded-2xl border ${hasError ? 'border-red-300 bg-red-50' : 'border-sky-100 bg-white'} px-5 py-4 text-slate-900 shadow-sm placeholder-slate-400 transition-all focus:border-sky-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-sky-100`;
 
   const urgencyLevels = [
     { value: 1, label: 'منخفض', color: 'text-green-400' },
@@ -101,7 +104,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-md"
         onClick={onClose}
       >
         <motion.div
@@ -109,35 +112,35 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] w-full max-w-lg border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto"
+          className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[2rem] border border-sky-100 bg-slate-50 shadow-2xl shadow-slate-300/60"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-8 pb-0">
+          <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-white/90 p-8">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-600/20 flex items-center justify-center border border-blue-500/30">
-                <FaEdit className="text-blue-400 text-2xl" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-sky-100 bg-sky-50">
+                <FaEdit className="text-2xl text-sky-600" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-white">تعديل طلب التبرع</h2>
-                <p className="text-blue-300/70 font-medium mt-1">تعديل بيانات الطلب</p>
+                <h2 className="text-2xl font-black text-slate-950">تعديل طلب التبرع</h2>
+                <p className="mt-1 font-medium text-slate-600">تعديل بيانات الطلب</p>
               </div>
             </div>
             <motion.button
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.9 }}
               onClick={onClose}
-              className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
             >
-              <FaTimes className="text-white/80" />
+              <FaTimes />
             </motion.button>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-8 pt-6 space-y-5">
+          <form onSubmit={handleSubmit} className="grid gap-5 p-8">
             {/* Title Field */}
             <div className="space-y-2">
-              <label className="text-white/80 font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+              <label className={labelClass}>
                 <FaHandHoldingHeart className="text-pink-400" />
                 عنوان الطلب *
               </label>
@@ -147,7 +150,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
                 value={formData.title}
                 onChange={handleInputChange}
                 placeholder="أدخل عنوان الطلب..."
-                className={`w-full bg-white/5 border ${errors.title ? 'border-red-500/50' : 'border-white/10'} rounded-2xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all`}
+                className={inputClass(Boolean(errors.title))}
                 dir="rtl"
               />
               {errors.title && (
@@ -164,7 +167,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
 
             {/* Location Field */}
             <div className="space-y-2">
-              <label className="text-white/80 font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+              <label className={labelClass}>
                 <FaMapMarkerAlt className="text-blue-400" />
                 الموقع *
               </label>
@@ -174,7 +177,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
                 value={formData.location}
                 onChange={handleInputChange}
                 placeholder="أدخل الموقع..."
-                className={`w-full bg-white/5 border ${errors.location ? 'border-red-500/50' : 'border-white/10'} rounded-2xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all`}
+                className={inputClass(Boolean(errors.location))}
                 dir="ltr"
               />
               {errors.location && (
@@ -191,7 +194,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
 
             {/* Donate Amount Field */}
             <div className="space-y-2">
-              <label className="text-white/80 font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+              <label className={labelClass}>
                 <FaMoneyBillWave className="text-green-400" />
                 مبلغ التبرع *
               </label>
@@ -203,7 +206,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
                 placeholder="أدخل مبلغ التبرع..."
                 step="0.01"
                 min="1"
-                className={`w-full bg-white/5 border ${errors.donateAmount ? 'border-red-500/50' : 'border-white/10'} rounded-2xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all`}
+                className={inputClass(Boolean(errors.donateAmount))}
                 dir="ltr"
               />
               {errors.donateAmount && (
@@ -220,7 +223,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
 
             {/* Urgency Level Field */}
             <div className="space-y-2">
-              <label className="text-white/80 font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+              <label className={labelClass}>
                 <FaInfoCircle className="text-yellow-400" />
                 مستوى الأهمية
               </label>
@@ -228,11 +231,11 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
                 name="urgencyLevel"
                 value={formData.urgencyLevel}
                 onChange={handleInputChange}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all"
+                className={inputClass(false)}
                 dir="rtl"
               >
                 {urgencyLevels.map(level => (
-                  <option key={level.value} value={level.value} className="bg-slate-800">
+                  <option key={level.value} value={level.value} className="bg-white text-slate-900">
                     {level.label} ({level.value})
                   </option>
                 ))}
@@ -241,7 +244,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
 
             {/* Brief Description Field */}
             <div className="space-y-2">
-              <label className="text-white/80 font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+              <label className={labelClass}>
                 <FaInfoCircle className="text-cyan-400" />
                 وصف مختصر
               </label>
@@ -251,7 +254,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
                 onChange={handleInputChange}
                 placeholder="أدخل وصفاً مختصراً للطلب (اختياري)..."
                 rows="3"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all resize-none"
+                className={`${inputClass(false)} resize-none`}
                 dir="rtl"
               />
             </div>

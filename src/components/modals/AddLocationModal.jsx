@@ -113,29 +113,29 @@ function LocationCoordinatePicker({ existingLocations, longitude, latitude, onPi
   };
 
   return (
-    <div className="rounded-[28px] border border-white/12 bg-white/[0.06] p-5 md:p-6 shadow-[0_16px_48px_rgba(15,23,42,0.28)]">
-      <div className="mb-5 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-200">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-          <FaSatellite className="text-sky-300" />
+    <div className="rounded-[28px] border border-sky-100 bg-white p-5 shadow-xl shadow-sky-100/70 md:p-6">
+      <div className="mb-5 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-700">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50">
+          <FaSatellite className="text-sky-600" />
         </div>
         <h4>اختيار العنوان من الخريطة</h4>
       </div>
 
-      <div className="mb-5 flex items-start gap-4 rounded-2xl border border-sky-400/15 bg-sky-400/10 p-4">
-        <FaSatellite className="mt-1 text-xl text-sky-300" />
+      <div className="mb-5 flex items-start gap-4 rounded-2xl border border-sky-100 bg-sky-50 p-4">
+        <FaSatellite className="mt-1 text-xl text-sky-600" />
         <div>
-          <p className="m-0 text-sm font-medium leading-7 text-slate-100">
+          <p className="m-0 text-sm font-medium leading-7 text-slate-700">
             اضغط داخل الخريطة لتحديد مكان العنوان الجديد، وسيتم ملء `longitude` و`latitude` تلقائيًا وإرسالهم في body
             الـ API.
           </p>
-          <p className="mb-0 mt-2 text-xs font-medium leading-6 text-slate-300">
+          <p className="mb-0 mt-2 text-xs font-medium leading-6 text-slate-500">
             النقاط الصغيرة تمثل العناوين الحالية كمرجع فقط، أما العلامة الحمراء فهي العنوان الجديد الذي تختاره الآن.
           </p>
         </div>
       </div>
 
       <div
-        className="rounded-[1.75rem] overflow-hidden border border-white/10 bg-white/5"
+        className="overflow-hidden rounded-[1.75rem] border border-sky-100 bg-sky-50"
         style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }}
       >
         <svg
@@ -241,22 +241,22 @@ function LocationCoordinatePicker({ existingLocations, longitude, latitude, onPi
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="rounded-[20px] border border-white/10 bg-[#112033] px-4 py-4">
-          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-300">
-            <FaCompass className="text-sky-300" />
+        <div className="rounded-[20px] border border-sky-100 bg-sky-50 px-4 py-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-600">
+            <FaCompass className="text-sky-600" />
             خط الطول المحدد
           </div>
-          <div className="font-mono text-sm font-semibold text-white" dir="ltr">
+          <div className="font-mono text-sm font-semibold text-slate-900" dir="ltr">
             {formatCoordinate(longitude) || 'غير محدد'}
           </div>
         </div>
 
-        <div className="rounded-[20px] border border-white/10 bg-[#112033] px-4 py-4">
-          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-300">
-            <FaGlobe className="text-sky-300" />
+        <div className="rounded-[20px] border border-sky-100 bg-sky-50 px-4 py-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-600">
+            <FaGlobe className="text-sky-600" />
             خط العرض المحدد
           </div>
-          <div className="font-mono text-sm font-semibold text-white" dir="ltr">
+          <div className="font-mono text-sm font-semibold text-slate-900" dir="ltr">
             {formatCoordinate(latitude) || 'غير محدد'}
           </div>
         </div>
@@ -335,32 +335,32 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
   };
 
   const fieldClass =
-    'w-full rounded-2xl border border-white/12 bg-[#112033] px-4 py-3 text-base font-medium text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-sky-400/45 focus:bg-[#16283d]';
+    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:bg-sky-50 focus:ring-4 focus:ring-sky-100';
 
   const cardClass =
-    'rounded-[28px] border border-white/12 bg-white/[0.06] p-5 md:p-6 shadow-[0_16px_48px_rgba(15,23,42,0.28)]';
+    'rounded-[28px] border border-sky-100 bg-white p-5 shadow-xl shadow-sky-100/70 md:p-6';
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/75 p-4 md:p-8 backdrop-blur-md" dir="rtl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-md md:p-8" dir="rtl">
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 24 }}
             transition={{ duration: 0.2 }}
-            className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[30px] border border-white/12 bg-[#0f1b2d] shadow-[0_28px_90px_rgba(15,23,42,0.5)]"
+            className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[30px] border border-sky-100 bg-slate-50 shadow-2xl shadow-slate-300/60"
           >
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(96,165,250,0.16),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.10),transparent_25%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(240,249,255,0.98),rgba(255,255,255,0.56)_48%,rgba(236,253,245,0.65))]" />
 
-            <div className="relative flex items-start justify-between gap-4 border-b border-white/10 bg-white/[0.05] px-6 py-5 md:px-8">
+            <div className="relative flex items-start justify-between gap-4 border-b border-slate-200 bg-white/90 px-6 py-5 md:px-8">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-sky-400 to-indigo-500 text-white shadow-lg">
                   <FaPlus className="text-lg" />
                 </div>
                 <div>
-                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white">إضافة عنوان جديد</h3>
-                  <p className="mt-1 text-sm font-medium text-slate-300">
+                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-950">إضافة عنوان جديد</h3>
+                  <p className="mt-1 text-sm font-medium text-slate-600">
                     واجهة أوضح لإضافة العنوان واختيار الإحداثيات من الخريطة.
                   </p>
                 </div>
@@ -372,7 +372,7 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
                   resetForm();
                   onClose();
                 }}
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-slate-200"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm"
               >
                 <FaTimes />
               </motion.button>
@@ -382,17 +382,17 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
               <div className="grid gap-7 lg:grid-cols-[1.02fr_0.98fr]">
                 <div className="grid gap-7">
                   <section className={cardClass}>
-                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-200">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                        <FaMapMarkerAlt className="text-sky-300" />
+                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-700">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
+                        <FaMapMarkerAlt className="text-sky-600" />
                       </div>
                       <h4>البيانات الأساسية</h4>
                     </div>
 
                     <div className="grid gap-6">
                       <div className="space-y-2.5">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-200">
-                          <FaMapMarkerAlt className="text-sky-300" />
+                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                          <FaMapMarkerAlt className="text-sky-600" />
                           <span>اسم العنوان</span>
                         </label>
                         <input
@@ -407,8 +407,8 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
                       </div>
 
                       <div className="space-y-2.5">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-200">
-                          <FaStar className="text-amber-300" />
+                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                          <FaStar className="text-amber-600" />
                           <span>المستوى المطلوب</span>
                         </label>
                         <input
@@ -434,16 +434,16 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
 
                 <div className="grid gap-7">
                   <section className={cardClass}>
-                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-200">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                        <FaGlobe className="text-sky-300" />
+                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-700">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
+                        <FaGlobe className="text-sky-600" />
                       </div>
                       <h4>الإحداثيات المرسلة</h4>
                     </div>
 
                     <div className="grid gap-4">
-                      <div className="rounded-[20px] border border-white/10 bg-[#112033] p-4">
-                        <label className="mb-2 block text-sm font-medium text-slate-300">Longitude</label>
+                      <div className="rounded-[20px] border border-sky-100 bg-white p-4 shadow-sm">
+                        <label className="mb-2 block text-sm font-medium text-slate-600">Longitude</label>
                         <input
                           type="text"
                           name="longitude"
@@ -454,8 +454,8 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
                         />
                       </div>
 
-                      <div className="rounded-[20px] border border-white/10 bg-[#112033] p-4">
-                        <label className="mb-2 block text-sm font-medium text-slate-300">Latitude</label>
+                      <div className="rounded-[20px] border border-sky-100 bg-white p-4 shadow-sm">
+                        <label className="mb-2 block text-sm font-medium text-slate-600">Latitude</label>
                         <input
                           type="text"
                           name="latitude"
@@ -469,16 +469,16 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
                   </section>
 
                   <section className={cardClass}>
-                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-200">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                        <FaCrosshairs className="text-sky-300" />
+                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-700">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
+                        <FaCrosshairs className="text-sky-600" />
                       </div>
                       <h4>ملخص الإرسال</h4>
                     </div>
 
-                    <div className="rounded-[22px] border border-white/10 bg-[#112033] p-4 text-sm font-medium leading-7 text-slate-100">
+                    <div className="rounded-[22px] border border-sky-100 bg-white p-4 text-sm font-medium leading-7 text-slate-700 shadow-sm">
                       عند الضغط على حفظ، سيتم إرسال البيانات بهذه الصيغة:
-                      <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/30 px-4 py-3 font-mono text-xs text-sky-100" dir="ltr">
+                      <div className="mt-3 rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 font-mono text-xs text-sky-700" dir="ltr">
                         {'{ name, requiredLevel, longitude, latitude }'}
                       </div>
                     </div>
@@ -487,7 +487,7 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
               </div>
             </form>
 
-            <div className="relative flex gap-4 border-t border-white/10 bg-white/[0.05] px-6 py-5 md:px-8">
+            <div className="relative flex gap-4 border-t border-slate-200 bg-white/90 px-6 py-5 md:px-8">
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
@@ -496,7 +496,7 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
                   resetForm();
                   onClose();
                 }}
-                className="flex-1 rounded-[22px] border border-white/10 bg-white/[0.06] px-6 py-4 text-base font-semibold text-slate-200 shadow-lg"
+                className="flex-1 rounded-[22px] border border-slate-200 bg-white px-6 py-4 text-base font-semibold text-slate-700 shadow-sm"
                 disabled={loading}
               >
                 إلغاء

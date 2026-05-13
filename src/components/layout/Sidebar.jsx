@@ -469,8 +469,13 @@ export default function Sidebar({
   };
 
   const visibleItems = NAV_ITEMS.filter((item) => {
-    // Volunteer-related items: only show to admin or volunteer
-    if (['volunteer-requests', 'volunteer-orders'].includes(item.id)) {
+    // Volunteer requests: admin only
+    if (item.id === 'volunteer-requests') {
+      if (!isAdmin) return false;
+    }
+
+    // Volunteer orders: only show to admin or volunteer
+    if (item.id === 'volunteer-orders') {
       if (!(isAdmin || isVolunteer)) return false;
     }
 

@@ -13,9 +13,9 @@ import {
 import LocationIdMapSelector from '../shared/LocationIdMapSelector';
 
 const fieldShell =
-  'w-full rounded-2xl border border-white/12 bg-[#112033] px-4 py-3 text-base font-medium text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-sky-400/45 focus:bg-[#16283d]';
+  'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:bg-sky-50 focus:ring-4 focus:ring-sky-100';
 
-const cardShell = 'rounded-[28px] border border-white/12 bg-white/[0.06] p-5 md:p-6 shadow-[0_16px_48px_rgba(15,23,42,0.28)]';
+const cardShell = 'rounded-[28px] border border-amber-100 bg-white p-5 shadow-xl shadow-amber-100/60 md:p-6';
 
 const rewardConfig = [
   { key: 'kpReward', label: 'نقاط الخير', icon: FaTrophy, accent: 'text-yellow-300' },
@@ -109,24 +109,24 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-md" dir="rtl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-md" dir="rtl">
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 24 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-5xl max-h-[92vh] overflow-hidden rounded-[30px] border border-white/12 bg-[#0f1b2d] shadow-[0_28px_90px_rgba(15,23,42,0.5)]"
+            className="relative max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-[30px] border border-amber-100 bg-slate-50 shadow-2xl shadow-slate-300/60"
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(249,115,22,0.10),transparent_25%)] pointer-events-none" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,251,235,0.95),rgba(255,255,255,0.54)_45%,rgba(240,249,255,0.58))]" />
 
-            <div className="relative flex items-start justify-between gap-4 border-b border-white/10 bg-white/[0.05] px-6 py-5 md:px-8">
+            <div className="relative flex items-start justify-between gap-4 border-b border-slate-200 bg-white/90 px-6 py-5 md:px-8">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg">
                   <FaEdit className="text-lg" />
                 </div>
                 <div>
-                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white">تعديل المهمة</h3>
-                  <p className="mt-1 text-sm font-medium text-slate-300">واجهة واضحة لتعديل بيانات المهمة والمكافآت والموقع.</p>
+                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-950">تعديل المهمة</h3>
+                  <p className="mt-1 text-sm font-medium text-slate-600">واجهة واضحة لتعديل بيانات المهمة والمكافآت والموقع.</p>
                 </div>
               </div>
 
@@ -134,7 +134,7 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                 whileHover={{ scale: 1.06, rotate: 90 }}
                 whileTap={{ scale: 0.94 }}
                 onClick={onClose}
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-slate-200"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm"
               >
                 <FaTimes />
               </motion.button>
@@ -144,15 +144,15 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
               <div className="grid gap-7 lg:grid-cols-[1.1fr_0.9fr]">
                 <div className="grid gap-7">
                   <section className={cardShell}>
-                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-200 px-1">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                        <FaTasks className="text-sky-300" />
+                    <div className="mb-6 flex items-center gap-3 px-1 text-sm font-bold uppercase tracking-[0.16em] text-sky-700">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600">
+                        <FaTasks className="text-sky-600" />
                       </div>
                       <span>المعلومات الجوهرية للمهمة</span>
                     </div>
                     <div className="grid gap-6">
                       <div className="space-y-2.5">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-200 px-1">
+                        <label className="flex items-center gap-2 px-1 text-sm font-semibold text-slate-700">
                           <span>عنوان المهمة</span>
                         </label>
                         <input
@@ -168,7 +168,7 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
 
                       <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-2.5">
-                          <label className="flex items-center gap-2 text-sm font-semibold text-slate-200 px-1">
+                          <label className="flex items-center gap-2 px-1 text-sm font-semibold text-slate-700">
                             <span>مستوى الصعوبة</span>
                           </label>
                           <select name="difficulty" value={formData.difficulty} onChange={handleChange} className={fieldShell}>
@@ -180,7 +180,7 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                         </div>
 
                         <div className="space-y-2.5">
-                          <label className="flex items-center gap-2 text-sm font-semibold text-slate-200 px-1">
+                          <label className="flex items-center gap-2 px-1 text-sm font-semibold text-slate-700">
                             <span>الحالة التشغيلية</span>
                           </label>
                           <select name="status" value={formData.status} onChange={handleChange} className={fieldShell}>
@@ -191,7 +191,7 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                       </div>
 
                       <div className="space-y-2.5">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-200 px-1">
+                        <label className="flex items-center gap-2 px-1 text-sm font-semibold text-slate-700">
                           <span>الحد الأدنى للمستوى</span>
                         </label>
                         <input
@@ -207,7 +207,7 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                     </div>
                   </section>
 
-                  <div className="overflow-hidden rounded-[28px] border border-white/10 shadow-2xl">
+                  <div className="overflow-hidden rounded-[28px] border border-amber-100 bg-white shadow-xl shadow-amber-100/70">
                     <LocationIdMapSelector
                       locations={locations}
                       selectedLocationId={formData.locationId}
@@ -221,14 +221,14 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                 <div className="grid gap-7">
                   <section className={cardShell}>
                     <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-amber-200 px-1">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                        <FaTrophy className="text-amber-300" />
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600">
+                        <FaTrophy className="text-amber-600" />
                       </div>
                       <span>نظام المكافآت الاستحقاقية</span>
                     </div>
                     <div className="grid gap-5">
                       {rewardConfig.map(({ key, label, icon: Icon, accent }) => (
-                        <div key={key} className="rounded-[20px] border border-white/10 bg-[#112033] p-4 shadow-inner space-y-3">
+                        <div key={key} className="space-y-3 rounded-[20px] border border-amber-100 bg-white p-4 shadow-sm">
                           <label className={`flex items-center gap-2 text-sm font-semibold ${accent}`}>
                             <Icon />
                             <span>{label}</span>
@@ -245,31 +245,16 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                       ))}
                     </div>
                   </section>
-
-                  <section className={cardShell}>
-                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-200 px-1">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
-                        <FaMapMarkerAlt className="text-sky-300" />
-                      </div>
-                      <span>ملخص التغييرات</span>
-                    </div>
-                    <div className="grid gap-4">
-                      <ReviewRow label="كود المهمة" value={mission?.id || 'غير متوفر'} mono />
-                      <ReviewRow label="معرف الموقع" value={formData.locationId || 'غير محدد'} mono />
-                      <ReviewRow label="درجة الصعوبة" value={['سهل', 'متوسط', 'صعب', 'أسطوري'][formData.difficulty] || 'غير محدد'} />
-                      <ReviewRow label="حالة المهمة" value={Number(formData.status) === 1 ? 'نشطة' : 'غير نشطة'} />
-                    </div>
-                  </section>
                 </div>
               </div>
 
-              <div className="mt-7 flex flex-col gap-4 border-t border-white/10 pt-7 md:flex-row">
+              <div className="mt-7 flex flex-col gap-4 border-t border-slate-200 pt-7 md:flex-row">
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   type="button"
                   onClick={onClose}
-                  className="flex-1 rounded-[22px] border border-white/10 bg-white/[0.06] px-6 py-4 text-base font-semibold text-slate-200 shadow-xl transition-all"
+                  className="flex-1 rounded-[22px] border border-slate-200 bg-white px-6 py-4 text-base font-semibold text-slate-700 shadow-sm transition-all"
                   disabled={loading}
                 >
                   إلغاء
@@ -294,9 +279,9 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
 
 function ReviewRow({ label, value, mono = false }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-[#112033] px-4 py-3.5">
-      <span className="text-sm font-medium text-slate-300">{label}</span>
-      <span className={`text-sm font-semibold text-slate-100 ${mono ? 'font-mono break-all text-left' : ''}`} dir={mono ? 'ltr' : undefined}>
+    <div className="flex items-center justify-between gap-4 rounded-[18px] border border-amber-100 bg-white px-4 py-3.5 shadow-sm">
+      <span className="text-sm font-medium text-slate-600">{label}</span>
+      <span className={`text-sm font-semibold text-slate-900 ${mono ? 'font-mono break-all text-left' : ''}`} dir={mono ? 'ltr' : undefined}>
         {value}
       </span>
     </div>

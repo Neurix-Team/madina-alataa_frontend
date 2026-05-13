@@ -4,11 +4,12 @@ import { volunteersService } from '../services/volunteersService';
 import { userLevelsService } from '../services/userLevelsService';
 import { userBadgesService } from '../services/userBadgesService';
 import { certificatesService } from '../services/certificatesService';
+import { profilesService } from '../services/profilesService';
 import { useAuth } from '../hooks/useAuth';
 import { 
   FaUsers, FaUserPlus, FaUserShield, FaTrash, FaKey,
   FaSearch, FaChevronRight, FaChevronLeft, FaUserCircle, FaEdit,
-  FaEnvelope, FaCalendarAlt, FaIdBadge, FaShieldAlt, FaHeart, FaUser, FaPlus, FaMinus, FaStar
+  FaEnvelope, FaCalendarAlt, FaIdBadge, FaShieldAlt, FaHeart, FaUser, FaPlus, FaMinus, FaStar, FaEye
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import UserGeoQuestsPanel from '../components/userGeoQuests/UserGeoQuestsPanel';
@@ -192,6 +193,93 @@ const UserCard = ({ user, index }) => {
   );
 };
 
+const formatProfileValue = (value) => {
+  if (value === null || value === undefined || value === '') return 'غير متوفر';
+  if (typeof value === 'object') return JSON.stringify(value, null, 2);
+  return String(value);
+};
+
+const UserProfilePanel = ({ profile, selectedUser, loading, error }) => {
+  if (!loading && !error && !profile) return null;
+
+  const profileEntries = profile && typeof profile === 'object'
+    ? Object.entries(profile).filter(([, value]) => value !== undefined)
+    : [];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{
+        marginTop: 18,
+        padding: 18,
+        borderRadius: 16,
+        background: '#f8fafc',
+        border: '1px solid #dbeafe',
+        display: 'grid',
+        gap: 14,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{
+          width: 38,
+          height: 38,
+          borderRadius: 12,
+          display: 'grid',
+          placeItems: 'center',
+          background: '#dbeafe',
+          color: '#2563eb',
+        }}>
+          <FaEye />
+        </div>
+        <div>
+          <div style={{ color: '#0f172a', fontWeight: 900 }}>بروفايل المستخدم</div>
+          <div style={{ color: '#64748b', fontSize: 12 }}>
+            {selectedUser?.fullName || selectedUser?.name || selectedUser?.email || 'مستخدم'}
+          </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ color: '#64748b', fontWeight: 700 }}>جاري تحميل البروفايل...</div>
+      ) : error ? (
+        <div style={{
+          padding: 12,
+          borderRadius: 12,
+          background: '#fee2e2',
+          color: '#dc2626',
+          fontWeight: 800,
+        }}>
+          {error}
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 10 }}>
+          {profileEntries.map(([key, value]) => (
+            <div key={key} style={{
+              padding: 12,
+              borderRadius: 12,
+              background: '#fff',
+              border: '1px solid #e2e8f0',
+              minWidth: 0,
+            }}>
+              <div style={{ color: '#64748b', fontSize: 11, fontWeight: 800, marginBottom: 6 }}>{key}</div>
+              <div style={{
+                color: '#0f172a',
+                fontSize: 13,
+                fontWeight: 700,
+                whiteSpace: typeof value === 'object' ? 'pre-wrap' : 'normal',
+                wordBreak: 'break-word',
+              }}>
+                {formatProfileValue(value)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
+};
+
 const getStoredAuthToken = () => {
   try {
     const userData =
@@ -273,31 +361,30 @@ fetchUserCertificates(normalizedUser.id);
 
   const viewUserProfile = async (user) => {
     try {
-      const userId = user.id || user.userId;
-      const profileId = user.profileId;
+      const userId = user?.id || user?.userId || user?.userID || user?.ID;
+      const profileId = user?.profileId || user?.ProfileId;
+      const targetId = profileId || userId;
 
-      if (!userId && !profileId) {
+      if (!targetId) {
         console.warn('No user/profile ID found for user:', user);
+        setUserProfileError('معرف المستخدم أو البروفايل غير متوفر.');
         return;
       }
 
-      let response;
+      setSelectedProfileUser(user);
+      setUserProfileLoading(true);
+      setUserProfileError(null);
+      setUserProfileData(null);
 
-      if (profileId) {
-        console.log(`Fetching profile for user ${user.fullName} with profile ID: ${profileId}`);
-        response = await axiosClient.get(`/api/Profiles/${profileId}`);
-      } else {
-        console.log(`Fetching donor profile for user ${user.fullName} with user ID: ${userId}`);
-        response = await axiosClient.get(`/api/donor/user/${userId}`);
-      }
-
-      const profileData = response.data?.value || response.data?.profile || response.data;
-      console.log('Profile Response:', profileData);
-      
-      alert(`Profile data for ${user.fullName}:\n${JSON.stringify(profileData, null, 2)}`);
+      console.log('ADMIN USER PROFILE REQUEST:', { targetId, userId, profileId });
+      const profileData = await profilesService.getProfileById(targetId);
+      console.log('ADMIN USER PROFILE RESPONSE ITEMS:', profileData);
+      setUserProfileData(profileData);
     } catch (error) {
       console.error('Error fetching user profile:', error);
-      alert(`Failed to fetch profile: ${error.response?.data?.message || error.message}`);
+      setUserProfileError(error.message || 'فشل في جلب بروفايل المستخدم.');
+    } finally {
+      setUserProfileLoading(false);
     }
   };
 
@@ -317,6 +404,10 @@ const [pagination, setPagination] = useState({
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [selectedProfileUser, setSelectedProfileUser] = useState(null);
+  const [userProfileData, setUserProfileData] = useState(null);
+  const [userProfileLoading, setUserProfileLoading] = useState(false);
+  const [userProfileError, setUserProfileError] = useState(null);
   
   // Create User Form State
   const [formData, setFormData] = useState({
@@ -1853,6 +1944,7 @@ const [pagination, setPagination] = useState({
                           </div>
                           <div style={{ display: 'flex', gap: 8 }}>
                             {/* Donor Profile Icon - Available for all users */}
+                            {false && (
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
@@ -1872,6 +1964,7 @@ const [pagination, setPagination] = useState({
                             >
                               <FaHeart size={14} />
                             </motion.button>
+                            )}
                             
                             {/* User Details Icon - Available for all users */}
                             <motion.button
@@ -1912,7 +2005,7 @@ const [pagination, setPagination] = useState({
                                 justifyContent: 'center'
                               }}
                             >
-                              <FaUser size={14} />
+                              <FaEye size={14} />
                             </motion.button>
                             
                             {/* Admin-only actions */}
@@ -1963,6 +2056,13 @@ const [pagination, setPagination] = useState({
                       ))
                     )}
                   </div>
+
+                  <UserProfilePanel
+                    profile={userProfileData}
+                    selectedUser={selectedProfileUser}
+                    loading={userProfileLoading}
+                    error={userProfileError}
+                  />
 
                   <div style={{ 
                     display: 'flex', 

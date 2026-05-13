@@ -1031,18 +1031,13 @@ useEffect(() => {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
-                <Field label="ID" value={detailsItem?.id} mono light={light} />
                 <Field label="Title" value={detailsItem?.title} light={light} />
-                <Field label="User ID" value={detailsItem?.userId} mono light={light} />
-                <Field label="GeoQuest ID" value={detailsItem?.geoQuestId} mono light={light} />
                 <Field
                   label="Current Status"
                   value={detailsStatus?.status || detailsStatus?.Status || detailsItem?.status}
                   light={light}
                 />
                 <Field label="Is Active" value={detailsStatus?.isActive ? 'Yes' : 'No'} light={light} />
-                <Field label="Created At" value={formatDate(detailsItem?.createdAt)} light={light} />
-                <Field label="Updated At" value={formatDate(detailsItem?.updatedAt)} light={light} />
               </div>
 
               {detailsCoordinates && (

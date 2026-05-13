@@ -60,6 +60,8 @@ axiosClient.interceptors.request.use(
         config.url?.includes('/api/Partners') ||
         config.url?.includes('/api/Child') ||
         config.url?.includes('/api/admin') ||
+        config.url?.includes('/api/Profiles') ||
+        config.url?.includes('/api/ServiceRequests') ||
         config.url?.includes('/api/donation-requests') ||
         config.url?.includes('/api/Volunteer') ||
         config.url?.includes('/api/Badges') ||
@@ -93,6 +95,8 @@ axiosClient.interceptors.request.use(
         config.url?.includes('/api/Partners') ||
         config.url?.includes('/api/Child') ||
         config.url?.includes('/api/admin') ||
+        config.url?.includes('/api/Profiles') ||
+        config.url?.includes('/api/ServiceRequests') ||
         config.url?.includes('/api/donation-requests') ||
         config.url?.includes('/api/Volunteer') ||
         config.url?.includes('/api/Badges') ||

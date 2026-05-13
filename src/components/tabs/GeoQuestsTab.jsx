@@ -1052,6 +1052,7 @@ export default function GeoQuestsTab() {
         </>
       )}
 
+       {!isAdmin && (
       <div style={{ marginTop: '40px' }}>
         <UserGeoQuestsPanel
           key={refreshPanelKey}
@@ -1062,7 +1063,7 @@ export default function GeoQuestsTab() {
           light={true}
           disableFilter={isAdmin}
         />
-      </div>
+      </div> )}
 
       <AnimatePresence>
         {createOpen ? (

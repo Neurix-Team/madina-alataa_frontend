@@ -104,9 +104,9 @@ const MissionsTab = () => {
   }, []);
 
   const stats = useMemo(() => [
-    { label: 'إجمالي المهام', value: missions.length, icon: FaTasks, accent: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-    { label: 'مهام نشطة', value: missions.filter((m) => m.status === 1).length, icon: FaRocket, accent: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    { label: 'صعوبة عالية', value: missions.filter((m) => m.difficulty >= 2).length, icon: FaShieldAlt, accent: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+    { label: 'إجمالي المهام', value: missions.length, icon: FaTasks, accent: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-100' },
+    { label: 'مهام نشطة', value: missions.filter((m) => m.status === 1).length, icon: FaRocket, accent: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+    { label: 'صعوبة عالية', value: missions.filter((m) => m.difficulty >= 2).length, icon: FaShieldAlt, accent: 'text-red-700', bg: 'bg-red-50', border: 'border-red-100' },
   ], [missions]);
 
   const handleAddMission = async (missionData) => {
@@ -158,88 +158,294 @@ const MissionsTab = () => {
 
   const getDifficultyInfo = (level) => {
     switch (level) {
-      case 0: return { label: 'سهل', badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', icon: FaLeaf };
-      case 1: return { label: 'متوسط', badge: 'bg-blue-500/10 text-blue-400 border-blue-500/20', icon: FaShieldAlt };
-      case 2: return { label: 'صعب', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/20', icon: FaFire };
-      case 3: return { label: 'أسطوري', badge: 'bg-purple-500/10 text-purple-400 border-purple-500/20', icon: FaGem };
-      default: return { label: 'غير محدد', badge: 'bg-slate-500/10 text-slate-400 border-slate-500/20', icon: FaTasks };
+      case 0: return { label: 'سهل', badge: 'bg-emerald-50 text-emerald-700 border-emerald-100', icon: FaLeaf };
+      case 1: return { label: 'متوسط', badge: 'bg-blue-50 text-blue-700 border-blue-100', icon: FaShieldAlt };
+      case 2: return { label: 'صعب', badge: 'bg-orange-50 text-orange-700 border-orange-100', icon: FaFire };
+      case 3: return { label: 'أسطوري', badge: 'bg-purple-50 text-purple-700 border-purple-100', icon: FaGem };
+      default: return { label: 'غير محدد', badge: 'bg-slate-100 text-slate-700 border-slate-200', icon: FaTasks };
     }
   };
 
   return (
-    <div className="min-h-screen bg-transparent p-6 text-slate-100 md:p-10" dir="rtl">
-      <div className="relative mx-auto flex max-w-7xl flex-col gap-8">
-        <div className="flex flex-col gap-6 rounded-[32px] border border-white/12 bg-[#0f1b2d]/80 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.35)] backdrop-blur-xl md:flex-row md:items-center md:justify-between md:p-8">
-          <div className="flex items-center gap-6">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] border border-white/20 bg-gradient-to-br from-sky-400 to-indigo-500 text-white shadow-[0_18px_40px_rgba(37,99,235,0.28)]">
-              <FaTasks className="text-2xl" />
+    <div
+      dir="rtl"
+      style={{
+        minHeight: '100vh',
+        width: '100%',
+        padding: '32px 24px',
+        color: '#0f172a',
+      }}
+    >
+      {/* ===== Main Container with proper margins ===== */}
+      <div
+        style={{
+          maxWidth: '1400px',
+          margin: '0 auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '28px',
+        }}
+      >
+
+        {/* ===== Header Card ===== */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            position: 'relative',
+            overflow: 'hidden',
+            borderRadius: '24px',
+            border: '1px solid rgba(255, 255, 255, 0.6)',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(241,245,249,0.92) 100%)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            padding: '28px 32px',
+            boxShadow: '0 20px 50px -20px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(255,255,255,0.4) inset',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '24px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', minWidth: 0, flex: '1 1 320px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '64px',
+                  height: '64px',
+                  flexShrink: 0,
+                  borderRadius: '18px',
+                  background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #a855f7 100%)',
+                  color: '#fff',
+                  boxShadow: '0 12px 28px -8px rgba(99, 102, 241, 0.55)',
+                }}
+              >
+                <FaTasks style={{ fontSize: '26px' }} />
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#020617', margin: 0, lineHeight: 1.2 }}>
+                  إدارة المهام
+                </h2>
+                <p style={{ marginTop: '8px', fontSize: '14px', lineHeight: 1.6, color: '#475569', maxWidth: '480px' }}>
+                  إدارة المهام الميدانية والمكافآت والعناوين المرتبطة بها من واجهة أوضح وأكثر تنظيمًا.
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white">إدارة المهام</h2>
-              <p className="mt-2 max-w-xl text-sm md:text-base font-medium leading-7 text-slate-300">إدارة المهام الميدانية والمكافآت والعناوين المرتبطة بها من واجهة أوضح وأكثر تنظيمًا.</p>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ position: 'relative', width: '320px', maxWidth: '100%' }}>
+                <FaSearch
+                  style={{
+                    position: 'absolute',
+                    right: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#0284c7',
+                    pointerEvents: 'none',
+                  }}
+                />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                  placeholder="ابحث عن مهمة محددة..."
+                  style={{
+                    width: '100%',
+                    borderRadius: '14px',
+                    border: '1px solid #e2e8f0',
+                    background: '#fff',
+                    padding: '12px 48px 12px 16px',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#0f172a',
+                    outline: 'none',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                  }}
+                />
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowAddModal(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #a855f7 100%)',
+                  padding: '12px 22px',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 10px 24px -8px rgba(99, 102, 241, 0.55)',
+                }}
+              >
+                <FaPlus style={{ fontSize: '12px' }} />
+                <span>إضافة مهمة</span>
+              </motion.button>
             </div>
           </div>
+        </motion.div>
 
-          <div className="grid w-full gap-4 md:w-auto md:grid-cols-[minmax(280px,380px)_auto]">
-            <div className="relative group">
-              <FaSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-sky-300/70 transition-colors group-focus-within:text-sky-300" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                placeholder="ابحث عن مهمة محددة..."
-                className="w-full rounded-[22px] border border-white/12 bg-[#112033] py-3.5 pr-12 pl-4 text-sm font-medium text-white outline-none transition placeholder:text-slate-400 focus:border-sky-400/45 focus:bg-[#16283d]"
-              />
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShowAddModal(true)}
-              className="flex items-center justify-center gap-2 rounded-[22px] border border-white/10 bg-gradient-to-r from-sky-400 to-indigo-500 px-6 py-3.5 text-base font-semibold text-white shadow-xl transition-all"
-            >
-              <FaPlus />
-              <span>إضافة مهمة</span>
-            </motion.button>
-          </div>
-        </div>
-
+        {/* ===== Error Message ===== */}
         {error && (
-          <div className="rounded-[24px] border border-red-400/25 bg-red-500/10 px-5 py-4 text-sm font-medium text-red-200">
+          <div
+            style={{
+              borderRadius: '14px',
+              border: '1px solid #fecaca',
+              background: 'rgba(254, 242, 242, 0.95)',
+              padding: '14px 20px',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#b91c1c',
+            }}
+          >
             {error}
           </div>
         )}
 
-        <div className="grid gap-5 md:grid-cols-3">
+        {/* ===== Stats Cards ===== */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: '20px',
+          }}
+        >
           {stats.map((stat, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="flex items-center gap-4 rounded-[26px] border border-white/12 bg-white/[0.06] p-5 shadow-xl">
-              <div className={`flex h-14 w-14 items-center justify-center rounded-2xl border ${stat.bg} ${stat.border} ${stat.accent} text-xl shadow-inner`}>
-                <stat.icon />
-              </div>
-              <div>
-                <div className="mb-1 text-sm font-medium text-slate-300">{stat.label}</div>
-                <div className="text-2xl font-semibold text-white tabular-nums">{stat.value}</div>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              whileHover={{ y: -4 }}
+              style={{
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: '18px',
+                border: '1px solid rgba(255, 255, 255, 0.6)',
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.92) 100%)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                padding: '20px',
+                boxShadow: '0 10px 30px -12px rgba(15, 23, 42, 0.3)',
+                transition: 'box-shadow 0.3s',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div
+                  className={`${stat.bg} ${stat.border} ${stat.accent}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '56px',
+                    height: '56px',
+                    flexShrink: 0,
+                    borderRadius: '14px',
+                    borderWidth: '1px',
+                    borderStyle: 'solid',
+                    fontSize: '22px',
+                  }}
+                >
+                  <stat.icon />
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ marginBottom: '4px', fontSize: '13px', fontWeight: 500, color: '#475569' }}>
+                    {stat.label}
+                  </div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#020617', fontVariantNumeric: 'tabular-nums' }}>
+                    {stat.value}
+                  </div>
+                </div>
               </div>
             </motion.div>
           ))}
         </div>
 
+        {/* ===== Missions Grid / States ===== */}
         {loading && missions.length === 0 ? (
-          <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-[30px] border border-white/12 bg-white/[0.06] backdrop-blur-xl">
-            <FaSpinner className="animate-spin text-4xl text-sky-300" />
-            <div className="text-lg font-semibold tracking-tight text-white">جاري استدعاء سجلات المهام...</div>
+          <div
+            style={{
+              display: 'flex',
+              minHeight: '360px',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '16px',
+              borderRadius: '22px',
+              border: '1px solid rgba(255, 255, 255, 0.6)',
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              padding: '40px',
+              boxShadow: '0 20px 50px -15px rgba(15, 23, 42, 0.3)',
+            }}
+          >
+            <FaSpinner style={{ animation: 'spin 1s linear infinite', fontSize: '44px', color: '#6366f1' }} />
+            <div style={{ fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>جاري استدعاء سجلات المهام...</div>
           </div>
         ) : missions.length === 0 ? (
-          <div className="rounded-[30px] border border-white/12 bg-white/[0.06] p-12 text-center backdrop-blur-xl">
-            <FaTasks className="mx-auto mb-5 text-4xl text-sky-300/70" />
-            <h3 className="text-2xl font-semibold text-white">لا توجد مهام مسجلة</h3>
-            <p className="mt-3 text-sm md:text-base font-medium text-slate-300">لم يتم العثور على أي مهام في قاعدة البيانات حاليًا.</p>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '22px',
+              border: '1px solid rgba(255, 255, 255, 0.6)',
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              padding: '64px 24px',
+              textAlign: 'center',
+              boxShadow: '0 20px 50px -15px rgba(15, 23, 42, 0.3)',
+            }}
+          >
+            <div
+              style={{
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '80px',
+                height: '80px',
+                borderRadius: '20px',
+                background: 'linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%)',
+                color: '#4f46e5',
+              }}
+            >
+              <FaTasks style={{ fontSize: '32px' }} />
+            </div>
+            <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#020617', margin: 0 }}>لا توجد مهام مسجلة</h3>
+            <p style={{ marginTop: '12px', maxWidth: '420px', fontSize: '14px', lineHeight: 1.7, color: '#475569' }}>
+              لم يتم العثور على أي مهام في قاعدة البيانات حاليًا. اضغط على "إضافة مهمة" لإنشاء أول مهمة.
+            </p>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+              gap: '24px',
+              justifyContent: 'start',
+            }}
+          >
             {missions.map((mission, index) => {
               const diff = getDifficultyInfo(mission.difficulty);
               const DiffIcon = diff.icon;
+              const isActive = mission.status === 1;
 
               return (
                 <motion.div
@@ -247,74 +453,288 @@ const MissionsTab = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="group relative flex flex-col gap-5 rounded-[28px] border border-white/12 bg-white/[0.06] p-6 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_70px_rgba(0,0,0,0.45)]"
+                  whileHover={{ y: -6 }}
+                  style={{
+                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '18px',
+                    overflow: 'hidden',
+                    borderRadius: '22px',
+                    border: '1px solid rgba(255, 255, 255, 0.6)',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.92) 100%)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    padding: '24px',
+                    boxShadow: '0 15px 40px -15px rgba(15, 23, 42, 0.35)',
+                    transition: 'box-shadow 0.3s',
+                  }}
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1 space-y-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium ${diff.badge}`}>
-                          <DiffIcon />
+                  {/* Top gradient accent */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: 'linear-gradient(90deg, #0ea5e9, #6366f1, #a855f7)',
+                    }}
+                  />
+
+                  {/* Card Header */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
+                    <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
+                        <span
+                          className={diff.badge}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            borderRadius: '999px',
+                            borderWidth: '1px',
+                            borderStyle: 'solid',
+                            padding: '5px 10px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                          }}
+                        >
+                          <DiffIcon style={{ fontSize: '11px' }} />
                           <span>{diff.label}</span>
                         </span>
-                        <span className={`inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-xs font-medium ${mission.status === 1 ? 'bg-emerald-500/10 text-emerald-300' : 'bg-red-500/10 text-red-300'}`}>
-                          {mission.status === 1 ? <FaCheckCircle /> : <FaTimesCircle />}
-                          <span>{mission.status === 1 ? 'نشطة' : 'متوقفة'}</span>
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            borderRadius: '999px',
+                            border: `1px solid ${isActive ? '#a7f3d0' : '#fecaca'}`,
+                            background: isActive ? '#ecfdf5' : '#fef2f2',
+                            color: isActive ? '#047857' : '#b91c1c',
+                            padding: '5px 10px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                          }}
+                        >
+                          {isActive ? <FaCheckCircle style={{ fontSize: '11px' }} /> : <FaTimesCircle style={{ fontSize: '11px' }} />}
+                          <span>{isActive ? 'نشطة' : 'متوقفة'}</span>
                         </span>
                       </div>
-                      <h3 className="text-xl font-semibold leading-8 text-white transition-colors group-hover:text-sky-200">{mission.title}</h3>
-                      <div className="flex items-center gap-2 text-xs font-medium text-slate-300">
-                        <span>ID:</span>
-                        <span className="font-mono text-sky-200/80" dir="ltr">{mission.id || 'N/A'}</span>
+                      <h3
+                        style={{
+                          fontSize: '19px',
+                          fontWeight: 800,
+                          lineHeight: 1.4,
+                          color: '#020617',
+                          margin: 0,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {mission.title || 'بدون عنوان'}
+                      </h3>
+                      <div
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          borderRadius: '8px',
+                          background: '#f1f5f9',
+                          padding: '6px 10px',
+                          fontSize: '11px',
+                          fontWeight: 500,
+                          color: '#64748b',
+                          width: 'fit-content',
+                        }}
+                      >
+                        <span style={{ color: '#94a3b8' }}>ID:</span>
+                        <span style={{ fontFamily: 'monospace', color: '#4f46e5', direction: 'ltr' }}>
+                          {mission.id ? `${mission.id.substring(0, 8)}...` : 'N/A'}
+                        </span>
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                      <motion.button whileHover={{ scale: 1.06 }} onClick={() => handleViewMission(mission.id)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-sky-300"><FaEye /></motion.button>
-                      <motion.button whileHover={{ scale: 1.06 }} onClick={() => handleEditMission(mission)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-amber-300"><FaEdit /></motion.button>
-                      <motion.button whileHover={{ scale: 1.06 }} onClick={() => handleDeleteMission(mission.id)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-red-300"><FaTrash /></motion.button>
+                    {/* Action Buttons */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <motion.button
+                        whileHover={{ scale: 1.08 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleViewMission(mission.id)}
+                        title="عرض التفاصيل"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '10px',
+                          border: '1px solid #bae6fd',
+                          background: '#f0f9ff',
+                          color: '#0284c7',
+                          cursor: 'pointer',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                        }}
+                      >
+                        <FaEye style={{ fontSize: '13px' }} />
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.08 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleEditMission(mission)}
+                        title="تعديل"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '10px',
+                          border: '1px solid #fde68a',
+                          background: '#fffbeb',
+                          color: '#d97706',
+                          cursor: 'pointer',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                        }}
+                      >
+                        <FaEdit style={{ fontSize: '13px' }} />
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.08 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleDeleteMission(mission.id)}
+                        title="حذف"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '10px',
+                          border: '1px solid #fecaca',
+                          background: '#fef2f2',
+                          color: '#dc2626',
+                          cursor: 'pointer',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                        }}
+                      >
+                        <FaTrash style={{ fontSize: '13px' }} />
+                      </motion.button>
                     </div>
                   </div>
 
-                  <div className="rounded-[22px] border border-white/10 bg-[#112033] p-4 shadow-inner">
-                    <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-300">
-                      <FaMapMarkerAlt className="text-sky-300" />
-                      <span>الموقع الجغرافي</span>
-                    </div>
-                    <div className="break-all rounded-xl border border-white/10 bg-slate-950/25 px-4 py-3 font-mono text-xs text-sky-100" dir="ltr">
-                      {mission.locationId || 'UNSPECIFIED_LOCATION'}
-                    </div>
-                  </div>
+                  {/* Divider */}
+                  <div
+                    style={{
+                      height: '1px',
+                      background: 'linear-gradient(90deg, transparent, #e2e8f0, transparent)',
+                    }}
+                  />
 
-                  <div className="mt-auto grid grid-cols-3 gap-3">
+                  {/* Rewards Grid */}
+                  <div style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                     {[
-                      { icon: FaTrophy, val: mission.kpReward, label: 'نقاط خير', accent: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
-                      { icon: FaStar, val: mission.xpReward, label: 'خبرة', accent: 'text-fuchsia-500', bg: 'bg-fuchsia-500/10', border: 'border-fuchsia-500/20' },
-                      { icon: FaLeaf, val: mission.impactReward, label: 'تأثير', accent: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+                      { icon: FaTrophy, val: mission.kpReward, label: 'نقاط خير', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
+                      { icon: FaStar, val: mission.xpReward, label: 'خبرة', color: '#c026d3', bg: '#fdf4ff', border: '#f5d0fe' },
+                      { icon: FaLeaf, val: mission.impactReward, label: 'تأثير', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' },
                     ].map((reward, i) => (
-                      <div key={i} className={`rounded-[18px] border ${reward.border} ${reward.bg} p-3 text-center`}>
-                        <reward.icon className={`mx-auto mb-2 text-lg ${reward.accent}`} />
-                        <div className="text-lg font-semibold text-white">{reward.val || 0}</div>
-                        <div className={`mt-1 text-[10px] font-medium ${reward.accent} opacity-80`}>{reward.label}</div>
+                      <div
+                        key={i}
+                        style={{
+                          borderRadius: '12px',
+                          border: `1px solid ${reward.border}`,
+                          background: reward.bg,
+                          padding: '12px 8px',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <reward.icon style={{ display: 'block', margin: '0 auto 6px', fontSize: '15px', color: reward.color }} />
+                        <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', fontVariantNumeric: 'tabular-nums' }}>
+                          {reward.val || 0}
+                        </div>
+                        <div style={{ marginTop: '2px', fontSize: '10px', fontWeight: 700, color: reward.color }}>
+                          {reward.label}
+                        </div>
                       </div>
                     ))}
                   </div>
                 </motion.div>
               );
             })}
-            </div>
-          )}
+          </div>
+        )}
 
-        {/* Pagination */}
+        {/* ===== Pagination ===== */}
         {totalPages > 1 && (
-          <div className="mt-4 flex items-center justify-center gap-3">
-            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-medium text-white disabled:opacity-30"><FaArrowRight /> السابق</button>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm font-medium text-white">صفحة {currentPage} من {totalPages}</div>
-            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-medium text-white disabled:opacity-30">التالي <FaArrowLeft /></button>
+          <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                borderRadius: '12px',
+                border: '1px solid rgba(255,255,255,0.6)',
+                background: 'rgba(255,255,255,0.92)',
+                backdropFilter: 'blur(12px)',
+                padding: '10px 18px',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#334155',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                opacity: currentPage === 1 ? 0.4 : 1,
+                boxShadow: '0 6px 20px -8px rgba(15,23,42,0.3)',
+              }}
+            >
+              <FaArrowRight style={{ fontSize: '11px' }} />
+              <span>السابق</span>
+            </button>
+            <div
+              style={{
+                borderRadius: '12px',
+                border: '1px solid rgba(255,255,255,0.6)',
+                background: 'rgba(255,255,255,0.92)',
+                backdropFilter: 'blur(12px)',
+                padding: '10px 16px',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#334155',
+                boxShadow: '0 6px 20px -8px rgba(15,23,42,0.3)',
+              }}
+            >
+              صفحة {currentPage} من {totalPages}
+            </div>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                borderRadius: '12px',
+                border: '1px solid rgba(255,255,255,0.6)',
+                background: 'rgba(255,255,255,0.92)',
+                backdropFilter: 'blur(12px)',
+                padding: '10px 18px',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#334155',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                opacity: currentPage === totalPages ? 0.4 : 1,
+                boxShadow: '0 6px 20px -8px rgba(15,23,42,0.3)',
+              }}
+            >
+              <span>التالي</span>
+              <FaArrowLeft style={{ fontSize: '11px' }} />
+            </button>
           </div>
         )}
       </div>
 
-      {/* Modals */}
+      {/* ===== Modals ===== */}
       <AnimatePresence>
         {showAddModal && <AddMissionModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} onSubmit={handleAddMission} locations={locations} />}
         {showDetailModal && <MissionDetailModal isOpen={showDetailModal} onClose={() => setShowDetailModal(false)} mission={selectedMission} />}

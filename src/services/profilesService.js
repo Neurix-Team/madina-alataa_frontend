@@ -28,7 +28,9 @@ export const profilesService = {
       console.log('Fetching my profile...');
       const response = await axiosClient.get(`${PROFILES_API_URL}/my`);
       console.log('My Profile Response:', response.data);
-      return unwrapProfileResponse(response.data);
+      const profile = unwrapProfileResponse(response.data);
+      console.log('MY PROFILE RESPONSE ITEMS:', profile);
+      return profile;
     } catch (error) {
       console.error('Error fetching my profile:', error);
       if (error.response) {
@@ -48,7 +50,9 @@ export const profilesService = {
       console.log(`Fetching profile ${profileId}...`);
       const response = await axiosClient.get(`${PROFILES_API_URL}/${profileId}`);
       console.log('Profile Response:', response.data);
-      return unwrapProfileResponse(response.data);
+      const profile = unwrapProfileResponse(response.data);
+      console.log('PROFILE BY ID RESPONSE ITEMS:', profile);
+      return profile;
     } catch (error) {
       console.error('Error fetching profile:', error);
       if (error.response) {

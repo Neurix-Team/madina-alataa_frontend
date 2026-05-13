@@ -9,16 +9,19 @@ import {
   FaBuilding,
   FaInfoCircle,
   FaSpinner,
+  FaHeading,
+  FaCoins,
+  FaHandshake,
 } from 'react-icons/fa';
 import { donationRequestsService } from '../../services/donationRequestsService';
 import partnersService from '../../services/partnersService';
 import LocationIdMapSelector from '../shared/LocationIdMapSelector';
 
 const panelClass =
-  'rounded-[28px] border border-white/12 bg-white/[0.06] p-5 md:p-6 shadow-[0_16px_48px_rgba(15,23,42,0.28)] backdrop-blur-sm';
+  'rounded-[28px] border border-rose-100 bg-white p-5 shadow-xl shadow-rose-100/60 md:p-6';
 
 const fieldClassBase =
-  'w-full rounded-2xl border border-white/12 bg-[#112033] px-4 py-3 text-base font-medium text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-sky-400/45 focus:bg-[#16283d]';
+  'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-rose-400 focus:bg-rose-50 focus:ring-4 focus:ring-rose-100';
 
 const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = [] }) => {
   const [formData, setFormData] = useState({
@@ -173,7 +176,7 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-md"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-md"
         onClick={onClose}
       >
         <motion.div
@@ -181,20 +184,20 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-          className="w-full max-w-5xl max-h-[92vh] overflow-hidden rounded-[30px] border border-white/12 bg-[#0f1b2d] shadow-[0_28px_90px_rgba(15,23,42,0.5)]"
+          className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-[30px] border border-rose-100 bg-slate-50 shadow-2xl shadow-slate-300/60"
           onClick={(e) => e.stopPropagation()}
           dir="rtl"
         >
-          <div className="relative border-b border-white/10 bg-white/[0.05] px-6 py-5 md:px-8">
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_26%),radial-gradient(circle_at_bottom_left,rgba(34,197,94,0.08),transparent_24%)]" />
+          <div className="relative border-b border-slate-200 bg-white/90 px-6 py-5 md:px-8">
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,241,242,0.78),rgba(255,255,255,0.42)_50%,rgba(240,253,244,0.6))]" />
             <div className="relative flex items-start justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-rose-400 to-pink-500 text-white shadow-lg">
                   <FaHandHoldingHeart className="text-lg" />
                 </div>
                 <div>
-                  <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white">إضافة طلب تبرع جديد</h2>
-                  <p className="mt-1 text-sm font-medium text-slate-300">نموذج منظم لإنشاء الطلب مع اختيار العنوان من الخريطة مباشرة.</p>
+                  <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-950">إضافة طلب تبرع جديد</h2>
+                  <p className="mt-1 text-sm font-medium text-slate-600">نموذج منظم لإنشاء الطلب مع اختيار العنوان من الخريطة مباشرة.</p>
                 </div>
               </div>
 
@@ -202,7 +205,7 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
                 whileHover={{ scale: 1.05, rotate: 90 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-slate-200"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm"
               >
                 <FaTimes />
               </motion.button>
@@ -210,52 +213,51 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
           </div>
 
           <form onSubmit={handleSubmit} className="max-h-[calc(92vh-88px)] overflow-y-auto px-6 py-6 md:px-8 md:py-8">
-            <div className="grid gap-7 lg:grid-cols-[1fr_0.95fr]">
-              <div className="grid gap-7">
+            <div className="flex flex-col gap-10">
+              <div className="flex flex-col gap-7">
                 <section className={panelClass}>
-                  <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-rose-200">
-                    <FaHandHoldingHeart />
-                    <span>البيانات الأساسية</span>
+                  <div className="mb-8 border-b border-white/5 pb-4">
+                    <h3 className="text-xl font-bold text-slate-950">تفاصيل الطلب</h3>
+                    <p className="mt-1 text-sm text-slate-400">يرجى إدخال المعلومات الأساسية لطلب التبرع الجديد.</p>
                   </div>
-                  <div className="grid gap-6">
+
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div>
                       <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
-                        <FaHandHoldingHeart className="text-rose-300" />
+                        <FaHeading className="text-rose-300" />
                         <span>عنوان الطلب</span>
                       </label>
                       <input type="text" name="title" value={formData.title} onChange={handleInputChange} placeholder="أدخل عنوان الطلب" className={fieldClass('title')} />
                       {errors.title && <div className="mt-2 text-sm font-medium text-red-300">{errors.title}</div>}
                     </div>
 
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <div>
-                        <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
-                          <FaMoneyBillWave className="text-emerald-300" />
-                          <span>مبلغ التبرع</span>
-                        </label>
-                        <input type="number" name="donateAmount" value={formData.donateAmount} onChange={handleInputChange} step="0.01" min="1" className={fieldClass('donateAmount')} dir="ltr" />
-                        {errors.donateAmount && <div className="mt-2 text-sm font-medium text-red-300">{errors.donateAmount}</div>}
-                      </div>
-
-                      <div>
-                        <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
-                          <FaInfoCircle className="text-amber-300" />
-                          <span>مستوى الأهمية</span>
-                        </label>
-                        <select name="urgencyLevel" value={formData.urgencyLevel} onChange={handleInputChange} className={fieldClass('urgencyLevel')}>
-                          {urgencyLevels.map((level) => (
-                            <option key={level.value} value={level.value} className="bg-slate-900">
-                              {level.label} ({level.value})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                    <div>
+                      <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
+                        <FaCoins className="text-amber-300" />
+                        <span>المبلغ المطلوب (ج.م)</span>
+                      </label>
+                      <input type="number" name="donateAmount" value={formData.donateAmount} onChange={handleInputChange} placeholder="0.00" className={fieldClass('donateAmount')} />
+                      {errors.donateAmount && <div className="mt-2 text-sm font-medium text-red-300">{errors.donateAmount}</div>}
                     </div>
 
                     <div>
                       <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
-                        <FaBuilding className="text-violet-300" />
-                        <span>الشريك</span>
+                        <FaExclamationTriangle className="text-orange-300" />
+                        <span>مستوى الأهمية</span>
+                      </label>
+                      <select name="urgencyLevel" value={formData.urgencyLevel} onChange={handleInputChange} className={fieldClass('urgencyLevel')}>
+                        {urgencyLevels.map((level) => (
+                          <option key={level.value} value={level.value} className="bg-slate-900">
+                            {level.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
+                        <FaHandshake className="text-emerald-300" />
+                        <span>الشريك المستلم</span>
                       </label>
                       <select name="partnerId" value={formData.partnerId} onChange={handleInputChange} className={fieldClass('partnerId')}>
                         <option value="" className="bg-slate-900">
@@ -270,12 +272,12 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
                       {errors.partnerId && <div className="mt-2 text-sm font-medium text-red-300">{errors.partnerId}</div>}
                     </div>
 
-                    <div>
+                    <div className="md:col-span-2">
                       <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
                         <FaInfoCircle className="text-cyan-300" />
                         <span>وصف مختصر</span>
                       </label>
-                      <textarea name="briefDescription" value={formData.briefDescription} onChange={handleInputChange} rows="5" placeholder="أدخل وصفًا مختصرًا للطلب" className={`${fieldClass('briefDescription')} resize-none`} />
+                      <textarea name="briefDescription" value={formData.briefDescription} onChange={handleInputChange} rows="3" placeholder="أدخل وصفًا مختصرًا للطلب" className={`${fieldClass('briefDescription')} resize-none`} />
                     </div>
                   </div>
                 </section>
@@ -285,40 +287,9 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
                   selectedLocationId={formData.locationId}
                   onSelect={handleLocationSelect}
                   title="اختيار عنوان الطلب"
-                  subtitle="اختر عنوانًا من العناوين المضافة ليتم إرسال locationId في body طلب التبرع."
+                  subtitle="اختر عنوانًا من العناوين المضافة ليتم ربطه بطلب التبرع."
                 />
                 {errors.locationId && <div className="px-2 text-sm font-medium text-red-300">{errors.locationId}</div>}
-              </div>
-
-              <div className="grid gap-7">
-                <section className={panelClass}>
-                  <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-200">
-                    <FaInfoCircle />
-                    <span>مراجعة سريعة</span>
-                  </div>
-                  <div className="grid gap-4">
-                    <ReviewRow label="العنوان" value={formData.title || 'غير محدد'} />
-                    <ReviewRow label="المبلغ" value={`${formData.donateAmount || 0} ج.م`} />
-                    <ReviewRow
-                      label="الشريك"
-                      value={partnerOptions.find((partner) => partner.id === formData.partnerId)?.label || 'غير محدد'}
-                    />
-                    <ReviewRow label="Location ID" value={formData.locationId || 'غير محدد'} mono />
-                    <ReviewRow label="الأهمية" value={urgencyLevels.find((item) => item.value === Number(formData.urgencyLevel))?.label || 'غير محدد'} />
-                  </div>
-                </section>
-
-                <section className={panelClass}>
-                  <div className="mb-5 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-amber-200">
-                    <FaExclamationTriangle />
-                    <span>ملاحظات</span>
-                  </div>
-                  <ul className="grid gap-4 text-sm font-medium leading-6 text-slate-200">
-                    <li className="rounded-[18px] border border-white/10 bg-[#112033] px-4 py-3.5">سيتم إرسال التوكن تلقائيًا مع الطلب عبر `axiosClient`.</li>
-                    <li className="rounded-[18px] border border-white/10 bg-[#112033] px-4 py-3.5">اختيار العنوان من الخريطة يملأ `locationId` مباشرة من العناوين المسجلة.</li>
-                    <li className="rounded-[18px] border border-white/10 bg-[#112033] px-4 py-3.5">يمكنك ترك الوصف المختصر فارغًا، وسيُرسل `null` إلى الـ API.</li>
-                  </ul>
-                </section>
               </div>
             </div>
 
@@ -328,13 +299,13 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
               </div>
             )}
 
-            <div className="mt-7 flex gap-4 border-t border-white/10 pt-7">
+            <div className="mt-7 flex gap-4 border-t border-slate-200 pt-7">
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 type="button"
                 onClick={onClose}
-                className="flex-1 rounded-[22px] border border-white/10 bg-white/[0.06] px-6 py-4 text-base font-semibold text-slate-200"
+                className="flex-1 rounded-[22px] border border-slate-200 bg-white px-6 py-4 text-base font-semibold text-slate-700 shadow-sm"
                 disabled={isSubmitting}
               >
                 إلغاء
@@ -368,9 +339,9 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
 
 function ReviewRow({ label, value, mono = false }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/10 bg-[#112033] px-4 py-3.5">
-      <span className="text-sm font-medium text-slate-300">{label}</span>
-      <span className={`text-sm font-semibold text-slate-100 ${mono ? 'font-mono break-all text-left' : ''}`} dir={mono ? 'ltr' : undefined}>
+    <div className="flex items-center justify-between gap-4 rounded-[18px] border border-rose-100 bg-rose-50 px-4 py-3.5">
+      <span className="text-sm font-medium text-slate-600">{label}</span>
+      <span className={`text-sm font-semibold text-slate-900 ${mono ? 'font-mono break-all text-left' : ''}`} dir={mono ? 'ltr' : undefined}>
         {value}
       </span>
     </div>

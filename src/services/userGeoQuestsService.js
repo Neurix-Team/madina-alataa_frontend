@@ -235,11 +235,31 @@ getUserGeoQuests: async (pageNumber = 1, pageSize = 10) => {
     return normalized;
   },
 
-  getUserGeoQuestStatus: async (id) => {
-    console.log('USER GEOQUEST STATUS REQUEST ID:', id);
-    const response = await axiosClient.get(`${USER_GEOQUESTS_API_URL}/${id}/status`);
+  getUserGeoQuestStatus: async (id, token = null) => {
+    console.log('USER GEOQUEST STATUS REQUEST ID:', id, 'tokenProvided:', !!token);
+    const url = `${USER_GEOQUESTS_API_URL}/${id}/status`;
+
+    const config = token
+      ? { headers: { Authorization: `Bearer ${token}` } }
+      : undefined;
+
+    const response = await axiosClient.get(url, config);
     console.log('USER GEOQUEST STATUS RAW RESPONSE:', response.data);
-    return response.data?.value || response.data?.data || response.data?.result || response.data;
+
+    const raw = response.data?.value || response.data?.data || response.data?.result || response.data;
+
+    // Normalize possible shapes into a predictable object
+    if (raw === null || raw === undefined) return { status: null };
+    if (typeof raw === 'string') return { status: raw };
+    if (typeof raw === 'object') {
+      return {
+        status: raw.status ?? raw.Status ?? null,
+        isActive: raw.isActive ?? raw.IsActive ?? null,
+        raw,
+      };
+    }
+
+    return { status: String(raw) };
   },
 
   createUserGeoQuest: async (payload) => {

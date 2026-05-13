@@ -307,23 +307,6 @@ export default function AvailableMissionsTab() {
                       </motion.button>
                     </div>
 
-                    <div className="mb-10 rounded-[2.5rem] border border-slate-100 bg-slate-50/50 p-8 space-y-5 shadow-inner">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 text-xs font-black uppercase tracking-widest text-slate-500">
-                          <FaMapMarkerAlt className="text-blue-500 text-lg" />
-                          <span>الموقع الجغرافي</span>
-                        </div>
-                        {mission.userLevel && (
-                          <div className="text-xs font-black text-emerald-600 bg-emerald-100/50 px-3 py-1.5 rounded-lg uppercase tracking-widest">
-                            مستواك: {mission.userLevel}
-                          </div>
-                        )}
-                      </div>
-                      <div className="font-mono text-sm break-all text-slate-600 bg-white/80 rounded-2xl px-6 py-4 border border-slate-200/50 tracking-widest leading-relaxed" dir="ltr">
-                        {mission.locationId || 'UNSPECIFIED_LOCATION'}
-                      </div>
-                    </div>
-
                     <div className="mb-12 grid grid-cols-3 gap-6">
                       {[
                         { icon: FaTrophy, val: mission.kpReward, label: 'نقاط خير', accent: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200' },

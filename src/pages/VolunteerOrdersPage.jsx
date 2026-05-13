@@ -13,6 +13,7 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../hooks/useAuth';
 import { volunteerOrdersService } from '../services/volunteerOrdersService';
+import { serviceRequestsService } from '../services/serviceRequestsService';
 import EntityHistoryModal from '../components/modals/EntityHistoryModal';
 
 const getOrderId = (order) => order?.id || order?.volunteerOrderId || order?.orderId || null;
@@ -126,8 +127,13 @@ const VolunteerOrdersPage = () => {
         const response = await volunteerOrdersService.getPendingVolunteerOrders(targetPage, targetSize);
         setPendingOrders(response.items);
         setTotalCount(response.totalCount);
-      } else {
+      } else if (isAdmin) {
         const response = await volunteerOrdersService.getVolunteerOrders(targetPage, targetSize);
+        setOrders(response.items);
+        setTotalCount(response.totalCount);
+      } else {
+        const response = await serviceRequestsService.getApprovedServiceRequests(targetPage, targetSize);
+        console.log('VOLUNTEER APPROVED SERVICE REQUESTS PAGE RESPONSE:', response);
         setOrders(response.items);
         setTotalCount(response.totalCount);
       }
@@ -151,7 +157,9 @@ const VolunteerOrdersPage = () => {
     setDetailsError(null);
     setDetailsLoading(true);
     try {
-      const response = await volunteerOrdersService.getVolunteerOrderById(orderId);
+      const response = isAdmin
+        ? await volunteerOrdersService.getVolunteerOrderById(orderId)
+        : await serviceRequestsService.getServiceRequestById(orderId);
       setSelectedOrder(response);
       setProgressDrafts((prev) => ({
         ...prev,
@@ -396,7 +404,9 @@ const VolunteerOrdersPage = () => {
                 <p style={sectionMetaStyle}>
                   {activeTab === 'pending'
                     ? 'GET `/api/VolunteerOrders/pending?PageNumber=1&PageSize=1`'
-                    : 'GET `/api/VolunteerOrders?PageNumber=1&PageSize=1`'}
+                    : isAdmin
+                      ? 'GET `/api/VolunteerOrders?PageNumber=1&PageSize=1`'
+                      : 'GET `/api/ServiceRequests/approved?PageNumber=1&PageSize=1`'}
                 </p>
               </div>
             </div>
@@ -435,7 +445,7 @@ const VolunteerOrdersPage = () => {
                                 {order.title || order.serviceRequestTitle || `طلب #${orderId || index + 1}`}
                               </h3>
                               <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
-                                ServiceRequestId: {order.serviceRequestId || '-'}
+                                ServiceRequestId: {order.serviceRequestId || order.id || '-'}
                               </p>
                             </div>
                             <span style={{ ...chipStyle, color: chip.color, background: chip.bg }}>
@@ -445,10 +455,12 @@ const VolunteerOrdersPage = () => {
 
                           <div style={metaGridStyle}>
                             <span style={metaItemStyle}><FaClock /> {order.createdAt || order.orderDate || 'غير محدد'}</span>
-                            <span style={metaItemStyle}><FaTasks /> progress: {getOrderProgress(order)}</span>
+                            <span style={metaItemStyle}>
+                              <FaTasks /> {isAdmin ? `progress: ${getOrderProgress(order)}` : 'approved'}
+                            </span>
                           </div>
 
-                          {isApproved && (
+                          {isAdmin && isApproved && (
                             <div style={progressRowStyle}>
                               <select
                                 value={progressDrafts[orderId] ?? getOrderProgress(order)}

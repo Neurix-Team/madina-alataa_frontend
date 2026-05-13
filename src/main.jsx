@@ -17,6 +17,31 @@ import 'wicg-inert';
 
 // import { worker } from './mocks/browser';
 
+// ✅ إلغاء تسجيل أي Service Worker قديم (مثل MSW) ومسح الكاش في وضع التطوير
+// ده بيحل مشكلة إن التعديلات في الملفات مش بتظهر في البراوزر
+if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach((registration) => {
+      registration.unregister().then((success) => {
+        if (success) {
+          console.log('[Dev] تم إلغاء تسجيل Service Worker قديم');
+        }
+      });
+    });
+  });
+
+  // مسح كل الكاشات اللي ممكن البراوزر يكون عاملها
+  if ('caches' in window) {
+    caches.keys().then((cacheNames) => {
+      cacheNames.forEach((cacheName) => {
+        caches.delete(cacheName).then(() => {
+          console.log('[Dev] تم مسح الكاش:', cacheName);
+        });
+      });
+    });
+  }
+}
+
 const renderApp = () => {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>

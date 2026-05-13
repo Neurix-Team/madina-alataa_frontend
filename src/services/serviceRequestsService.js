@@ -129,6 +129,34 @@ export const serviceRequestsService = {
     }
   },
 
+  getApprovedServiceRequests: async (pageNumber = 1, pageSize = 10) => {
+    try {
+      const response = await axiosClient.get(`${SERVICE_REQUESTS_API_URL}/approved`, {
+        params: {
+          PageNumber: pageNumber,
+          PageSize: pageSize,
+        }
+      });
+
+      const normalized = normalizeServiceRequestsListResponse(response.data);
+      const approvedItems = normalized.items.map((item) => ({
+        ...item,
+        status: 'approved',
+      }));
+
+      console.log('SERVICE REQUESTS APPROVED RAW RESPONSE:', normalized.raw);
+      console.log('SERVICE REQUESTS APPROVED ITEMS:', approvedItems);
+
+      return {
+        ...normalized,
+        items: approvedItems,
+      };
+    } catch (error) {
+      console.error('SERVICE REQUESTS APPROVED ERROR:', error.response?.data || error.message);
+      throw new Error(extractErrorMessage(error, 'فشل في جلب طلبات التطوع المعتمدة'));
+    }
+  },
+
   getServiceRequestById: async (id) => {
     try {
       const response = await axiosClient.get(`${SERVICE_REQUESTS_API_URL}/${id}`);
