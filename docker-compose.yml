@@ -1,91 +1,27 @@
-# ═════════════════════════════════════════════════════════════════
-# 🐳 Docker Compose - Full Stack Application
-# ═════════════════════════════════════════════════════════════════
-# Project: بطل العطاء (Madina Al-Ataa)
-# Services: Frontend (React), Backend (.NET), Database (PostgreSQL)
-# ═════════════════════════════════════════════════════════════════
-
-version: '3.8'
-
 services:
-  # ─────────────────────────────────────────────────────────────
-  # 🎨 Frontend Service (React + Nginx)
-  # ─────────────────────────────────────────────────────────────
-  frontend:
-    container_name: madina-frontend
+  # Development — hot reload on port 5173
+  app-dev:
     build:
       context: .
-      dockerfile: Dockerfile.frontend
+      dockerfile: Dockerfile.dev
     ports:
-      - "3000:80"
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
     environment:
-      - NODE_ENV=production
-    networks:
-      - madina-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    labels:
-      - "com.madina.service=frontend"
-      - "com.madina.description=React application for بطل العطاء"
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://champapi.neurix.uk:5001}
+    profiles:
+      - dev
 
-  # ─────────────────────────────────────────────────────────────
-  # 🔧 Backend Service (.NET API) - Placeholder
-  # ─────────────────────────────────────────────────────────────
-  # backend:
-  #   container_name: madina-backend
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "5000:80"
-  #   environment:
-  #     - ASPNETCORE_ENVIRONMENT=Production
-  #     - ConnectionStrings__DefaultConnection=Host=postgres;Database=madina_db;Username=postgres;Password=your_password
-  #   depends_on:
-  #     - postgres
-  #   networks:
-  #     - madina-network
-  #   restart: unless-stopped
-
-  # ─────────────────────────────────────────────────────────────
-  # 🗄️ PostgreSQL Database - Placeholder
-  # ─────────────────────────────────────────────────────────────
-  # postgres:
-  #   container_name: madina-postgres
-  #   image: postgres:15-alpine
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     - POSTGRES_DB=madina_db
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=your_password
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   networks:
-  #     - madina-network
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-
-# ─────────────────────────────────────────────────────────────
-# 🌐 Networks
-# ─────────────────────────────────────────────────────────────
-networks:
-  madina-network:
-    driver: bridge
-    name: madina-network
-
-# ─────────────────────────────────────────────────────────────
-# 💾 Volumes (for data persistence)
-# ─────────────────────────────────────────────────────────────
-# volumes:
-#   postgres_data:
-#     name: madina-postgres-data
+  # Production — nginx on port 80
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://champapi.neurix.uk:5001}
+    ports:
+      - "9080:80"
+    profiles:
+      - prod
