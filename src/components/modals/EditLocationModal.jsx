@@ -59,14 +59,13 @@ const EditLocationModal = ({ isOpen, onClose, onSubmit, location }) => {
       onClose();
     } catch (err) {
       console.error('Error updating location:', err);
-      // Extract specific validation errors from the backend
       let errorMsg = 'فشل في تحديث العنوان.';
       if (err.response?.data?.errors) {
         const validationErrors = err.response.data.errors;
-        const messages = Object.values(validationErrors).flat().join('\\n');
-        errorMsg += `\\nالأخطاء:\\n${messages}`;
+        const messages = Object.values(validationErrors).flat().join('\n');
+        errorMsg += `\nالأخطاء:\n${messages}`;
       } else if (err.response?.data?.message || err.response?.data?.title) {
-        errorMsg += `\\n${err.response.data.message || err.response.data.title}`;
+        errorMsg += `\n${err.response.data.message || err.response.data.title}`;
       }
       alert(errorMsg);
     } finally {
@@ -74,171 +73,137 @@ const EditLocationModal = ({ isOpen, onClose, onSubmit, location }) => {
     }
   };
 
+  const fieldClass =
+    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-blue-50/30 focus:ring-4 focus:ring-blue-100/50';
+
+  const labelClass = 'block text-sm font-bold text-slate-700 mb-2 mr-1';
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-md" dir="rtl">
+        <div className="app-modal-overlay" dir="rtl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", duration: 0.5 }}
-            className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[30px] border border-amber-100 bg-slate-50 shadow-2xl shadow-slate-300/60"
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="app-modal-card"
+            style={{ maxWidth: '580px' }}
           >
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-slate-200 bg-white/90 px-6 py-5 backdrop-blur-xl">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg">
-                  <FaEdit className="text-lg" />
+            {/* Header */}
+            <div className="app-modal-header">
+              <div className="flex items-center gap-4">
+                <div className="w-[52px] h-[52px] rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm">
+                  <FaEdit className="text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-950">تعديل العنوان</h3>
-                  <p className="mt-1 text-sm font-medium text-slate-600">تنسيق منظم لتحديث بيانات العنوان والإحداثيات بوضوح.</p>
+                  <h3 className="app-modal-title">تعديل العنوان</h3>
+                  <p className="app-modal-subtitle">تحديث بيانات العنوان والإحداثيات بوضوح</p>
                 </div>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
+              <button
                 onClick={onClose}
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm"
+                className="app-modal-close"
               >
                 <FaTimes />
-              </motion.button>
+              </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="grid gap-7 px-6 py-6 md:px-8 md:py-8">
-              <section className={panelClass}>
-                <div className="mb-5 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-700">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600">
-                    <FaMapMarkerAlt className="text-sky-600" />
-                  </div>
-                  <span>البيانات الأساسية</span>
+            {/* Content */}
+            <div className="overflow-y-auto">
+              <form onSubmit={handleSubmit} className="app-form">
+                <div className="app-form-group">
+                  <label className="app-form-label">اسم العنوان</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="app-form-input w-full"
+                    placeholder="اسم العنوان"
+                    required
+                  />
                 </div>
 
-                <div className="grid gap-6">
-                  <div className="space-y-2.5">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                      <FaMapMarkerAlt className="text-sky-600" />
-                      <span>اسم العنوان</span>
-                      <span className="text-red-300">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className={fieldClass}
-                      placeholder="أدخل اسم العنوان بشكل واضح"
-                    />
-                  </div>
-
-                  <div className="space-y-2.5">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                      <FaStar className="text-amber-600" />
-                      <span>المستوى المطلوب</span>
-                    </label>
+                <div className="app-form-group">
+                  <label className="app-form-label">المستوى المطلوب</label>
+                  <div className="relative">
+                    <FaStar className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-400" />
                     <input
                       type="number"
                       name="requiredLevel"
                       value={formData.requiredLevel}
                       onChange={handleChange}
+                      className="app-form-input w-full pr-12"
                       min="1"
-                      max="100"
-                      className={fieldClass}
-                      placeholder="من 1 إلى 100"
+                      required
                     />
                   </div>
                 </div>
-              </section>
 
-              <section className={panelClass}>
-                <div className="mb-5 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-700">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600">
-                    <FaGlobe className="text-sky-600" />
-                  </div>
-                  <span>الإحداثيات الجغرافية</span>
-                </div>
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div className="space-y-2.5">
-                    <label className="block text-sm font-semibold text-slate-700">خط الطول</label>
+                <div className="app-form-grid">
+                  <div className="app-form-group">
+                    <label className="app-form-label">خط الطول</label>
                     <div className="relative">
-                      <FaCompass className="absolute right-4 top-1/2 -translate-y-1/2 text-sky-600/70" />
+                      <FaGlobe className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-400" />
                       <input
-                        type="number"
-                        step="any"
+                        type="text"
                         name="longitude"
                         value={formData.longitude}
                         onChange={handleChange}
-                        className={`${fieldClass} pr-11 font-mono`}
-                        placeholder="مثال: 31.2357"
+                        className="app-form-input w-full pr-12 font-mono"
                         dir="ltr"
                       />
                     </div>
                   </div>
-
-                  <div className="space-y-2.5">
-                    <label className="block text-sm font-semibold text-slate-700">خط العرض</label>
+                  <div className="app-form-group">
+                    <label className="app-form-label">خط العرض</label>
                     <div className="relative">
-                      <FaGlobe className="absolute right-4 top-1/2 -translate-y-1/2 text-sky-600/70" />
+                      <FaMapMarkerAlt className="absolute right-4 top-1/2 -translate-y-1/2 text-red-400" />
                       <input
-                        type="number"
-                        step="any"
+                        type="text"
                         name="latitude"
                         value={formData.latitude}
                         onChange={handleChange}
-                        className={`${fieldClass} pr-11 font-mono`}
-                        placeholder="مثال: 30.0444"
+                        className="app-form-input w-full pr-12 font-mono"
                         dir="ltr"
                       />
                     </div>
                   </div>
                 </div>
-              </section>
 
-              <section className={panelClass}>
-                <div className="mb-4 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-700">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600">
-                    <FaMapMarkerAlt className="text-sky-600" />
-                  </div>
-                  <span>معرف العنوان</span>
+                <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-100/50">
+                  <p className="text-sm text-amber-700 leading-relaxed font-medium m-0">
+                    <FaEdit className="inline-block ml-2 mb-0.5" />
+                    تأكد من صحة الإحداثيات لضمان ظهور العنوان في المكان الصحيح على الخريطة.
+                  </p>
                 </div>
-                <div className="rounded-[20px] border border-amber-100 bg-white px-4 py-4 shadow-sm">
-                  <p className="select-all break-all font-mono text-sm font-medium text-slate-900" dir="ltr">{location?.id}</p>
-                </div>
-              </section>
 
-              <div className="mt-1 flex flex-col gap-4 border-t border-slate-200 pt-7 md:flex-row">
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 rounded-[22px] border border-slate-200 bg-white px-6 py-4 text-base font-semibold text-slate-700 shadow-sm"
-                  disabled={loading}
-                >
-                  إلغاء
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  type="submit"
-                  className="flex flex-[1.4] items-center justify-center gap-3 rounded-[22px] bg-gradient-to-r from-amber-400 to-orange-500 px-6 py-4 text-base font-semibold text-white shadow-xl"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="inline-flex items-center gap-2">
-                      <span className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                      <span>جاري الحفظ...</span>
-                    </span>
-                  ) : (
-                    <>
-                      <FaEdit />
-                      <span>حفظ التغييرات</span>
-                    </>
-                  )}
-                </motion.button>
-              </div>
-            </form>
+                {/* Footer Buttons */}
+                <div className="app-form-actions pt-4 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="app-btn-secondary px-8 py-4"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="app-btn-primary flex-1 py-4 flex items-center justify-center gap-2"
+                  >
+                    {loading ? (
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    ) : (
+                      <>
+                        <FaEdit className="text-sm" />
+                        <span>تحديث البيانات</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </motion.div>
         </div>
       )}

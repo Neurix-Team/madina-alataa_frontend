@@ -5,7 +5,6 @@ import { certificatesService } from '../services/certificatesService';
 
 const CertificatesPage = () => {
   const [certificates, setCertificates] = useState([]);
-  const [rawResponse, setRawResponse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -18,7 +17,6 @@ const CertificatesPage = () => {
         console.log('CERTIFICATES PAGE RESPONSE ITEMS:', response.items);
         console.log('CERTIFICATES PAGE RAW RESPONSE:', response.raw);
         setCertificates(response.items);
-        setRawResponse(response.raw);
       } catch (err) {
         console.error('Failed to fetch certificates page data:', err);
         setError('فشل في تحميل الشهادات.');
@@ -71,9 +69,8 @@ const CertificatesPage = () => {
                     <div style={{ color: 'var(--text-muted)', fontSize: 14, marginBottom: 6 }}>
                       {certificate.description || 'لا يوجد وصف'}
                     </div>
-                    <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>ID: {certificate.id || 'غير متوفر'}</div>
                     {certificate.issuedAt ? (
-                      <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Issued At: {certificate.issuedAt}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>تاريخ الإصدار: {certificate.issuedAt}</div>
                     ) : null}
                   </div>
                 ))

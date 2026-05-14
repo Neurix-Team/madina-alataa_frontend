@@ -15,6 +15,7 @@ import {
   FaEdit,
   FaTrash,
   FaPlus,
+  FaSearch,
 } from 'react-icons/fa';
 import { donationRequestsService, normalizeDonationRequestsListResponse } from '../services/donationRequestsService';
 import { locationsService } from '../services/locationsService';
@@ -116,6 +117,7 @@ console.log('🛡️ Is Admin:', isAdmin);
   const [actionLoading, setActionLoading] = useState({});
   const [locations, setLocations] = useState([]);
   const [historyEntityId, setHistoryEntityId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -159,6 +161,43 @@ console.log('🛡️ Is Admin:', isAdmin);
   }, []);
 
   const totalPages = useMemo(() => Math.ceil(totalCount / pageSize), [totalCount, pageSize]);
+  const locationNameById = useMemo(
+    () =>
+      locations.reduce((acc, location) => {
+        const id = location?.id || location?.locationId || location?.Id || location?.LocationId;
+        if (id) acc[String(id)] = location?.name || location?.Name || 'موقع الطلب';
+        return acc;
+      }, {}),
+    [locations]
+  );
+  const getLocationName = (request) =>
+    request.locationName ||
+    request.location?.name ||
+    request.location ||
+    locationNameById[String(request.locationId || '')] ||
+    request.targetLocation ||
+    request.title ||
+    'موقع الطلب';
+  const getPartnerName = (request) =>
+    request.partnerName || request.partner?.orgName || request.partner?.name || request.partner || request.title || 'الشريك المرتبط بالطلب';
+  const filteredRequests = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return requests;
+
+    return requests.filter((request) =>
+      [
+        request.title,
+        request.briefDescription,
+        request.status,
+        getUrgencyLabel(request.urgencyLevel).label,
+        getLocationName(request),
+        getPartnerName(request),
+        request.donateAmount,
+      ]
+        .map((value) => String(value || '').toLowerCase())
+        .some((value) => value.includes(term))
+    );
+  }, [requests, searchTerm, locations]);
 
   const handleApprove = async (id) => {
     setActionLoading((prev) => ({ ...prev, [id]: 'approve' }));
@@ -211,7 +250,7 @@ console.log('🛡️ Is Admin:', isAdmin);
     }
   };
 
-  const getUrgencyLabel = (level) => {
+  function getUrgencyLabel(level) {
     const levels = {
       1: { label: 'منخفض', color: 'text-green-400', bg: 'bg-green-500/20' },
       2: { label: 'متوسط', color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
@@ -219,8 +258,8 @@ console.log('🛡️ Is Admin:', isAdmin);
       4: { label: 'حرج', color: 'text-red-400', bg: 'bg-red-500/20' },
       5: { label: 'طارئ', color: 'text-purple-400', bg: 'bg-purple-500/20' },
     };
-    return levels[level] || { label: 'غير محدد', color: 'text-gray-400', bg: 'bg-gray-500/20' };
-  };
+    return levels[level] || { label: 'درجة الاستعجال', color: 'text-gray-400', bg: 'bg-gray-500/20' };
+  }
 
   const getStatusLabel = (status) => {
     const statuses = {
@@ -306,6 +345,19 @@ console.log('🛡️ Is Admin:', isAdmin);
           </motion.div>
         )}
 
+        <div className="pro-section" style={{ marginBottom: 0 }}>
+          <div className="pro-input-group" style={{ maxWidth: '520px' }}>
+            <FaSearch className="pro-input-icon" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="ابحث بالعنوان أو الموقع أو الشريك أو الحالة..."
+              className="pro-input with-icon"
+            />
+          </div>
+        </div>
+
         {loading ? (
           <div className="donation-requests-page__loading">
             <div className="mission-page__emptyIcon">
@@ -314,7 +366,7 @@ console.log('🛡️ Is Admin:', isAdmin);
             <h3 className="donation-requests-page__emptyTitle">جاري تحميل الطلبات</h3>
             <p className="donation-requests-page__emptyText">انتظر لحظات حتى يتم جلب البيانات.</p>
           </div>
-        ) : requests.length === 0 ? (
+        ) : filteredRequests.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="donation-requests-page__empty">
             <div className="donation-requests-page__emptyIcon">
               <FaHandHoldingHeart />
@@ -332,7 +384,7 @@ console.log('🛡️ Is Admin:', isAdmin);
 
               <div className="donation-requests-page__list">
                 <AnimatePresence>
-                  {requests.map((request, index) => {
+                  {filteredRequests.map((request, index) => {
                     const status = getStatusLabel(request.status);
                     const urgency = getUrgencyLabel(request.urgencyLevel);
 
@@ -359,11 +411,11 @@ console.log('🛡️ Is Admin:', isAdmin);
                             </span>
                             <span className="donation-requests-page__metaItem">
                               <FaMapMarkerAlt className="text-blue-400" />
-                              {request.locationId || request.location || 'غير محدد'}
+                              {getLocationName(request)}
                             </span>
                             <span className="donation-requests-page__metaItem">
                               <FaBuilding className="text-purple-400" />
-                              {request.partnerId || 'غير محدد'}
+                              {getPartnerName(request)}
                             </span>
                           </div>
 
@@ -451,5 +503,3 @@ console.log('🛡️ Is Admin:', isAdmin);
 };
 
 export default DonationRequestsPage;
-
-

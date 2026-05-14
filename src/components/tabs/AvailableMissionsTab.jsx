@@ -292,7 +292,7 @@ export default function AvailableMissionsTab() {
                           {mission.title || 'بدون عنوان'}
                         </h3>
                         <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
-                          ID: <span className="font-mono text-emerald-600/70">{mission.id || 'N/A'}</span>
+                          <span>{mission.description || 'مهمة تطوعية متاحة'}</span>
                         </div>
                       </div>
 

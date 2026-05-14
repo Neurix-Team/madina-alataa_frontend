@@ -29,6 +29,105 @@ import { userBadgesService } from '../services/userBadgesService';
 import { userLevelsService } from '../services/userLevelsService';
 import { certificatesService } from '../services/certificatesService';
 
+const TECHNICAL_PROFILE_KEYS = new Set([
+  'id',
+  'userid',
+  'user_id',
+  'profileid',
+  'profile_id',
+  'avatarid',
+  'avatar_id',
+  'levelid',
+  'level_id',
+  'badgeid',
+  'badge_id',
+  'raw',
+  'donor',
+  'volunteer',
+  'userbadges',
+  'badges',
+]);
+
+const FIELD_LABELS = {
+  preferredCategory: 'الفئة المفضلة',
+  totalDonated: 'إجمالي التبرعات',
+  totalDonation: 'إجمالي التبرعات',
+  totalDonations: 'إجمالي التبرعات',
+  donationCount: 'عدد التبرعات',
+  lastDonation: 'آخر تبرع',
+  favoriteCause: 'القضية المفضلة',
+  memberSince: 'عضو منذ',
+  fullName: 'الاسم الكامل',
+  name: 'الاسم',
+  userName: 'اسم المستخدم',
+  email: 'البريد الإلكتروني',
+  birthDay: 'تاريخ الميلاد',
+  birthDate: 'تاريخ الميلاد',
+  phoneNumber: 'رقم الهاتف',
+  phone: 'رقم الهاتف',
+  city: 'المدينة',
+  address: 'العنوان',
+  skills: 'المهارات',
+  availability: 'التوفر',
+  experience: 'الخبرة',
+};
+
+const FIELD_ICONS = {
+  preferredCategory: FaTags,
+  totalDonated: FaHandHoldingHeart,
+  totalDonation: FaHandHoldingHeart,
+  totalDonations: FaHandHoldingHeart,
+  donationCount: FaChartLine,
+  lastDonation: FaCalendarAlt,
+  favoriteCause: FaStar,
+  memberSince: FaCalendarAlt,
+  fullName: FaUser,
+  name: FaUser,
+  userName: FaUser,
+  email: FaEnvelope,
+  birthDay: FaCalendarAlt,
+  birthDate: FaCalendarAlt,
+  phoneNumber: FaPhone,
+  phone: FaPhone,
+  city: FaMapMarkerAlt,
+  address: FaMapMarkerAlt,
+  skills: FaHandsHelping,
+  availability: FaCheckCircle,
+  experience: FaChartLine,
+};
+
+const getNestedProfileSection = (profile, key) => {
+  if (!profile || typeof profile !== 'object') return null;
+  const pascalKey = key.charAt(0).toUpperCase() + key.slice(1);
+  const value = profile[key] || profile[pascalKey];
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+};
+
+const isRenderableValue = (value) => {
+  if (value === null || value === undefined || value === '') return false;
+  if (Array.isArray(value)) return value.length > 0 && value.every((item) => typeof item !== 'object');
+  if (typeof value === 'object') return false;
+  return true;
+};
+
+const formatProfileValue = (value) => {
+  if (Array.isArray(value)) return value.join('، ');
+  if (typeof value === 'number') return value.toLocaleString('ar-EG');
+  return String(value);
+};
+
+const buildRoleSummaryItems = (data) => {
+  if (!data || typeof data !== 'object') return [];
+
+  return Object.entries(data)
+    .filter(([key, value]) => !TECHNICAL_PROFILE_KEYS.has(String(key).toLowerCase()) && isRenderableValue(value))
+    .map(([key, value]) => ({
+      icon: FIELD_ICONS[key] || FaCheckCircle,
+      label: FIELD_LABELS[key] || key,
+      value: formatProfileValue(value),
+    }));
+};
+
 const UpdateProfilePage = () => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
@@ -69,28 +168,11 @@ const UpdateProfilePage = () => {
   );
   const hasDonorRole = roleList.includes('donor');
   const hasVolunteerRole = roleList.includes('volunteer');
-  const donorData = myProfileData?.donor && typeof myProfileData.donor === 'object' ? myProfileData.donor : null;
-  const volunteerData = myProfileData?.volunteer && typeof myProfileData.volunteer === 'object' ? myProfileData.volunteer : null;
-  const donorSummaryItems = useMemo(
-    () =>
-      [
-        { icon: FaTags, label: 'الفئة المفضلة', value: donorData?.preferredCategory },
-        { icon: FaHandHoldingHeart, label: 'إجمالي التبرعات', value: donorData?.totalDonated ?? donorData?.totalDonation },
-      ].filter((item) => item.value !== null && item.value !== undefined && item.value !== '' && !['id', 'userId', 'profileId', 'avatarId', 'levelId'].includes(item.label.toLowerCase())),
-    [donorData]
-  );
-  const volunteerSummaryItems = useMemo(
-    () =>
-      [
-        { icon: FaUser, label: 'الاسم الكامل', value: volunteerData?.fullName || volunteerData?.name || volunteerData?.userName },
-        { icon: FaEnvelope, label: 'البريد الإلكتروني', value: volunteerData?.email },
-        { icon: FaCalendarAlt, label: 'تاريخ الميلاد', value: volunteerData?.birthDay || volunteerData?.birthDate },
-        { icon: FaPhone, label: 'رقم الهاتف', value: volunteerData?.phoneNumber || volunteerData?.phone },
-        { icon: FaMapMarkerAlt, label: 'المدينة', value: volunteerData?.city || volunteerData?.address },
-        { icon: FaHandsHelping, label: 'المهارات', value: Array.isArray(volunteerData?.skills) ? volunteerData.skills.join('، ') : volunteerData?.skills },
-      ].filter((item) => item.value !== null && item.value !== undefined && item.value !== '' && !['id', 'userId', 'profileId', 'avatarId', 'levelId'].includes(item.label.toLowerCase())),
-    [volunteerData]
-  );
+  const donorData = getNestedProfileSection(myProfileData, 'donor');
+  const volunteerData = getNestedProfileSection(myProfileData, 'volunteer');
+  const activeProfileType = hasDonorRole ? 'donor' : hasVolunteerRole ? 'volunteer' : null;
+  const donorSummaryItems = useMemo(() => buildRoleSummaryItems(donorData), [donorData]);
+  const volunteerSummaryItems = useMemo(() => buildRoleSummaryItems(volunteerData), [volunteerData]);
   const compactProfileItems = useMemo(
     () =>
       [
@@ -100,19 +182,6 @@ const UpdateProfilePage = () => {
       ],
     [myProfileData, hasDonorRole, hasVolunteerRole]
   );
-  const avatarTraits = useMemo(
-    () =>
-      avatarData
-        ? [
-            { label: 'لون البشرة', value: avatarData.skinColor || '#fbbf24', icon: '🎨' },
-            { label: 'لون الشعر', value: avatarData.hairColor || '#000000', icon: '💇' },
-            { label: 'تسريحة الشعر', value: avatarData.hairStyle || 'short', icon: '✂️' },
-            { label: 'لون الملابس', value: avatarData.clothesColor || '#3b82f6', icon: '👕' },
-          ]
-        : [],
-    [avatarData]
-  );
-
   const canSubmit =
   !saving &&
   !!String(profileId || '').trim();
@@ -389,26 +458,44 @@ const handleSubmit = async (e) => {
   }
 
   return (
-    <div className="update-profile-page min-h-screen bg-gradient-to-br from-sky-50 via-white to-emerald-50 p-4 md:p-6">
+    <div className="update-profile-page min-h-screen p-4 md:p-6" style={{ background: 'transparent' }}>
       <div className="pro-container mx-auto max-w-6xl">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="pro-header border border-sky-100  shadow-2xl shadow-sky-100/70"
+          className="pro-header-left bg-white/90"
           style={{
             marginBottom: '24px',
-            borderRadius: '30px',
-            padding: '24px',
+            padding: '20px',
+            borderRadius: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            boxShadow: 'var(--shadow-lg)'
           }}
         >
-          <div className="pro-header-left bg-white/90">
-            <div className="pro-header-icon" style={{ background: 'linear-gradient(135deg, #38bdf8, #6366f1)' }}>
-              <FaUser />
-            </div>
-            <div>
-              <h2 className="pro-header-title text-slate-950">تحديث الملف الشخصي</h2>
-              <p className="pro-header-subtitle text-slate-600">واجهة مرتبة لتعديل بيانات الحساب وعرض معلومات البروفايل بشكل أوضح.</p>
-            </div>
+          <div
+            className="pro-header-icon"
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '14px',
+              background: 'linear-gradient(135deg, rgb(56, 189, 248), rgb(99, 102, 241))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '20px'
+            }}
+          >
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 className="pro-header-title text-slate-950" style={{ margin: 0, fontSize: '24px', fontWeight: '900' }}>تحديث الملف الشخصي</h2>
+            <p className="pro-header-subtitle text-slate-600" style={{ margin: '4px 0 0', fontSize: '14px' }}>واجهة مرتبة لتعديل بيانات الحساب وعرض معلومات البروفايل بشكل أوضح.</p>
           </div>
         </motion.div>
 
@@ -598,14 +685,14 @@ const handleSubmit = async (e) => {
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
               gap: '12px', 
-              marginBottom: (hasDonorRole || hasVolunteerRole || donorData || volunteerData) ? '20px' : 0 
+              marginBottom: activeProfileType ? '20px' : 0 
             }}>
               {compactProfileItems.map((item) => (
                 <SummaryMetric key={item.label} icon={item.icon} label={item.label} value={item.value} />
               ))}
             </div>
 
-            {(hasDonorRole || donorData) && !isAdmin && (
+            {activeProfileType === 'donor' && !isAdmin && (
               <RoleSection
                 title="بيانات المتبرع"
                 subtitle="معلومات العضوية والمساهمات الخاصة بالمتبرع"
@@ -616,7 +703,7 @@ const handleSubmit = async (e) => {
               />
             )}
 
-            {(hasVolunteerRole || volunteerData) && !isAdmin && (
+            {activeProfileType === 'volunteer' && !isAdmin && (
               <RoleSection
                 title="بيانات المتطوع"
                 subtitle="معلومات المهارات والمشاركات الخاصة بالمتطوع"
@@ -678,89 +765,94 @@ const handleSubmit = async (e) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
+            className="app-modal-card"
             style={{
               maxWidth: '680px',
-              borderRadius: '28px',
-              border: '1px solid #e0f2fe',
-              background: '#ffffff',
-              padding: '24px',
+              marginBottom: '24px',
             }}
           >
-            <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <FaStar style={{ color: 'var(--warning)' }} />
-                  <label style={{ fontWeight: '600', color: '#0f172a' }}>التقييم (Rating)</label>
+            <div className="app-modal-header">
+              <div>
+                <h3 className="app-modal-title">تعديل بيانات الحساب</h3>
+                <p className="app-modal-subtitle">تحديث التقييم والتأثير الخاص بالملف الشخصي</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="app-form">
+              <div className="app-form-grid">
+                <div className="app-form-group">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <FaStar style={{ color: 'var(--warning)' }} />
+                    <label className="app-form-label">التقييم (Rating)</label>
+                  </div>
+                  <input
+                    type="number"
+                    name="rating"
+                    value={formData.rating}
+                    onChange={handleInputChange}
+                    min="0"
+                    step="0.1"
+                    className="app-form-input"
+                    placeholder="أدخل التقييم"
+                  />
                 </div>
-                <input
-                  type="number"
-                  name="rating"
-                  value={formData.rating}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.1"
-                  className="pro-input border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-sky-400 focus:bg-sky-50 focus:ring-4 focus:ring-sky-100"
-                  placeholder="أدخل التقييم"
-                />
+
+                <div className="app-form-group">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <FaChartLine style={{ color: 'var(--info)' }} />
+                    <label className="app-form-label">التأثير (Impact)</label>
+                  </div>
+                  <input
+                    type="number"
+                    name="impact"
+                    value={formData.impact}
+                    onChange={handleInputChange}
+                    min="0"
+                    step="1"
+                    className="app-form-input"
+                    placeholder="أدخل قيمة التأثير"
+                  />
+                </div>
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <FaChartLine style={{ color: 'var(--info)' }} />
-                  <label style={{ fontWeight: '600', color: '#0f172a' }}>التأثير (Impact)</label>
-                </div>
-                <input
-                  type="number"
-                  name="impact"
-                  value={formData.impact}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="1"
-                  className="pro-input border border-slate-200 bg-white text-slate-900 shadow-sm focus:border-sky-400 focus:bg-sky-50 focus:ring-4 focus:ring-sky-100"
-                  placeholder="أدخل قيمة التأثير"
-                />
-              </div>
-
-              <div style={{ marginBottom: '20px', display: 'none' }}>
+              <div className="app-form-group" style={{ display: 'none' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <FaImage style={{ color: 'var(--accent)' }} />
-                  <label style={{ fontWeight: '600', color: '#0f172a' }}>معرف الصورة الرمزية (Avatar ID)</label>
+                  <label className="app-form-label">معرف الصورة الرمزية (Avatar ID)</label>
                 </div>
                 <input
                   type="text"
                   name="avatarId"
                   value={formData.avatarId}
                   onChange={handleInputChange}
-                  className="pro-input"
+                  className="app-form-input"
                   placeholder="أدخل معرف الصورة الرمزية"
                 />
               </div>
 
-              <motion.button
-                type="submit"
-                whileHover={canSubmit ? { scale: 1.02 } : {}}
-                whileTap={canSubmit ? { scale: 0.98 } : {}}
-                disabled={!canSubmit}
-                className="pro-btn pro-btn-primary bg-gradient-to-r from-sky-500 to-emerald-500 text-white shadow-lg shadow-sky-100"
-                style={{
-                  width: '100%',
-                  opacity: canSubmit ? 1 : 0.5,
-                  cursor: canSubmit ? 'pointer' : 'not-allowed',
-                }}
-              >
-                {saving ? (
-                  <>
-                    <FaSpinner className="animate-spin" />
-                    <span>جاري الحفظ...</span>
-                  </>
-                ) : (
-                  <>
-                    <FaSave />
-                    <span>حفظ التغييرات</span>
-                  </>
-                )}
-              </motion.button>
+              <div className="app-form-actions">
+                <button
+                  type="submit"
+                  disabled={!canSubmit}
+                  className="app-btn-primary w-full"
+                  style={{
+                    opacity: canSubmit ? 1 : 0.5,
+                    cursor: canSubmit ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  {saving ? (
+                    <>
+                      <FaSpinner className="animate-spin" />
+                      <span>جاري الحفظ...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaSave />
+                      <span>حفظ التغييرات</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </form>
           </motion.div>
         )}
@@ -935,8 +1027,7 @@ const handleSubmit = async (e) => {
                         </div>
                       )}
                       <div style={{ width: '100%' }}>
-                        <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '14px', marginBottom: '2px' }}>{badge.name || badge.badgeName || 'شارة جديدة'}</div>
-                        <div style={{ color: 'var(--primary)', fontSize: '11px', fontWeight: 600, opacity: 0.8 }}>{badge.category || badge.badgeCategory || 'إنجاز'}</div>
+                        <div style={{ color: '#0f172a', fontWeight: 900, fontSize: '14px' }}>{badge.name || badge.badgeName || 'شارة جديدة'}</div>
                       </div>
                     </motion.div>
                   );

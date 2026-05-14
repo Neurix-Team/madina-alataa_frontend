@@ -8,6 +8,20 @@ import {
 import { donationOrdersService, normalizeDonationOrdersListResponse } from '../services/donationOrdersService';
 import EntityHistoryModal from '../components/modals/EntityHistoryModal';
 
+const DetailItem = ({ label, value }) => (
+  <div style={{
+    padding: '14px',
+    borderRadius: 16,
+    background: 'rgba(248, 250, 252, 0.95)',
+    border: '1px solid rgba(226, 232, 240, 0.9)',
+    display: 'grid',
+    gap: '6px'
+  }}>
+    <span style={{ color: '#64748b', fontSize: 12, fontWeight: 700 }}>{label}</span>
+    <strong style={{ color: '#0f172a', fontSize: 14, fontWeight: 800, wordBreak: 'break-word' }}>{value}</strong>
+  </div>
+);
+
 const DonationOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -163,15 +177,37 @@ const DonationOrdersPage = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="pro-header"
+          style={{
+            padding: '24px 32px',
+            borderRadius: 24,
+            background: '#fff',
+            border: '1px solid rgba(148,163,184,0.15)',
+            boxShadow: '0 20px 50px rgba(15,23,42,0.06)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 24,
+            flexWrap: 'wrap',
+            gap: 20
+          }}
         >
-          <div className="pro-header-left">
-            <div className="pro-header-icon" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{
+              width: 54,
+              height: 54,
+              borderRadius: 16,
+              display: 'grid',
+              placeItems: 'center',
+              background: '#ecfdf5',
+              color: '#10b981',
+              fontSize: 24,
+              border: '1px solid #d1fae5'
+            }}>
               <FaDonate />
             </div>
             <div>
-              <h1 className="pro-header-title">طلبات التبرع</h1>
-              <p className="pro-header-subtitle">إدارة جميع طلبات التبرع والمساهمات في النظام</p>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0f172a' }}>طلبات التبرع</h1>
+              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 14, fontWeight: 500 }}>إدارة جميع طلبات التبرع والمساهمات في النظام</p>
             </div>
           </div>
         </motion.div>
@@ -255,7 +291,6 @@ const DonationOrdersPage = () => {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>المعرف</th>
                   <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>المبلغ</th>
                   <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>طريقة الدفع</th>
                   <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>الفئة</th>
@@ -275,11 +310,6 @@ const DonationOrdersPage = () => {
                 ) : (
                   filteredOrders.map((order) => (
                     <tr key={order.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '12px', color: 'var(--text)' }}>
-                        <span style={{ fontFamily: 'monospace', fontSize: '12px' }}>
-                          {order.id?.substring(0, 8)}...
-                        </span>
-                      </td>
                       <td style={{ padding: '12px', color: 'var(--text)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <FaMoneyBillWave style={{ color: 'var(--primary)' }} />
@@ -348,7 +378,7 @@ const DonationOrdersPage = () => {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => setHistoryEntityId(order.id)}
-                            title="Ø¹Ø±Ø¶ Ø§Ù„Ù€ history"
+                            title="عرض السجل"
                             style={{
                               padding: '6px',
                               borderRadius: '6px',
@@ -470,108 +500,90 @@ const DonationOrdersPage = () => {
             exit={{ opacity: 0 }}
             style={{
               position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000,
-              padding: '20px'
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.4)',
+              backdropFilter: 'blur(8px)',
+              display: 'grid',
+              placeItems: 'center',
+              padding: 20,
+              zIndex: 2000,
             }}
             onClick={() => setShowDetailsModal(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="pro-card"
-              style={{ 
-                maxWidth: '600px', 
-                width: '100%', 
-                maxHeight: '80vh', 
-                overflow: 'auto' 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              style={{
+                width: 'min(820px, 100%)',
+                maxHeight: '92vh',
+                overflowY: 'auto',
+                padding: 22,
+                borderRadius: 24,
+                background: '#fff',
+                boxShadow: 'rgba(15, 23, 42, 0.22) 0px 30px 70px',
+                display: 'grid',
+                gap: 20,
+                position: 'relative',
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3 style={{ color: 'var(--text)', margin: 0 }}>تفاصيل طلب التبرع</h3>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                <div>
+                  <h3 style={{ margin: 0, color: '#0f172a', fontSize: 20, fontWeight: 900 }}>تفاصيل طلب التبرع</h3>
+                  <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13, fontWeight: 500 }}>
+                    بيانات الطلب والوصف والحالة الحالية
+                  </p>
+                </div>
+                <button
+                  type="button"
                   onClick={() => setShowDetailsModal(false)}
                   style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-muted)',
+                    width: 42,
+                    height: 42,
+                    borderRadius: 12,
+                    border: '1px solid rgba(148, 163, 184, 0.2)',
+                    background: '#fff',
+                    color: '#2563eb',
+                    display: 'grid',
+                    placeItems: 'center',
                     cursor: 'pointer',
-                    fontSize: '20px'
+                    transition: 'all 0.2s',
                   }}
                 >
-                  ×
-                </motion.button>
+                  <FaTimes />
+                </button>
               </div>
 
-              <div style={{ display: 'grid', gap: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>المعرف:</span>
-                  <span style={{ color: 'var(--text)', fontFamily: 'monospace' }}>{selectedOrder.id}</span>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>المبلغ:</span>
-                  <span style={{ color: 'var(--text)' }}>{selectedOrder.amount || 0}</span>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>طريقة الدفع:</span>
-                  <span style={{ color: 'var(--text)' }}>{selectedOrder.paymentMethod || 'غير محدد'}</span>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>الفئة:</span>
-                  <span style={{ color: 'var(--text)' }}>{selectedOrder.category || 'غير محدد'}</span>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>الموقع المستهدف:</span>
-                  <span style={{ color: 'var(--text)' }}>{selectedOrder.targetLocation || 'غير محدد'}</span>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>الحالة:</span>
-                  <span
-                    style={{
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      color: 'white',
-                      backgroundColor: getStatusColor(selectedOrder.status)
-                    }}
-                  >
-                    {getStatusText(selectedOrder.status)}
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>تاريخ الإنشاء:</span>
-                  <span style={{ color: 'var(--text)' }}>{formatDate(selectedOrder.createdAt)}</span>
+              <div style={{ display: 'grid', gap: 20 }}>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                  gap: 12
+                }}>
+                  <DetailItem label="الطلب" value={selectedOrder.category || selectedOrder.targetLocation || 'طلب تبرع'} />
+                  <DetailItem label="المبلغ" value={`${selectedOrder.amount || 0} ج.م`} />
+                  <DetailItem label="طريقة الدفع" value={selectedOrder.paymentMethod || 'غير محدد'} />
+                  <DetailItem label="الفئة" value={selectedOrder.category || 'غير محدد'} />
+                  <DetailItem label="الموقع المستهدف" value={selectedOrder.targetLocation || 'غير محدد'} />
+                  <DetailItem label="الحالة" value={getStatusText(selectedOrder.status)} />
+                  <DetailItem label="تاريخ الإنشاء" value={formatDate(selectedOrder.createdAt)} />
                 </div>
 
                 {selectedOrder.receipt && (
-                  <div style={{ padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                    <div style={{ color: 'var(--text-muted)', marginBottom: '8px' }}>الإيصال:</div>
-                    <div style={{ color: 'var(--text)' }}>{selectedOrder.receipt}</div>
+                  <div>
+                    <h4 style={{ color: '#64748b', fontSize: 12, fontWeight: 700, margin: 0, marginBottom: 8 }}>الإيصال</h4>
+                    <p style={{ margin: 0, color: '#334155', lineHeight: 1.8, fontSize: 14, fontWeight: 500 }}>
+                      {selectedOrder.receipt}
+                    </p>
                   </div>
                 )}
 
                 {selectedOrder.impactReport && (
-                  <div style={{ padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                    <div style={{ color: 'var(--text-muted)', marginBottom: '8px' }}>تقرير الأثر:</div>
-                    <div style={{ color: 'var(--text)' }}>{selectedOrder.impactReport}</div>
+                  <div>
+                    <h4 style={{ color: '#64748b', fontSize: 12, fontWeight: 700, margin: 0, marginBottom: 8 }}>تقرير الأثر</h4>
+                    <p style={{ margin: 0, color: '#334155', lineHeight: 1.8, fontSize: 14, fontWeight: 500 }}>
+                      {selectedOrder.impactReport}
+                    </p>
                   </div>
                 )}
               </div>

@@ -877,10 +877,9 @@ useEffect(() => {
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 8 }}>
-                    <Field label="ID" value={normalized.id} mono light={light} />
-                    <Field label="Status" value={normalized.status} light={light} />
-                    <Field label="User ID" value={normalized.userId} mono light={light} />
-                    <Field label="GeoQuest ID" value={normalized.geoQuestId} mono light={light} />
+                    <Field label="الحالة" value={normalized.status} light={light} />
+                    <Field label="المستخدم" value={normalized.userName || targetUser?.name || targetUser?.email} light={light} />
+                    <Field label="المهمة" value={normalized.geoQuestTitle || normalized.title} light={light} />
                   </div>
 
                   {(normalized.userName || normalized.geoQuestTitle || normalized.createdAt) && (
@@ -1080,7 +1079,7 @@ useEffect(() => {
             </label>
 
             <label style={{ display: 'grid', gap: 6 }}>
-              <span style={{ fontSize: 13, fontWeight: 800 }}>User ID</span>
+              <span style={{ fontSize: 13, fontWeight: 800 }}>المستخدم</span>
               <select
                 value={editForm.userId}
                 onChange={(event) => setEditForm((current) => ({ ...current, userId: event.target.value }))}
@@ -1095,14 +1094,14 @@ useEffect(() => {
                 <option value="">اختر مستخدمًا</option>
                 {normalizedUsers.map((userOption) => (
                   <option key={userOption.id} value={userOption.id}>
-                    {userOption.name} - {userOption.id}
+                    {userOption.name || userOption.email || 'مستخدم'}
                   </option>
                 ))}
               </select>
             </label>
 
             <div style={{ display: 'grid', gap: 8 }}>
-              <div style={{ fontSize: 13, fontWeight: 800 }}>GeoQuest ID</div>
+              <div style={{ fontSize: 13, fontWeight: 800 }}>المهمة الجغرافية</div>
               {geoQuestOptionsLoading ? (
                 <div style={{ fontSize: 13, color: '#64748b' }}>جاري تحميل الـ GeoQuests...</div>
               ) : (
@@ -1124,7 +1123,7 @@ useEffect(() => {
                         }}
                       >
                         <div style={{ fontWeight: 900, marginBottom: 6 }}>{toText(geoQuest.title, 'بدون عنوان')}</div>
-                        <div style={{ fontSize: 12, color: '#475569', wordBreak: 'break-all' }}>{geoQuest.id}</div>
+                        <div style={{ fontSize: 12, color: '#475569' }}>{geoQuest.locationName || geoQuest.location?.name || 'موقع مرتبط'}</div>
                       </button>
                     );
                   })}
@@ -1214,7 +1213,7 @@ useEffect(() => {
                 <option value="">-- اختر مهمة جغرافية --</option>
                 {geoQuestOptions.map((opt) => (
                   <option key={opt.id} value={opt.id}>
-                    {opt.title} ({opt.locationId})
+                    {opt.title || 'مهمة جغرافية'}
                   </option>
                 ))}
               </select>
@@ -1225,7 +1224,7 @@ useEffect(() => {
 
             <div>
               <label style={{ fontSize: 12, opacity: 0.7, display: 'block', marginBottom: 6 }}>
-                المستخدم المستهدف (User ID)
+                المستخدم المستهدف
               </label>
               {normalizedUsers.length > 0 ? (
                 <select
@@ -1244,7 +1243,7 @@ useEffect(() => {
                   <option value="">-- اختر مستخدماً --</option>
                   {normalizedUsers.map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.name} ({u.id.substring(0, 8)}...)
+                      {u.name || u.email || 'مستخدم'}
                     </option>
                   ))}
                 </select>
@@ -1254,7 +1253,7 @@ useEffect(() => {
                   required
                   value={createForm.userId}
                   onChange={(e) => setCreateForm({ ...createForm, userId: e.target.value })}
-                  placeholder="أدخل معرف المستخدم (GUID)..."
+                  placeholder="اكتب اسم المستخدم أو اختاره من القائمة..."
                   style={{
                     width: '100%',
                     padding: 12,
@@ -1291,7 +1290,7 @@ useEffect(() => {
         <Modal title="إضافة الموقع الحالي" onClose={() => setVerifyItem(null)} light={light} maxWidth={700}>
           <form onSubmit={submitVerifyLocation} style={{ display: 'grid', gap: 14 }}>
             <div style={{ fontSize: 13, fontWeight: 800 }}>
-              UserGeoQuest ID: <span style={{ fontFamily: 'monospace' }}>{verifyItem.id}</span>
+              المهمة: <span>{verifyItem.title || verifyItem.geoQuestTitle || 'مهمة جغرافية'}</span>
             </div>
 
             <button

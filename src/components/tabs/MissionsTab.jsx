@@ -174,6 +174,7 @@ const MissionsTab = () => {
         width: '100%',
         padding: '32px 24px',
         color: '#0f172a',
+        background: 'transparent',
       }}
     >
       {/* ===== Main Container with proper margins ===== */}
@@ -192,52 +193,45 @@ const MissionsTab = () => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
-            position: 'relative',
-            overflow: 'hidden',
-            borderRadius: '24px',
-            border: '1px solid rgba(255, 255, 255, 0.6)',
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(241,245,249,0.92) 100%)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            padding: '28px 32px',
-            boxShadow: '0 20px 50px -20px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(255,255,255,0.4) inset',
+            padding: '24px 32px',
+            borderRadius: 24,
+            background: '#fff',
+            border: '1px solid rgba(148,163,184,0.15)',
+            boxShadow: '0 20px 50px rgba(15,23,42,0.06)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 24,
+            flexWrap: 'wrap',
+            gap: 20
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '24px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', minWidth: 0, flex: '1 1 320px' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '64px',
-                  height: '64px',
-                  flexShrink: 0,
-                  borderRadius: '18px',
-                  background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #a855f7 100%)',
-                  color: '#fff',
-                  boxShadow: '0 12px 28px -8px rgba(99, 102, 241, 0.55)',
-                }}
-              >
-                <FaTasks style={{ fontSize: '26px' }} />
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#020617', margin: 0, lineHeight: 1.2 }}>
-                  إدارة المهام
-                </h2>
-                <p style={{ marginTop: '8px', fontSize: '14px', lineHeight: 1.6, color: '#475569', maxWidth: '480px' }}>
-                  إدارة المهام الميدانية والمكافآت والعناوين المرتبطة بها من واجهة أوضح وأكثر تنظيمًا.
-                </p>
-              </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, minWidth: 0, flex: '1 1 320px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '64px',
+                height: '64px',
+                flexShrink: 0,
+                borderRadius: '18px',
+                background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #a855f7 100%)',
+                color: '#fff',
+                boxShadow: '0 12px 28px -8px rgba(99, 102, 241, 0.55)',
+              }}
+            >
+              <FaTasks style={{ fontSize: '26px' }} />
             </div>
+            <div style={{ minWidth: 0 }}>
+              <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#020617', margin: 0, lineHeight: 1.2 }}>
+                إدارة المهام
+              </h2>
+              <p style={{ marginTop: '8px', fontSize: '14px', lineHeight: 1.6, color: '#475569', maxWidth: '480px' }}>
+                إدارة المهام الميدانية والمكافآت والعناوين المرتبطة بها من واجهة أوضح وأكثر تنظيمًا.
+              </p>
+            </div>
+          </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <div style={{ position: 'relative', width: '320px', maxWidth: '100%' }}>
@@ -295,7 +289,6 @@ const MissionsTab = () => {
                 <span>إضافة مهمة</span>
               </motion.button>
             </div>
-          </div>
         </motion.div>
 
         {/* ===== Error Message ===== */}
@@ -536,25 +529,6 @@ const MissionsTab = () => {
                       >
                         {mission.title || 'بدون عنوان'}
                       </h3>
-                      <div
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          borderRadius: '8px',
-                          background: '#f1f5f9',
-                          padding: '6px 10px',
-                          fontSize: '11px',
-                          fontWeight: 500,
-                          color: '#64748b',
-                          width: 'fit-content',
-                        }}
-                      >
-                        <span style={{ color: '#94a3b8' }}>ID:</span>
-                        <span style={{ fontFamily: 'monospace', color: '#4f46e5', direction: 'ltr' }}>
-                          {mission.id ? `${mission.id.substring(0, 8)}...` : 'N/A'}
-                        </span>
-                      </div>
                     </div>
 
                     {/* Action Buttons */}

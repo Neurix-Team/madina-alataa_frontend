@@ -22,28 +22,28 @@ const DonationRequestPage = () => {
 
   // Payment methods options
   const paymentMethods = [
-    'credit_card',
-    'debit_card',
-    'bank_transfer',
-    'cash',
-    'paypal',
-    'stripe',
-    'apple_pay',
-    'google_pay'
+    { value: 'credit_card', label: 'بطاقة ائتمان' },
+    { value: 'debit_card', label: 'بطاقة خصم مباشر' },
+    { value: 'bank_transfer', label: 'تحويل بنكي' },
+    { value: 'cash', label: 'نقدي' },
+    { value: 'paypal', label: 'باي بال' },
+    { value: 'stripe', label: 'سترايب' },
+    { value: 'apple_pay', label: 'آبل باي' },
+    { value: 'google_pay', label: 'جوجل باي' }
   ];
 
   // Categories options
   const categories = [
-    'education',
-    'healthcare',
-    'food',
-    'shelter',
-    'clothing',
-    'emergency',
-    'infrastructure',
-    'community',
-    'environment',
-    'other'
+    { value: 'education', label: 'تعليم' },
+    { value: 'healthcare', label: 'رعاية صحية' },
+    { value: 'food', label: 'غذاء' },
+    { value: 'shelter', label: 'مأوى' },
+    { value: 'clothing', label: 'ملابس' },
+    { value: 'emergency', label: 'طوارئ' },
+    { value: 'infrastructure', label: 'بنية تحتية' },
+    { value: 'community', label: 'مجتمع' },
+    { value: 'environment', label: 'بيئة' },
+    { value: 'other', label: 'أخرى' }
   ];
 
   const handleInputChange = (e) => {
@@ -103,50 +103,61 @@ const DonationRequestPage = () => {
 
   return (
     <div className="donation-request-page" style={{ padding: '24px', minHeight: '100vh' }}>
-      <div className="pro-container">
+      <div className="pro-container" style={{ maxWidth: '800px', margin: '0 auto' }}>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="pro-header"
-          style={{ marginBottom: '24px' }}
+          style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
-          <div className="pro-header-left">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => window.history.back()}
-              className="pro-btn pro-btn-secondary"
-              style={{ marginRight: '16px', padding: '8px 16px' }}
+              className="app-btn-secondary"
+              style={{ padding: '8px 16px' }}
             >
               <FaArrowLeft />
             </motion.button>
-            <div className="pro-header-icon" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <div style={{ 
+              width: '48px', 
+              height: '48px', 
+              borderRadius: '14px', 
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '20px',
+              boxShadow: '0 8px 16px rgba(16, 185, 129, 0.2)'
+            }}>
               <FaDonate />
             </div>
             <div>
-              <h2 className="pro-header-title">طلب تبرع</h2>
-              <p className="pro-header-subtitle">إنشاء طلب تبرع جديد</p>
+              <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '900', color: 'var(--text-primary)' }}>طلب تبرع</h2>
+              <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: '14px' }}>إنشاء طلب تبرع جديد</p>
             </div>
           </div>
         </motion.div>
 
-        {/* Error Message */}
+        {/* Messages */}
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="pro-alert"
+            className="app-alert app-alert-danger"
             style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '12px',
               padding: '16px',
+              borderRadius: '16px',
               marginBottom: '24px',
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
-              color: 'var(--danger)',
+              background: 'var(--error-light)',
+              border: '1px solid var(--error)',
+              color: 'var(--error)',
+              fontWeight: '600'
             }}
           >
             <FaExclamationTriangle />
@@ -154,22 +165,21 @@ const DonationRequestPage = () => {
           </motion.div>
         )}
 
-        {/* Success Message */}
         {success && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="pro-alert"
             style={{
-              background: 'rgba(34, 197, 94, 0.1)',
-              border: '1px solid rgba(34, 197, 94, 0.3)',
-              borderRadius: '12px',
               padding: '16px',
+              borderRadius: '16px',
               marginBottom: '24px',
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
+              background: 'var(--success-light)',
+              border: '1px solid var(--success)',
               color: 'var(--success)',
+              fontWeight: '600'
             }}
           >
             <FaCheckCircle />
@@ -180,145 +190,145 @@ const DonationRequestPage = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="pro-card"
+          className="app-modal-card"
+          style={{ width: '100%' }}
         >
-          <form onSubmit={handleSubmit}>
-            {/* Amount */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', color: 'var(--text)', fontWeight: '600', marginBottom: '12px' }}>
-                <FaMoneyBillWave style={{ marginLeft: '8px', color: 'var(--primary)' }} />
-                المبلغ
-              </label>
-              <input
-                type="number"
-                name="amount"
-                value={formData.amount}
-                onChange={handleInputChange}
-                className="pro-input"
-                placeholder="أدخل المبلغ"
-                min="1"
-                step="0.01"
-                required
-              />
+          <form onSubmit={handleSubmit} className="app-form">
+            <div className="app-form-grid">
+              {/* Amount */}
+              <div className="app-form-group">
+                <label className="app-form-label">
+                  <FaMoneyBillWave style={{ marginLeft: '8px', color: 'var(--primary)' }} />
+                  المبلغ
+                </label>
+                <input
+                  type="number"
+                  name="amount"
+                  value={formData.amount}
+                  onChange={handleInputChange}
+                  className="app-form-input"
+                  placeholder="أدخل المبلغ"
+                  min="1"
+                  step="0.01"
+                  required
+                />
+              </div>
+
+              {/* Payment Method */}
+              <div className="app-form-group">
+                <label className="app-form-label">
+                  <FaCreditCard style={{ marginLeft: '8px', color: 'var(--primary)' }} />
+                  طريقة الدفع
+                </label>
+                <select
+                  name="paymentMethod"
+                  value={formData.paymentMethod}
+                  onChange={handleInputChange}
+                  className="app-form-select"
+                  required
+                >
+                  <option value="">اختر طريقة الدفع</option>
+                  {paymentMethods.map((method) => (
+                    <option key={method.value} value={method.value}>
+                      {method.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Category */}
+              <div className="app-form-group">
+                <label className="app-form-label">
+                  <FaTag style={{ marginLeft: '8px', color: 'var(--primary)' }} />
+                  الفئة
+                </label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className="app-form-select"
+                  required
+                >
+                  <option value="">اختر الفئة</option>
+                  {categories.map((category) => (
+                    <option key={category.value} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Target Location */}
+              <div className="app-form-group">
+                <label className="app-form-label">
+                  <FaMapMarkerAlt style={{ marginLeft: '8px', color: 'var(--primary)' }} />
+                  الموقع المستهدف
+                </label>
+                <input
+                  type="text"
+                  name="targetLocation"
+                  value={formData.targetLocation}
+                  onChange={handleInputChange}
+                  className="app-form-input"
+                  placeholder="أدخل الموقع"
+                />
+              </div>
             </div>
 
-            {/* Payment Method */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', color: 'var(--text)', fontWeight: '600', marginBottom: '12px' }}>
-                <FaCreditCard style={{ marginLeft: '8px', color: 'var(--primary)' }} />
-                طريقة الدفع
-              </label>
-              <select
-                name="paymentMethod"
-                value={formData.paymentMethod}
-                onChange={handleInputChange}
-                className="pro-input"
-                required
+            <div className="app-form-grid">
+              {/* Receipt */}
+              <div className="app-form-group">
+                <label className="app-form-label">
+                  <FaFileAlt style={{ marginLeft: '8px', color: 'var(--primary)' }} />
+                  رقم الإيصال
+                </label>
+                <input
+                  type="text"
+                  name="receipt"
+                  value={formData.receipt}
+                  onChange={handleInputChange}
+                  className="app-form-input"
+                  placeholder="أدخل رقم الإيصال"
+                />
+              </div>
+
+              {/* Impact Report */}
+              <div className="app-form-group">
+                <label className="app-form-label">
+                  <FaFileAlt style={{ marginLeft: '8px', color: 'var(--primary)' }} />
+                  تقرير التأثير
+                </label>
+                <input
+                  type="text"
+                  name="impactReport"
+                  value={formData.impactReport}
+                  onChange={handleInputChange}
+                  className="app-form-input"
+                  placeholder="أدخل رابط التقرير"
+                />
+              </div>
+            </div>
+
+            <div className="app-form-actions">
+              <button
+                type="submit"
+                disabled={!canSubmit}
+                className="app-btn-primary w-full py-4 text-lg"
+                style={{ opacity: canSubmit ? 1 : 0.7 }}
               >
-                <option value="">اختر طريقة الدفع</option>
-                {paymentMethods.map((method) => (
-                  <option key={method} value={method}>
-                    {method.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                  </option>
-                ))}
-              </select>
+                {loading ? (
+                  <>
+                    <FaSpinner className="animate-spin" />
+                    <span>جاري الحفظ...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaSave />
+                    <span>إنشاء طلب التبرع</span>
+                  </>
+                )}
+              </button>
             </div>
-
-            {/* Category */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', color: 'var(--text)', fontWeight: '600', marginBottom: '12px' }}>
-                <FaTag style={{ marginLeft: '8px', color: 'var(--primary)' }} />
-                الفئة
-              </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                className="pro-input"
-                required
-              >
-                <option value="">اختر الفئة</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Target Location */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', color: 'var(--text)', fontWeight: '600', marginBottom: '12px' }}>
-                <FaMapMarkerAlt style={{ marginLeft: '8px', color: 'var(--primary)' }} />
-                الموقع المستهدف (اختياري)
-              </label>
-              <input
-                type="text"
-                name="targetLocation"
-                value={formData.targetLocation}
-                onChange={handleInputChange}
-                className="pro-input"
-                placeholder="أدخل الموقع المستهدف"
-              />
-            </div>
-
-            {/* Receipt */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', color: 'var(--text)', fontWeight: '600', marginBottom: '12px' }}>
-                <FaFileAlt style={{ marginLeft: '8px', color: 'var(--primary)' }} />
-                الإيصال (اختياري)
-              </label>
-              <textarea
-                name="receipt"
-                value={formData.receipt}
-                onChange={handleInputChange}
-                className="pro-input"
-                placeholder="أدخل تفاصيل الإيصال"
-                rows={3}
-              />
-            </div>
-
-            {/* Impact Report */}
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{ display: 'block', color: 'var(--text)', fontWeight: '600', marginBottom: '12px' }}>
-                <FaFileAlt style={{ marginLeft: '8px', color: 'var(--primary)' }} />
-                تقرير الأثر (اختياري)
-              </label>
-              <textarea
-                name="impactReport"
-                value={formData.impactReport}
-                onChange={handleInputChange}
-                className="pro-input"
-                placeholder="أدخل تفاصيل تقرير الأثر"
-                rows={4}
-              />
-            </div>
-
-            {/* Submit Button */}
-            <motion.button
-              type="submit"
-              whileHover={canSubmit ? { scale: 1.02 } : {}}
-              whileTap={canSubmit ? { scale: 0.98 } : {}}
-              disabled={!canSubmit}
-              className="pro-btn pro-btn-primary"
-              style={{
-                width: '100%',
-                opacity: canSubmit ? 1 : 0.5,
-                cursor: canSubmit ? 'pointer' : 'not-allowed',
-              }}
-            >
-              {loading ? (
-                <>
-                  <FaSpinner className="animate-spin" />
-                  <span>جاري إنشاء الطلب...</span>
-                </>
-              ) : (
-                <>
-                  <FaDonate />
-                  <span>إنشاء طلب التبرع</span>
-                </>
-              )}
-            </motion.button>
           </form>
         </motion.div>
       </div>

@@ -23,7 +23,7 @@ import {
 } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { useAuth } from '../../hooks/useAuth'; // تأكد من أن المسار صحيح
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AudioManager from '../../services/AudioManager'; // تأكد من أن الملف موجود في المسار
 import { useAuthContext } from '../../app/providers/AuthProvider';
 
@@ -132,6 +132,7 @@ const AuthScreen = () => {
      setAuthError
    } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [isLogin, setIsLogin] = useState(true);
   const [animating, setAnimating] = useState(false);
@@ -176,7 +177,12 @@ const AuthScreen = () => {
         const user = await login(values);
         AudioManager.getInstance().unlock();
         AudioManager.getInstance().play('win');
-        goByRole(user);
+        const from = location.state?.from;
+        if (from && from !== '/login') {
+          navigate(from, { replace: true });
+        } else {
+          goByRole(user);
+        }
       } catch (error) {
         AudioManager.getInstance().play('error');
       }
@@ -699,32 +705,6 @@ const handleLogin = async (values) => {
                   >
                     <FcGoogle size={18} />
                    {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول باستخدام جوجل'}
-                  </button>
-                  <button
-                    type="button"
-                    className="auth-social-btn"
-                    onClick={handleGithubLogin}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: 14,
-                      background: '#fff',
-                      color: '#334155',
-                      fontSize: 14,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      fontFamily: "'Cairo',sans-serif",
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      transition: 'all 0.18s',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                    }}
-                  >
-                    <FaGithub size={18} />
-                    جيت هاب
                   </button>
                 </div>
                 <div style={{

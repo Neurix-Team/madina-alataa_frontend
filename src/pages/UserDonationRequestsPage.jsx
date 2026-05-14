@@ -96,6 +96,15 @@ const UserDonationRequestsPage = () => {
 
   const totalPages = useMemo(() => Math.ceil(totalCount / pageSize), [totalCount, pageSize]);
   const currentRequests = activeTab === 'my' ? myRequests : approvedRequests;
+  const locationNameById = useMemo(() => {
+    return locations.reduce((accumulator, item) => {
+      const locationId = item?.id || item?.locationId || item?.Id || item?.LocationId;
+      if (locationId) {
+        accumulator[locationId] = item?.name || item?.title || item?.Name || 'موقع الطلب';
+      }
+      return accumulator;
+    }, {});
+  }, [locations]);
 
   const handleDelete = async (id) => {
     if (!confirm('هل أنت متأكد من حذف هذا الطلب؟')) return;
@@ -146,7 +155,7 @@ const UserDonationRequestsPage = () => {
       4: { label: 'حرج', color: 'text-red-400', bg: 'bg-red-500/20' },
       5: { label: 'طارئ', color: 'text-purple-400', bg: 'bg-purple-500/20' },
     };
-    return levels[level] || { label: 'غير محدد', color: 'text-gray-400', bg: 'bg-gray-500/20' };
+    return levels[level] || { label: 'درجة الاستعجال', color: 'text-gray-400', bg: 'bg-gray-500/20' };
   };
 
   return (
@@ -261,11 +270,11 @@ const UserDonationRequestsPage = () => {
                             </span>
                             <span className="donation-requests-page__metaItem">
                               <FaMapMarkerAlt className="text-blue-400" />
-                              {request.locationId || request.location || 'غير محدد'}
+                              {request.location || locationNameById[request.locationId] || request.title || 'موقع الطلب'}
                             </span>
                             <span className="donation-requests-page__metaItem">
                               <FaBuilding className="text-purple-400" />
-                              {request.partnerId || 'غير محدد'}
+                              {request.partnerName || request.partner?.name || request.partner?.orgName || request.title || 'الشريك المرتبط بالطلب'}
                             </span>
                           </div>
 
@@ -473,7 +482,7 @@ const CreateDonationForm = ({ requestInfo, onSuccess, onError }) => {
   formData.donationRequestId;
 
 if (!donationRequestId) {
-  onError('معرف طلب التبرع غير موجود');
+  onError('بيانات طلب التبرع غير مكتملة');
   return;
 }
 

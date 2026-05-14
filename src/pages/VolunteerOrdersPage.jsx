@@ -10,6 +10,7 @@ import {
   FaTimes,
   FaClock,
   FaTasks,
+  FaSearch,
 } from 'react-icons/fa';
 import { useAuth } from '../hooks/useAuth';
 import { volunteerOrdersService } from '../services/volunteerOrdersService';
@@ -84,11 +85,12 @@ const deriveOrderStatus = (order) => {
 const VolunteerOrdersPage = () => {
   const { user } = useAuth();
   const roles = parseRoles(user);
-  const isAdmin = roles.includes('admin');
-
+  const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState(isAdmin ? 'my' : 'my');
   const [orders, setOrders] = useState([]);
+  const [acceptedOrders, setAcceptedOrders] = useState([]);
   const [pendingOrders, setPendingOrders] = useState([]);
+  const [myAcceptedOrders, setMyAcceptedOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [detailsLoading, setDetailsLoading] = useState(false);
@@ -104,9 +106,34 @@ const VolunteerOrdersPage = () => {
   const [selectedOrderForReject, setSelectedOrderForReject] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [historyEntityId, setHistoryEntityId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const userRoles = parseRoles(user);
+    setIsAdmin(userRoles.includes('admin'));
+  }, [user]);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(totalCount / pageSize)), [totalCount, pageSize]);
-  const currentOrders = activeTab === 'pending' ? pendingOrders : orders;
+  const currentOrders = activeTab === 'pending' ? pendingOrders : activeTab === 'accepted' ? myAcceptedOrders : orders;
+  const filteredCurrentOrders = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return currentOrders;
+
+    return currentOrders.filter((order) =>
+      [
+        order.title,
+        order.serviceRequestTitle,
+        order.serviceType,
+        order.category,
+        order.briefDescription,
+        statusChip(deriveOrderStatus(order)).label,
+        order.createdAt,
+        order.orderDate,
+      ]
+        .map((value) => String(value || '').toLowerCase())
+        .some((value) => value.includes(term))
+    );
+  }, [currentOrders, searchTerm]);
 
   const fetchPendingCount = async () => {
     if (!isAdmin) return;
@@ -127,13 +154,18 @@ const VolunteerOrdersPage = () => {
         const response = await volunteerOrdersService.getPendingVolunteerOrders(targetPage, targetSize);
         setPendingOrders(response.items);
         setTotalCount(response.totalCount);
+      } else if (targetTab === 'accepted') {
+        const response = await serviceRequestsService.getApprovedServiceRequests(targetPage, targetSize);
+        console.log('VOLUNTEER APPROVED SERVICE REQUESTS PAGE RESPONSE:', response);
+        setMyAcceptedOrders(response.items);
+        setTotalCount(response.totalCount);
       } else if (isAdmin) {
         const response = await volunteerOrdersService.getVolunteerOrders(targetPage, targetSize);
         setOrders(response.items);
         setTotalCount(response.totalCount);
       } else {
-        const response = await serviceRequestsService.getApprovedServiceRequests(targetPage, targetSize);
-        console.log('VOLUNTEER APPROVED SERVICE REQUESTS PAGE RESPONSE:', response);
+        const response = await volunteerOrdersService.getMyVolunteerOrders(targetPage, targetSize);
+        console.log('VOLUNTEER MY ORDERS PAGE RESPONSE:', response);
         setOrders(response.items);
         setTotalCount(response.totalCount);
       }
@@ -180,6 +212,7 @@ const VolunteerOrdersPage = () => {
     try {
       await volunteerOrdersService.deleteVolunteerOrder(orderId);
       setOrders((prev) => prev.filter((order) => getOrderId(order) !== orderId));
+      setMyAcceptedOrders((prev) => prev.filter((order) => getOrderId(order) !== orderId));
       setPendingOrders((prev) => prev.filter((order) => getOrderId(order) !== orderId));
       setTotalCount((prev) => Math.max(0, prev - 1));
       if (getOrderId(selectedOrder) === orderId) {
@@ -210,6 +243,7 @@ const VolunteerOrdersPage = () => {
       };
 
       setOrders((prev) => prev.map(mergeApprovedOrder));
+      setMyAcceptedOrders((prev) => prev.map(mergeApprovedOrder));
       setPendingOrders((prev) => prev.map(mergeApprovedOrder));
       await fetchPendingCount();
       if (getOrderId(selectedOrder) === orderId) {
@@ -282,6 +316,7 @@ const VolunteerOrdersPage = () => {
       };
 
       setOrders((prev) => prev.map(mergeUpdatedOrder));
+      setMyAcceptedOrders((prev) => prev.map(mergeUpdatedOrder));
       setPendingOrders((prev) => prev.map(mergeUpdatedOrder));
       setProgressDrafts((prev) => ({ ...prev, [orderId]: nextProgress }));
       if (getOrderId(selectedOrder) === orderId) {
@@ -305,7 +340,7 @@ const VolunteerOrdersPage = () => {
     }
   };
 
-  const statusChip = (status) => {
+  function statusChip(status) {
     const normalized = normalizeStatus(status);
     if (normalized === 'approved') {
       return { label: 'approved', color: '#16a34a', bg: 'rgba(34,197,94,.14)' };
@@ -317,20 +352,46 @@ const VolunteerOrdersPage = () => {
       return { label: 'rejected', color: '#dc2626', bg: 'rgba(239,68,68,.14)' };
     }
     return { label: 'pending', color: '#ca8a04', bg: 'rgba(234,179,8,.18)' };
-  };
+  }
 
   const pageTitle = isAdmin ? 'طلبات المتطوعين' : 'تطوعاتي';
   return (
     <div style={pageStyle}>
       <div style={containerStyle}>
-        <motion.div initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} style={heroStyle}>
+        <motion.div initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} 
+          style={{
+            padding: '24px 32px',
+            borderRadius: 24,
+            background: '#fff',
+            border: '1px solid rgba(148,163,184,0.15)',
+            boxShadow: '0 20px 50px rgba(15,23,42,0.06)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 24,
+            flexWrap: 'wrap',
+            gap: 20
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={heroIconStyle}>
+            <div style={{
+              width: 54,
+              height: 54,
+              borderRadius: 16,
+              display: 'grid',
+              placeItems: 'center',
+              background: '#eff6ff',
+              color: '#2563eb',
+              fontSize: 24,
+              border: '1px solid #bfdbfe'
+            }}>
               <FaHandsHelping />
             </div>
             <div>
-              <h1 style={heroTitleStyle}>{pageTitle}</h1>
-              <p style={heroSubtitleStyle}>إدارة أوامر التطوع، التفاصيل، الحذف، والطلبات المعلقة للأدمن.</p>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0f172a' }}>{pageTitle}</h1>
+              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 14, fontWeight: 500 }}>
+                إدارة أوامر التطوع، التفاصيل، الحذف، والطلبات المعلقة للأدمن.
+              </p>
             </div>
           </div>
         </motion.div>
@@ -363,6 +424,18 @@ const VolunteerOrdersPage = () => {
           >
             {isAdmin ? 'كل طلبات المتطوعين' : 'تطوعاتي'}
           </button>
+          {!isAdmin && (
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('accepted');
+                setPageNumber(1);
+              }}
+              style={{ ...tabButtonStyle, ...(activeTab === 'accepted' ? activeTabStyle : {}) }}
+            >
+              طلباتي المقبولة
+            </button>
+          )}
           {isAdmin && (
             <button
               type="button"
@@ -396,6 +469,17 @@ const VolunteerOrdersPage = () => {
           </div>
         )}
 
+        <div style={{ ...panelStyle, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <FaSearch style={{ color: '#2563eb' }} />
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="بحث بالعنوان أو نوع الخدمة أو الحالة"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+
         <div style={contentGridStyle}>
           <div style={panelStyle}>
             <div style={panelHeaderStyle}>
@@ -404,9 +488,11 @@ const VolunteerOrdersPage = () => {
                 <p style={sectionMetaStyle}>
                   {activeTab === 'pending'
                     ? 'GET `/api/VolunteerOrders/pending?PageNumber=1&PageSize=1`'
-                    : isAdmin
-                      ? 'GET `/api/VolunteerOrders?PageNumber=1&PageSize=1`'
-                      : 'GET `/api/ServiceRequests/approved?PageNumber=1&PageSize=1`'}
+                    : activeTab === 'accepted'
+                      ? 'GET `/api/VolunteerOrders/my-orders?PageNumber=1&PageSize=1`'
+                      : isAdmin
+                        ? 'GET `/api/VolunteerOrders?PageNumber=1&PageSize=1`'
+                        : 'GET `/api/ServiceRequests/approved?PageNumber=1&PageSize=1`'}
                 </p>
               </div>
             </div>
@@ -416,12 +502,12 @@ const VolunteerOrdersPage = () => {
                 <FaSpinner className="animate-spin" />
                 <span>جاري تحميل البيانات...</span>
               </div>
-            ) : currentOrders.length === 0 ? (
+            ) : filteredCurrentOrders.length === 0 ? (
               <div style={emptyBoxStyle}>لا توجد عناصر في هذا القسم.</div>
             ) : (
               <div style={{ display: 'grid', gap: 14 }}>
                 <AnimatePresence mode="wait">
-                  {currentOrders.map((order, index) => {
+                  {filteredCurrentOrders.map((order, index) => {
                     const orderId = getOrderId(order);
                     const derivedStatus = deriveOrderStatus(order);
                     const chip = statusChip(derivedStatus);
@@ -444,9 +530,11 @@ const VolunteerOrdersPage = () => {
                               <h3 style={{ margin: 0, fontSize: 18, color: '#0f172a' }}>
                                 {order.title || order.serviceRequestTitle || `طلب #${orderId || index + 1}`}
                               </h3>
-                              <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
-                                ServiceRequestId: {order.serviceRequestId || order.id || '-'}
-                              </p>
+                              {isAdmin && (
+                                <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
+                                  {order.serviceRequestTitle || order.title || order.serviceType || 'طلب تطوع'}
+                                </p>
+                              )}
                             </div>
                             <span style={{ ...chipStyle, color: chip.color, background: chip.bg }}>
                               {chip.label}
@@ -454,11 +542,36 @@ const VolunteerOrdersPage = () => {
                           </div>
 
                           <div style={metaGridStyle}>
-                            <span style={metaItemStyle}><FaClock /> {order.createdAt || order.orderDate || 'غير محدد'}</span>
+                            <span style={metaItemStyle}><FaClock /> {order.createdAt || order.orderDate || 'تاريخ الطلب'}</span>
                             <span style={metaItemStyle}>
-                              <FaTasks /> {isAdmin ? `progress: ${getOrderProgress(order)}` : 'approved'}
+                              <FaTasks /> {isAdmin ? `progress: ${getOrderProgress(order)}` : (activeTab === 'accepted' ? 'مقبول' : 'approved')}
                             </span>
                           </div>
+
+                          {activeTab === 'accepted' && (
+                            <motion.div 
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              style={{ 
+                                marginTop: 12, 
+                                padding: 14, 
+                                borderRadius: 16, 
+                                background: '#0f172a', 
+                                border: '1px solid rgba(255,255,255,0.05)',
+                                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)'
+                              }}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, color: '#38bdf8' }}>
+                                <FaTasks size={14} />
+                                <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.05em' }}>تفاصيل المهمة المقبولة</span>
+                              </div>
+                              <div style={{ display: 'grid', gap: 8, color: '#e2e8f0', fontSize: 13, fontWeight: 700 }}>
+                                <span>{order.serviceRequestTitle || order.title || 'طلب تطوع'}</span>
+                                <span>{order.serviceType || order.category || order.title || 'خدمة الطلب'}</span>
+                                <span>{statusChip(deriveOrderStatus(order)).label}</span>
+                              </div>
+                            </motion.div>
+                          )}
 
                           {isAdmin && isApproved && (
                             <div style={progressRowStyle}>
@@ -526,7 +639,7 @@ const VolunteerOrdersPage = () => {
                             type="button"
                             onClick={() => setHistoryEntityId(orderId)}
                             style={{ ...iconButtonStyle, color: '#0f172a' }}
-                            title="Ø¹Ø±Ø¶ Ø§Ù„Ù€ history"
+                            title="عرض السجل"
                           >
                             <FaHistory />
                           </button>
@@ -603,8 +716,8 @@ const VolunteerOrdersPage = () => {
               <div style={emptyBoxStyle}>اختر أي عنصر لعرض التفاصيل هنا.</div>
             ) : (
               <div style={{ display: 'grid', gap: 16 }}>
-                <DetailItem label="المعرف" value={getOrderId(selectedOrder) || '-'} />
-                <DetailItem label="ServiceRequestId" value={selectedOrder.serviceRequestId || '-'} />
+                <DetailItem label="الطلب" value={selectedOrder.title || selectedOrder.serviceRequestTitle || 'طلب تطوع'} />
+                <DetailItem label="نوع الخدمة" value={selectedOrder.serviceType || selectedOrder.category || '-'} />
                 <DetailItem label="الحالة" value={String(deriveOrderStatus(selectedOrder) || '-')} />
               </div>
             )}
@@ -614,18 +727,43 @@ const VolunteerOrdersPage = () => {
 
       {(detailsLoading || detailsError || selectedOrder) && (
         <div
-          style={overlayStyle}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.4)',
+            backdropFilter: 'blur(8px)',
+            display: 'grid',
+            placeItems: 'center',
+            padding: 20,
+            zIndex: 2000,
+          }}
           onClick={() => {
             setSelectedOrder(null);
             setDetailsError(null);
             setDetailsLoading(false);
           }}
         >
-          <div style={modalStyle} onClick={(event) => event.stopPropagation()}>
-            <div style={modalHeaderStyle}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            style={{
+              width: 'min(820px, 100%)',
+              maxHeight: '92vh',
+              overflowY: 'auto',
+              padding: 22,
+              borderRadius: 24,
+              background: '#fff',
+              boxShadow: 'rgba(15, 23, 42, 0.22) 0px 30px 70px',
+              display: 'grid',
+              gap: 20,
+              position: 'relative',
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
               <div>
-                <h3 style={{ margin: 0, color: '#0f172a' }}>تفاصيل طلب التطوع</h3>
-                <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
+                <h3 style={{ margin: 0, color: '#0f172a', fontSize: 20, fontWeight: 900 }}>تفاصيل عنصر التطوع</h3>
+                <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13, fontWeight: 500 }}>
                   معلومات الطلب وحالته الحالية
                 </p>
               </div>
@@ -636,7 +774,18 @@ const VolunteerOrdersPage = () => {
                   setDetailsError(null);
                   setDetailsLoading(false);
                 }}
-                style={iconButtonStyle}
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 12,
+                  border: '1px solid rgba(148, 163, 184, 0.2)',
+                  background: '#fff',
+                  color: '#2563eb',
+                  display: 'grid',
+                  placeItems: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
               >
                 <FaTimes />
               </button>
@@ -653,13 +802,37 @@ const VolunteerOrdersPage = () => {
                 <span>{detailsError}</span>
               </div>
             ) : selectedOrder ? (
-              <div style={{ display: 'grid', gap: 16 }}>
-                <DetailItem label="المعرف" value={getOrderId(selectedOrder) || '-'} />
-                <DetailItem label="معرف طلب الخدمة" value={selectedOrder.serviceRequestId || '-'} />
-                <DetailItem label="الحالة" value={String(deriveOrderStatus(selectedOrder) || '-')} />
+              <div style={{ display: 'grid', gap: 20 }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 21, color: '#0f172a', fontWeight: 800 }}>
+                    {selectedOrder.title || selectedOrder.serviceRequestTitle || 'بدون عنوان'}
+                  </h3>
+                  <p style={{ margin: '6px 0 0', color: '#64748b', fontWeight: 500 }}>
+                    {selectedOrder.serviceType || selectedOrder.category || selectedOrder.title || 'خدمة الطلب'}
+                  </p>
+                </div>
+
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                  gap: 12
+                }}>
+                  <DetailItem label="الحالة" value={String(deriveOrderStatus(selectedOrder) || '-')} />
+                  <DetailItem label="التاريخ" value={selectedOrder.createdAt || selectedOrder.orderDate || '-'} />
+                  <DetailItem label="التقدم" value={`${getOrderProgress(selectedOrder)}%`} />
+                </div>
+
+                {selectedOrder.briefDescription && (
+                  <div>
+                    <h4 style={{ color: '#64748b', fontSize: 12, fontWeight: 700, margin: 0, marginBottom: 8 }}>الوصف</h4>
+                    <p style={{ margin: 0, color: '#334155', lineHeight: 1.8, fontSize: 14, fontWeight: 500 }}>
+                      {selectedOrder.briefDescription}
+                    </p>
+                  </div>
+                )}
               </div>
             ) : null}
-          </div>
+          </motion.div>
         </div>
       )}
 
@@ -689,7 +862,7 @@ const VolunteerOrdersPage = () => {
       <EntityHistoryModal
         isOpen={Boolean(historyEntityId)}
         entityId={historyEntityId}
-        title="Ø³Ø¬Ù„ Ø·Ù„Ø¨ Ø§Ù„ØªØ·ÙˆØ¹"
+        title="سجل طلب التطوع"
         onClose={() => setHistoryEntityId(null)}
       />
     </div>

@@ -40,14 +40,14 @@ const PARTNER_CSS = `
   }
 
   .partners-header {
-    background:
-      radial-gradient(circle at top right, rgba(59,130,246,0.12), transparent 28%),
-      radial-gradient(circle at bottom left, rgba(16,185,129,0.08), transparent 24%),
-      linear-gradient(135deg, #ffffff 0%, #f8fcff 55%, #f0fdf4 100%);
-    border-radius: 28px;
-    padding: 32px;
-    box-shadow: 0 18px 40px rgba(15,23,42,0.06);
-    border: 1.5px solid rgba(226,232,240,0.9);
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.92) 100%);
+    backdrop-filter: blur(20px);
+    padding: 28px 32px;
+    box-shadow: rgba(15, 23, 42, 0.4) 0px 20px 50px -20px, rgba(255, 255, 255, 0.4) 0px 0px 0px 1px inset;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -606,7 +606,7 @@ const PartnersTab = () => {
   }
 
   return (
-    <div className="partners-tab">
+    <div className="partners-tab" style={{ background: 'transparent' }}>
       <style>{PARTNER_CSS}</style>
 
       {/* Header */}
@@ -827,7 +827,7 @@ const PartnersTab = () => {
       <EntityHistoryModal
         isOpen={Boolean(historyEntityId)}
         entityId={historyEntityId}
-        title="Ø³Ø¬Ù„ Ø§Ù„Ù…Ø¤Ø³Ø³Ø©"
+        title="سجل المؤسسة"
         onClose={() => setHistoryEntityId(null)}
       />
     </div>

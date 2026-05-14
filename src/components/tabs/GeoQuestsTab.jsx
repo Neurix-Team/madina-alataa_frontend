@@ -269,7 +269,7 @@ function LocationMapSelector({
           <div>
             <div style={{ color: '#1d4ed8', fontWeight: 900 }}>اختيار الموقع من الخريطة</div>
             <div style={{ color: '#1e3a8a', fontSize: '13px', marginTop: '4px' }}>
-              اضغط على أي نقطة لاختيار `locationId` المطلوب للمهمة الجغرافية.
+              اضغط على أي نقطة لربط المهمة الجغرافية بموقع واضح.
             </div>
           </div>
           <div
@@ -282,7 +282,7 @@ function LocationMapSelector({
               fontSize: '13px',
             }}
           >
-            {selectedLocation ? `المحدد: ${selectedLocation.name}` : 'لا يوجد موقع محدد'}
+            {selectedLocation ? `المحدد: ${selectedLocation.name}` : 'اختر موقع المهمة'}
           </div>
         </div>
 
@@ -389,7 +389,7 @@ function LocationMapSelector({
             >
               <div style={{ fontWeight: 800 }}>{location.name}</div>
               <div style={{ marginTop: '6px', color: 'var(--text-muted)', fontSize: '12px' }}>
-                {location.id}
+                {location.name || 'موقع غير مسمى'}
               </div>
               <div style={{ marginTop: '6px', color: 'var(--text-muted)', fontSize: '12px' }}>
                 lat: {location.latitude || 0}, lng: {location.longitude || 0}
@@ -416,6 +416,12 @@ function GeoQuestForm({
   onCancel,
   locationsLoading,
 }) {
+  const selectedLocationName =
+    locations
+      .map(normalizeLocation)
+      .find((location) => String(location.id) === String(formData.locationId))?.name ||
+    (formData.locationId ? formData.title || 'موقع المهمة' : '');
+
   return (
     <form onSubmit={onSubmit}>
       <div style={{ display: 'grid', gap: '16px' }}>
@@ -431,13 +437,13 @@ function GeoQuestForm({
         </label>
 
         <label style={{ display: 'grid', gap: '8px', color: 'var(--text)', fontWeight: 700 }}>
-          <span>معرف الموقع</span>
+          <span>الموقع المرتبط</span>
           <input
             type="text"
-            value={formData.locationId}
+            value={selectedLocationName}
             readOnly
             required
-            style={{ ...inputStyle, fontFamily: 'monospace', direction: 'ltr' }}
+            style={{ ...inputStyle, background: 'rgba(37,99,235,0.06)', color: 'var(--text)' }}
           />
         </label>
 
@@ -499,6 +505,14 @@ export default function GeoQuestsTab() {
 
   const [locations, setLocations] = useState([]);
   const [locationsLoading, setLocationsLoading] = useState(false);
+  const locationNameById = useMemo(
+    () =>
+      locations.reduce((acc, location) => {
+        if (location?.id) acc[String(location.id)] = location.name || 'موقع المهمة';
+        return acc;
+      }, {}),
+    [locations]
+  );
 
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
@@ -575,6 +589,9 @@ export default function GeoQuestsTab() {
   const handleSelectLocation = (location) => {
     setFormData((current) => ({ ...current, locationId: String(location?.id || '') }));
   };
+
+  const getLocationDisplayName = (locationId) =>
+    locationNameById[String(locationId || '')] || 'موقع المهمة';
 
   const handleOpenCreate = async () => {
     setFormData(initialFormState);
@@ -733,90 +750,71 @@ export default function GeoQuestsTab() {
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1240px', margin: '0 auto' }}>
-      <motion.div
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        style={{
-          marginBottom: '24px',
-          borderRadius: '28px',
-          background:
-            'radial-gradient(circle at top right, rgba(59, 130, 246, 0.28), transparent 30%), linear-gradient(135deg, #0f172a, #1e293b)',
-          color: '#fff',
-          padding: '28px',
-          display: 'flex',
-          gap: '18px',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <div
-            style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '20px',
-              background: 'rgba(255,255,255,0.14)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '28px',
-            }}
-          >
-            <FaMapMarkedAlt />
+    <div className="geo-quests-tab" style={{ background: 'transparent' }}>
+      <div className="geo-quests-tab__container" style={{ padding: '24px', maxWidth: '1240px', margin: '0 auto' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            marginBottom: '24px',
+            borderRadius: '28px',
+            background: 'var(--bg-card)',
+            boxShadow: 'var(--shadow-lg)',
+            border: '1px solid var(--border-light)',
+            color: 'var(--text-primary)',
+            padding: '28px',
+            display: 'flex',
+            gap: '18px',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '20px',
+                background: 'var(--primary-light)',
+                color: 'var(--primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '28px',
+              }}
+            >
+              <FaMapMarkedAlt />
+            </div>
+            <div>
+              <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900, color: 'var(--text-primary)' }}>المهام الجغرافية</h2>
+              <p style={{ margin: '6px 0 0 0', color: 'var(--text-secondary)', fontWeight: 700 }}>
+                عرض المهام المرتبطة بمواقع جغرافية محددة وإدارتها بشكل كامل.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900 }}>المهام الجغرافية</h2>
-            <p style={{ margin: '6px 0 0 0', color: 'rgba(255,255,255,0.78)', fontWeight: 700 }}>
-              عرض عناصر `GeoQuests` لكل الأدوار، مع إدارة كاملة للأدمن وزر بدء للمستخدمين غير الأدمن.
-            </p>
+
+          {isAdmin ? (
+            <button type="button" onClick={handleOpenCreate} className="app-btn-primary">
+              <FaPlus />
+              <span>إضافة مهمة جغرافية</span>
+            </button>
+          ) : null}
+        </motion.div>
+
+        {/* Search Section */}
+        <div className="pro-section" style={{ marginBottom: 0 }}>
+          <div className="pro-input-group" style={{ maxWidth: '500px' }}>
+            <FaSearch className="pro-input-icon" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="البحث باسم المهمة أو الموقع..."
+              className="pro-input with-icon"
+            />
           </div>
         </div>
-
-        {isAdmin ? (
-          <button type="button" onClick={handleOpenCreate} style={primaryButtonStyle}>
-            <FaPlus />
-            <span>إضافة مهمة جغرافية</span>
-          </button>
-        ) : null}
-      </motion.div>
-
-      <div
-        style={{
-          marginBottom: '20px',
-          display: 'flex',
-          gap: '12px',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-        }}
-      >
-        <div style={{ position: 'relative', flex: '1 1 280px' }}>
-          <FaSearch
-            style={{
-              position: 'absolute',
-              right: '14px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--text-muted)',
-            }}
-          />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(event) => {
-              setSearchTerm(event.target.value);
-              setPageNumber(1);
-            }}
-            placeholder="ابحث بالعنوان..."
-            style={{ ...inputStyle, paddingRight: '42px' }}
-          />
-        </div>
-
-        <button type="button" onClick={() => loadGeoQuests(pageNumber, searchTerm)} style={secondaryButtonStyle}>
-          تحديث
-        </button>
-      </div>
 
       {error ? (
         <div style={{ ...errorBoxStyle, marginBottom: '20px' }}>
@@ -909,17 +907,6 @@ export default function GeoQuestsTab() {
                       <h3 style={{ margin: 0, color: 'var(--text)', fontSize: '18px', fontWeight: 800 }}>
                         {geoQuest.title || 'مهمة بدون عنوان'}
                       </h3>
-                      <div
-                        style={{
-                          marginTop: '8px',
-                          color: 'var(--text-muted)',
-                          fontSize: '12px',
-                          fontFamily: 'monospace',
-                          wordBreak: 'break-all',
-                        }}
-                      >
-                        {geoQuest.locationId || 'بدون locationId'}
-                      </div>
                     </div>
                   </div>
 
@@ -976,7 +963,7 @@ export default function GeoQuestsTab() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
                     <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>الموقع</span>
-                    <span style={{ color: 'var(--text)', fontWeight: 800 }}>{geoQuest.locationId || '-'}</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 800 }}>{getLocationDisplayName(geoQuest.locationId)}</span>
                   </div>
                 </div>
 
@@ -1154,39 +1141,16 @@ export default function GeoQuestsTab() {
                 </div>
 
                 <div style={{ borderRadius: '18px', background: 'var(--background)', padding: '16px' }}>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>معرف المهمة</div>
-                  <div
-                    style={{
-                      marginTop: '8px',
-                      color: 'var(--text)',
-                      fontFamily: 'monospace',
-                      fontSize: '13px',
-                      wordBreak: 'break-all',
-                    }}
-                  >
-                    {selectedGeoQuest.id || 'غير متوفر'}
-                  </div>
-                </div>
-
-                <div style={{ borderRadius: '18px', background: 'var(--background)', padding: '16px' }}>
                   <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>العنوان</div>
                   <div style={{ marginTop: '8px', color: 'var(--text)', lineHeight: 1.8 }}>
-                    {selectedGeoQuest.title || 'غير متوفر'}
+                    {selectedGeoQuest.title || 'مهمة جغرافية'}
                   </div>
                 </div>
 
                 <div style={{ borderRadius: '18px', background: 'var(--background)', padding: '16px' }}>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>locationId</div>
-                  <div
-                    style={{
-                      marginTop: '8px',
-                      color: 'var(--text)',
-                      lineHeight: 1.8,
-                      fontFamily: 'monospace',
-                      wordBreak: 'break-all',
-                    }}
-                  >
-                    {selectedGeoQuest.locationId || 'غير متوفر'}
+                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>الموقع</div>
+                  <div style={{ marginTop: '8px', color: 'var(--text)', lineHeight: 1.8 }}>
+                    {getLocationDisplayName(selectedGeoQuest.locationId)}
                   </div>
                 </div>
 
@@ -1267,6 +1231,7 @@ export default function GeoQuestsTab() {
           </GeoQuestModal>
         ) : null}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

@@ -705,7 +705,7 @@ export default function ActivitiesTab() {
                 </div>
 
                 <div style={{ borderRadius: '18px', background: 'var(--background)', padding: '16px' }}>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>معرف النشاط</div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>نوع النشاط</div>
                   <div
                     style={{
                       marginTop: '8px',
@@ -715,7 +715,7 @@ export default function ActivitiesTab() {
                       wordBreak: 'break-all',
                     }}
                   >
-                    {getActivityId(selectedActivity) || 'غير متوفر'}
+                    {selectedActivity.type || selectedActivity.actionType || selectedActivity.status || 'نشاط'}
                   </div>
                 </div>
 

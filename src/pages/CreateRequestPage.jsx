@@ -280,20 +280,26 @@ export default function CreateRequestPage() {
 
   return (
     <>
-      <style>{CSS}</style>
       <CanvasBackground />
       <RocketBackground />
       <AnimatedBackground />
-      <div className="create-request-container">
-        <div className="create-request-card">
-          <h1 className="create-request-title">
-            <FaPlus />
-            إنشاء طلب جديد
-          </h1>
+      <div className="create-request-container" style={{ minHeight: '100vh', padding: '40px 20px', display: 'grid', placeItems: 'center' }}>
+        <div className="app-modal-card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div className="app-modal-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                <FaPlus size={20} />
+              </div>
+              <div>
+                <h1 className="app-modal-title">إنشاء طلب جديد</h1>
+                <p className="app-modal-subtitle">أدخل بيانات الحالة والمستندات المطلوبة</p>
+              </div>
+            </div>
+          </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="childId">
+          <form onSubmit={handleSubmit} className="app-form">
+            <div className="app-form-group">
+              <label className="app-form-label" htmlFor="childId">
                 <FaChild style={{ marginLeft: 8 }} />
                 اختيار الطفل
               </label>
@@ -302,7 +308,7 @@ export default function CreateRequestPage() {
                 name="childId"
                 value={formData.childId}
                 onChange={handleInputChange}
-                className="form-select"
+                className="app-form-select"
                 required
               >
                 <option value="">اختر الطفل...</option>
@@ -314,8 +320,8 @@ export default function CreateRequestPage() {
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="requestType">
+            <div className="app-form-group">
+              <label className="app-form-label" htmlFor="requestType">
                 نوع الطلب
               </label>
               <select
@@ -323,7 +329,7 @@ export default function CreateRequestPage() {
                 name="requestType"
                 value={formData.requestType}
                 onChange={handleInputChange}
-                className="form-select"
+                className="app-form-select"
                 required
               >
                 <option value="">اختر نوع الطلب...</option>
@@ -335,8 +341,8 @@ export default function CreateRequestPage() {
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="description">
+            <div className="app-form-group">
+              <label className="app-form-label" htmlFor="description">
                 وصف الحالة
               </label>
               <textarea
@@ -344,78 +350,94 @@ export default function CreateRequestPage() {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                className="form-textarea"
+                className="app-form-textarea"
                 placeholder="وصف تفصيلي لحالة الطفل واحتياجاته..."
                 required
+                rows={4}
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="hospital">
-                <FaHospital style={{ marginLeft: 8 }} />
-                المستشفى أو المؤسسة
-              </label>
-              <input
-                type="text"
-                id="hospital"
-                name="hospital"
-                value={formData.hospital}
-                onChange={handleInputChange}
-                className="form-input"
-                placeholder="اسم المستشفى أو المؤسسة التعليمية..."
-                required
-              />
+            <div className="app-form-grid">
+              <div className="app-form-group">
+                <label className="app-form-label" htmlFor="hospital">
+                  <FaHospital style={{ marginLeft: 8 }} />
+                  المستشفى أو المؤسسة
+                </label>
+                <input
+                  type="text"
+                  id="hospital"
+                  name="hospital"
+                  value={formData.hospital}
+                  onChange={handleInputChange}
+                  className="app-form-input"
+                  placeholder="اسم المستشفى أو المؤسسة..."
+                  required
+                />
+              </div>
+
+              <div className="app-form-group">
+                <label className="app-form-label" htmlFor="amount">
+                  <FaMoneyBillWave style={{ marginLeft: 8 }} />
+                  المبلغ المطلوب
+                </label>
+                <input
+                  type="number"
+                  id="amount"
+                  name="amount"
+                  value={formData.amount}
+                  onChange={handleInputChange}
+                  className="app-form-input"
+                  placeholder="المبلغ المطلوب..."
+                  min="1"
+                  required
+                />
+              </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="amount">
-                <FaMoneyBillWave style={{ marginLeft: 8 }} />
-                المبلغ المطلوب (بالجنيه المصري)
-              </label>
-              <input
-                type="number"
-                id="amount"
-                name="amount"
-                value={formData.amount}
-                onChange={handleInputChange}
-                className="form-input"
-                placeholder="المبلغ المطلوب..."
-                min="1"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="documents">
+            <div className="app-form-group">
+              <label className="app-form-label" htmlFor="documents">
                 <FaFileAlt style={{ marginLeft: 8 }} />
                 المستندات
               </label>
-              <div className="file-input-wrapper">
+              <div style={{ position: 'relative' }}>
                 <input
                   type="file"
                   id="documents"
                   name="documents"
                   onChange={handleFileChange}
-                  className="file-input"
+                  style={{ display: 'none' }}
                   multiple
                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                 />
-                <label htmlFor="documents" className="file-input-label">
+                <label 
+                  htmlFor="documents" 
+                  className="app-form-input" 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: '10px', 
+                    cursor: 'pointer',
+                    borderStyle: 'dashed',
+                    background: 'var(--bg-card-2)'
+                  }}
+                >
                   <FaFileAlt />
-                  اختر الملفات (PDF, صور, مستندات)
-                  {formData.documents && formData.documents.length > 0 && (
-                    <span style={{ marginRight: 10, color: '#667eea' }}>
-                      ({formData.documents.length} ملف مختار)
-                    </span>
+                  {formData.documents && formData.documents.length > 0 ? (
+                    <span>({formData.documents.length} ملف مختار)</span>
+                  ) : (
+                    <span>اختر الملفات (PDF, صور, مستندات)</span>
                   )}
                 </label>
               </div>
             </div>
 
-            <button type="submit" className="submit-btn">
-              <FaPaperPlane />
-              إرسال الطلب
-            </button>
+            <div className="app-form-actions">
+              <button type="submit" className="app-btn-primary w-full py-4 text-lg">
+                <FaPaperPlane style={{ marginLeft: 8 }} />
+                إرسال الطلب
+              </button>
+            </div>
           </form>
         </div>
       </div>

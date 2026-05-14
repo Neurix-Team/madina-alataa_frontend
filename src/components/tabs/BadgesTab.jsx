@@ -381,6 +381,7 @@ export default function BadgesTab() {
   );
 
   const [badges, setBadges] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
@@ -566,55 +567,78 @@ export default function BadgesTab() {
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
+  const filteredBadges = badges.filter(badge => 
+    badge.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    badge.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    badge.requirement?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div style={{ padding: '24px', maxWidth: '1240px', margin: '0 auto' }}>
-      <motion.div
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        style={{
-          marginBottom: '24px',
-          borderRadius: '28px',
-          background:
-            'radial-gradient(circle at top right, rgba(250, 204, 21, 0.34), transparent 30%), linear-gradient(135deg, #0f172a, #1f2937)',
-          color: '#fff',
-          padding: '28px',
-          display: 'flex',
-          gap: '18px',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <div
-            style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '20px',
-              background: 'rgba(255,255,255,0.14)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '28px',
-            }}
-          >
-            <FaTrophy />
+    <div className="badges-tab" style={{ background: 'transparent' }}>
+      <div className="badges-tab__container" style={{ padding: '24px', maxWidth: '1240px', margin: '0 auto' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            marginBottom: '24px',
+            borderRadius: '28px',
+            background: 'var(--bg-card)',
+            boxShadow: 'var(--shadow-lg)',
+            border: '1px solid var(--border-light)',
+            color: 'var(--text-primary)',
+            padding: '28px',
+            display: 'flex',
+            gap: '18px',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '20px',
+                background: 'var(--primary-light)',
+                color: 'var(--primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '28px',
+              }}
+            >
+              <FaTrophy />
+            </div>
+            <div>
+              <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900, color: 'var(--text-primary)' }}>الأوسمة والشارات</h2>
+              <p style={{ margin: '6px 0 0 0', color: 'var(--text-secondary)', fontWeight: 700 }}>
+                إدارة الأوسمة والجوائز التي يحصل عليها المتطوعون بناءً على نشاطهم.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900 }}>الأوسمة</h2>
-            <p style={{ margin: '6px 0 0 0', color: 'rgba(255,255,255,0.78)', fontWeight: 700 }}>
-              عرض الأوسمة والتفاصيل للجميع، وإدارة الأوسمة للأدمن فقط.
-            </p>
+
+          {isAdmin ? (
+            <button type="button" onClick={handleOpenCreate} className="app-btn-primary">
+              <FaPlus />
+              <span>إضافة وسام جديد</span>
+            </button>
+          ) : null}
+        </motion.div>
+
+        {/* Search Section */}
+        <div className="pro-section" style={{ marginBottom: 0 }}>
+          <div className="pro-input-group" style={{ maxWidth: '500px' }}>
+            <FaSearch className="pro-input-icon" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="البحث باسم الوسام أو المتطلبات..."
+              className="pro-input with-icon"
+            />
           </div>
         </div>
-
-        {isAdmin ? (
-          <button type="button" onClick={handleOpenCreate} style={primaryButtonStyle}>
-            <FaPlus />
-            <span>إضافة شارة</span>
-          </button>
-        ) : null}
-      </motion.div>
 
       {error ? (
         <div style={{ ...errorBoxStyle, marginTop: 0, marginBottom: '20px' }}>
@@ -671,7 +695,7 @@ export default function BadgesTab() {
               gap: '18px',
             }}
           >
-            {badges.map((badge, index) => (
+            {filteredBadges.map((badge, index) => (
               <motion.div
                 key={getBadgeId(badge) || index}
                 initial={{ opacity: 0, y: 16 }}
@@ -924,23 +948,6 @@ export default function BadgesTab() {
                     {selectedBadge.requirement || 'لا توجد متطلبات.'}
                   </div>
                 </div>
-
-                <div style={{ borderRadius: '18px', background: 'var(--background)', padding: '16px' }}>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>
-                    معرف الوسام
-                  </div>
-                  <div
-                    style={{
-                      marginTop: '8px',
-                      color: 'var(--text)',
-                      fontFamily: 'monospace',
-                      fontSize: '13px',
-                      wordBreak: 'break-all',
-                    }}
-                  >
-                    {getBadgeId(selectedBadge) || 'غير متوفر'}
-                  </div>
-                </div>
               </div>
             ) : null}
           </BadgeModal>
@@ -1010,6 +1017,7 @@ export default function BadgesTab() {
           </BadgeModal>
         ) : null}
       </AnimatePresence>
+    </div>
     </div>
   );
 }

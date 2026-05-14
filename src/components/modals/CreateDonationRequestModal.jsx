@@ -5,8 +5,6 @@ import {
   FaHandHoldingHeart,
   FaSave,
   FaExclamationTriangle,
-  FaMoneyBillWave,
-  FaBuilding,
   FaInfoCircle,
   FaSpinner,
   FaHeading,
@@ -17,11 +15,10 @@ import { donationRequestsService } from '../../services/donationRequestsService'
 import partnersService from '../../services/partnersService';
 import LocationIdMapSelector from '../shared/LocationIdMapSelector';
 
-const panelClass =
-  'rounded-[28px] border border-rose-100 bg-white p-5 shadow-xl shadow-rose-100/60 md:p-6';
+const cardClass = 'rounded-2xl border border-slate-200 bg-white p-6 shadow-sm';
 
 const fieldClassBase =
-  'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-rose-400 focus:bg-rose-50 focus:ring-4 focus:ring-rose-100';
+  'w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-200';
 
 const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = [] }) => {
   const [formData, setFormData] = useState({
@@ -39,11 +36,11 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
 
   const urgencyLevels = useMemo(
     () => [
-      { value: 1, label: 'منخفض' },
-      { value: 2, label: 'متوسط' },
-      { value: 3, label: 'عالي' },
-      { value: 4, label: 'حرج' },
-      { value: 5, label: 'طارئ' },
+      { value: 1, label: 'منخفض', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+      { value: 2, label: 'متوسط', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+      { value: 3, label: 'عالي', color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' },
+      { value: 4, label: 'حرج', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
+      { value: 5, label: 'طارئ', color: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-100' },
     ],
     []
   );
@@ -91,8 +88,9 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
 
     if (!formData.title.trim()) newErrors.title = 'عنوان الطلب مطلوب';
     if (!formData.locationId.trim()) newErrors.locationId = 'اختيار العنوان من الخريطة مطلوب';
-    if (!formData.donateAmount || formData.donateAmount <= 0) newErrors.donateAmount = 'مبلغ التبرع يجب أن يكون أكبر من صفر';
-    if (!formData.partnerId.trim()) newErrors.partnerId = 'معرف الشريك مطلوب';
+    if (!formData.donateAmount || formData.donateAmount <= 0)
+      newErrors.donateAmount = 'مبلغ التبرع يجب أن يكون أكبر من صفر';
+    if (!formData.partnerId.trim()) newErrors.partnerId = 'الشريك المستلم مطلوب';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -113,12 +111,9 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
         partnerId: formData.partnerId.trim(),
       };
 
-      const response = await donationRequestsService.createDonationRequest(payload);
-      const responseData = response?.data || response;
-      const requestId =
-        responseData?.id || responseData?.requestId || responseData?.donationRequestId || 'غير متوفر';
+      await donationRequestsService.createDonationRequest(payload);
 
-      alert(`تم إنشاء طلب التبرع بنجاح.\nمعرف الطلب: ${requestId}`);
+      alert('تم إنشاء طلب التبرع بنجاح.');
 
       setFormData({
         title: '',
@@ -167,8 +162,10 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
 
   if (!isOpen) return null;
 
-  const fieldClass = (name) =>
-    `${fieldClassBase} ${errors[name] ? 'border-red-400/55' : ''}`;
+  const fieldClass =
+    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-blue-50/30 focus:ring-4 focus:ring-blue-100/50';
+
+  const labelClass = 'block text-sm font-bold text-slate-700 mb-2 mr-1';
 
   return (
     <AnimatePresence>
@@ -176,176 +173,170 @@ const CreateDonationRequestModal = ({ isOpen, onClose, onSuccess, locations = []
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-md"
+        className="app-modal-overlay"
         onClick={onClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-          className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-[30px] border border-rose-100 bg-slate-50 shadow-2xl shadow-slate-300/60"
+          className="app-modal-card"
           onClick={(e) => e.stopPropagation()}
           dir="rtl"
         >
-          <div className="relative border-b border-slate-200 bg-white/90 px-6 py-5 md:px-8">
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,241,242,0.78),rgba(255,255,255,0.42)_50%,rgba(240,253,244,0.6))]" />
-            <div className="relative flex items-start justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-rose-400 to-pink-500 text-white shadow-lg">
-                  <FaHandHoldingHeart className="text-lg" />
-                </div>
-                <div>
-                  <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-950">إضافة طلب تبرع جديد</h2>
-                  <p className="mt-1 text-sm font-medium text-slate-600">نموذج منظم لإنشاء الطلب مع اختيار العنوان من الخريطة مباشرة.</p>
-                </div>
+          {/* Header */}
+          <div className="app-modal-header">
+            <div className="flex items-center gap-4">
+              <div className="w-[52px] h-[52px] rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 shadow-sm">
+                <FaHandHoldingHeart className="text-xl" />
               </div>
-
-              <motion.button
-                whileHover={{ scale: 1.05, rotate: 90 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onClose}
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm"
-              >
-                <FaTimes />
-              </motion.button>
+              <div>
+                <h3 className="app-modal-title">إنشاء طلب تبرع</h3>
+                <p className="app-modal-subtitle">إضافة طلب تبرع جديد وتحديد الشريك والموقع</p>
+              </div>
             </div>
+            <button
+              onClick={onClose}
+              className="app-modal-close"
+            >
+              <FaTimes />
+            </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="max-h-[calc(92vh-88px)] overflow-y-auto px-6 py-6 md:px-8 md:py-8">
-            <div className="flex flex-col gap-10">
-              <div className="flex flex-col gap-7">
-                <section className={panelClass}>
-                  <div className="mb-8 border-b border-white/5 pb-4">
-                    <h3 className="text-xl font-bold text-slate-950">تفاصيل الطلب</h3>
-                    <p className="mt-1 text-sm text-slate-400">يرجى إدخال المعلومات الأساسية لطلب التبرع الجديد.</p>
+          {/* Content */}
+          <div className="overflow-y-auto">
+            <form onSubmit={handleSubmit} className="app-form">
+              <div className="app-form-grid">
+                <div className="space-y-5">
+                  <div className="app-form-group">
+                    <label className="app-form-label">عنوان الطلب</label>
+                    <div className="relative">
+                      <FaHeading className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        className="app-form-input w-full pr-12"
+                        placeholder="مثال: شراء كراسي متحركة"
+                      />
+                    </div>
+                    {errors.title && <p className="text-red-500 text-xs mt-1 mr-1 font-bold">{errors.title}</p>}
                   </div>
 
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <div>
-                      <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
-                        <FaHeading className="text-rose-300" />
-                        <span>عنوان الطلب</span>
-                      </label>
-                      <input type="text" name="title" value={formData.title} onChange={handleInputChange} placeholder="أدخل عنوان الطلب" className={fieldClass('title')} />
-                      {errors.title && <div className="mt-2 text-sm font-medium text-red-300">{errors.title}</div>}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="app-form-group">
+                      <label className="app-form-label">المبلغ المطلوب</label>
+                      <div className="relative">
+                        <FaCoins className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-500" />
+                        <input
+                          type="number"
+                          name="donateAmount"
+                          value={formData.donateAmount}
+                          onChange={handleInputChange}
+                          className="app-form-input w-full pr-12"
+                          min="1"
+                        />
+                      </div>
+                      {errors.donateAmount && <p className="text-red-500 text-xs mt-1 mr-1 font-bold">{errors.donateAmount}</p>}
                     </div>
-
-                    <div>
-                      <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
-                        <FaCoins className="text-amber-300" />
-                        <span>المبلغ المطلوب (ج.م)</span>
-                      </label>
-                      <input type="number" name="donateAmount" value={formData.donateAmount} onChange={handleInputChange} placeholder="0.00" className={fieldClass('donateAmount')} />
-                      {errors.donateAmount && <div className="mt-2 text-sm font-medium text-red-300">{errors.donateAmount}</div>}
-                    </div>
-
-                    <div>
-                      <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
-                        <FaExclamationTriangle className="text-orange-300" />
-                        <span>مستوى الأهمية</span>
-                      </label>
-                      <select name="urgencyLevel" value={formData.urgencyLevel} onChange={handleInputChange} className={fieldClass('urgencyLevel')}>
-                        {urgencyLevels.map((level) => (
-                          <option key={level.value} value={level.value} className="bg-slate-900">
-                            {level.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
-                        <FaHandshake className="text-emerald-300" />
-                        <span>الشريك المستلم</span>
-                      </label>
-                      <select name="partnerId" value={formData.partnerId} onChange={handleInputChange} className={fieldClass('partnerId')}>
-                        <option value="" className="bg-slate-900">
-                          {isLoadingPartners ? 'جاري تحميل الشركاء...' : 'اختر الشريك'}
-                        </option>
-                        {partnerOptions.map((partner) => (
-                          <option key={partner.id} value={partner.id} className="bg-slate-900">
-                            {partner.label}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.partnerId && <div className="mt-2 text-sm font-medium text-red-300">{errors.partnerId}</div>}
-                    </div>
-
-                    <div className="md:col-span-2">
-                      <label className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-200">
-                        <FaInfoCircle className="text-cyan-300" />
-                        <span>وصف مختصر</span>
-                      </label>
-                      <textarea name="briefDescription" value={formData.briefDescription} onChange={handleInputChange} rows="3" placeholder="أدخل وصفًا مختصرًا للطلب" className={`${fieldClass('briefDescription')} resize-none`} />
+                    <div className="app-form-group">
+                      <label className="app-form-label">الشريك المستلم</label>
+                      <div className="relative">
+                        <FaHandshake className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500" />
+                        <select
+                          name="partnerId"
+                          value={formData.partnerId}
+                          onChange={handleInputChange}
+                          className="app-form-select w-full pr-12 appearance-none"
+                        >
+                          <option value="">اختر شريكاً</option>
+                          {partnerOptions.map((opt) => (
+                            <option key={opt.id} value={opt.id}>{opt.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      {errors.partnerId && <p className="text-red-500 text-xs mt-1 mr-1 font-bold">{errors.partnerId}</p>}
                     </div>
                   </div>
-                </section>
 
-                <LocationIdMapSelector
-                  locations={locations}
-                  selectedLocationId={formData.locationId}
-                  onSelect={handleLocationSelect}
-                  title="اختيار عنوان الطلب"
-                  subtitle="اختر عنوانًا من العناوين المضافة ليتم ربطه بطلب التبرع."
-                />
-                {errors.locationId && <div className="px-2 text-sm font-medium text-red-300">{errors.locationId}</div>}
+                  <div className="app-form-group">
+                    <label className="app-form-label">مستوى الاستعجال</label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {urgencyLevels.map((lvl) => (
+                        <button
+                          key={lvl.value}
+                          type="button"
+                          onClick={() => setFormData((prev) => ({ ...prev, urgencyLevel: lvl.value }))}
+                          className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all ${
+                            formData.urgencyLevel === lvl.value
+                              ? `${lvl.bg} ${lvl.border} ${lvl.color} ring-2 ring-offset-1 ring-blue-400`
+                              : 'bg-white border-slate-200 text-slate-400 grayscale'
+                          }`}
+                        >
+                          <span className="text-xs font-bold">{lvl.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="app-form-group">
+                  <label className="app-form-label">اختيار الموقع من الخريطة</label>
+                  <LocationIdMapSelector
+                    locations={locations}
+                    selectedLocationId={formData.locationId}
+                    onSelect={handleLocationSelect}
+                  />
+                  {errors.locationId && <p className="text-red-500 text-xs mt-1 mr-1 font-bold">{errors.locationId}</p>}
+                </div>
               </div>
-            </div>
 
-            {errors.submit && (
-              <div className="mt-6 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3.5 text-sm font-medium text-red-200">
-                {errors.submit}
+              <div className="app-form-group">
+                <label className="app-form-label">الوصف المختصر</label>
+                <div className="relative">
+                  <FaInfoCircle className="absolute right-4 top-4 text-slate-400" />
+                  <textarea
+                    name="briefDescription"
+                    value={formData.briefDescription}
+                    onChange={handleInputChange}
+                    className="app-form-textarea w-full pr-12 min-h-[100px]"
+                    placeholder="اكتب وصفاً مختصراً لطلب التبرع..."
+                    rows={3}
+                  />
+                </div>
               </div>
-            )}
 
-            <div className="mt-7 flex gap-4 border-t border-slate-200 pt-7">
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                type="button"
-                onClick={onClose}
-                className="flex-1 rounded-[22px] border border-slate-200 bg-white px-6 py-4 text-base font-semibold text-slate-700 shadow-sm"
-                disabled={isSubmitting}
-              >
-                إلغاء
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-[1.4] rounded-[22px] bg-gradient-to-r from-rose-400 to-pink-500 px-6 py-4 text-base font-semibold text-white shadow-xl"
-              >
-                {isSubmitting ? (
-                  <span className="inline-flex items-center gap-2">
+              {/* Footer Buttons */}
+              <div className="app-form-actions pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="app-btn-secondary px-8 py-4"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="app-btn-primary flex-1 py-4 flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
                     <FaSpinner className="animate-spin" />
-                    <span>جاري الإنشاء...</span>
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-2">
-                    <FaSave />
-                    <span>إضافة طلب جديد</span>
-                  </span>
-                )}
-              </motion.button>
-            </div>
-          </form>
+                  ) : (
+                    <>
+                      <FaSave className="text-sm" />
+                      <span>إنشاء الطلب</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>
   );
 };
-
-function ReviewRow({ label, value, mono = false }) {
-  return (
-    <div className="flex items-center justify-between gap-4 rounded-[18px] border border-rose-100 bg-rose-50 px-4 py-3.5">
-      <span className="text-sm font-medium text-slate-600">{label}</span>
-      <span className={`text-sm font-semibold text-slate-900 ${mono ? 'font-mono break-all text-left' : ''}`} dir={mono ? 'ltr' : undefined}>
-        {value}
-      </span>
-    </div>
-  );
-}
 
 export default CreateDonationRequestModal;

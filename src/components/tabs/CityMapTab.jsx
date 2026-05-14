@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import CityBuilderService from '../../services/CityBuilderService';
 import AudioManager       from '../../services/AudioManager';
 import { caseMarkers, hospitalMarkers, CITIES } from '../../data/mapLocations';
@@ -84,7 +84,6 @@ const CityMapTab = () => {
 
   return (
     <div className="city-tab">
-
       {/* Header */}
       <div className="city-header">
         <div>

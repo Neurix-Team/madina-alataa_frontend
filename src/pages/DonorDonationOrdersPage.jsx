@@ -242,7 +242,6 @@ const DonorDonationOrdersPage = () => {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>المعرف</th>
                   <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>المبلغ</th>
                   <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>طريقة الدفع</th>
                   <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>الفئة</th>
@@ -262,11 +261,6 @@ const DonorDonationOrdersPage = () => {
                 ) : (
                   filteredOrders.map((order) => (
                     <tr key={order.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '12px', color: 'var(--text)' }}>
-                        <span style={{ fontFamily: 'monospace', fontSize: '12px' }}>
-                          {order.id?.substring(0, 8)}...
-                        </span>
-                      </td>
                       <td style={{ padding: '12px', color: 'var(--text)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <FaMoneyBillWave style={{ color: 'var(--primary)' }} />
@@ -432,11 +426,6 @@ const DonorDonationOrdersPage = () => {
               </div>
 
               <div style={{ display: 'grid', gap: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>المعرف:</span>
-                  <span style={{ color: 'var(--text)', fontFamily: 'monospace' }}>{selectedOrder.id}</span>
-                </div>
-
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
                   <span style={{ color: 'var(--text-muted)' }}>المبلغ:</span>
                   <span style={{ color: 'var(--text)' }}>{selectedOrder.amount || 0}</span>

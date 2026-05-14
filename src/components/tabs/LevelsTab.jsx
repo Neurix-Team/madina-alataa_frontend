@@ -820,17 +820,9 @@ export default function LevelsTab() {
                 </div>
 
                 <div style={{ borderRadius: '18px', background: 'var(--background)', padding: '16px' }}>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>معرف المستوى</div>
-                  <div
-                    style={{
-                      marginTop: '8px',
-                      color: 'var(--text)',
-                      fontFamily: 'monospace',
-                      fontSize: '13px',
-                      wordBreak: 'break-all',
-                    }}
-                  >
-                    {getLevelId(selectedLevel) || 'غير متوفر'}
+                  <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: 800 }}>اسم المستوى</div>
+                  <div style={{ marginTop: '8px', color: 'var(--text)', lineHeight: 1.8, fontWeight: 800 }}>
+                    {selectedLevel.name || `المستوى ${selectedLevel.number || 0}`}
                   </div>
                 </div>
 

@@ -14,6 +14,17 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import UserGeoQuestsPanel from '../components/userGeoQuests/UserGeoQuestsPanel';
 
+const getUserDisplayName = (userItem) =>
+  userItem?.fullName ||
+  userItem?.name ||
+  userItem?.email ||
+  userItem?.phoneNumber ||
+  'هذا المستخدم';
+
+const getUserDeleteId = (userItem) =>
+  userItem?.id || userItem?.userId || userItem?.userID || userItem?.Id || userItem?.UserId || '';
+
+
 const ACTIONS = [
   { id: 'list', label: 'قائمة المستخدمين', Icon: FaUsers, color: '#4338ca' },
   { id: 'create', label: 'إنشاء مستخدم جديد', Icon: FaUserPlus, color: '#10b981' },
@@ -31,38 +42,32 @@ const PanelShell = ({ title, children, icon: Icon }) => (
   <motion.div 
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
+    className="app-modal-card"
     style={{
-      background: 'linear-gradient(180deg, #ffffff 0%, #f8faff 100%)',
-      borderRadius: 24,
-      padding: '24px',
-      boxShadow: '0 20px 40px rgba(15, 23, 42, 0.08)',
-      border: '1.5px solid rgba(226, 232, 240, 0.8)',
-      position: 'relative',
-      overflow: 'hidden'
+      width: '100%',
+      marginBottom: '24px',
     }}
   >
-    <div style={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      gap: 12, 
-      marginBottom: 20,
-      borderBottom: '1px solid #f1f5f9',
-      paddingBottom: 16
-    }}>
-      <div style={{
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        background: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyChild: 'center',
-        justifyContent: 'center',
-        color: '#4338ca'
+    <div className="app-modal-header" style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '16px', marginBottom: '20px' }}>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 12,
       }}>
-        {Icon && <Icon size={20} />}
+        <div style={{
+          width: 40,
+          height: 40,
+          borderRadius: 12,
+          background: 'var(--bg-card-2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--primary)'
+        }}>
+          {Icon && <Icon size={20} />}
+        </div>
+        <h3 className="app-modal-title" style={{ fontSize: 18 }}>{title}</h3>
       </div>
-      <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#0f172a' }}>{title}</h3>
     </div>
     {children}
   </motion.div>
@@ -160,10 +165,6 @@ const UserCard = ({ user, index }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 12 }}>
             <FaEnvelope size={10} />
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#94a3b8', fontSize: 11, marginTop: 4 }}>
-            <FaIdBadge size={10} />
-            <span>{uid}</span>
           </div>
         </div>
       </div>
@@ -353,7 +354,7 @@ fetchUserCertificates(normalizedUser.id);
       fetchUserLevel(normalizedUser.profileId || normalizedUser.id);
     } catch (err) {
       console.error('Failed to fetch user details:', err);
-      setDetailsError('فشل في جلب تفاصيل المستخدم. قد يكون المعرف غير صحيح.');
+      setDetailsError('فشل في جلب تفاصيل المستخدم. قد تكون بيانات المستخدم غير صحيحة.');
     } finally {
       setFetchingDetails(false);
     }
@@ -367,7 +368,7 @@ fetchUserCertificates(normalizedUser.id);
 
       if (!targetId) {
         console.warn('No user/profile ID found for user:', user);
-        setUserProfileError('معرف المستخدم أو البروفايل غير متوفر.');
+        setUserProfileError('بيانات المستخدم أو البروفايل غير مكتملة.');
         return;
       }
 
@@ -1023,20 +1024,41 @@ const [pagination, setPagination] = useState({
 
   // Delete User Functions
   const handleDeleteUser = async () => {
-    if (!selectedUserForDelete?.id) return;
+    const selectedDeleteId = getUserDeleteId(selectedUserForDelete);
+    if (!selectedDeleteId) {
+      setDeleteError('لا توجد بيانات كافية لحذف هذا المستخدم.');
+      return;
+    }
+
+    const userLabel = getUserDisplayName(selectedUserForDelete);
+    const confirmed = window.confirm(`هل أنت متأكد من حذف "${userLabel}"؟ لا يمكن التراجع عن هذا الإجراء.`);
+    if (!confirmed) return;
+
+    const token = getStoredAuthToken();
+    if (!token) {
+      setDeleteError('لا يوجد توكن تسجيل دخول. يرجى تسجيل الدخول مرة أخرى.');
+      return;
+    }
 
     setDeleting(true);
     setDeleteError(null);
     setDeleteSuccess(false);
 
     try {
-      console.log('DELETE USER ID:', selectedUserForDelete.id);
+      console.log('DELETE USER ID:', selectedDeleteId);
 
       const resp = await axiosClient.delete(
-        `/api/user/${selectedUserForDelete.id}?reason=${encodeURIComponent(deleteReason || '')}`
+        `/api/user/${selectedDeleteId}?reason=${encodeURIComponent(deleteReason || '')}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       console.log('DELETE USER API RESPONSE:', resp.data);
 
+      setUsers((current) => current.filter((item) => String(getUserDeleteId(item)) !== String(selectedDeleteId)));
+      setTotalCount((current) => Math.max(0, Number(current || 0) - 1));
       setDeleteSuccess(true);
       setShowDeleteConfirm(false);
       setSelectedUserForDelete(null);
@@ -1155,7 +1177,7 @@ const [pagination, setPagination] = useState({
     const token = getStoredAuthToken();
 
     if (!userId && !profileId) {
-      setUpdateDonorError('معرف المستخدم غير متوفر لتحديث ملف المتبرع.');
+      setUpdateDonorError('بيانات المستخدم غير مكتملة لتحديث ملف المتبرع.');
       setUpdatingDonorProfile(false);
       return;
     }
@@ -1276,7 +1298,7 @@ const [pagination, setPagination] = useState({
       fetchDonorProfileByUser(donorUserId);
     } else {
       setDonorProfileData(null);
-      setDonorProfileError('معرف المستخدم غير متوفر لعرض ملف المتبرع.');
+      setDonorProfileError('بيانات المستخدم غير مكتملة لعرض ملف المتبرع.');
     }
   };
 
@@ -1536,36 +1558,7 @@ const [pagination, setPagination] = useState({
           <p style={{ color: '#64748b', fontSize: 15 }}>إدارة حسابات النظام، الصلاحيات، ومراقبة النشاط</p>
         </div>
         
-        {/* Search by ID Bar */}
-        <form onSubmit={handleSearchById} style={{ display: 'flex', gap: 8 }}>
-          <input 
-            placeholder="بحث بمعرف المستخدم (ID)..."
-            value={searchId}
-            onChange={(e) => setSearchId(e.target.value)}
-            style={{ 
-              padding: '10px 16px', 
-              borderRadius: 12, 
-              border: '1.5px solid #e2e8f0', 
-              width: 280,
-              fontSize: 13,
-              outline: 'none'
-            }}
-          />
-          <button 
-            type="submit"
-            style={{ 
-              padding: '10px 20px', 
-              borderRadius: 12, 
-              border: 'none', 
-              background: '#6366f1', 
-              color: '#fff', 
-              fontWeight: 700, 
-              cursor: 'pointer' 
-            }}
-          >
-            بحث
-          </button>
-        </form>
+        {/* Search Bar */}
       </div>
 
       <div style={{ 
@@ -1640,7 +1633,7 @@ const [pagination, setPagination] = useState({
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
                     <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
                       <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>الاسم الكامل</span>
-                      <span style={{ fontSize: 13, fontWeight: 700 }}>{selectedUser.fullName || selectedUser.fullname || 'غير متوفر'}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700 }}>{selectedUser.fullName || selectedUser.fullname || selectedUser.email || 'اسم المستخدم'}</span>
                     </div>
                    
                     <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
@@ -1649,7 +1642,7 @@ const [pagination, setPagination] = useState({
                     </div>
                     <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
                       <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>تاريخ الميلاد</span>
-                      <span style={{ fontSize: 13, fontWeight: 700 }}>{selectedUser.birthDay || selectedUser.birthDate || 'غير محدد'}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700 }}>{selectedUser.birthDay || selectedUser.birthDate || 'تاريخ الميلاد'}</span>
                     </div>
                     <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
                       <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>الأدوار</span>
@@ -1689,7 +1682,6 @@ const [pagination, setPagination] = useState({
                               <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
                                 {certificate.description || 'لا يوجد وصف'}
                               </div>
-                              <div style={{ fontSize: 12, color: '#475569' }}>ID: {certificate.id || 'غير متوفر'}</div>
                               {certificate.issuedAt ? (
                                 <div style={{ fontSize: 12, color: '#475569' }}>Issued At: {certificate.issuedAt}</div>
                               ) : null}
@@ -1761,10 +1753,9 @@ const [pagination, setPagination] = useState({
                     {selectedBadgeDetails && (
                       <div style={{ marginTop: 14, padding: 12, borderRadius: 12, background: '#fff', border: '1px solid #e2e8f0', display: 'grid', gap: 6 }}>
                         <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>تفاصيل الشارة</div>
-                        <div style={{ fontSize: 12, color: '#475569' }}>الاسم: {selectedBadgeDetails.name || 'غير متوفر'}</div>
-                        <div style={{ fontSize: 12, color: '#475569' }}>الوصف: {selectedBadgeDetails.description || 'غير متوفر'}</div>
-                        <div style={{ fontSize: 12, color: '#475569' }}>التصنيف: {selectedBadgeDetails.category || 'غير متوفر'}</div>
-                        <div style={{ fontSize: 12, color: '#475569', wordBreak: 'break-all' }}>المعرف: {selectedBadgeDetails.badgeId || selectedBadgeDetails.id || 'غير متوفر'}</div>
+                        <div style={{ fontSize: 12, color: '#475569' }}>الاسم: {selectedBadgeDetails.name || 'الشارة المختارة'}</div>
+                        <div style={{ fontSize: 12, color: '#475569' }}>الوصف: {selectedBadgeDetails.description || selectedBadgeDetails.name || 'وصف الشارة'}</div>
+                        <div style={{ fontSize: 12, color: '#475569' }}>التصنيف: {selectedBadgeDetails.category || selectedBadgeDetails.name || 'تصنيف الشارة'}</div>
                         {selectedBadgeDetails.earnedAt ? (
                           <div style={{ fontSize: 12, color: '#475569' }}>تاريخ الاكتساب: {selectedBadgeDetails.earnedAt}</div>
                         ) : null}
@@ -3141,7 +3132,7 @@ const [pagination, setPagination] = useState({
                 <div style={{ marginBottom: 20 }}>
                   <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>اختر المستخدم</label>
                   <select
-                    value={selectedUserForDelete?.id || ''}
+                    value={getUserDeleteId(selectedUserForDelete) || ''}
                     onChange={(e) => {
                       const selectedId = e.target.value;
 
@@ -3151,7 +3142,7 @@ const [pagination, setPagination] = useState({
                         return;
                       }
 
-                      const targetUser = users.find((u) => u.id === selectedId);
+                      const targetUser = users.find((u) => String(getUserDeleteId(u)) === String(selectedId));
                       if (!targetUser) return;
 
                       setSelectedUserForDelete(targetUser);
@@ -3169,8 +3160,8 @@ const [pagination, setPagination] = useState({
                   >
                     <option value="">اختر مستخدم...</option>
                     {users.map((userItem) => (
-                      <option key={userItem.id} value={userItem.id}>
-                        {userItem.fullName || userItem.email}
+                      <option key={getUserDeleteId(userItem)} value={getUserDeleteId(userItem)}>
+                        {getUserDisplayName(userItem)}
                       </option>
                     ))}
                   </select>
@@ -3575,7 +3566,7 @@ const [pagination, setPagination] = useState({
                       }}>
                         <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>آخر تبرع</div>
                         <div style={{ fontSize: 14, fontWeight: 700, color: '#2563eb' }}>
-                          {donorProfileData.lastDonation.amount || 0} ج.م - {donorProfileData.lastDonation.date || 'غير متوفر'}
+                          {donorProfileData.lastDonation.amount || 0} ج.م - {donorProfileData.lastDonation.date || 'تاريخ آخر تبرع'}
                         </div>
                       </div>
                     )}

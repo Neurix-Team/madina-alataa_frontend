@@ -15,12 +15,14 @@ import {
   FaTools,
   FaCalendarAlt,
   FaTimes,
+  FaSearch,
 } from 'react-icons/fa';
 import { useAuth } from '../hooks/useAuth';
 import { locationsService } from '../services/locationsService';
 import partnersService from '../services/partnersService';
 import { serviceRequestsService } from '../services/serviceRequestsService';
 import { volunteerOrdersService } from '../services/volunteerOrdersService';
+import { levelsService } from '../services/levelsService';
 import EntityHistoryModal from '../components/modals/EntityHistoryModal';
 
 const EMPTY_FORM = {
@@ -33,6 +35,8 @@ const EMPTY_FORM = {
   briefDescription: '',
   partnerId: '',
   locationId: '',
+  maxOrders: 1,
+  requiredLevelId: '',
 };
 
 const parseRoles = (user) => {
@@ -57,6 +61,8 @@ const buildEditForm = (request) => ({
   briefDescription: request?.briefDescription || '',
   partnerId: request?.partnerId || '',
   locationId: request?.locationId || '',
+  maxOrders: Number(request?.maxOrders) || 1,
+  requiredLevelId: request?.requiredLevelId || '',
 });
 
 const getRequestId = (request) =>
@@ -136,9 +142,11 @@ const VolunteerRequestsPage = () => {
   const [actionLoading, setActionLoading] = useState({});
   const [locations, setLocations] = useState([]);
   const [partners, setPartners] = useState([]);
+  const [levels, setLevels] = useState([]);
   const [volunteerActionLoading, setVolunteerActionLoading] = useState({});
   const [volunteerOrdersByRequestId, setVolunteerOrdersByRequestId] = useState({});
   const [historyEntityId, setHistoryEntityId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const locationNameById = useMemo(() => {
     return locations.reduce((accumulator, location) => {
@@ -149,6 +157,35 @@ const VolunteerRequestsPage = () => {
       return accumulator;
     }, {});
   }, [locations]);
+
+  const partnerNameById = useMemo(() => {
+    return partners.reduce((accumulator, partner) => {
+      const partnerId = partner?.id || partner?.partnerId;
+      if (partnerId) {
+        accumulator[partnerId] = partner.orgName || partner.name || partner.email || 'شريك غير مسمى';
+      }
+      return accumulator;
+    }, {});
+  }, [partners]);
+
+  const filteredRequests = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return requests;
+
+    return requests.filter((request) =>
+      [
+        request.title,
+        request.serviceType,
+        request.requiredSkill,
+        request.briefDescription,
+        getUrgencyLabel(request.urgencyLevel).label,
+        partnerNameById[request.partnerId],
+        locationNameById[request.locationId],
+      ]
+        .map((value) => String(value || '').toLowerCase())
+        .some((value) => value.includes(term))
+    );
+  }, [requests, searchTerm, partnerNameById, locationNameById]);
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(totalCount / pageSize)),
@@ -185,13 +222,15 @@ const VolunteerRequestsPage = () => {
   useEffect(() => {
     const loadFiltersData = async () => {
       try {
-        const [loadedLocations, loadedPartners] = await Promise.all([
+        const [loadedLocations, loadedPartners, loadedLevels] = await Promise.all([
           locationsService.getLocations(),
           partnersService.getPartners(1, 100),
+          levelsService.getLevels({ pageNumber: 1, pageSize: 50 }),
         ]);
 
         setLocations(Array.isArray(loadedLocations) ? loadedLocations : []);
         setPartners(Array.isArray(loadedPartners?.data) ? loadedPartners.data : []);
+        setLevels(Array.isArray(loadedLevels?.items) ? loadedLevels.items : []);
       } catch (loadError) {
         console.error('VOLUNTEER REQUESTS LOOKUPS ERROR:', loadError);
       }
@@ -292,7 +331,7 @@ const VolunteerRequestsPage = () => {
   const handleDelete = async (requestId) => {
     if (!isAdmin) return;
     if (!requestId) {
-      alert('معرف طلب التطوع غير متوفر، لا يمكن الحذف.');
+      alert('بيانات طلب التطوع غير مكتملة، لا يمكن الحذف.');
       return;
     }
     if (!confirm('هل أنت متأكد من حذف طلب التطوع؟')) return;
@@ -337,6 +376,9 @@ const VolunteerRequestsPage = () => {
     if (!String(formData.locationId || '').trim()) {
       return 'الخريطة مطلوبة.';
     }
+    if (Number(formData.maxOrders || 0) <= 0) {
+      return 'عدد الطلبات الأقصى يجب أن يكون أكبر من صفر.';
+    }
     if (formMode === 'create') {
       if (!String(formData.serviceType || '').trim()) {
         return 'نوع الخدمة مطلوب.';
@@ -365,9 +407,22 @@ const VolunteerRequestsPage = () => {
         formData.title ||
         'خريطة بدون اسم';
       const submissionData = {
-        ...formData,
         title: derivedTitle,
+        serviceType: formData.serviceType,
+        requiredSkill: formData.requiredSkill,
+        urgencyLevel: Number(formData.urgencyLevel) || 1,
+        scheduleDate: formData.scheduleDate,
+        duration: Math.max(1, Number(formData.duration) || 1),
+        briefDescription: formData.briefDescription,
+        partnerId: formData.partnerId,
+        locationId: formData.locationId,
+        maxOrders: Math.max(1, Number(formData.maxOrders) || 1),
+        requiredLevelId: formData.requiredLevelId !== undefined && formData.requiredLevelId !== null && formData.requiredLevelId !== '' 
+          ? String(formData.requiredLevelId) 
+          : "",
       };
+
+      console.log('📤 SUBMISSION DATA:', submissionData);
 
       if (formMode === 'create') {
         await serviceRequestsService.createServiceRequest(submissionData);
@@ -387,7 +442,7 @@ const VolunteerRequestsPage = () => {
     }
   };
 
-  const getUrgencyLabel = (level) => {
+  function getUrgencyLabel(level) {
     const levels = {
       1: { label: 'منخفض', color: '#16a34a', bg: 'rgba(34,197,94,.14)' },
       2: { label: 'متوسط', color: '#ca8a04', bg: 'rgba(234,179,8,.16)' },
@@ -395,47 +450,63 @@ const VolunteerRequestsPage = () => {
       4: { label: 'حرج', color: '#dc2626', bg: 'rgba(239,68,68,.16)' },
       5: { label: 'طارئ', color: '#7c3aed', bg: 'rgba(168,85,247,.16)' },
     };
-    return levels[level] || { label: 'غير محدد', color: '#64748b', bg: 'rgba(148,163,184,.16)' };
-  };
+    return levels[level] || { label: 'درجة الاستعجال', color: '#64748b', bg: 'rgba(148,163,184,.16)' };
+  }
 
   const renderRequestModal = () => {
     const isOpen = isCreateModalOpen || isEditModalOpen;
     if (!isOpen) return null;
 
     return (
-      <div style={overlayStyle} onClick={closeFormModal}>
-        <div style={modalStyle} onClick={(event) => event.stopPropagation()}>
-          <div style={modalHeaderStyle}>
+      <div className="app-modal-overlay" onClick={closeFormModal}>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="app-modal-card"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="app-modal-header">
             <div>
-              <h2 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0f172a' }}>
+              <h2 className="app-modal-title">
                 {formMode === 'create' ? 'إضافة طلب تطوع' : 'تعديل طلب تطوع'}
               </h2>
-              <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 14 }}>
+              <p className="app-modal-subtitle">
                 {formMode === 'create'
                   ? 'أدخل بيانات الطلب ثم احفظه مباشرة في قاعدة البيانات.'
                   : 'عدّل البيانات المطلوبة ثم احفظ التغييرات.'}
               </p>
             </div>
-            <button type="button" onClick={closeFormModal} style={iconButtonStyle}>
+            <button type="button" onClick={closeFormModal} className="app-modal-close">
               <FaTimes />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 16 }}>
+          <form onSubmit={handleSubmit} className="app-form">
             {formError && (
-              <div style={errorAlertStyle}>
+              <div style={{
+                padding: '14px 20px',
+                borderRadius: 16,
+                background: 'var(--error-light)',
+                border: '1px solid var(--error)',
+                color: 'var(--error)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                fontSize: 14,
+                fontWeight: 700
+              }}>
                 <FaExclamationTriangle />
                 <span>{formError}</span>
               </div>
             )}
 
-            <div style={formGridStyle}>
-              <label style={fieldStyle}>
-                <span>الخريطة</span>
+            <div className="app-form-grid">
+              <label className="app-form-group">
+                <span className="app-form-label">الخريطة</span>
                 <select
                   value={formData.locationId}
                   onChange={(event) => setFormData((prev) => ({ ...prev, locationId: event.target.value }))}
-                  style={inputStyle}
+                  className="app-form-select"
                 >
                   <option value="">اختر الخريطة</option>
                   {locations.map((location) => (
@@ -447,31 +518,31 @@ const VolunteerRequestsPage = () => {
               </label>
 
               {formMode === 'create' && (
-                <label style={fieldStyle}>
-                  <span>نوع الخدمة</span>
+                <label className="app-form-group">
+                  <span className="app-form-label">نوع الخدمة</span>
                   <input
                     value={formData.serviceType}
                     onChange={(event) => setFormData((prev) => ({ ...prev, serviceType: event.target.value }))}
-                    style={inputStyle}
+                    className="app-form-input"
                   />
                 </label>
               )}
 
-              <label style={fieldStyle}>
-                <span>المهارة المطلوبة</span>
+              <label className="app-form-group">
+                <span className="app-form-label">المهارة المطلوبة</span>
                 <input
                   value={formData.requiredSkill}
                   onChange={(event) => setFormData((prev) => ({ ...prev, requiredSkill: event.target.value }))}
-                  style={inputStyle}
+                  className="app-form-input"
                 />
               </label>
 
-              <label style={fieldStyle}>
-                <span>مستوى الاستعجال</span>
+              <label className="app-form-group">
+                <span className="app-form-label">مستوى الاستعجال</span>
                 <select
                   value={formData.urgencyLevel}
                   onChange={(event) => setFormData((prev) => ({ ...prev, urgencyLevel: Number(event.target.value) }))}
-                  style={inputStyle}
+                  className="app-form-select"
                 >
                   {[1, 2, 3, 4, 5].map((level) => (
                     <option key={level} value={level}>
@@ -481,34 +552,61 @@ const VolunteerRequestsPage = () => {
                 </select>
               </label>
 
-              <label style={fieldStyle}>
-                <span>تاريخ التنفيذ</span>
+              <label className="app-form-group">
+                <span className="app-form-label">تاريخ التنفيذ</span>
                 <input
                   type="datetime-local"
                   value={formData.scheduleDate}
                   onChange={(event) => setFormData((prev) => ({ ...prev, scheduleDate: event.target.value }))}
-                  style={inputStyle}
+                  className="app-form-input"
                 />
               </label>
 
-              <label style={fieldStyle}>
-                <span>المدة</span>
+              <label className="app-form-group">
+                <span className="app-form-label">المدة (ساعات)</span>
                 <input
                   type="number"
                   min="1"
                   value={formData.duration}
                   onChange={(event) => setFormData((prev) => ({ ...prev, duration: Number(event.target.value) }))}
-                  style={inputStyle}
+                  className="app-form-input"
                 />
               </label>
 
+              <label className="app-form-group">
+                <span className="app-form-label">عدد الطلبات الأقصى</span>
+                <input
+                  type="number"
+                  min="1"
+                  value={formData.maxOrders}
+                  onChange={(event) => setFormData((prev) => ({ ...prev, maxOrders: Number(event.target.value) }))}
+                  className="app-form-input"
+                />
+              </label>
+
+              <label className="app-form-group">
+                <span className="app-form-label">مستوى المتطلب</span>
+                <select
+                  value={formData.requiredLevelId}
+                  onChange={(event) => setFormData((prev) => ({ ...prev, requiredLevelId: event.target.value }))}
+                  className="app-form-select"
+                >
+                  <option value="">لا يوجد مستوى محدد</option>
+                  {levels.map((level) => (
+                    <option key={level.id} value={level.id}>
+                      المستوى {level.number} - {level.maxXp} XP
+                    </option>
+                  ))}
+                </select>
+              </label>
+
               {formMode === 'create' && (
-                <label style={fieldStyle}>
-                  <span>الشريك</span>
+                <label className="app-form-group">
+                  <span className="app-form-label">الشريك</span>
                   <select
                     value={formData.partnerId}
                     onChange={(event) => setFormData((prev) => ({ ...prev, partnerId: event.target.value }))}
-                    style={inputStyle}
+                    className="app-form-select"
                   >
                     <option value="">اختر الشريك</option>
                     {partners.map((partner) => (
@@ -522,26 +620,26 @@ const VolunteerRequestsPage = () => {
 
             </div>
 
-            <label style={fieldStyle}>
-              <span>الوصف المختصر</span>
+            <label className="app-form-group">
+              <span className="app-form-label">الوصف المختصر</span>
               <textarea
                 value={formData.briefDescription}
                 onChange={(event) => setFormData((prev) => ({ ...prev, briefDescription: event.target.value }))}
-                rows={5}
-                style={{ ...inputStyle, resize: 'vertical', minHeight: 120 }}
+                rows={4}
+                className="app-form-textarea"
               />
             </label>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-              <button type="button" onClick={closeFormModal} style={secondaryButtonStyle}>
+            <div className="app-form-actions">
+              <button type="button" onClick={closeFormModal} className="app-btn-secondary">
                 إلغاء
               </button>
-              <button type="submit" disabled={formSubmitting} style={primaryButtonStyle}>
+              <button type="submit" disabled={formSubmitting} className="app-btn-primary" style={{ opacity: formSubmitting ? 0.7 : 1 }}>
                 {formSubmitting ? 'جاري الحفظ...' : formMode === 'create' ? 'حفظ الطلب' : 'حفظ التعديلات'}
               </button>
             </div>
           </form>
-        </div>
+        </motion.div>
       </div>
     );
   };
@@ -549,14 +647,38 @@ const VolunteerRequestsPage = () => {
   return (
     <div style={pageStyle}>
       <div style={containerStyle}>
-        <motion.div initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} style={heroStyle}>
+        <motion.div initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} 
+          style={{
+            padding: '24px 32px',
+            borderRadius: 24,
+            background: '#fff',
+            border: '1px solid rgba(148,163,184,0.15)',
+            boxShadow: '0 20px 50px rgba(15,23,42,0.06)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 24,
+            flexWrap: 'wrap',
+            gap: 20
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={heroIconStyle}>
+            <div style={{
+              width: 54,
+              height: 54,
+              borderRadius: 16,
+              display: 'grid',
+              placeItems: 'center',
+              background: '#eff6ff',
+              color: '#2563eb',
+              fontSize: 24,
+              border: '1px solid #bfdbfe'
+            }}>
               <FaHandsHelping />
             </div>
             <div>
-              <h1 style={heroTitleStyle}>طلبات التطوع</h1>
-              <p style={heroSubtitleStyle}>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0f172a' }}>طلبات التطوع</h1>
+              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 14, fontWeight: 500 }}>
                 عرض الطلبات مع التوكن، بيدجيشن، تفاصيل كل عنصر، وإدارة كاملة للأدمن.
               </p>
             </div>
@@ -607,12 +729,22 @@ const VolunteerRequestsPage = () => {
           </div>
         )}
 
+        <div style={{ ...panelStyle, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <FaSearch style={{ color: '#2563eb' }} />
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="بحث بالعنوان أو نوع الخدمة أو المهارة أو المكان"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+
         <div style={contentGridStyle}>
           <div style={panelStyle}>
             <div style={panelHeaderStyle}>
               <div>
                 <h2 style={sectionTitleStyle}>قائمة الطلبات</h2>
-                <p style={sectionMetaStyle}>GET `/api/ServiceRequests?PageNumber={pageNumber}&PageSize={pageSize}&status=1`</p>
               </div>
             </div>
 
@@ -621,12 +753,12 @@ const VolunteerRequestsPage = () => {
                 <FaSpinner className="animate-spin" />
                 <span>جاري تحميل الطلبات...</span>
               </div>
-            ) : requests.length === 0 ? (
+            ) : filteredRequests.length === 0 ? (
               <div style={emptyBoxStyle}>لا توجد طلبات تطوع متاحة حاليًا.</div>
             ) : (
-              <div style={{ display: 'grid', gap: 14 }}>
+              <div style={{ display: 'grid', gap: 20 }}>
                 <AnimatePresence mode="wait">
-                  {requests.map((request, index) => {
+                  {filteredRequests.map((request, index) => {
                     const urgency = getUrgencyLabel(request.urgencyLevel);
                     const requestId = getRequestId(request);
                     const currentVolunteerOrder = volunteerOrdersByRequestId[requestId];
@@ -637,20 +769,22 @@ const VolunteerRequestsPage = () => {
                     return (
                       <motion.div
                         key={requestId || index}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, y: -16 }}
-                        transition={{ delay: index * 0.04 }}
-                        style={cardStyle}
+                        transition={{ delay: index * 0.05 }}
+                        className="pro-card"
+                        style={{ padding: 22 }}
                       >
-                        <div style={{ display: 'grid', gap: 12 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'flex-start' }}>
-                            <div>
-                              <h3 style={{ margin: 0, fontSize: 18, color: '#0f172a' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+                          <div style={{ flex: 1, minWidth: 260 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                              <h3 style={{ margin: 0, fontSize: 19, color: '#0f172a', fontWeight: 800 }}>
                                 {request.title || 'بدون عنوان'}
                               </h3>
+                            </div>
                               <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
-                                {request.serviceType || 'نوع خدمة غير محدد'}
+                                {request.serviceType || request.title || 'خدمة الطلب'}
                               </p>
                               {volunteerStatusChip && (
                                 <div style={{ marginTop: 8 }}>
@@ -663,14 +797,13 @@ const VolunteerRequestsPage = () => {
                             <span style={{ ...chipStyle, color: urgency.color, background: urgency.bg }}>
                               {urgency.label}
                             </span>
-                          </div>
 
                           <div style={metaGridStyle}>
-                            <span style={metaItemStyle}><FaTools /> {request.requiredSkill || 'غير محدد'}</span>
-                            <span style={metaItemStyle}><FaCalendarAlt /> {request.scheduleDate || 'غير محدد'}</span>
+                            <span style={metaItemStyle}><FaTools /> {request.requiredSkill || request.serviceType || request.title || 'مهارة الطلب'}</span>
+                            <span style={metaItemStyle}><FaCalendarAlt /> {request.scheduleDate || 'موعد الطلب'}</span>
                             <span style={metaItemStyle}><FaClock /> {request.duration || 0} ساعة</span>
-                            <span style={metaItemStyle}><FaBuilding /> {request.partnerId || 'بدون شريك'}</span>
-                            <span style={metaItemStyle}><FaMapMarkerAlt /> {locationNameById[request.locationId] || request.locationId || 'بدون خريطة'}</span>
+                            <span style={metaItemStyle}><FaBuilding /> {partnerNameById[request.partnerId] || request.title || 'الشريك المرتبط بالطلب'}</span>
+                            <span style={metaItemStyle}><FaMapMarkerAlt /> {locationNameById[request.locationId] || request.title || 'موقع الطلب'}</span>
                           </div>
 
                           {request.briefDescription && (
@@ -684,7 +817,7 @@ const VolunteerRequestsPage = () => {
                           <button type="button" onClick={() => handleViewDetails(requestId)} style={iconButtonStyle} title="التفاصيل">
                             <FaEye />
                           </button>
-                          <button type="button" onClick={() => setHistoryEntityId(requestId)} style={{ ...iconButtonStyle, color: '#0f172a' }} title="Ø¹Ø±Ø¶ Ø§Ù„Ù€ history">
+                          <button type="button" onClick={() => setHistoryEntityId(requestId)} style={{ ...iconButtonStyle, color: '#0f172a' }} title="عرض السجل">
                             <FaHistory />
                           </button>
                           {isAdmin && (
@@ -736,7 +869,6 @@ const VolunteerRequestsPage = () => {
             <div style={panelHeaderStyle}>
               <div>
                 <h2 style={sectionTitleStyle}>تفاصيل الطلب</h2>
-                <p style={sectionMetaStyle}>GET `/api/ServiceRequests/{'{id}'}`</p>
               </div>
             </div>
 
@@ -756,18 +888,19 @@ const VolunteerRequestsPage = () => {
               <div style={{ display: 'grid', gap: 16 }}>
                 <div>
                   <h3 style={{ margin: 0, fontSize: 21, color: '#0f172a' }}>{selectedRequest.title || 'بدون عنوان'}</h3>
-                  <p style={{ margin: '6px 0 0', color: '#64748b' }}>{selectedRequest.serviceType || 'نوع خدمة غير محدد'}</p>
+                  <p style={{ margin: '6px 0 0', color: '#64748b' }}>{selectedRequest.serviceType || selectedRequest.title || 'خدمة الطلب'}</p>
                 </div>
 
                 <div style={detailsGridStyle}>
-                  <DetailItem label="المعرف" value={getRequestId(selectedRequest) || '-'} />
                   <DetailItem label="المهارة المطلوبة" value={selectedRequest.requiredSkill || '-'} />
                   <DetailItem label="الحالة" value={selectedRequestVolunteerChip?.label || String(selectedRequest.status ?? 1)} />
                   <DetailItem label="الاستعجال" value={getUrgencyLabel(selectedRequest.urgencyLevel).label} />
                   <DetailItem label="التاريخ" value={selectedRequest.scheduleDate || '-'} />
                   <DetailItem label="المدة" value={`${selectedRequest.duration || 0} ساعة`} />
-                  <DetailItem label="الشريك" value={selectedRequest.partnerId || '-'} />
-                  <DetailItem label="الخريطة" value={locationNameById[selectedRequest.locationId] || selectedRequest.locationId || '-'} />
+                  <DetailItem label="الحد الأقصى للطلبات" value={selectedRequest.maxOrders || '-'} />
+                  <DetailItem label="مستوى المتطلب" value={selectedRequest.requiredLevelId || '-'} />
+                  <DetailItem label="الشريك" value={partnerNameById[selectedRequest.partnerId] || selectedRequest.title || 'الشريك المرتبط بالطلب'} />
+                  <DetailItem label="الخريطة" value={locationNameById[selectedRequest.locationId] || selectedRequest.title || 'موقع الطلب'} />
                 </div>
 
                 <div>
@@ -797,18 +930,23 @@ const VolunteerRequestsPage = () => {
 
       {(detailsLoading || detailsError || selectedRequest) && (
         <div
-          style={overlayStyle}
+          className="app-modal-overlay"
           onClick={() => {
             setSelectedRequest(null);
             setDetailsError(null);
             setDetailsLoading(false);
           }}
         >
-          <div style={modalStyle} onClick={(event) => event.stopPropagation()}>
-            <div style={detailsModalHeaderStyle}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="app-modal-card"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="app-modal-header">
               <div>
-                <h3 style={{ margin: 0, color: '#0f172a' }}>تفاصيل طلب التطوع</h3>
-                <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
+                <h3 className="app-modal-title">تفاصيل طلب التطوع</h3>
+                <p className="app-modal-subtitle">
                   بيانات الطلب والوصف والحالة الحالية
                 </p>
               </div>
@@ -819,7 +957,7 @@ const VolunteerRequestsPage = () => {
                   setDetailsError(null);
                   setDetailsLoading(false);
                 }}
-                style={iconButtonStyle}
+                className="app-modal-close"
               >
                 <FaTimes />
               </button>
@@ -836,37 +974,42 @@ const VolunteerRequestsPage = () => {
                 <span>{detailsError}</span>
               </div>
             ) : selectedRequest ? (
-              <div style={{ display: 'grid', gap: 16 }}>
+              <div style={{ display: 'grid', gap: 20 }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: 21, color: '#0f172a' }}>{selectedRequest.title || 'بدون عنوان'}</h3>
-                  <p style={{ margin: '6px 0 0', color: '#64748b' }}>{selectedRequest.serviceType || 'نوع خدمة غير محدد'}</p>
+                  <h3 style={{ margin: 0, fontSize: 21, color: 'var(--text-primary)', fontWeight: 800 }}>{selectedRequest.title || 'بدون عنوان'}</h3>
+                  <p style={{ margin: '6px 0 0', color: 'var(--text-secondary)', fontWeight: 500 }}>{selectedRequest.serviceType || selectedRequest.title || 'خدمة الطلب'}</p>
                 </div>
 
-                <div style={detailsGridStyle}>
-                  <DetailItem label="المعرف" value={getRequestId(selectedRequest) || '-'} />
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                  gap: 12
+                }}>
                   <DetailItem label="المهارة المطلوبة" value={selectedRequest.requiredSkill || '-'} />
                   <DetailItem label="الحالة" value={selectedRequestVolunteerChip?.label || String(selectedRequest.status ?? 1)} />
                   <DetailItem label="الاستعجال" value={getUrgencyLabel(selectedRequest.urgencyLevel).label} />
                   <DetailItem label="التاريخ" value={selectedRequest.scheduleDate || '-'} />
                   <DetailItem label="المدة" value={`${selectedRequest.duration || 0} ساعة`} />
-                  <DetailItem label="الشريك" value={selectedRequest.partnerId || '-'} />
-                  <DetailItem label="الخريطة" value={locationNameById[selectedRequest.locationId] || selectedRequest.locationId || '-'} />
+                  <DetailItem label="الحد الأقصى للطلبات" value={selectedRequest.maxOrders || '-'} />
+                  <DetailItem label="مستوى المتطلب" value={selectedRequest.requiredLevelId || '-'} />
+                  <DetailItem label="الشريك" value={partnerNameById[selectedRequest.partnerId] || selectedRequest.title || 'الشريك المرتبط بالطلب'} />
+                  <DetailItem label="الخريطة" value={locationNameById[selectedRequest.locationId] || selectedRequest.title || 'موقع الطلب'} />
                 </div>
 
                 <div>
-                  <h4 style={detailLabelStyle}>الوصف</h4>
-                  <p style={{ margin: '6px 0 0', color: '#334155', lineHeight: 1.8 }}>
+                  <h4 style={{ color: 'var(--text-secondary)', fontSize: 12, fontWeight: 700, margin: 0, marginBottom: 8 }}>الوصف</h4>
+                  <p style={{ margin: 0, color: 'var(--text-primary)', lineHeight: 1.8, fontSize: 14, fontWeight: 500 }}>
                     {selectedRequest.briefDescription || 'لا يوجد وصف.'}
                   </p>
                 </div>
 
                 {!isAdmin && canVolunteerForRequest(getRequestId(selectedRequest)) && (
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
                     <button
                       type="button"
                       onClick={() => handleVolunteer(getRequestId(selectedRequest))}
                       disabled={volunteerActionLoading[getRequestId(selectedRequest)]}
-                      style={primaryButtonStyle}
+                      className="app-btn-primary"
                     >
                       {volunteerActionLoading[getRequestId(selectedRequest)] ? 'جاري الإرسال...' : 'أريد التطوع'}
                     </button>
@@ -874,7 +1017,7 @@ const VolunteerRequestsPage = () => {
                 )}
               </div>
             ) : null}
-          </div>
+          </motion.div>
         </div>
       )}
 
@@ -883,7 +1026,7 @@ const VolunteerRequestsPage = () => {
       <EntityHistoryModal
         isOpen={Boolean(historyEntityId)}
         entityId={historyEntityId}
-        title="Ø³Ø¬Ù„ Ø·Ù„Ø¨ Ø§Ù„Ø®Ø¯Ù…Ø©"
+        title="سجل طلب الخدمة"
         onClose={() => setHistoryEntityId(null)}
       />
     </div>
@@ -891,9 +1034,16 @@ const VolunteerRequestsPage = () => {
 };
 
 const DetailItem = ({ label, value }) => (
-  <div style={detailItemStyle}>
-    <span style={detailLabelStyle}>{label}</span>
-    <strong style={detailValueStyle}>{value}</strong>
+  <div style={{
+    padding: '14px',
+    borderRadius: 16,
+    background: 'rgba(248, 250, 252, 0.95)',
+    border: '1px solid rgba(226, 232, 240, 0.9)',
+    display: 'grid',
+    gap: '6px'
+  }}>
+    <span style={{ color: '#64748b', fontSize: 12, fontWeight: 700 }}>{label}</span>
+    <strong style={{ color: '#0f172a', fontSize: 14, fontWeight: 800, wordBreak: 'break-word' }}>{value}</strong>
   </div>
 );
 

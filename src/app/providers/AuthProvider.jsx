@@ -58,23 +58,6 @@ roles: normalizeRoles(userData.roles || userData.role || userData.user?.roles),
         setUser(normalizedUser);
         await secureStorage.setItem(STORAGE_KEY, normalizedUser);
 
-        // if admin, redirect to admin area when appropriate
-        try {
-          const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
-          const defaultPaths = ['/', '/profile-v2', '/login', '/auth'];
-          // if (normalizedUser?.roles?.includes('admin') && defaultPaths.includes(pathname)) {
-          //   navigate('/admin', { replace: true });
-          // }
-          if (
-  normalizedUser?.roles?.some(role => String(role).toLowerCase() === 'admin') &&
-  defaultPaths.includes(pathname)
-) {
-  navigate('/admin', { replace: true });
-}
-        } catch (e) {
-          // ignore navigation errors in non-browser envs
-        }
-
         return normalizedUser;
       }
     } catch (error) {

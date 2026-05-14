@@ -105,8 +105,8 @@ function VolunteerDetailsCard({ volunteer, onBack }) {
           <span style={{ fontSize: 13, fontWeight: 700, wordBreak: 'break-all' }}>{volunteer?.email || 'غير متوفر'}</span>
         </div>
         <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
-          <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>المعرف</span>
-          <span style={{ fontSize: 13, fontWeight: 700, wordBreak: 'break-all' }}>{volunteer?.id || 'غير متوفر'}</span>
+          <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>الحالة</span>
+          <span style={{ fontSize: 13, fontWeight: 700 }}>{volunteer?.status || volunteer?.role || 'متطوع'}</span>
         </div>
         <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
           <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>تاريخ الميلاد</span>

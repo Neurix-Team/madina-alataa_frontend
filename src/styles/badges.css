@@ -7,13 +7,16 @@
 
 /* ── Header ── */
 .badges-header {
-  background: var(--bg-card);
-  border-radius: 22px;
-  padding: 18px 24px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.92) 100%);
+  backdrop-filter: blur(20px);
+  padding: 28px 32px;
+  box-shadow: rgba(15, 23, 42, 0.4) 0px 20px 50px -20px, rgba(255, 255, 255, 0.4) 0px 0px 0px 1px inset;
   margin-bottom: 14px;
-  box-shadow: var(--shadow-md);
   text-align: center;
-  border: 1.5px solid var(--border);
 }
 
 .badges-header h2 {

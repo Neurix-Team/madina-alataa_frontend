@@ -13,17 +13,6 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const labelClass = "flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-700";
-  const inputClass = (hasError = false) =>
-    `w-full rounded-2xl border ${hasError ? 'border-red-300 bg-red-50' : 'border-sky-100 bg-white'} px-5 py-4 text-slate-900 shadow-sm placeholder-slate-400 transition-all focus:border-sky-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-sky-100`;
-
-  const urgencyLevels = [
-    { value: 1, label: 'منخفض', color: 'text-green-400' },
-    { value: 2, label: 'متوسط', color: 'text-yellow-400' },
-    { value: 3, label: 'عالي', color: 'text-orange-400' },
-    { value: 4, label: 'حرج', color: 'text-red-400' },
-    { value: 5, label: 'طارئ', color: 'text-purple-400' }
-  ];
 
   useEffect(() => {
     if (isOpen && request) {
@@ -98,200 +87,167 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
 
   if (!isOpen || !request) return null;
 
+  const fieldClass =
+    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-blue-50/30 focus:ring-4 focus:ring-blue-100/50';
+
+  const labelClass = 'block text-sm font-bold text-slate-700 mb-2 mr-1';
+
+  const urgencyOptions = [
+    { value: 1, label: 'منخفض', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+    { value: 2, label: 'متوسط', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+    { value: 3, label: 'عالي', color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' },
+    { value: 4, label: 'حرج', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
+    { value: 5, label: 'طارئ', color: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-100' }
+  ];
+
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-md"
+        className="app-modal-overlay"
         onClick={onClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-          className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[2rem] border border-sky-100 bg-slate-50 shadow-2xl shadow-slate-300/60"
+          className="app-modal-card"
+          style={{ maxWidth: '580px' }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-white/90 p-8">
+          <div className="app-modal-header">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-sky-100 bg-sky-50">
-                <FaEdit className="text-2xl text-sky-600" />
+              <div className="w-[52px] h-[52px] rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm">
+                <FaEdit className="text-xl" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-slate-950">تعديل طلب التبرع</h2>
-                <p className="mt-1 font-medium text-slate-600">تعديل بيانات الطلب</p>
+                <h2 className="app-modal-title">تعديل طلب تبرع</h2>
+                <p className="app-modal-subtitle">تحديث بيانات طلب التبرع القائم</p>
               </div>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.9 }}
+            <button
               onClick={onClose}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
+              className="app-modal-close"
             >
               <FaTimes />
-            </motion.button>
+            </button>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="grid gap-5 p-8">
-            {/* Title Field */}
-            <div className="space-y-2">
-              <label className={labelClass}>
-                <FaHandHoldingHeart className="text-pink-400" />
-                عنوان الطلب *
-              </label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                placeholder="أدخل عنوان الطلب..."
-                className={inputClass(Boolean(errors.title))}
-                dir="rtl"
-              />
-              {errors.title && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-2 text-red-400 text-sm font-medium"
+          {/* Content */}
+          <div className="overflow-y-auto">
+            <form onSubmit={handleSubmit} className="app-form" dir="rtl">
+              <div className="app-form-group">
+                <label className="app-form-label">عنوان الطلب</label>
+                <div className="relative">
+                  <FaHandHoldingHeart className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    className="app-form-input w-full pr-12"
+                    placeholder="عنوان الطلب"
+                  />
+                </div>
+                {errors.title && (
+                  <p className="text-red-500 text-xs mt-1.5 mr-1 font-bold">{errors.title}</p>
+                )}
+              </div>
+
+              <div className="app-form-grid">
+                <div className="app-form-group">
+                  <label className="app-form-label">المبلغ المطلوب</label>
+                  <div className="relative">
+                    <FaMoneyBillWave className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="number"
+                      name="donateAmount"
+                      value={formData.donateAmount}
+                      onChange={handleInputChange}
+                      className="app-form-input w-full pr-12"
+                      min="1"
+                    />
+                  </div>
+                  {errors.donateAmount && (
+                    <p className="text-red-500 text-xs mt-1.5 mr-1 font-bold">{errors.donateAmount}</p>
+                  )}
+                </div>
+                <div className="app-form-group">
+                  <label className="app-form-label">مستوى الاستعجال</label>
+                  <select
+                    name="urgencyLevel"
+                    value={formData.urgencyLevel}
+                    onChange={handleInputChange}
+                    className="app-form-select w-full"
+                  >
+                    {urgencyOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="app-form-group">
+                <label className="app-form-label">الموقع</label>
+                <div className="relative">
+                  <FaMapMarkerAlt className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    className="app-form-input w-full pr-12"
+                    placeholder="أدخل الموقع"
+                  />
+                </div>
+                {errors.location && (
+                  <p className="text-red-500 text-xs mt-1.5 mr-1 font-bold">{errors.location}</p>
+                )}
+              </div>
+
+              <div className="app-form-group">
+                <label className="app-form-label">وصف الطلب</label>
+                <div className="relative">
+                  <FaInfoCircle className="absolute right-4 top-4 text-slate-400" />
+                  <textarea
+                    name="briefDescription"
+                    value={formData.briefDescription}
+                    onChange={handleInputChange}
+                    className="app-form-textarea w-full pr-12 min-h-[100px]"
+                    placeholder="أدخل الوصف..."
+                  />
+                </div>
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="app-form-actions pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="app-btn-secondary px-8 py-4"
                 >
-                  <FaExclamationTriangle className="text-xs" />
-                  {errors.title}
-                </motion.div>
-              )}
-            </div>
-
-            {/* Location Field */}
-            <div className="space-y-2">
-              <label className={labelClass}>
-                <FaMapMarkerAlt className="text-blue-400" />
-                الموقع *
-              </label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleInputChange}
-                placeholder="أدخل الموقع..."
-                className={inputClass(Boolean(errors.location))}
-                dir="ltr"
-              />
-              {errors.location && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-2 text-red-400 text-sm font-medium"
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="app-btn-primary flex-1 py-4 flex items-center justify-center gap-2"
                 >
-                  <FaExclamationTriangle className="text-xs" />
-                  {errors.location}
-                </motion.div>
-              )}
-            </div>
-
-            {/* Donate Amount Field */}
-            <div className="space-y-2">
-              <label className={labelClass}>
-                <FaMoneyBillWave className="text-green-400" />
-                مبلغ التبرع *
-              </label>
-              <input
-                type="number"
-                name="donateAmount"
-                value={formData.donateAmount}
-                onChange={handleInputChange}
-                placeholder="أدخل مبلغ التبرع..."
-                step="0.01"
-                min="1"
-                className={inputClass(Boolean(errors.donateAmount))}
-                dir="ltr"
-              />
-              {errors.donateAmount && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-2 text-red-400 text-sm font-medium"
-                >
-                  <FaExclamationTriangle className="text-xs" />
-                  {errors.donateAmount}
-                </motion.div>
-              )}
-            </div>
-
-            {/* Urgency Level Field */}
-            <div className="space-y-2">
-              <label className={labelClass}>
-                <FaInfoCircle className="text-yellow-400" />
-                مستوى الأهمية
-              </label>
-              <select
-                name="urgencyLevel"
-                value={formData.urgencyLevel}
-                onChange={handleInputChange}
-                className={inputClass(false)}
-                dir="rtl"
-              >
-                {urgencyLevels.map(level => (
-                  <option key={level.value} value={level.value} className="bg-white text-slate-900">
-                    {level.label} ({level.value})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Brief Description Field */}
-            <div className="space-y-2">
-              <label className={labelClass}>
-                <FaInfoCircle className="text-cyan-400" />
-                وصف مختصر
-              </label>
-              <textarea
-                name="briefDescription"
-                value={formData.briefDescription}
-                onChange={handleInputChange}
-                placeholder="أدخل وصفاً مختصراً للطلب (اختياري)..."
-                rows="3"
-                className={`${inputClass(false)} resize-none`}
-                dir="rtl"
-              />
-            </div>
-
-            {/* Submit Error */}
-            {errors.submit && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 text-red-400 text-sm font-medium bg-red-500/10 p-4 rounded-xl"
-              >
-                <FaExclamationTriangle className="text-lg" />
-                {errors.submit}
-              </motion.div>
-            )}
-
-            {/* Submit Button */}
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-400 hover:to-cyan-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  جاري الحفظ...
-                </>
-              ) : (
-                <>
-                  <FaSave className="text-lg" />
-                  حفظ التغييرات
-                </>
-              )}
-            </motion.button>
-          </form>
+                  {isSubmitting ? (
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  ) : (
+                    <>
+                      <FaSave className="text-sm" />
+                      <span>حفظ التعديلات</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>

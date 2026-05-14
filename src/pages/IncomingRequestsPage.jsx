@@ -325,7 +325,7 @@ const IncomingRequestsPage = () => {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="request-header">
-                  <span className="request-id">{request.id}</span>
+                  <span className="request-id">{request.title || request.type || 'طلب وارد'}</span>
                   <span className={`request-status ${getStatusClass(request.status)}`}>
                     {getStatusIcon(request.status)}
                     {request.status}
@@ -418,7 +418,7 @@ const IncomingRequestsPage = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <h2 style={{ marginBottom: 20, color: '#1e293b' }}>
-                تفاصيل الطلب: {selectedRequest.id}
+                تفاصيل الطلب: {selectedRequest.title || selectedRequest.type || 'طلب وارد'}
               </h2>
 
               <div style={{ marginBottom: 20 }}>

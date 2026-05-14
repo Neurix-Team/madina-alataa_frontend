@@ -72,169 +72,158 @@ const AddPartnerModal = ({ isOpen, onClose, onSubmit }) => {
 
   if (!isOpen) return null;
 
+  const fieldClass =
+    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-blue-50/30 focus:ring-4 focus:ring-blue-100/50';
+
+  const labelClass = 'block text-sm font-bold text-slate-700 mb-2 mr-1';
+
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="app-modal-overlay"
         onClick={onClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] w-full max-w-lg border border-white/10 shadow-2xl"
+          className="app-modal-card"
+          style={{ maxWidth: '580px' }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-8 pb-0">
+          <div className="app-modal-header">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-600/20 flex items-center justify-center border border-blue-500/30">
-                <FaBuilding className="text-blue-400 text-2xl" />
+              <div className="w-[52px] h-[52px] rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+                <FaBuilding className="text-xl" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-white">إضافة مؤسسة</h2>
-                <p className="text-blue-300/70 font-medium mt-1">إنشاء مؤسسة شريك جديدة</p>
+                <h2 className="app-modal-title">إضافة مؤسسة</h2>
+                <p className="app-modal-subtitle">إنشاء مؤسسة شريك جديدة في النظام</p>
               </div>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.9 }}
+            <button
               onClick={onClose}
-              className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              className="app-modal-close"
             >
-              <FaTimes className="text-white/80" />
-            </motion.button>
+              <FaTimes />
+            </button>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="p-8 pt-6 space-y-5">
-            {/* Organization Name Field */}
-            <div className="space-y-2">
-              <label className="text-white/80 font-bold text-sm uppercase tracking-wider flex items-center gap-2">
-                <FaBuilding className="text-blue-400" />
-                اسم المؤسسة *
-              </label>
-              <input
-                type="text"
-                name="orgName"
-                value={formData.orgName}
-                onChange={handleInputChange}
-                placeholder="أدخل اسم المؤسسة..."
-                className={`w-full bg-white/5 border ${errors.orgName ? 'border-red-500/50' : 'border-white/10'} rounded-2xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all`}
-                dir="rtl"
-              />
-              {errors.orgName && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-2 text-red-400 text-sm font-medium"
+          {/* Content */}
+          <div className="overflow-y-auto">
+            <form onSubmit={handleSubmit} className="app-form" dir="rtl">
+              <div className="app-form-group">
+                <label className="app-form-label">اسم المؤسسة</label>
+                <div className="relative">
+                  <FaBuilding className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    name="orgName"
+                    value={formData.orgName}
+                    onChange={handleInputChange}
+                    className="app-form-input pr-12 w-full"
+                    placeholder="أدخل اسم المؤسسة"
+                  />
+                </div>
+                {errors.orgName && (
+                  <p className="text-red-500 text-xs mt-1.5 mr-1 font-bold flex items-center gap-1">
+                    <FaExclamationTriangle className="text-[10px]" />
+                    {errors.orgName}
+                  </p>
+                )}
+              </div>
+
+              <div className="app-form-group">
+                <label className="app-form-label">نوع المؤسسة</label>
+                <div className="relative">
+                  <FaIndustry className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <select
+                    name="orgType"
+                    value={formData.orgType}
+                    onChange={handleInputChange}
+                    className="app-form-select pr-12 w-full appearance-none"
+                  >
+                    {orgTypes.map(type => (
+                      <option key={type.value} value={type.value}>{type.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="app-form-group">
+                <label className="app-form-label">رقم الهاتف</label>
+                <div className="relative">
+                  <FaPhone className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleInputChange}
+                    className="app-form-input pr-12 w-full"
+                    placeholder="مثال: 0123456789"
+                    dir="ltr"
+                  />
+                </div>
+                {errors.phoneNumber && (
+                  <p className="text-red-500 text-xs mt-1.5 mr-1 font-bold flex items-center gap-1">
+                    <FaExclamationTriangle className="text-[10px]" />
+                    {errors.phoneNumber}
+                  </p>
+                )}
+              </div>
+
+              <div className="app-form-group">
+                <label className="app-form-label">البريد الإلكتروني</label>
+                <div className="relative">
+                  <FaEnvelope className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="app-form-input pr-12 w-full"
+                    placeholder="example@mail.com"
+                    dir="ltr"
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1.5 mr-1 font-bold flex items-center gap-1">
+                    <FaExclamationTriangle className="text-[10px]" />
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="app-form-actions pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="app-btn-secondary px-8 py-4"
                 >
-                  <FaExclamationTriangle className="text-xs" />
-                  {errors.orgName}
-                </motion.div>
-              )}
-            </div>
-
-            {/* Organization Type Field */}
-            <div className="space-y-2">
-              <label className="text-white/80 font-bold text-sm uppercase tracking-wider flex items-center gap-2">
-                <FaIndustry className="text-green-400" />
-                نوع المؤسسة
-              </label>
-              <select
-                name="orgType"
-                value={formData.orgType}
-                onChange={handleInputChange}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all appearance-none cursor-pointer"
-                dir="rtl"
-              >
-                {orgTypes.map(type => (
-                  <option key={type.value} value={type.value} className="bg-slate-800 text-white">
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Phone Number Field */}
-            <div className="space-y-2">
-              <label className="text-white/80 font-bold text-sm uppercase tracking-wider flex items-center gap-2">
-                <FaPhone className="text-purple-400" />
-                رقم الهاتف
-              </label>
-              <input
-                type="tel"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleInputChange}
-                placeholder="أدخل رقم الهاتف (اختياري)..."
-                className={`w-full bg-white/5 border ${errors.phoneNumber ? 'border-red-500/50' : 'border-white/10'} rounded-2xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all`}
-                dir="ltr"
-              />
-              {errors.phoneNumber && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-2 text-red-400 text-sm font-medium"
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="app-btn-primary flex-1 py-4 flex items-center justify-center gap-2"
                 >
-                  <FaExclamationTriangle className="text-xs" />
-                  {errors.phoneNumber}
-                </motion.div>
-              )}
-            </div>
-
-            {/* Email Field */}
-            <div className="space-y-2">
-              <label className="text-white/80 font-bold text-sm uppercase tracking-wider flex items-center gap-2">
-                <FaEnvelope className="text-orange-400" />
-                البريد الإلكتروني
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="أدخل البريد الإلكتروني (اختياري)..."
-                className={`w-full bg-white/5 border ${errors.email ? 'border-red-500/50' : 'border-white/10'} rounded-2xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all`}
-                dir="ltr"
-              />
-              {errors.email && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-2 text-red-400 text-sm font-medium"
-                >
-                  <FaExclamationTriangle className="text-xs" />
-                  {errors.email}
-                </motion.div>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <motion.button
-              type="submit"
-              disabled={isSubmitting}
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl px-8 py-5 font-black text-lg flex items-center justify-center gap-3 border border-blue-400/30 shadow-xl shadow-blue-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-6"
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  جاري الحفظ...
-                </>
-              ) : (
-                <>
-                  <FaSave />
-                  حفظ المؤسسة
-                </>
-              )}
-            </motion.button>
-          </form>
+                  {isSubmitting ? (
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  ) : (
+                    <>
+                      <FaSave className="text-sm" />
+                      <span>حفظ المؤسسة</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>

@@ -888,10 +888,7 @@ const PartnerRow = ({ partner }) => (
 
 const SECTIONS = [
   { id: 'overview', label: 'نظرة عامة', Icon: FaChartBar },
-  { id: 'requests', label: 'الطلبات', Icon: FaClipboardList },
-  { id: 'beneficiaries', label: 'المستفيدون', Icon: FaHome },
   { id: 'partners', label: 'الشركاء', Icon: FaHandshake },
-  { id: 'incoming-requests', label: 'الطلبات الواردة', Icon: FaBell },
   { id: 'locations', label: 'العناوين', Icon: FaMapMarkerAlt },
   { id: 'users', label: 'إدارة المستخدمين', Icon: FaUsers },
 ];
@@ -901,7 +898,13 @@ const AdminTab = () => {
   const { state } = useGameState();
   const { userStats, orders = [] } = state;
 
-  const [activeSection, setActiveSection] = useState('overview');
+  const [activeSection, setActiveSection] = useState(() => {
+    return localStorage.getItem('madina_admin_active_tab') || 'overview';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('madina_admin_active_tab', activeSection);
+  }, [activeSection]);
   const [requests, setRequests] = useState(serviceRequestsData);
   const [requestSearch, setRequestSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -954,10 +957,10 @@ const AdminTab = () => {
   const overviewKpis = useMemo(
     () =>
       buildDashboardKpis(dashboardOverview, [
-        { icon: FaHome, value: beneficiariesData.length, label: 'Ù…Ø³ØªÙÙŠØ¯ Ù…Ø³Ø¬Ù„', tone: 'indigo' },
-        { icon: FaHandshake, value: partnersData.length, label: 'Ø´Ø±ÙŠÙƒ ÙØ§Ø¹Ù„', tone: 'green' },
-        { icon: FaClipboardList, value: openRequests, label: 'Ø·Ù„Ø¨ Ù…ÙØªÙˆØ­', tone: 'blue' },
-        { icon: FaStar, value: totalKP.toLocaleString(), label: 'Ù†Ù‚Ø§Ø· Ø§Ù„Ø®ÙŠØ±', tone: 'red' },
+        { icon: FaHome, value: beneficiariesData.length, label: 'مستفيد مسجل', tone: 'indigo' },
+        { icon: FaHandshake, value: partnersData.length, label: 'شريك فاعل', tone: 'green' },
+        { icon: FaClipboardList, value: openRequests, label: 'طلب مفتوح', tone: 'blue' },
+        { icon: FaStar, value: totalKP.toLocaleString(), label: 'نقاط الخير', tone: 'red' },
       ]),
     [dashboardOverview, openRequests, totalKP]
   );

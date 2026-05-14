@@ -130,7 +130,9 @@ export default function CaseDetailsPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, alignItems: 'flex-start', flexWrap: 'wrap' }}>
             <div>
               <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, color: '#0f172a' }}>📄 {caseData.title}</h1>
-              <p style={{ margin: '8px 0 0', color: '#475569', fontWeight: 800 }}>رقم الحالة: {caseData.id}</p>
+              <p style={{ margin: '8px 0 0', color: '#475569', fontWeight: 800 }}>
+                {caseData.type} - {caseData.city}
+              </p>
             </div>
             <span
               style={{

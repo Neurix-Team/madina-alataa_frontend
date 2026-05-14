@@ -61,16 +61,21 @@ const buildCreatePayload = (requestData) => ({
   briefDescription: String(requestData.briefDescription || '').trim(),
   partnerId: String(requestData.partnerId || '').trim(),
   locationId: String(requestData.locationId || '').trim(),
+  maxOrders: Number(requestData.maxOrders) || 1,
+  requiredLevelId: requestData.requiredLevelId !== undefined && requestData.requiredLevelId !== null ? String(requestData.requiredLevelId) : "",
 });
 
 const buildUpdatePayload = (requestData) => ({
   title: String(requestData.title || '').trim(),
+  serviceType: String(requestData.serviceType || '').trim(),
   requiredSkill: String(requestData.requiredSkill || '').trim(),
   urgencyLevel: Number(requestData.urgencyLevel) || 1,
   scheduleDate: requestData.scheduleDate || '',
   duration: Number(requestData.duration) || 1,
   briefDescription: String(requestData.briefDescription || '').trim(),
   locationId: String(requestData.locationId || '').trim(),
+  maxOrders: Number(requestData.maxOrders) || 1,
+  requiredLevelId: requestData.requiredLevelId !== undefined && requestData.requiredLevelId !== null ? String(requestData.requiredLevelId) : "",
 });
 
 const extractErrorMessage = (error, fallbackMessage) => {

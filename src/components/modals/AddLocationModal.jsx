@@ -113,31 +113,30 @@ function LocationCoordinatePicker({ existingLocations, longitude, latitude, onPi
   };
 
   return (
-    <div className="rounded-[28px] border border-sky-100 bg-white p-5 shadow-xl shadow-sky-100/70 md:p-6">
-      <div className="mb-5 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-700">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50">
-          <FaSatellite className="text-sky-600" />
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="mb-6 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-600">
+          <FaSatellite className="text-base" />
         </div>
-        <h4>اختيار العنوان من الخريطة</h4>
-      </div>
-
-      <div className="mb-5 flex items-start gap-4 rounded-2xl border border-sky-100 bg-sky-50 p-4">
-        <FaSatellite className="mt-1 text-xl text-sky-600" />
         <div>
-          <p className="m-0 text-sm font-medium leading-7 text-slate-700">
-            اضغط داخل الخريطة لتحديد مكان العنوان الجديد، وسيتم ملء `longitude` و`latitude` تلقائيًا وإرسالهم في body
-            الـ API.
+          <h4 className="text-base font-bold text-slate-900">اختيار العنوان من الخريطة</h4>
+          <p className="mt-0.5 text-xs font-medium text-slate-500">حدّد الإحداثيات بنقرة واحدة</p>
+        </div>
+      </div>
+
+      <div className="mb-6 flex items-start gap-3 rounded-xl border border-sky-100 bg-sky-50/70 p-4">
+        <FaSatellite className="mt-1 text-base text-sky-600 shrink-0" />
+        <div className="space-y-2">
+          <p className="m-0 text-sm font-medium leading-6 text-slate-700">
+            اضغط داخل الخريطة لتحديد مكان العنوان الجديد، وسيتم ملء خط الطول وخط العرض تلقائيًا.
           </p>
-          <p className="mb-0 mt-2 text-xs font-medium leading-6 text-slate-500">
-            النقاط الصغيرة تمثل العناوين الحالية كمرجع فقط، أما العلامة الحمراء فهي العنوان الجديد الذي تختاره الآن.
+          <p className="m-0 text-xs font-medium leading-5 text-slate-500">
+            النقاط الزرقاء تمثل العناوين الحالية كمرجع، والعلامة الحمراء هي العنوان الجديد.
           </p>
         </div>
       </div>
 
-      <div
-        className="overflow-hidden rounded-[1.75rem] border border-sky-100 bg-sky-50"
-        style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }}
-      >
+      <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
         <svg
           viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
           style={{ width: '100%', display: 'block', cursor: 'crosshair' }}
@@ -241,23 +240,23 @@ function LocationCoordinatePicker({ existingLocations, longitude, latitude, onPi
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="rounded-[20px] border border-sky-100 bg-sky-50 px-4 py-4">
-          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-600">
+        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5">
+          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
             <FaCompass className="text-sky-600" />
-            خط الطول المحدد
+            <span>خط الطول</span>
           </div>
-          <div className="font-mono text-sm font-semibold text-slate-900" dir="ltr">
-            {formatCoordinate(longitude) || 'غير محدد'}
+          <div className="font-mono text-base font-bold text-slate-900" dir="ltr">
+            {formatCoordinate(longitude) || '—'}
           </div>
         </div>
 
-        <div className="rounded-[20px] border border-sky-100 bg-sky-50 px-4 py-4">
-          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-600">
+        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5">
+          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
             <FaGlobe className="text-sky-600" />
-            خط العرض المحدد
+            <span>خط العرض</span>
           </div>
-          <div className="font-mono text-sm font-semibold text-slate-900" dir="ltr">
-            {formatCoordinate(latitude) || 'غير محدد'}
+          <div className="font-mono text-base font-bold text-slate-900" dir="ltr">
+            {formatCoordinate(latitude) || '—'}
           </div>
         </div>
       </div>
@@ -335,192 +334,116 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
   };
 
   const fieldClass =
-    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:bg-sky-50 focus:ring-4 focus:ring-sky-100';
+    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-blue-50/30 focus:ring-4 focus:ring-blue-100/50';
 
-  const cardClass =
-    'rounded-[28px] border border-sky-100 bg-white p-5 shadow-xl shadow-sky-100/70 md:p-6';
+  const labelClass = 'block text-sm font-bold text-slate-700 mb-2 mr-1';
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-md md:p-8" dir="rtl">
+        <div className="app-modal-overlay" dir="rtl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 24 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 24 }}
-            transition={{ duration: 0.2 }}
-            className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[30px] border border-sky-100 bg-slate-50 shadow-2xl shadow-slate-300/60"
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="app-modal-card"
           >
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(240,249,255,0.98),rgba(255,255,255,0.56)_48%,rgba(236,253,245,0.65))]" />
-
-            <div className="relative flex items-start justify-between gap-4 border-b border-slate-200 bg-white/90 px-6 py-5 md:px-8">
+            {/* Header */}
+            <div className="app-modal-header">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-sky-400 to-indigo-500 text-white shadow-lg">
-                  <FaPlus className="text-lg" />
+                <div className="w-[52px] h-[52px] rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+                  <FaPlus className="text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-950">إضافة عنوان جديد</h3>
-                  <p className="mt-1 text-sm font-medium text-slate-600">
-                    واجهة أوضح لإضافة العنوان واختيار الإحداثيات من الخريطة.
-                  </p>
+                  <h3 className="app-modal-title">إضافة عنوان جديد</h3>
+                  <p className="app-modal-subtitle">قم بتحديد اسم العنوان واختيار موقعه الجغرافي</p>
                 </div>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05, rotate: 90 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  resetForm();
-                  onClose();
-                }}
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm"
+              <button
+                onClick={onClose}
+                className="app-modal-close"
               >
                 <FaTimes />
-              </motion.button>
+              </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="relative flex-1 overflow-y-auto px-6 py-6 md:px-8 md:py-8">
-              <div className="grid gap-7 lg:grid-cols-[1.02fr_0.98fr]">
-                <div className="grid gap-7">
-                  <section className={cardClass}>
-                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-700">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
-                        <FaMapMarkerAlt className="text-sky-600" />
-                      </div>
-                      <h4>البيانات الأساسية</h4>
+            {/* Content */}
+            <div className="overflow-y-auto">
+              <form onSubmit={handleSubmit} className="app-form">
+                <div className="app-form-grid">
+                  <div className="space-y-5">
+                    <div className="app-form-group">
+                      <label className="app-form-label">اسم العنوان</label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        className="app-form-input w-full"
+                        placeholder="مثال: المستشفى المركزي"
+                        required
+                      />
                     </div>
 
-                    <div className="grid gap-6">
-                      <div className="space-y-2.5">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                          <FaMapMarkerAlt className="text-sky-600" />
-                          <span>اسم العنوان</span>
-                        </label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          required
-                          className={fieldClass}
-                          placeholder="أدخل اسمًا واضحًا للعنوان"
-                        />
-                      </div>
-
-                      <div className="space-y-2.5">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                          <FaStar className="text-amber-600" />
-                          <span>المستوى المطلوب</span>
-                        </label>
+                    <div className="app-form-group">
+                      <label className="app-form-label">المستوى المطلوب لفتح العنوان</label>
+                      <div className="relative">
+                        <FaStar className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-400" />
                         <input
                           type="number"
                           name="requiredLevel"
                           value={formData.requiredLevel}
                           onChange={handleChange}
+                          className="app-form-input w-full pr-12"
                           min="1"
-                          max="100"
-                          className={fieldClass}
+                          required
                         />
                       </div>
                     </div>
-                  </section>
 
-                  <LocationCoordinatePicker
-                    existingLocations={existingLocations}
-                    longitude={formData.longitude}
-                    latitude={formData.latitude}
-                    onPick={handleCoordinatePick}
-                  />
+                    <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-100/50">
+                      <p className="text-sm text-blue-700 leading-relaxed font-medium m-0">
+                        <FaGlobe className="inline-block ml-2 mb-0.5" />
+                        يتم تحديد الإحداثيات تلقائيًا عند الضغط على الخريطة المقابلة.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="app-form-group">
+                    <LocationCoordinatePicker
+                      existingLocations={existingLocations}
+                      longitude={formData.longitude}
+                      latitude={formData.latitude}
+                      onPick={handleCoordinatePick}
+                    />
+                  </div>
                 </div>
 
-                <div className="grid gap-7">
-                  <section className={cardClass}>
-                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-sky-700">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
-                        <FaGlobe className="text-sky-600" />
-                      </div>
-                      <h4>الإحداثيات المرسلة</h4>
-                    </div>
-
-                    <div className="grid gap-4">
-                      <div className="rounded-[20px] border border-sky-100 bg-white p-4 shadow-sm">
-                        <label className="mb-2 block text-sm font-medium text-slate-600">Longitude</label>
-                        <input
-                          type="text"
-                          name="longitude"
-                          value={formData.longitude}
-                          readOnly
-                          className={`${fieldClass} font-mono`}
-                          dir="ltr"
-                        />
-                      </div>
-
-                      <div className="rounded-[20px] border border-sky-100 bg-white p-4 shadow-sm">
-                        <label className="mb-2 block text-sm font-medium text-slate-600">Latitude</label>
-                        <input
-                          type="text"
-                          name="latitude"
-                          value={formData.latitude}
-                          readOnly
-                          className={`${fieldClass} font-mono`}
-                          dir="ltr"
-                        />
-                      </div>
-                    </div>
-                  </section>
-
-                  <section className={cardClass}>
-                    <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-700">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-600">
-                        <FaCrosshairs className="text-sky-600" />
-                      </div>
-                      <h4>ملخص الإرسال</h4>
-                    </div>
-
-                    <div className="rounded-[22px] border border-sky-100 bg-white p-4 text-sm font-medium leading-7 text-slate-700 shadow-sm">
-                      عند الضغط على حفظ، سيتم إرسال البيانات بهذه الصيغة:
-                      <div className="mt-3 rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 font-mono text-xs text-sky-700" dir="ltr">
-                        {'{ name, requiredLevel, longitude, latitude }'}
-                      </div>
-                    </div>
-                  </section>
+                {/* Footer Buttons */}
+                <div className="app-form-actions pt-4 border-t border-slate-100">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="app-btn-primary flex-1 py-4 flex items-center justify-center gap-2"
+                  >
+                    {loading ? (
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    ) : (
+                      <>
+                        <FaPlus className="text-sm" />
+                        <span>حفظ العنوان الجديد</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="app-btn-secondary px-8 py-4"
+                  >
+                    إلغاء
+                  </button>
                 </div>
-              </div>
-            </form>
-
-            <div className="relative flex gap-4 border-t border-slate-200 bg-white/90 px-6 py-5 md:px-8">
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                type="button"
-                onClick={() => {
-                  resetForm();
-                  onClose();
-                }}
-                className="flex-1 rounded-[22px] border border-slate-200 bg-white px-6 py-4 text-base font-semibold text-slate-700 shadow-sm"
-                disabled={loading}
-              >
-                إلغاء
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                type="submit"
-                onClick={handleSubmit}
-                className="flex flex-[1.4] items-center justify-center gap-3 rounded-[22px] bg-gradient-to-r from-sky-400 to-indigo-500 px-6 py-4 text-base font-semibold text-white shadow-xl"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="inline-flex items-center gap-2">
-                    <span className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                    <span>جاري الحفظ...</span>
-                  </span>
-                ) : (
-                  <>
-                    <FaPlus />
-                    <span>حفظ العنوان</span>
-                  </>
-                )}
-              </motion.button>
+              </form>
             </div>
           </motion.div>
         </div>
@@ -528,5 +451,19 @@ const AddLocationModal = ({ isOpen, onClose, onSubmit, existingLocations = [] })
     </AnimatePresence>
   );
 };
+
+function SummaryRow({ label, value, mono = false }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <span className="text-sm font-medium text-slate-600">{label}</span>
+      <span
+        className={`text-sm font-bold text-slate-900 ${mono ? 'font-mono break-all text-left' : ''}`}
+        dir={mono ? 'ltr' : undefined}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
 
 export default AddLocationModal;

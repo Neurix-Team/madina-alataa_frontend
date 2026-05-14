@@ -311,20 +311,7 @@ console.log(
       ) : (
         <div style={{ textAlign: 'center' }}>
           <h3 style={{ color: '#27ae60', marginBottom: '20px' }}>Authentication Successful!</h3>
-          {responseData && (
-            <div style={{ 
-              background: '#f8f9fa', 
-              padding: '20px', 
-              borderRadius: '8px', 
-              marginBottom: '20px',
-              textAlign: 'left'
-            }}>
-              <h4>Response Data:</h4>
-              <pre style={{ fontSize: '12px', overflow: 'auto' }}>
-                {JSON.stringify(responseData, null, 2)}
-              </pre>
-            </div>
-          )}
+          {responseData && <p style={{ color: '#475569', fontWeight: 700 }}>Your account is ready.</p>}
           <p>Redirecting you to your dashboard...</p>
         </div>
       )}

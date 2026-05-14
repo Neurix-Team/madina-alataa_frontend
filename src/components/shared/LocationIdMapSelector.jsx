@@ -24,9 +24,17 @@ export default function LocationIdMapSelector({
   locations = [],
   selectedLocationId,
   onSelect,
+  onLocationSelect,
   title = 'اختيار الموقع من الخريطة',
-  subtitle = 'اضغط على أي عنوان لاختيار locationId.',
+  subtitle = 'اضغط على أي عنوان لاختيار الموقع.',
 }) {
+  const handleSelect = (location) => {
+    const callback = onSelect || onLocationSelect;
+    if (typeof callback === 'function') {
+      callback(location);
+    }
+  };
+
   const normalizedLocations = useMemo(
     () => (Array.isArray(locations) ? locations : []).map(normalizeLocation).filter((location) => location?.id),
     [locations]
@@ -110,7 +118,7 @@ export default function LocationIdMapSelector({
                 return (
                   <g
                     key={location.id}
-                    onClick={() => onSelect(location)}
+                    onClick={() => handleSelect(location)}
                     style={{ cursor: 'pointer' }}
                   >
                     <circle
@@ -149,9 +157,9 @@ export default function LocationIdMapSelector({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
-          <div className="mb-2 text-xs font-black uppercase tracking-widest text-slate-500">Location ID</div>
+          <div className="mb-2 text-xs font-black uppercase tracking-widest text-slate-500">العنوان المحدد</div>
           <div className="break-all font-mono text-sm font-bold text-sky-700" dir="ltr">
-            {selectedLocationId || 'غير محدد'}
+            {selectedLocation?.name || 'الموقع المختار'}
           </div>
         </div>
 
@@ -159,7 +167,7 @@ export default function LocationIdMapSelector({
           <div className="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">الاسم</div>
           <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
             <FaMapMarkerAlt className="text-sky-600" />
-            <span>{selectedLocation?.name || 'غير محدد'}</span>
+            <span>{selectedLocation?.name || 'الموقع المختار'}</span>
           </div>
         </div>
       </div>

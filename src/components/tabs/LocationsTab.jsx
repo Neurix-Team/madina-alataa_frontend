@@ -197,10 +197,6 @@ const LocationsTab = () => {
           <div className="pro-number">{index + 1}</div>
           <div>
             <h3 className="pro-card-title" style={{ color: '#0f172a' }}>{location.name}</h3>
-            <p className="pro-card-subtitle" style={{ color: '#475569' }}>
-              <FaMapPin style={{ display: 'inline', marginLeft: '4px' }} />
-              {location.id?.substring(0, 12)}...
-            </p>
           </div>
         </div>
         <span className="pro-badge pro-badge-warning">
@@ -231,14 +227,14 @@ const LocationsTab = () => {
       </div>
 
       {showActions ? (
-        <div className="pro-card-actions" style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+        <div className="pro-card-actions" style={{ display: 'flex', gap: '10px', marginTop: '12px', position: 'relative', zIndex: 20 }}>
           <motion.button 
             whileHover={{ scale: 1.05 }} 
             whileTap={{ scale: 0.95 }} 
             onClick={() => handleViewLocation(location.id)} 
             className="pro-btn pro-btn-icon"
             title="عرض"
-            style={{ color: 'var(--info)', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}
+            style={{ color: '#1d4ed8', background: '#dbeafe', border: '1px solid #60a5fa', opacity: 1, boxShadow: '0 8px 18px rgba(37, 99, 235, 0.18)' }}
           >
             <FaEye />
           </motion.button>
@@ -248,7 +244,7 @@ const LocationsTab = () => {
             onClick={() => handleEditLocation(location)} 
             className="pro-btn pro-btn-icon"
             title="تعديل"
-            style={{ color: 'var(--warning)', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)' }}
+            style={{ color: '#b45309', background: '#fef3c7', border: '1px solid #f59e0b', opacity: 1, boxShadow: '0 8px 18px rgba(217, 119, 6, 0.18)' }}
           >
             <FaEdit />
           </motion.button>
@@ -258,7 +254,7 @@ const LocationsTab = () => {
             onClick={() => handleDeleteLocation(location.id)} 
             className="pro-btn pro-btn-icon"
             title="حذف"
-            style={{ color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+            style={{ color: '#b91c1c', background: '#fee2e2', border: '1px solid #f87171', opacity: 1, boxShadow: '0 8px 18px rgba(220, 38, 38, 0.18)' }}
           >
             <FaTrash />
           </motion.button>
@@ -332,7 +328,7 @@ const LocationsTab = () => {
         </div>
 
         {/* Search & Filters */}
-        <div className="pro-section">
+        <div className="pro-section" style={{ marginBottom: 0 }}>
           {!showAvailable ? (
             <div className="pro-input-group" style={{ maxWidth: '500px' }}>
               <FaSearch className="pro-input-icon" />
@@ -379,7 +375,7 @@ const LocationsTab = () => {
           ) : (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
               {/* Results Count */}
-              <p className="pro-section-title">
+              <p className="pro-section-title" style={{ color: '#ffffff', fontSize: '24px', fontWeight: '900', textShadow: '0 2px 10px rgba(0,0,0,0.2)', marginBottom: '20px' }}>
                 {showAvailable ? `${availableLocations.length} موقع متاح` : `${filteredLocations.length} موقع مسجل`}
               </p>
 

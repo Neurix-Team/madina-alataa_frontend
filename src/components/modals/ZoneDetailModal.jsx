@@ -39,62 +39,78 @@ const ZoneDetailModal = ({ zone, completedQuests, onClose, onOpenQuest }) => {
   if (!zone) return null;
 
   return (
-    <>
-      <style>{CSS}</style>
-      <div
-        onClick={(e) => { if (e.target === e.currentTarget) { AudioManager.getInstance().play('click'); onClose(); } }}
-        style={{
-          position:'fixed', inset:0,
-          background:'rgba(0,0,0,0.5)', backdropFilter:'blur(4px)',
-          zIndex:100, display:'flex', alignItems:'center', justifyContent:'center', padding:16,
-        }}
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) { AudioManager.getInstance().play('click'); onClose(); } }}
+      className="app-modal-overlay"
+      style={{ zIndex: 100 }}
+    >
+      <div 
+        ref={modalRef}
+        className="app-modal-card"
+        style={{ maxWidth: '820px', direction: 'rtl' }}
       >
-        <div className="zone-modal-box" ref={modalRef}>
-          {/* Header */}
-          <div style={{ padding:'22px 24px 16px', borderBottom:'1.5px solid #f1f5f9', display:'flex', alignItems:'center', gap:12 }}>
-            <div style={{ width:58, height:58, borderRadius:16, background:'#f8fafc', display:'flex', alignItems:'center', justifyContent:'center', fontSize:30, flexShrink:0 }}>
+        {/* Header */}
+        <div className="app-modal-header">
+          <div className="flex items-center gap-4">
+            <div className="w-[58px] h-[58px] rounded-2xl bg-slate-50 border border-slate-200/60 flex items-center justify-center text-[30px]">
               {zone.emoji}
             </div>
-            <div style={{ flex:1 }}>
-              <h2 style={{ fontSize:18, fontWeight:900, color:'#1e293b', marginBottom:3 }}>{zone.title}</h2>
-              <p  style={{ fontSize:12, color:'#94a3b8', fontWeight:600 }}>{zone.desc}</p>
+            <div>
+              <h3 className="app-modal-title">{zone.title}</h3>
+              <p className="app-modal-subtitle">{zone.desc}</p>
             </div>
-            <button
-              onClick={() => { AudioManager.getInstance().play('click'); onClose(); }}
-              style={{ background:'#f1f5f9', border:'none', width:34, height:34, borderRadius:'50%', cursor:'pointer', fontSize:16, color:'#64748b', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginRight:'auto' }}
-            >✕</button>
           </div>
+          <button
+            onClick={() => { AudioManager.getInstance().play('click'); onClose(); }}
+            className="app-modal-close"
+          >
+            <FaTimes />
+          </button>
+        </div>
 
-          {/* Quest list */}
-          <div style={{ padding:'16px 24px 24px' }}>
-            <h3 style={{ fontSize:15, fontWeight:900, color:'#334155', marginBottom:10 }}>المهام المتاحة</h3>
+        {/* Content */}
+        <div className="overflow-y-auto py-4">
+          <h3 className="text-[16px] font-black text-slate-900 mb-4">المهام المتاحة في هذه المنطقة</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {zone.quests.map((quest) => {
               const done = completedQuests.has(quest.id);
               const dl   = DIFF_STYLE[quest.diff] ?? DIFF_STYLE['متوسط'];
               return (
-                <div key={quest.id}
+                <div 
+                  key={quest.id}
                   onClick={() => { if (!done) { AudioManager.getInstance().play('click'); onOpenQuest(quest); } }}
-                  style={{
-                    background:'#f8fafc', border:'1.5px solid #e2e8f0',
-                    borderRadius:16, padding:14, marginBottom:10,
-                    cursor: done ? 'default' : 'pointer',
-                    opacity: done ? 0.55 : 1, transition:'all 0.18s',
-                  }}
-                  onMouseEnter={(e) => { if (!done) { e.currentTarget.style.background='#eff6ff'; e.currentTarget.style.borderColor='#bfdbfe'; } }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background='#f8fafc'; e.currentTarget.style.borderColor='#e2e8f0'; }}
+                  className={`p-4 rounded-2xl border transition-all duration-200 ${
+                    done 
+                      ? 'bg-slate-50/50 border-slate-100 opacity-60 cursor-default' 
+                      : 'bg-white border-slate-200/80 cursor-pointer hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/10'
+                  }`}
                 >
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:6, gap:8 }}>
-                    <span style={{ fontSize:14, fontWeight:900, color:'#1e293b' }}>{done ? '✅ ' : ''}{quest.title}</span>
-                    <span style={{ fontSize:10, fontWeight:900, padding:'3px 8px', borderRadius:99, background:dl.bg, color:dl.color, whiteSpace:'nowrap', flexShrink:0 }}>{quest.diff}</span>
+                  <div className="flex justify-between items-start gap-3 mb-3">
+                    <span className="text-[15px] font-black text-slate-900 leading-snug">
+                      {done ? '✅ ' : ''}{quest.title}
+                    </span>
+                    <span 
+                      className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider whitespace-nowrap"
+                      style={{ background: dl.bg, color: dl.color }}
+                    >
+                      {quest.diff}
+                    </span>
                   </div>
-                  <p style={{ fontSize:12, color:'#64748b', fontWeight:600, lineHeight:1.6, marginBottom:8 }}>{quest.story}</p>
-                  <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                  <p className="text-slate-500 text-[13px] leading-relaxed mb-4 font-medium">
+                    {quest.story}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
                     {[
-                      { label:`⭐ ${quest.kp} KP`,      bg:'#fef9c3', color:'#92400e' },
-                      { label:`🔷 ${quest.xp} XP`,        bg:'#eff6ff', color:'#1d4ed8' },
-                      { label:`🌍 ${quest.impact}`,         bg:'#f0fdf4', color:'#166534' },
+                      { label: `⭐ ${quest.kp} KP`, bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
+                      { label: `🔷 ${quest.xp} XP`, bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100' },
+                      { label: `🌍 ${quest.impact}`, bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' },
                     ].map((chip) => (
-                      <span key={chip.label} style={{ fontSize:11, fontWeight:900, padding:'3px 9px', borderRadius:99, background:chip.bg, color:chip.color }}>{chip.label}</span>
+                      <span 
+                        key={chip.label} 
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-black border ${chip.bg} ${chip.text} ${chip.border}`}
+                      >
+                        {chip.label}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -103,7 +119,7 @@ const ZoneDetailModal = ({ zone, completedQuests, onClose, onOpenQuest }) => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

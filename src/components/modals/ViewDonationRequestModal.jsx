@@ -10,10 +10,20 @@ import {
   FaCalendarAlt,
   FaExclamationTriangle,
   FaDonate,
+  FaFingerprint,
+  FaCheckCircle,
 } from 'react-icons/fa';
 import { donationRequestsService } from '../../services/donationRequestsService';
 
-const ViewDonationRequestModal = ({ isOpen, onClose, requestId, showDonateButton = false, onDonate }) => {
+const cardClass = 'rounded-2xl border border-slate-200 bg-white p-6 shadow-sm';
+
+const ViewDonationRequestModal = ({
+  isOpen,
+  onClose,
+  requestId,
+  showDonateButton = false,
+  onDonate,
+}) => {
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -38,33 +48,47 @@ const ViewDonationRequestModal = ({ isOpen, onClose, requestId, showDonateButton
     }
   };
 
+  const DetailItem = ({ label, value, icon: Icon, fullWidth = false }) => (
+    <div className={`p-4 rounded-2xl bg-slate-50/95 border border-slate-200/90 flex flex-col gap-1.5 ${fullWidth ? 'col-span-full' : ''}`}>
+      <div className="flex items-center gap-2 text-slate-500">
+        {Icon && <Icon className="text-sm" />}
+        <span className="text-[12px] font-bold uppercase tracking-wider">{label}</span>
+      </div>
+      <strong className="text-slate-900 text-[14px] font-extrabold break-words">
+        {value || 'غير محدد'}
+      </strong>
+    </div>
+  );
+
   const getUrgencyLabel = (level) => {
     const levels = {
-      1: { label: 'منخفض', color: 'text-green-400', bg: 'bg-green-500/20' },
-      2: { label: 'متوسط', color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
-      3: { label: 'عالي', color: 'text-orange-400', bg: 'bg-orange-500/20' },
-      4: { label: 'حرج', color: 'text-red-400', bg: 'bg-red-500/20' },
-      5: { label: 'طارئ', color: 'text-purple-400', bg: 'bg-purple-500/20' },
+      1: { label: 'منخفض', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+      2: { label: 'متوسط', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+      3: { label: 'عالي', color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' },
+      4: { label: 'حرج', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
+      5: { label: 'طارئ', color: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-100' },
     };
-
-    return levels[level] || { label: 'غير محدد', color: 'text-gray-400', bg: 'bg-gray-500/20' };
+    return levels[level] || { label: 'غير محدد', color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-100' };
   };
 
   const getStatusLabel = (status) => {
     const statuses = {
-      pending: { label: 'قيد الانتظار', color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
-      approved: { label: 'تمت الموافقة', color: 'text-green-400', bg: 'bg-green-500/20' },
-      rejected: { label: 'مرفوض', color: 'text-red-400', bg: 'bg-red-500/20' },
+      pending: { label: 'قيد الانتظار', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+      approved: { label: 'تمت الموافقة', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+      rejected: { label: 'مرفوض', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
     };
-
-    return statuses[status?.toLowerCase()] || {
-      label: status || 'غير معروف',
-      color: 'text-gray-400',
-      bg: 'bg-gray-500/20',
-    };
+    return (
+      statuses[status?.toLowerCase()] || {
+        label: status || 'غير معروف',
+        color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-100'
+      }
+    );
   };
 
   if (!isOpen) return null;
+
+  const urgency = request ? getUrgencyLabel(request.urgencyLevel) : null;
+  const statusInfo = request ? getStatusLabel(request.status) : null;
 
   return (
     <AnimatePresence>
@@ -72,153 +96,112 @@ const ViewDonationRequestModal = ({ isOpen, onClose, requestId, showDonateButton
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="app-modal-overlay"
         onClick={onClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] w-full max-w-lg border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto"
+          className="app-modal-card"
+          style={{ maxWidth: '820px' }}
           onClick={(e) => e.stopPropagation()}
+          dir="rtl"
         >
-          <div className="flex items-center justify-between p-8 pb-0">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-600/20 flex items-center justify-center border border-blue-500/30">
-                <FaHandHoldingHeart className="text-blue-400 text-2xl" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-black text-white">تفاصيل طلب التبرع</h2>
-                <p className="text-blue-300/70 font-medium mt-1">معلومات الطلب</p>
-              </div>
+          {/* Header */}
+          <div className="app-modal-header">
+            <div>
+              <h3 className="app-modal-title">تفاصيل طلب التبرع</h3>
+              <p className="app-modal-subtitle">بيانات الطلب والوصف والحالة الحالية</p>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.9 }}
+            <button
               onClick={onClose}
-              className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              className="app-modal-close"
             >
-              <FaTimes className="text-white/80" />
-            </motion.button>
+              <FaTimes />
+            </button>
           </div>
 
-          <div className="p-8 pt-6 space-y-5">
+          {/* Content */}
+          <div className="overflow-y-auto">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-12 gap-4">
-                <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
-                <p className="text-white/60">جاري تحميل التفاصيل...</p>
+              <div className="py-20 flex flex-col items-center justify-center gap-4">
+                <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
+                <p className="text-slate-500 font-bold">جاري تحميل البيانات...</p>
               </div>
             ) : error ? (
-              <div className="flex items-center gap-3 text-red-400 bg-red-500/10 p-4 rounded-xl">
-                <FaExclamationTriangle className="text-xl" />
-                <p>{error}</p>
+              <div className="p-8 rounded-2xl bg-red-50 border border-red-100 text-center">
+                <FaExclamationTriangle className="text-red-500 text-4xl mx-auto mb-4" />
+                <p className="text-red-700 font-bold">{error}</p>
+                <button onClick={fetchRequestDetails} className="mt-4 text-blue-600 font-black underline">إعادة المحاولة</button>
               </div>
             ) : request ? (
-              <div className="space-y-4">
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-                  <label className="text-white/50 text-sm font-medium mb-2 block">عنوان الطلب</label>
-                  <p className="text-white text-lg font-bold">{request.title || 'غير متوفر'}</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className={`${getStatusLabel(request.status).bg} border border-white/10 rounded-2xl p-4`}>
-                    <label className="text-white/50 text-sm font-medium mb-2 block">الحالة</label>
-                    <span className={`${getStatusLabel(request.status).color} font-bold`}>
-                      {getStatusLabel(request.status).label}
+              <div className="space-y-6">
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-[22px] font-black text-slate-900 m-0">{request.title}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${urgency.bg} ${urgency.color} ${urgency.border}`}>
+                      الاستعجال: {urgency.label}
                     </span>
-                  </div>
-                  <div className={`${getUrgencyLabel(request.urgencyLevel).bg} border border-white/10 rounded-2xl p-4`}>
-                    <label className="text-white/50 text-sm font-medium mb-2 block">مستوى الأهمية</label>
-                    <span className={`${getUrgencyLabel(request.urgencyLevel).color} font-bold`}>
-                      {getUrgencyLabel(request.urgencyLevel).label}
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${statusInfo.bg} ${statusInfo.color} ${statusInfo.border}`}>
+                      الحالة: {statusInfo.label}
                     </span>
                   </div>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <FaMoneyBillWave className="text-green-400" />
-                    <label className="text-white/50 text-sm font-medium">مبلغ التبرع</label>
-                  </div>
-                  <p className="text-white text-2xl font-black">
-                    {request.donateAmount?.toLocaleString('ar-EG') || 0} ج.م
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                    <div className="flex items-center gap-3 mb-2">
-                      <FaMapMarkerAlt className="text-blue-400" />
-                      <label className="text-white/50 text-sm font-medium">الموقع</label>
-                    </div>
-                    <p className="text-white font-medium text-sm">{request.locationId || request.location || 'غير متوفر'}</p>
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                    <div className="flex items-center gap-3 mb-2">
-                      <FaBuilding className="text-purple-400" />
-                      <label className="text-white/50 text-sm font-medium">معرف الشريك</label>
-                    </div>
-                    <p className="text-white font-medium text-sm">{request.partnerId || 'غير متوفر'}</p>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <DetailItem label="المبلغ المطلوب" value={`${request.donateAmount} عملة`} icon={FaMoneyBillWave} />
+                  <DetailItem label="تاريخ الطلب" value={new Date(request.createdAt).toLocaleDateString('ar-EG')} icon={FaCalendarAlt} />
+                  <DetailItem label="الشريك المستلم" value={request.partnerName || 'غير محدد'} icon={FaBuilding} />
+                  <DetailItem label="الموقع" value={request.locationName || 'غير محدد'} icon={FaMapMarkerAlt} />
                 </div>
 
                 {request.briefDescription && (
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-                    <div className="flex items-center gap-3 mb-2">
-                      <FaInfoCircle className="text-cyan-400" />
-                      <label className="text-white/50 text-sm font-medium">الوصف</label>
+                  <div>
+                    <h4 className="text-slate-500 text-[12px] font-bold uppercase tracking-wider mb-2">الوصف</h4>
+                    <div className="p-4 rounded-2xl bg-slate-50/50 border border-slate-100">
+                      <p className="text-slate-700 text-[15px] leading-relaxed m-0">{request.briefDescription}</p>
                     </div>
-                    <p className="text-white/80 leading-relaxed">{request.briefDescription}</p>
                   </div>
                 )}
 
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <FaCalendarAlt className="text-yellow-400" />
-                    <label className="text-white/50 text-sm font-medium">تاريخ الإنشاء</label>
-                  </div>
-                  <p className="text-white font-medium text-sm">
-                    {request.createdAt ? new Date(request.createdAt).toLocaleString('ar-EG') : 'غير متوفر'}
-                  </p>
-                </div>
-
-                <div className="bg-black/20 border border-white/5 rounded-xl p-3">
-                  <label className="text-white/30 text-xs font-medium mb-1 block">معرف الطلب</label>
-                  <p className="text-white/50 text-xs font-mono">{request.id || requestId}</p>
-                </div>
+                {showDonateButton && request.status?.toLowerCase() === 'approved' && (
+                  <button
+                    onClick={() => onDonate(request)}
+                    className="app-btn-primary w-full py-4 text-lg mt-4 flex items-center justify-center gap-3"
+                  >
+                    <FaHandHoldingHeart className="text-xl" />
+                    <span>تبرع الآن</span>
+                  </button>
+                )}
               </div>
             ) : null}
-
-            <div className="flex flex-col gap-3">
-              {showDonateButton && request && typeof onDonate === 'function' && (
-                <motion.button
-                  onClick={() => onDonate(request)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all"
-                >
-                  <FaDonate />
-                  أريد التبرع
-                </motion.button>
-              )}
-
-              <motion.button
-                onClick={onClose}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all"
-              >
-                <FaTimes />
-                إغلاق
-              </motion.button>
-            </div>
           </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>
   );
 };
+
+function InfoCard({ icon: Icon, iconBg, iconColor, label, value, mono = false }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-3 flex items-center gap-3">
+        <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg} ${iconColor}`}>
+          <Icon className="text-sm" />
+        </div>
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          {label}
+        </span>
+      </div>
+      <div
+        className={`break-words text-sm font-bold text-slate-900 ${mono ? 'font-mono break-all' : ''}`}
+        dir={mono ? 'ltr' : undefined}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
 
 export default ViewDonationRequestModal;

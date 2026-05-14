@@ -195,6 +195,21 @@ export const volunteerOrdersService = {
       throw new Error(extractErrorMessage(error, 'فشل في تحديث التقدم'));
     }
   },
+
+  getMyVolunteerOrders: async (pageNumber = 1, pageSize = 10) => {
+    try {
+      const response = await axiosClient.get(`${VOLUNTEER_ORDERS_API_URL}/my-orders`, {
+        params: { PageNumber: pageNumber, PageSize: pageSize }
+      });
+      const normalized = normalizeListResponse(response.data);
+      console.log('MY VOLUNTEER ORDERS LIST RAW RESPONSE:', normalized.raw);
+      console.log('MY VOLUNTEER ORDERS LIST ITEMS:', normalized.items);
+      return normalized;
+    } catch (error) {
+      console.error('MY VOLUNTEER ORDERS LIST ERROR:', error.response?.data || error.message);
+      throw new Error(extractErrorMessage(error, 'فشل في جلب طلباتي المقبولة'));
+    }
+  },
 };
 
 export default volunteerOrdersService;

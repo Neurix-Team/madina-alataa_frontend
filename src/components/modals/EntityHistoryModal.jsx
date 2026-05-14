@@ -71,9 +71,8 @@ const getActivityStatus = (item) => {
 const getActivityMeta = (item) => {
   const pairs = [
     ['نوع العملية', formatActivityText(item?.actionType || item?.activityType || item?.eventType, '')],
-    ['نفذها', item?.userName || item?.actorName || item?.createdBy || item?.userId],
+    ['نفذها', item?.userName || item?.actorName || item?.createdBy || item?.createdByName || 'مستخدم النظام'],
     ['مرتبطة بـ', formatActivityText(item?.entityType || item?.targetType, '')],
-    ['المعرف', item?.id || item?.activityId],
   ];
 
   return pairs.filter(([, value]) => value !== undefined && value !== null && value !== '');
@@ -235,83 +234,75 @@ const EntityHistoryModal = ({ isOpen, entityId, title = 'سجل النشاط', o
   if (!isOpen) return null;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        style={overlayStyle}
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="app-modal-overlay"
+      style={{ zIndex: 1200 }}
+    >
+      <div 
+        className="app-modal-card"
+        style={{ maxWidth: '900px' }}
+        dir="rtl"
       >
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 14, scale: 0.97 }}
-          transition={{ duration: 0.2 }}
-          onClick={(event) => event.stopPropagation()}
-          style={modalStyle}
-        >
-          <div style={headerStyle}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={iconWrapStyle}>
-                <FaHistory />
-              </div>
-              <div>
-                <h3 style={{ margin: 0, color: '#0f172a', fontSize: 22, fontWeight: 900 }}>{title}</h3>
-                <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 13 }}>
-                  تسلسل زمني واضح لكل العمليات والتحديثات المرتبطة بهذا العنصر
-                </p>
-              </div>
+        {/* Header */}
+        <div className="app-modal-header">
+          <div className="flex items-center gap-4">
+            <div className="w-[52px] h-[52px] rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+              <FaHistory className="text-xl" />
             </div>
-            <button type="button" onClick={onClose} style={closeBtnStyle}>
-              <FaTimes />
-            </button>
+            <div>
+              <h3 className="app-modal-title">{title}</h3>
+              <p className="app-modal-subtitle">عرض التسلسل الزمني لجميع العمليات التي تمت</p>
+            </div>
           </div>
+          <button
+            onClick={onClose}
+            className="app-modal-close"
+          >
+            <FaTimes />
+          </button>
+        </div>
 
+        {/* Content */}
+        <div className="overflow-y-auto p-2">
           {loading ? (
             <div style={stateBoxStyle}>
-              <FaSpinner className="animate-spin" />
-              <span>جاري تحميل السجل...</span>
+              <FaSpinner className="animate-spin text-3xl" />
+              <p className="font-bold">جاري تحميل سجل النشاط...</p>
             </div>
           ) : error ? (
-            <div
-              style={{
-                ...stateBoxStyle,
-                color: '#dc2626',
-                borderColor: 'rgba(239,68,68,.2)',
-                background: 'rgba(254,242,242,.9)',
-              }}
-            >
-              <FaExclamationTriangle />
-              <span>{error}</span>
+            <div style={{ ...stateBoxStyle, background: 'var(--error-light)', border: '1px solid var(--error)', color: 'var(--error)' }}>
+              <FaExclamationTriangle className="text-3xl" />
+              <p className="font-bold">{error}</p>
             </div>
           ) : items.length === 0 ? (
             <div style={stateBoxStyle}>
-              <span>لا توجد عمليات مسجلة لهذا العنصر حتى الآن.</span>
+              <FaHistory className="text-3xl opacity-30" />
+              <p className="font-bold">لا يوجد نشاط مسجل بعد لهذه الجهة.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gap: 12 }}>
+            <div className="grid gap-4">
               {items.map((item, index) => (
                 <div key={item.id || index} style={itemCardStyle}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+                  <div className="flex justify-between items-start gap-4">
                     <div>
-                      <div style={itemTitleStyle}>{getActivityTitle(item, index)}</div>
+                      <h4 style={itemTitleStyle}>{getActivityTitle(item, index)}</h4>
                       <div style={itemMetaStyle}>
-                        {formatActivityDate(item.createdAt || item.timestamp || item.date || item.updatedAt)}
+                        <span>{formatActivityDate(item?.createdAt || item?.timestamp)}</span>
                       </div>
                     </div>
                     <span style={chipStyle}>{getActivityStatus(item)}</span>
                   </div>
 
-                  {getActivityDescription(item) ? (
+                  {getActivityDescription(item) && (
                     <p style={itemDescriptionStyle}>{getActivityDescription(item)}</p>
-                  ) : null}
+                  )}
 
                   <div style={metaListStyle}>
                     {getActivityMeta(item).map(([label, value]) => (
-                      <div key={`${item.id || index}-${label}`} style={metaRowStyle}>
+                      <div key={label} style={metaRowStyle}>
                         <span style={metaLabelStyle}>{label}</span>
-                        <strong style={metaValueStyle}>{String(value)}</strong>
+                        <span style={metaValueStyle}>{value}</span>
                       </div>
                     ))}
                   </div>
@@ -319,9 +310,9 @@ const EntityHistoryModal = ({ isOpen, entityId, title = 'سجل النشاط', o
               ))}
             </div>
           )}
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </div>
+      </div>
+    </div>
   );
 };
 

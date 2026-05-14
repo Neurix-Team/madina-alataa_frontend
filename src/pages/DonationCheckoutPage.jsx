@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const PRESET_AMOUNTS = [100, 250, 500, 1000];
-const money = (n) => new Intl.NumberFormat('en-US').format(n);
+const money = (n) => new Intl.NumberFormat('ar-EG').format(n);
 
 export default function DonationCheckoutPage() {
   const { id } = useParams();
@@ -81,9 +81,9 @@ export default function DonationCheckoutPage() {
             border: '1px solid rgba(148,163,184,0.3)',
           }}
         >
-          <h1 style={{ margin: 0, fontSize: 30, fontWeight: 900, color: '#0f172a' }}>💳 Checkout التبرع</h1>
+          <h1 style={{ margin: 0, fontSize: 30, fontWeight: 900, color: '#0f172a' }}>💳 إتمام التبرع</h1>
           <p style={{ margin: '8px 0 0', color: '#475569', fontWeight: 700 }}>
-            الحالة رقم: <span style={{ color: '#16a34a', fontWeight: 900 }}>{id}</span>
+            راجع بيانات التبرع قبل التأكيد
           </p>
 
           {/* Steps indicator */}
@@ -134,7 +134,7 @@ export default function DonationCheckoutPage() {
                           cursor: 'pointer',
                         }}
                       >
-                        {money(amount)} EGP
+                        {money(amount)} ج.م
                       </button>
                     );
                   })}
@@ -166,14 +166,14 @@ export default function DonationCheckoutPage() {
                   <TypeButton
                     active={donationType === 'one_time'}
                     onClick={() => setDonationType('one_time')}
-                    title="One-time"
-                    subtitle="تبرع مرة واحدة"
+                    title="مرة واحدة"
+                    subtitle="تبرع لمرة واحدة فقط"
                   />
                   <TypeButton
                     active={donationType === 'recurring'}
                     onClick={() => setDonationType('recurring')}
-                    title="Recurring"
-                    subtitle="تبرع دوري شهري"
+                    title="دوري"
+                    subtitle="تبرع دوري شهري تلقائي"
                   />
                 </div>
               </Section>
@@ -183,26 +183,26 @@ export default function DonationCheckoutPage() {
                   <TypeButton
                     active={paymentMethod === 'card'}
                     onClick={() => setPaymentMethod('card')}
-                    title="Visa / MasterCard"
-                    subtitle="الدفع بالبطاقة البنكية"
+                    title="بطاقة بنكية (فيزا / ماستر كارد)"
+                    subtitle="الدفع الآمن بالبطاقة"
                   />
                   <TypeButton
                     active={paymentMethod === 'paypal'}
                     onClick={() => setPaymentMethod('paypal')}
-                    title="PayPal"
-                    subtitle="تحويل عبر حساب PayPal"
+                    title="باي بال (PayPal)"
+                    subtitle="الدفع عبر حساب PayPal"
                   />
                   <TypeButton
                     active={paymentMethod === 'applepay'}
                     onClick={() => setPaymentMethod('applepay')}
-                    title="Apple Pay"
+                    title="أبل باي (Apple Pay)"
                     subtitle="دفع سريع عبر Apple Pay"
                   />
                   <TypeButton
                     active={paymentMethod === 'wallet'}
                     onClick={() => setPaymentMethod('wallet')}
-                    title="Wallet / InstaPay"
-                    subtitle="محفظة إلكترونية أو InstaPay"
+                    title="محفظة إلكترونية / إنستا باي"
+                    subtitle="فودافون كاش أو InstaPay"
                   />
                 </div>
 
@@ -272,25 +272,24 @@ export default function DonationCheckoutPage() {
             <div style={{ marginTop: 18 }}>
               <Section title="تأكيد العملية" icon="✅">
                 <div style={{ display: 'grid', gap: 8 }}>
-                  <ConfirmRow label="رقم الحالة" value={id} />
-                  <ConfirmRow label="المبلغ" value={`${money(finalAmount)} EGP`} />
+                  <ConfirmRow label="المبلغ" value={`${money(finalAmount)} ج.م`} />
                   <ConfirmRow
                     label="نوع التبرع"
-                    value={donationType === 'one_time' ? 'One-time (مرة واحدة)' : 'Recurring (شهري)'}
+                    value={donationType === 'one_time' ? 'مرة واحدة' : 'دوري (شهري)'}
                   />
                   <ConfirmRow
                     label="وسيلة الدفع"
                     value={
                       paymentMethod === 'card'
-                        ? 'Visa / MasterCard'
+                        ? 'بطاقة بنكية'
                         : paymentMethod === 'paypal'
-                          ? 'PayPal'
+                          ? 'باي بال (PayPal)'
                           : paymentMethod === 'applepay'
-                            ? 'Apple Pay'
-                            : 'Wallet / InstaPay'
+                            ? 'أبل باي (Apple Pay)'
+                            : 'محفظة إلكترونية / إنستا باي'
                     }
                   />
-                  <ConfirmRow label="رسوم المنصة" value="0 EGP" />
+                  <ConfirmRow label="رسوم المنصة" value="0 ج.م" />
                 </div>
               </Section>
 
@@ -321,7 +320,7 @@ export default function DonationCheckoutPage() {
               </div>
               <h2 style={{ margin: 0, color: '#166534', fontSize: 28, fontWeight: 900 }}>تم التبرع بنجاح</h2>
               <p style={{ margin: '8px 0 0', color: '#334155', fontWeight: 700 }}>
-                شكراً لدعمك 💚 — تم تسجيل تبرع بقيمة {money(finalAmount)} EGP
+                شكراً لدعمك 💚 — تم تسجيل تبرع بقيمة {money(finalAmount)} ج.م
                 {donationType === 'recurring' ? ' (شهرياً)' : ''}.
               </p>
 

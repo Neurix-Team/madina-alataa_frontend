@@ -37,11 +37,11 @@ export const normalizeBadgeItem = (badge) => {
       badge.userBadgeId ??
       badge.UserBadgeId ??
       '',
-    name: badge.name ?? badge.Name ?? badge.title ?? badge.Title ?? 'Badge',
+    name: badge.name ?? badge.Name ?? badge.badgeName ?? badge.BadgeName ?? badge.title ?? badge.Title ?? 'Badge',
     description: badge.description ?? badge.Description ?? badge.details ?? badge.Details ?? '',
-    imageUrl: badge.imageUrl ?? badge.ImageUrl ?? badge.iconUrl ?? badge.IconUrl ?? '',
+    imageUrl: badge.imageUrl ?? badge.ImageUrl ?? badge.iconUrl ?? badge.IconUrl ?? badge.badgeIconUrl ?? badge.BadgeIconUrl ?? badge.icon ?? badge.Icon ?? '',
     earnedAt: badge.earnedAt ?? badge.EarnedAt ?? badge.createdAt ?? badge.CreatedAt ?? '',
-    category: badge.category ?? badge.Category ?? '',
+    category: badge.category ?? badge.Category ?? badge.badgeCategory ?? badge.BadgeCategory ?? '',
     raw: badge,
   };
 };
