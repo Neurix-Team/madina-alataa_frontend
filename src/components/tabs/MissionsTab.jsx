@@ -61,13 +61,11 @@ const MissionsTab = () => {
   const extractPagination = (response) =>
     response?.pagination || response?.value?.pagination || response?.data?.pagination || {};
 
-  const fetchMissions = async (page = 1, search = '') => {
+  const fetchMissions = async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
-      const response = search
-        ? await missionsService.searchMissions(search, page, pageSize)
-        : await missionsService.getMissions(page, pageSize);
+      const response = await missionsService.getMissions(page, pageSize);
 
       const items = extractMissions(response);
       const pagination = extractPagination(response);
@@ -84,11 +82,8 @@ const MissionsTab = () => {
   };
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchMissions(currentPage, searchTerm);
-    }, 300);
-    return () => clearTimeout(delayDebounceFn);
-  }, [currentPage, searchTerm]);
+    fetchMissions(currentPage);
+  }, [currentPage]);
 
   useEffect(() => {
     const loadLocations = async () => {
@@ -109,11 +104,35 @@ const MissionsTab = () => {
     { label: 'صعوبة عالية', value: missions.filter((m) => m.difficulty >= 2).length, icon: FaShieldAlt, accent: 'text-red-700', bg: 'bg-red-50', border: 'border-red-100' },
   ], [missions]);
 
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const displayedMissions = useMemo(() => {
+    if (!normalizedSearchTerm) return missions;
+
+    return missions.filter((mission) => {
+      const searchableValues = [
+        mission.title,
+        mission.description,
+        mission.locationName,
+        mission.location?.name,
+        mission.status,
+        mission.difficulty,
+        mission.requiredLevel,
+        mission.kpReward,
+        mission.xpReward,
+        mission.impactReward,
+      ];
+
+      return searchableValues
+        .filter((value) => value !== null && value !== undefined)
+        .some((value) => String(value).toLowerCase().includes(normalizedSearchTerm));
+    });
+  }, [missions, normalizedSearchTerm]);
+
   const handleAddMission = async (missionData) => {
     try {
       await missionsService.createMission(missionData);
       setShowAddModal(false);
-      fetchMissions(currentPage, searchTerm);
+      fetchMissions(currentPage);
       alert('تم إضافة المهمة بنجاح');
     } catch (err) {
       alert(err.response?.data?.message || 'فشل في إضافة المهمة');
@@ -140,7 +159,7 @@ const MissionsTab = () => {
     try {
       await missionsService.updateMission(missionId, missionData);
       setShowEditModal(false);
-      fetchMissions(currentPage, searchTerm);
+      fetchMissions(currentPage);
     } catch (err) {
       console.error('Error updating mission:', err);
     }
@@ -150,7 +169,7 @@ const MissionsTab = () => {
     if (!window.confirm('هل أنت متأكد من حذف هذه المهمة؟')) return;
     try {
       await missionsService.deleteMission(missionId);
-      fetchMissions(currentPage, searchTerm);
+      fetchMissions(currentPage);
     } catch (err) {
       alert('فشل في حذف المهمة');
     }
@@ -177,6 +196,29 @@ const MissionsTab = () => {
         background: 'transparent',
       }}
     >
+      <style>{`
+        @media (max-width: 640px) {
+          .missions-header { 
+            padding: 20px !important; 
+            flex-direction: column !important; 
+            align-items: stretch !important; 
+            gap: 20px !important; 
+          }
+          .missions-header-info { 
+            flex: 1 1 auto !important; 
+          }
+          .missions-actions { 
+            flex-direction: column !important; 
+            width: 100% !important; 
+          }
+          .missions-search-wrapper { 
+            width: 100% !important; 
+          }
+          .missions-add-btn { 
+            width: 100% !important; 
+          }
+        }
+      `}</style>
       {/* ===== Main Container with proper margins ===== */}
       <div
         style={{
@@ -192,6 +234,7 @@ const MissionsTab = () => {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
+          className="missions-header"
           style={{
             padding: '24px 32px',
             borderRadius: 24,
@@ -206,7 +249,7 @@ const MissionsTab = () => {
             gap: 20
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, minWidth: 0, flex: '1 1 320px' }}>
+          <div className="missions-header-info" style={{ display: 'flex', alignItems: 'center', gap: 20, minWidth: 0, flex: '1 1 320px' }}>
             <div
               style={{
                 display: 'flex',
@@ -233,8 +276,8 @@ const MissionsTab = () => {
             </div>
           </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              <div style={{ position: 'relative', width: '320px', maxWidth: '100%' }}>
+            <div className="missions-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <div className="missions-search-wrapper" style={{ position: 'relative', width: '320px', maxWidth: '100%' }}>
                 <FaSearch
                   style={{
                     position: 'absolute',
@@ -248,7 +291,7 @@ const MissionsTab = () => {
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="ابحث عن مهمة محددة..."
                   style={{
                     width: '100%',
@@ -269,6 +312,7 @@ const MissionsTab = () => {
                 whileHover={{ scale: 1.02, y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowAddModal(true)}
+                className="missions-add-btn"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -389,7 +433,7 @@ const MissionsTab = () => {
             <FaSpinner style={{ animation: 'spin 1s linear infinite', fontSize: '44px', color: '#6366f1' }} />
             <div style={{ fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>جاري استدعاء سجلات المهام...</div>
           </div>
-        ) : missions.length === 0 ? (
+        ) : displayedMissions.length === 0 ? (
           <div
             style={{
               display: 'flex',
@@ -435,7 +479,7 @@ const MissionsTab = () => {
               justifyContent: 'start',
             }}
           >
-            {missions.map((mission, index) => {
+            {displayedMissions.map((mission, index) => {
               const diff = getDifficultyInfo(mission.difficulty);
               const DiffIcon = diff.icon;
               const isActive = mission.status === 1;

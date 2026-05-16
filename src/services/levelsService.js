@@ -83,6 +83,13 @@ export const normalizeLevelsListResponse = (responseData) => {
     .map(normalizeLevelRecord)
     .filter(isVisibleLevelRecord);
 
+  // Prefer server-provided totals when available; fall back to client-side counts.
+  const numericTotalCount = Number(totalCount || (Array.isArray(items) ? items.length : 0)) || 0;
+  const numericPageSize = Number(pageSize || (Array.isArray(items) ? items.length : 0)) || 0;
+  const computedTotalPages = numericPageSize
+    ? Math.max(1, Math.ceil(numericTotalCount / numericPageSize))
+    : Number(totalPages) || 1;
+
   return {
     raw: {
       ...raw,
@@ -90,13 +97,10 @@ export const normalizeLevelsListResponse = (responseData) => {
       Items: normalizedItems,
     },
     items: normalizedItems,
-    totalCount: normalizedItems.length,
+    totalCount: numericTotalCount,
     pageNumber: Number(pageNumber) || 1,
-    pageSize: Number(pageSize) || 0,
-    totalPages:
-      pageSize && normalizedItems.length
-        ? Math.max(1, Math.ceil(normalizedItems.length / Number(pageSize || 1)))
-        : Number(totalPages) || 1,
+    pageSize: numericPageSize,
+    totalPages: computedTotalPages,
   };
 };
 

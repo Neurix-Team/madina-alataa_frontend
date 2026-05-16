@@ -548,14 +548,12 @@ export default function GeoQuestsTab() {
     }
   };
 
-  const loadGeoQuests = async (targetPage = pageNumber, targetSearch = searchTerm) => {
+  const loadGeoQuests = async (targetPage = pageNumber) => {
     setLoading(true);
     setError('');
 
     try {
-      const payload = targetSearch.trim()
-        ? await geoQuestsService.searchGeoQuests(targetSearch.trim(), targetPage, pageSize)
-        : await geoQuestsService.getGeoQuests(targetPage, pageSize);
+      const payload = await geoQuestsService.getGeoQuests(targetPage, pageSize);
 
       console.log('GEOQUESTS PAGE ITEMS:', payload.items);
       setGeoQuests(payload.items.map(normalizeGeoQuest));
@@ -574,8 +572,28 @@ export default function GeoQuestsTab() {
   }, []);
 
   useEffect(() => {
-    loadGeoQuests(pageNumber, searchTerm);
-  }, [pageNumber, searchTerm]);
+    loadGeoQuests(pageNumber);
+  }, [pageNumber]);
+
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const displayedGeoQuests = useMemo(() => {
+    if (!normalizedSearchTerm) return geoQuests;
+
+    return geoQuests.filter((geoQuest) => {
+      const locationName = locationNameById[String(geoQuest.locationId || '')];
+      const searchableValues = [
+        geoQuest.title,
+        geoQuest.locationId,
+        locationName,
+        geoQuest.status,
+        geoQuest.createdAt,
+      ];
+
+      return searchableValues
+        .filter((value) => value !== null && value !== undefined)
+        .some((value) => String(value).toLowerCase().includes(normalizedSearchTerm));
+    });
+  }, [geoQuests, locationNameById, normalizedSearchTerm]);
 
   const resetSubmitState = () => {
     setSubmitError('');
@@ -653,7 +671,7 @@ export default function GeoQuestsTab() {
     try {
       await geoQuestsService.createGeoQuest(formData);
       setSubmitSuccess('تمت إضافة المهمة الجغرافية وحفظها في قاعدة البيانات.');
-      await loadGeoQuests(1, searchTerm);
+      await loadGeoQuests(1);
       setPageNumber(1);
       setFormData(initialFormState);
       setTimeout(() => {
@@ -679,7 +697,7 @@ export default function GeoQuestsTab() {
     try {
       await geoQuestsService.updateGeoQuest(geoQuestId, formData);
       setSubmitSuccess('تم حفظ تعديلات المهمة الجغرافية في قاعدة البيانات.');
-      await loadGeoQuests(pageNumber, searchTerm);
+      await loadGeoQuests(pageNumber);
       setTimeout(() => {
         setEditOpen(false);
         resetSubmitState();
@@ -713,7 +731,7 @@ export default function GeoQuestsTab() {
       if (nextPage !== pageNumber) {
         setPageNumber(nextPage);
       } else {
-        await loadGeoQuests(nextPage, searchTerm);
+        await loadGeoQuests(nextPage);
       }
     } catch (requestError) {
       console.error('DELETE GEOQUEST PAGE ERROR:', requestError);
@@ -753,6 +771,7 @@ export default function GeoQuestsTab() {
     <div className="geo-quests-tab" style={{ background: 'transparent' }}>
       <div className="geo-quests-tab__container" style={{ padding: '24px', maxWidth: '1240px', margin: '0 auto' }}>
         <motion.div
+          className="geoquests-header"
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
@@ -801,6 +820,13 @@ export default function GeoQuestsTab() {
             </button>
           ) : null}
         </motion.div>
+        <style>{`
+          @media (max-width: 640px) {
+            .geoquests-header { padding: 14px !important; }
+            .geoquests-header h2 { font-size: 18px !important; }
+            .geoquests-header .app-btn-primary { width: 100% !important; margin-top: 10px !important; }
+          }
+        `}</style>
 
         {/* Search Section */}
         <div className="pro-section" style={{ marginBottom: 0 }}>
@@ -840,7 +866,7 @@ export default function GeoQuestsTab() {
             <p style={{ margin: '14px 0 0 0' }}>جاري تحميل المهام الجغرافية...</p>
           </div>
         </div>
-      ) : geoQuests.length === 0 ? (
+      ) : displayedGeoQuests.length === 0 ? (
         <div
           style={{
             borderRadius: '24px',
@@ -871,7 +897,7 @@ export default function GeoQuestsTab() {
               gap: '18px',
             }}
           >
-            {geoQuests.map((geoQuest, index) => (
+            {displayedGeoQuests.map((geoQuest, index) => (
               <motion.div
                 key={getGeoQuestId(geoQuest) || index}
                 initial={{ opacity: 0, y: 16 }}

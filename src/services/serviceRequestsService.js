@@ -114,15 +114,17 @@ export const serviceRequestsService = {
     }
   },
 
-  getServiceRequests: async (pageNumber = 1, pageSize = 10, status = 1) => {
+  getServiceRequests: async (pageNumber = 1, pageSize = 10, status = null) => {
     try {
-      const response = await axiosClient.get(SERVICE_REQUESTS_API_URL, {
-        params: {
-          PageNumber: pageNumber,
-          PageSize: pageSize,
-          status,
-        }
-      });
+      const params = {
+        PageNumber: pageNumber,
+        PageSize: pageSize,
+      };
+
+      // only include status if explicitly provided (some servers treat status=1 as a filter)
+      if (status !== null && status !== undefined) params.status = status;
+
+      const response = await axiosClient.get(SERVICE_REQUESTS_API_URL, { params });
 
       const normalized = normalizeServiceRequestsListResponse(response.data);
       console.log('SERVICE REQUESTS LIST RAW RESPONSE:', normalized.raw);

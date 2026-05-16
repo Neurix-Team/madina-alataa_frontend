@@ -203,7 +203,10 @@ const VolunteerRequestsPage = () => {
     setError(null);
 
     try {
-      const response = await serviceRequestsService.getServiceRequests(targetPage, targetSize, 1);
+      // Do not force a status filter here — allow the API default so items return on first open
+      const response = isVolunteerRole && !isAdmin
+        ? await serviceRequestsService.getApprovedServiceRequests(targetPage, targetSize)
+        : await serviceRequestsService.getServiceRequests(targetPage, targetSize);
       setRequests(response.items);
       setTotalCount(response.totalCount);
       console.log('SERVICE REQUESTS PAGE ITEMS RESPONSE:', response.items);
@@ -217,7 +220,7 @@ const VolunteerRequestsPage = () => {
 
   useEffect(() => {
     fetchRequests();
-  }, [pageNumber, pageSize]);
+  }, [pageNumber, pageSize, isAdmin, isVolunteerRole]);
 
   useEffect(() => {
     const loadFiltersData = async () => {
@@ -300,7 +303,11 @@ const VolunteerRequestsPage = () => {
 
     try {
       const response = await serviceRequestsService.getServiceRequestById(requestId);
-      setSelectedRequest(response);
+      setSelectedRequest({
+        ...response,
+        id: getRequestId(response) || requestId,
+        serviceRequestId: response?.serviceRequestId || requestId,
+      });
     } catch (requestError) {
       setDetailsError(requestError.message || 'فشل في جلب التفاصيل');
     } finally {
@@ -741,7 +748,14 @@ const VolunteerRequestsPage = () => {
         </div>
 
         <div style={contentGridStyle}>
-          <div style={panelStyle}>
+          <style>{`
+            @media (max-width: 640px) {
+              .vol-requests-panel { background: transparent !important; border: none !important; box-shadow: none !important; padding: 12px !important; }
+              .pro-card { padding: 16px !important; }
+              .pro-card .pro-card-actions { gap: 8px !important; }
+            }
+          `}</style>
+          <div className="vol-requests-panel" style={panelStyle}>
             <div style={panelHeaderStyle}>
               <div>
                 <h2 style={sectionTitleStyle}>قائمة الطلبات</h2>
@@ -780,7 +794,7 @@ const VolunteerRequestsPage = () => {
                           <div style={{ flex: 1, minWidth: 260 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                               <h3 style={{ margin: 0, fontSize: 19, color: '#0f172a', fontWeight: 800 }}>
-                                {request.title || 'بدون عنوان'}
+                                {request.title || request.name || request.requestName || request.serviceRequestTitle || 'بدون عنوان'}
                               </h3>
                             </div>
                               <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
@@ -1217,6 +1231,9 @@ const chipStyle = {
   fontSize: 12,
   fontWeight: 800,
   whiteSpace: 'nowrap',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 };
 
 const metaGridStyle = {

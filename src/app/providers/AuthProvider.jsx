@@ -3,7 +3,6 @@ import { authService } from '../../services/authService';
 import { axiosClient } from '../../services/axiosClient';
 import { profilesService } from '../../services/profilesService';
 import React, { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { mockLogin, mockRegister, mockGuestLogin } from '../../services/mockAuth';
 import secureStorage from '../../utils/secureStorage';
 import { handleError, logError } from '../../utils/errorHandling';
@@ -20,10 +19,10 @@ export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(null);
   const [bootstrapping, setBootstrapping] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [authError, setAuthError] = useState(null);
   const [loading, setLoading] = useState(false);
   const loadCalled = useRef(false);
-  const navigate = useNavigate();
 
   const fetchMe = async () => {
     try {
@@ -76,20 +75,17 @@ roles: normalizeRoles(userData.roles || userData.role || userData.user?.roles),
         if (loadCalled.current) return;
         loadCalled.current = true;
 
-        // محاولة التحميل من المفتاح الجديد أولاً
         const rawData = localStorage.getItem(STORAGE_KEY);
         let storedUser = null;
         
         if (rawData) {
           try {
             const parsed = JSON.parse(rawData);
-            // تحويل البيانات من الهيكل الجديد إلى الهيكل الذي يحتاجه التطبيق (Normalized)
             storedUser = {
               id: parsed.userId || parsed.id,
               name: parsed.userName || parsed.fullname || parsed.name || 'User',
               email: parsed.email,
-              // roles: parsed.roles || [],
-roles: normalizeRoles(parsed.roles || parsed.role || parsed.user?.roles),
+              roles: normalizeRoles(parsed.roles || parsed.role || parsed.user?.roles),
               token: parsed.accessToken || parsed.token
             };
           } catch (e) {
@@ -102,18 +98,28 @@ roles: normalizeRoles(parsed.roles || parsed.role || parsed.user?.roles),
                      localStorage.getItem('accessToken');
 
         if (token) {
-          const freshUser = await fetchMe();
-          if (!freshUser && storedUser) {
-            setUser(storedUser);
+          try {
+            const freshUser = await fetchMe();
+            if (freshUser) {
+              setUser(freshUser);
+            } else if (storedUser) {
+              setUser(storedUser);
+            }
+          } catch (fetchError) {
+            console.error('Error fetching fresh user data:', fetchError);
+            if (storedUser) {
+              setUser(storedUser);
+            }
           }
         } else if (storedUser) {
           setUser(storedUser);
         }
       } catch (error) {
-        logError(error, 'AuthProvider.loadUser');
+        console.error('AuthProvider loadUser error:', error);
         setAuthError('فشل في تحميل بيانات المستخدم');
       } finally {
         setBootstrapping(false);
+        setIsInitialized(true);
       }
     };
 
@@ -169,32 +175,6 @@ roles: normalizeRoles(responseData.roles || responseData.role || responseData.us
         } catch (profileError) {
           console.warn('Failed to fetch profile after login:', profileError.message);
           // Don't block login flow if profile fetch fails
-        }
-
-        // perform an admin-dashboard check by calling the admin API with the stored token
-        try {
-          const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
-          const adminApi = `${apiBase.replace(/\/$/, '')}/api/admin/dashboard`;
-          const headerToken = token || localStorage.getItem('auth_token') || localStorage.getItem('madina_access_token');
-          const adminResp = await axios.get(adminApi, {
-            headers: {
-              Authorization: `Bearer ${headerToken}`,
-            },
-          });
-
-          // log admin API response for debugging as requested
-          console.log('ADMIN API RESPONSE (status):', adminResp.status);
-          console.log('ADMIN API RESPONSE (data):', adminResp.data);
-
-          if (adminResp && adminResp.status === 200) {
-            navigate('/admin', { replace: true });
-          } else {
-            navigate('/profile-v2', { replace: true });
-          }
-        } catch (err) {
-          // if request fails (401/403/etc) treat user as non-admin and go to profile
-          console.warn('Admin check failed or not authorized:', err?.response?.status || err.message);
-          navigate('/profile-v2', { replace: true });
         }
 
         return normalizedUser;
@@ -536,6 +516,7 @@ const hasRole = (role) => {
   isAdmin,
   hasRole,
   bootstrapping,
+  isInitialized,
   authError,
   setAuthError,
   loading,
@@ -546,7 +527,7 @@ const hasRole = (role) => {
   continueRegistration,
   fetchMe,
   logout,
-}), [user, isAuthenticated, isAdmin, bootstrapping, authError, loading]);
+}), [user, isAuthenticated, isAdmin, bootstrapping, isInitialized, authError, loading]);
 
   return (
     <AuthContext.Provider value={value}>

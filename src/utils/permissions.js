@@ -18,6 +18,9 @@ export const PERMISSIONS = {
   VIEW_DAILY_TASKS: 'view_daily_tasks',
   VIEW_GEO_QUESTS: 'view_geo_quests',
   VIEW_TEAM_CHALLENGES: 'view_team_challenges',
+  VIEW_CHILDREN: 'view_children',
+  VIEW_VOLUNTEER_FEATURES: 'view_volunteer_features',
+  VIEW_DONOR_FEATURES: 'view_donor_features',
 };
 
 // Permissions for each role
@@ -31,6 +34,7 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.VIEW_ORDERS,
     PERMISSIONS.VIEW_NOTIFICATIONS,
     PERMISSIONS.VIEW_GEO_QUESTS,
+    PERMISSIONS.VIEW_CHILDREN,
   ],
   donor: [
     PERMISSIONS.VIEW_CASES,
@@ -42,6 +46,8 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.VIEW_NOTIFICATIONS,
     PERMISSIONS.VIEW_MY_DONATIONS,
     PERMISSIONS.VIEW_GEO_QUESTS,
+    PERMISSIONS.VIEW_CHILDREN,
+    PERMISSIONS.VIEW_DONOR_FEATURES,
   ],
   parent: [
     PERMISSIONS.VIEW_CASES,
@@ -51,6 +57,7 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.VIEW_PARENTS,
     PERMISSIONS.CREATE_REQUEST,
     PERMISSIONS.VIEW_GEO_QUESTS,
+    PERMISSIONS.VIEW_CHILDREN,
   ],
   volunteer: [
     PERMISSIONS.VIEW_CASES,
@@ -63,6 +70,8 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.VIEW_GEO_QUESTS,
     PERMISSIONS.VIEW_TEAM_CHALLENGES,
     PERMISSIONS.VIEW_NOTIFICATIONS,
+    PERMISSIONS.VIEW_CHILDREN,
+    PERMISSIONS.VIEW_VOLUNTEER_FEATURES,
   ],
   reviewer: [
     PERMISSIONS.VIEW_CASES,
@@ -71,7 +80,12 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.REVIEW_CASES,
     PERMISSIONS.VIEW_GEO_QUESTS,
   ],
-  admin: Object.values(PERMISSIONS), // All permissions
+  admin: Object.values(PERMISSIONS).filter(p => 
+    p !== PERMISSIONS.VIEW_CHILDREN && 
+    p !== PERMISSIONS.VIEW_VOLUNTEER_FEATURES && 
+    p !== PERMISSIONS.VIEW_DONOR_FEATURES &&
+    p !== PERMISSIONS.VIEW_MY_DONATIONS
+  ), // All permissions except user-specific features not supported for admin account
 };
 
 // Get all permissions for an array of roles

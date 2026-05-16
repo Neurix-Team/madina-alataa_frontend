@@ -8,6 +8,7 @@ import {
   FaEye,
   FaMedal,
   FaPlus,
+  FaSearch,
   FaSpinner,
   FaStar,
   FaTimes,

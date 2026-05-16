@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaRibbon } from 'react-icons/fa';
 import { certificatesService } from '../services/certificatesService';
+import { useAuth } from '../hooks/useAuth';
 
 const CertificatesPage = () => {
+  const { isAdmin } = useAuth();
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,7 +15,12 @@ const CertificatesPage = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await certificatesService.getCertificates({ pageNumber: 1, pageSize: 1 });
+        
+        // استخدام getCertificates للأدمن و getMyCertificates لغير الأدمن
+        const response = isAdmin 
+          ? await certificatesService.getCertificates({ pageNumber: 1, pageSize: 10 })
+          : await certificatesService.getMyCertificates({ pageNumber: 1, pageSize: 10 });
+          
         console.log('CERTIFICATES PAGE RESPONSE ITEMS:', response.items);
         console.log('CERTIFICATES PAGE RAW RESPONSE:', response.raw);
         setCertificates(response.items);
@@ -26,7 +33,7 @@ const CertificatesPage = () => {
     };
 
     loadCertificates();
-  }, []);
+  }, [isAdmin]);
 
   return (
     <div style={{ padding: 24 }}>

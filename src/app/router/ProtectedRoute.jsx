@@ -5,19 +5,26 @@ import { useAuth } from '../../hooks/useAuth';
 import { needsRegistrationCompletion } from '../../utils/authRoutes.js';
 
 export const ProtectedRoute = () => {
-  const { user, isAuthenticated, bootstrapping } = useAuth();
+  const { user, isAuthenticated, isInitialized } = useAuth();
   const location = useLocation();
 
-  if (bootstrapping) {
-    return <div>جاري التحميل...</div>;
+  if (!isInitialized) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '20px' }}>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div style={{ fontFamily: 'Cairo', fontWeight: 700, color: '#1e293b' }}>جاري التحميل...</div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
+    // Preserve full URL: pathname + search + hash
+    const returnUrl = `${location.pathname}${location.search}${location.hash}`;
     return (
       <Navigate
         to="/login"
         replace
-        state={{ from: location.pathname }}
+        state={{ from: returnUrl }}
       />
     );
   }
@@ -32,7 +39,7 @@ export const ProtectedRoute = () => {
           email: user?.email,
           provider: user?.provider,
           tempToken: user?.tempToken,
-          from: location.pathname,
+          from: `${location.pathname}${location.search}`,
         }}
       />
     );

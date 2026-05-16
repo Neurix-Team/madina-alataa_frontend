@@ -46,6 +46,13 @@ const TECHNICAL_PROFILE_KEYS = new Set([
   'volunteer',
   'userbadges',
   'badges',
+  // ignore common timestamp fields in profile summaries
+  'createdat',
+  'created_at',
+  'created',
+  'updatedat',
+  'updated_at',
+  'updated',
 ]);
 
 const FIELD_LABELS = {
@@ -459,7 +466,17 @@ const handleSubmit = async (e) => {
 
   return (
     <div className="update-profile-page min-h-screen p-4 md:p-6" style={{ background: 'transparent' }}>
-      <div className="pro-container mx-auto max-w-6xl">
+      <style>{`
+        @media (max-width: 640px) {
+          .profile-grid-sections {
+            grid-template-columns: 1fr !important;
+          }
+          .role-section-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
+      <div className="pro-container mx-auto max-w-6xl" style={{ maxWidth: '1100px', margin: '0 auto' }}>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -613,6 +630,102 @@ const handleSubmit = async (e) => {
                   <FaImage />
                   <span>تعديل الأافاتار</span>
                 </button>
+                {isEditOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.03 }}
+                    className="app-modal-card"
+                    style={{
+                      maxWidth: '680px',
+                      marginTop: '14px'
+                    }}
+                  >
+                    <div className="app-modal-header">
+                      <div>
+                        <h3 className="app-modal-title">تعديل بيانات الحساب</h3>
+                        <p className="app-modal-subtitle">تحديث التقييم والتأثير الخاص بالملف الشخصي</p>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="app-form">
+                      <div className="app-form-grid">
+                        <div className="app-form-group">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                            <FaStar style={{ color: 'var(--warning)' }} />
+                            <label className="app-form-label">التقييم (Rating)</label>
+                          </div>
+                          <input
+                            type="number"
+                            name="rating"
+                            value={formData.rating}
+                            onChange={handleInputChange}
+                            min="0"
+                            step="0.1"
+                            className="app-form-input"
+                            placeholder="أدخل التقييم"
+                          />
+                        </div>
+
+                        <div className="app-form-group">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                            <FaChartLine style={{ color: 'var(--info)' }} />
+                            <label className="app-form-label">التأثير (Impact)</label>
+                          </div>
+                          <input
+                            type="number"
+                            name="impact"
+                            value={formData.impact}
+                            onChange={handleInputChange}
+                            min="0"
+                            step="1"
+                            className="app-form-input"
+                            placeholder="أدخل قيمة التأثير"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="app-form-group" style={{ display: 'none' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                          <FaImage style={{ color: 'var(--accent)' }} />
+                          <label className="app-form-label">معرف الصورة الرمزية (Avatar ID)</label>
+                        </div>
+                        <input
+                          type="text"
+                          name="avatarId"
+                          value={formData.avatarId}
+                          onChange={handleInputChange}
+                          className="app-form-input"
+                          placeholder="أدخل معرف الصورة الرمزية"
+                        />
+                      </div>
+
+                      <div className="app-form-actions">
+                        <button
+                          type="submit"
+                          disabled={!canSubmit}
+                          className="app-btn-primary w-full"
+                          style={{
+                            opacity: canSubmit ? 1 : 0.5,
+                            cursor: canSubmit ? 'pointer' : 'not-allowed',
+                          }}
+                        >
+                          {saving ? (
+                            <>
+                              <FaSpinner className="animate-spin" />
+                              <span>جاري الحفظ...</span>
+                            </>
+                          ) : (
+                            <>
+                              <FaSave />
+                              <span>حفظ التغييرات</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </motion.div>
+                )}
               </div>
             </div>
           </div>
@@ -760,281 +873,149 @@ const handleSubmit = async (e) => {
           </motion.div>
         )}
 
-        {isEditOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="app-modal-card"
-            style={{
-              maxWidth: '680px',
-              marginBottom: '24px',
-            }}
-          >
-            <div className="app-modal-header">
-              <div>
-                <h3 className="app-modal-title">تعديل بيانات الحساب</h3>
-                <p className="app-modal-subtitle">تحديث التقييم والتأثير الخاص بالملف الشخصي</p>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="app-form">
-              <div className="app-form-grid">
-                <div className="app-form-group">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <FaStar style={{ color: 'var(--warning)' }} />
-                    <label className="app-form-label">التقييم (Rating)</label>
-                  </div>
-                  <input
-                    type="number"
-                    name="rating"
-                    value={formData.rating}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="0.1"
-                    className="app-form-input"
-                    placeholder="أدخل التقييم"
-                  />
-                </div>
-
-                <div className="app-form-group">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <FaChartLine style={{ color: 'var(--info)' }} />
-                    <label className="app-form-label">التأثير (Impact)</label>
-                  </div>
-                  <input
-                    type="number"
-                    name="impact"
-                    value={formData.impact}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="1"
-                    className="app-form-input"
-                    placeholder="أدخل قيمة التأثير"
-                  />
-                </div>
-              </div>
-
-              <div className="app-form-group" style={{ display: 'none' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <FaImage style={{ color: 'var(--accent)' }} />
-                  <label className="app-form-label">معرف الصورة الرمزية (Avatar ID)</label>
-                </div>
-                <input
-                  type="text"
-                  name="avatarId"
-                  value={formData.avatarId}
-                  onChange={handleInputChange}
-                  className="app-form-input"
-                  placeholder="أدخل معرف الصورة الرمزية"
-                />
-              </div>
-
-              <div className="app-form-actions">
-                <button
-                  type="submit"
-                  disabled={!canSubmit}
-                  className="app-btn-primary w-full"
-                  style={{
-                    opacity: canSubmit ? 1 : 0.5,
-                    cursor: canSubmit ? 'pointer' : 'not-allowed',
-                  }}
-                >
-                  {saving ? (
-                    <>
-                      <FaSpinner className="animate-spin" />
-                      <span>جاري الحفظ...</span>
-                    </>
-                  ) : (
-                    <>
-                      <FaSave />
-                      <span>حفظ التغييرات</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        )}
-
+        {/* level / certificates / badges — show side-by-side in a responsive grid */}
         {!isAdmin && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.22 }}
-            className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
-            style={{ maxWidth: '900px', marginTop: '24px' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <FaArrowUp style={{ color: 'var(--success)' }} />
-              <h3 style={{ color: '#0f172a', margin: 0 }}>بيانات المستوى</h3>
-            </div>
+          <div className="profile-grid-sections" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16, marginTop: '24px' }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.12 }}
+              className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
+              style={{ padding: 20, borderRadius: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <FaArrowUp style={{ color: 'var(--success)' }} />
+                <h3 style={{ color: '#0f172a', margin: 0 }}>بيانات المستوى</h3>
+              </div>
 
-            {myLevelLoading ? (
-              <div style={{ color: '#64748b' }}>جاري تحميل بيانات المستوى...</div>
-            ) : myLevelError ? (
-              <div style={{ color: 'var(--danger)' }}>{myLevelError}</div>
-            ) : myLevelData ? (
-              <div style={{ display: 'grid', gap: '16px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
-       
-                  <div style={{ padding: '14px', borderRadius: '14px', border: '1px solid #e0f2fe', background: '#f8fafc' }}>
-                    <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '6px' }}>XP</div>
-                    <div style={{ color: '#0f172a', fontWeight: 700 }}>{myLevelData.xp ?? 0}</div>
-                  </div>
-                  <div style={{ padding: '14px', borderRadius: '14px', border: '1px solid #e0f2fe', background: '#f8fafc' }}>
-                    <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '6px' }}>KP</div>
-                    <div style={{ color: '#0f172a', fontWeight: 700 }}>{myLevelData.kp ?? 0}</div>
+              {myLevelLoading ? (
+                <div style={{ color: '#64748b' }}>جاري تحميل بيانات المستوى...</div>
+              ) : myLevelError ? (
+                <div style={{ color: 'var(--danger)' }}>{myLevelError}</div>
+              ) : myLevelData ? (
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                    <div style={{ padding: '12px', borderRadius: '12px', border: '1px solid #e0f2fe', background: '#f8fafc' }}>
+                      <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '6px' }}>XP</div>
+                      <div style={{ color: '#0f172a', fontWeight: 700 }}>{myLevelData.xp ?? 0}</div>
+                    </div>
+                    <div style={{ padding: '12px', borderRadius: '12px', border: '1px solid #e0f2fe', background: '#f8fafc' }}>
+                      <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '6px' }}>KP</div>
+                      <div style={{ color: '#0f172a', fontWeight: 700 }}>{myLevelData.kp ?? 0}</div>
+                    </div>
                   </div>
                 </div>
+              ) : (
+                <div style={{ color: '#64748b' }}>لا توجد بيانات مستوى متاحة.</div>
+              )}
+            </motion.div>
 
-                {/* Level details could go here */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.18 }}
+              className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
+              style={{ padding: 20, borderRadius: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <FaMedal style={{ color: '#d97706' }} />
+                <h3 style={{ color: '#0f172a', margin: 0 }}>شهاداتي</h3>
               </div>
-            ) : (
-              <div style={{ color: '#64748b' }}>لا توجد بيانات مستوى متاحة.</div>
-            )}
-          </motion.div>
-        )}
 
-        {!isAdmin && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.23 }}
-            className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
-            style={{ maxWidth: '900px', marginTop: '24px' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <FaMedal style={{ color: '#d97706' }} />
-              <h3 style={{ color: '#0f172a', margin: 0 }}>شهاداتي</h3>
-            </div>
-
-            {myCertificatesLoading ? (
-              <div style={{ color: '#64748b' }}>جاري تحميل الشهادات...</div>
-            ) : myCertificatesError ? (
-              <div style={{ color: 'var(--danger)' }}>{myCertificatesError}</div>
-            ) : (
-              <div style={{ display: 'grid', gap: 16 }}>
-                {myCertificates.length === 0 ? (
-                  <div style={{ color: '#64748b' }}>لا توجد شهادات متاحة.</div>
-                ) : (
-                  myCertificates.map((certificate, index) => (
+              {myCertificatesLoading ? (
+                <div style={{ color: '#64748b' }}>جاري تحميل الشهادات...</div>
+              ) : myCertificatesError ? (
+                <div style={{ color: 'var(--danger)' }}>{myCertificatesError}</div>
+              ) : myCertificates.length === 0 ? (
+                <div style={{ color: '#64748b' }}>لا توجد شهادات متاحة.</div>
+              ) : (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  {myCertificates.map((certificate, index) => (
                     <div
                       key={certificate.id || `profile-certificate-${index}`}
                       style={{
-                        padding: 16,
-                        borderRadius: 16,
+                        padding: 12,
+                        borderRadius: 12,
                         border: '1px solid #e0f2fe',
                         background: '#ffffff',
                       }}
                     >
-                      <div style={{ color: '#0f172a', fontWeight: 800, marginBottom: 8 }}>
+                      <div style={{ color: '#0f172a', fontWeight: 800, marginBottom: 6 }}>
                         {certificate.title || 'Certificate'}
                       </div>
-                      <div style={{ color: '#64748b', fontSize: 14, marginBottom: 6 }}>
+                      <div style={{ color: '#64748b', fontSize: 13 }}>
                         {certificate.description || 'لا يوجد وصف'}
                       </div>
                       {certificate.issuedAt ? (
-                        <div style={{ color: '#64748b', fontSize: 13, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <FaCalendarAlt size={11} />
-                          <span>تاريخ الإصدار: {certificate.issuedAt}</span>
+                        <div style={{ color: '#64748b', fontSize: 12, marginTop: 6 }}>
+                          <FaCalendarAlt size={11} /> <span>تاريخ الإصدار: {certificate.issuedAt}</span>
                         </div>
                       ) : null}
                     </div>
-                  ))
-                )}
+                  ))}
+                </div>
+              )}
+            </motion.div>
 
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.24 }}
+              className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
+              style={{ padding: 20, borderRadius: 20 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <FaMedal style={{ color: '#f59e0b' }} />
+                <h3 style={{ color: '#0f172a', margin: 0 }}>شارات المستخدم</h3>
               </div>
-            )}
-          </motion.div>
-        )}
 
-        {!isAdmin && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
-            style={{
-              maxWidth: '900px',
-              marginTop: '24px',
-              borderRadius: '28px',
-              border: '1px solid #e0f2fe',
-              background: '#ffffff',
-              padding: '24px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <FaMedal style={{ color: '#f59e0b' }} />
-              <h3 style={{ color: '#0f172a', margin: 0 }}>شارات المستخدم</h3>
-            </div>
-
-            {userBadgesLoading ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b' }}>
-                <FaSpinner className="animate-spin" />
-                <span>جاري تحميل الشارات...</span>
-              </div>
-            ) : userBadgesError ? (
-              <div style={{ color: 'var(--danger)', padding: '12px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)' }}>{userBadgesError}</div>
-            ) : userBadges.length === 0 ? (
-              <div style={{ color: '#64748b', textAlign: 'center', padding: '20px', border: '1px dashed #bae6fd', borderRadius: '18px' }}>لا توجد شارات متاحة لهذا المستخدم.</div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px' }}>
-                {userBadges.map((badge, index) => {
-                  const badgeId = badge.badgeId || badge.id || `badge-${index}`;
-                  return (
-                    <motion.div
-                      key={badgeId}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.05 }}
-                      whileHover={{ y: -5, boxShadow: '0 14px 30px rgba(14,165,233,0.14)' }}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '10px',
-                        padding: '16px',
-                        borderRadius: '20px',
-                        border: '1px solid #e0f2fe',
-                        background: 'linear-gradient(135deg, #ffffff, #f0f9ff)',
-                        textAlign: 'center',
-                      }}
-                    >
-                      {badge.imageUrl ? (
-                        <div style={{ position: 'relative' }}>
-                          <img
-                            src={badge.imageUrl}
-                            alt={badge.name}
-                            style={{ width: '60px', height: '60px', borderRadius: '16px', objectFit: 'cover', border: '2px solid var(--primary)' }}
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          style={{
-                            width: '60px',
-                            height: '60px',
-                            borderRadius: '16px',
-                            display: 'grid',
-                            placeItems: 'center',
-                            background: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.1))',
-                            color: '#f59e0b',
-                            fontSize: '24px',
-                            border: '1px solid rgba(245,158,11,0.3)',
-                          }}
-                        >
-                          <FaMedal />
-                        </div>
-                      )}
-                      <div style={{ width: '100%' }}>
-                        <div style={{ color: '#0f172a', fontWeight: 900, fontSize: '14px' }}>{badge.name || badge.badgeName || 'شارة جديدة'}</div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
-          </motion.div>
+              {userBadgesLoading ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b' }}>
+                  <FaSpinner className="animate-spin" />
+                  <span>جاري تحميل الشارات...</span>
+                </div>
+              ) : userBadgesError ? (
+                <div style={{ color: 'var(--danger)', padding: '12px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)' }}>{userBadgesError}</div>
+              ) : userBadges.length === 0 ? (
+                <div style={{ color: '#64748b', textAlign: 'center', padding: '20px', border: '1px dashed #bae6fd', borderRadius: '12px' }}>لا توجد شارات متاحة لهذا المستخدم.</div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px' }}>
+                  {userBadges.map((badge, index) => {
+                    const badgeId = badge.badgeId || badge.id || `badge-${index}`;
+                    return (
+                      <motion.div
+                        key={badgeId}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.03 }}
+                        whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(14,165,233,0.12)' }}
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '12px',
+                          borderRadius: '14px',
+                          border: '1px solid #e0f2fe',
+                          background: 'linear-gradient(135deg, #ffffff, #fbfdff)',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {badge.imageUrl ? (
+                          <img src={badge.imageUrl} alt={badge.name} style={{ width: 52, height: 52, borderRadius: 12, objectFit: 'cover', border: '2px solid var(--primary)' }} />
+                        ) : (
+                          <div style={{ width: 52, height: 52, borderRadius: 12, display: 'grid', placeItems: 'center', background: '#fff7ed', color: '#f59e0b' }}>
+                            <FaMedal />
+                          </div>
+                        )}
+                        <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '13px' }}>{badge.name || badge.badgeName || 'شارة'}</div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          </div>
         )}
       </div>
     </div>
@@ -1099,7 +1080,7 @@ function RoleSection({ title, subtitle, icon: Icon, accent, items, emptyMessage 
       {items.length === 0 ? (
         <div style={{ color: '#64748b', fontSize: '14px', marginTop: '14px', textAlign: 'center', padding: '20px', border: '1px dashed #bae6fd', borderRadius: '16px' }}>{emptyMessage}</div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '16px' }}>
+        <div className="role-section-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '16px' }}>
           {items.map((item, idx) => (
             <motion.div
               key={item.label}

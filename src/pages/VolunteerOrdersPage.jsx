@@ -18,6 +18,12 @@ import { serviceRequestsService } from '../services/serviceRequestsService';
 import EntityHistoryModal from '../components/modals/EntityHistoryModal';
 
 const getOrderId = (order) => order?.id || order?.volunteerOrderId || order?.orderId || null;
+const getServiceRequestId = (order) =>
+  order?.serviceRequestId ||
+  order?.serviceRequest?.id ||
+  order?.serviceRequest?.serviceRequestId ||
+  order?.requestId ||
+  null;
 const getOrderStatus = (order) =>
   order?.status ??
   order?.orderStatus ??
@@ -184,18 +190,32 @@ const VolunteerOrdersPage = () => {
     fetchPendingCount();
   }, [isAdmin]);
 
-  const handleViewDetails = async (orderId) => {
+  const handleViewDetails = async (order) => {
+    const orderId = getOrderId(order);
+    const serviceRequestId = getServiceRequestId(order);
+
     setSelectedOrder(null);
     setDetailsError(null);
     setDetailsLoading(true);
     try {
-      const response = isAdmin
-        ? await volunteerOrdersService.getVolunteerOrderById(orderId)
-        : await serviceRequestsService.getServiceRequestById(orderId);
-      setSelectedOrder(response);
+      let response;
+
+      if (!isAdmin && activeTab === 'accepted') {
+        response = order;
+      } else {
+        response = await volunteerOrdersService.getVolunteerOrderById(orderId);
+      }
+
+      const mergedResponse = {
+        ...order,
+        ...response,
+        serviceRequestId: response?.serviceRequestId || serviceRequestId,
+      };
+
+      setSelectedOrder(mergedResponse);
       setProgressDrafts((prev) => ({
         ...prev,
-        [orderId]: Number(getOrderProgress(response)) || 0
+        [orderId]: Number(getOrderProgress(mergedResponse)) || 0
       }));
     } catch (requestError) {
       setDetailsError(requestError.message || 'فشل في جلب التفاصيل');
@@ -282,7 +302,7 @@ const VolunteerOrdersPage = () => {
       await fetchOrders(pageNumber, pageSize, activeTab);
       await fetchPendingCount();
       if (getOrderId(selectedOrder) === selectedOrderForReject) {
-        await handleViewDetails(selectedOrderForReject);
+        await handleViewDetails({ id: selectedOrderForReject });
       }
     } catch (requestError) {
       alert(requestError.message || 'فشل في رفض الطلب');
@@ -528,7 +548,7 @@ const VolunteerOrdersPage = () => {
                           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'flex-start' }}>
                             <div>
                               <h3 style={{ margin: 0, fontSize: 18, color: '#0f172a' }}>
-                                {order.title || order.serviceRequestTitle || `طلب #${orderId || index + 1}`}
+                                {order.title || order.serviceRequestTitle || order.requestName || order.name || `طلب ${index + 1}`}
                               </h3>
                               {isAdmin && (
                                 <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
@@ -632,7 +652,7 @@ const VolunteerOrdersPage = () => {
                         </div>
 
                         <div style={actionsRowStyle}>
-                          <button type="button" onClick={() => handleViewDetails(orderId)} style={iconButtonStyle} title="التفاصيل">
+                          <button type="button" onClick={() => handleViewDetails(order)} style={iconButtonStyle} title="التفاصيل">
                             <FaEye />
                           </button>
                           <button

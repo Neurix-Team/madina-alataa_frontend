@@ -26,6 +26,35 @@ export const avatarService = {
   getAvatarById: async (avatarId) => {
     try {
       console.log(`Fetching avatar ${avatarId}...`);
+      // Check for presence of auth token in known storage keys to give clearer diagnostics
+      let token = null;
+      try {
+        const raw =
+          localStorage.getItem('madeena_login_user_response') ||
+          localStorage.getItem('user_data') ||
+          localStorage.getItem('madina_access_token') ||
+          localStorage.getItem('auth_token') ||
+          localStorage.getItem('accessToken') ||
+          localStorage.getItem('token') ||
+          null;
+
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            token = parsed?.token || parsed?.accessToken || parsed?.AccessToken || parsed?.data?.token || parsed?.data?.accessToken || null;
+          } catch (e) {
+            // raw may be a plain token string
+            token = raw;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      if (!token) {
+        console.warn('avatarService.getAvatarById: no auth token found in localStorage — request may be rejected with 403');
+      }
+
       const response = await axiosClient.get(`${AVATARS_API_URL}/${avatarId}`);
       console.log('Avatar Response:', response.data);
       return unwrapAvatarResponse(response.data);

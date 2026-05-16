@@ -156,20 +156,20 @@ export default function AvailableMissionsTab() {
   return (
     <div className="min-h-screen bg-transparent text-slate-800 p-8 md:p-16" dir="rtl">
       <div className="relative mx-auto max-w-7xl space-y-16">
-        <div className="flex flex-col gap-10 rounded-[48px] border border-slate-200/80 bg-white/80 backdrop-blur-2xl p-10 md:flex-row md:items-center md:justify-between md:p-14 shadow-[0_30px_80px_rgba(148,163,184,0.2)]">
+        <div className="flex flex-col gap-10 rounded-[48px] border border-slate-200/80 bg-white/80 backdrop-blur-2xl p-10 lg:flex-row lg:items-center lg:justify-between lg:p-14 shadow-[0_30px_80px_rgba(148,163,184,0.2)]">
           <div className="flex items-center gap-10">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[32px] bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-[0_20px_50px_rgba(16,185,129,0.3)] border border-white/20">
-              <FaRocket className="text-4xl" />
+            <div className="flex h-20 w-20 md:h-24 md:w-24 shrink-0 items-center justify-center rounded-[24px] md:rounded-[32px] bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-[0_20px_50px_rgba(16,185,129,0.3)] border border-white/20">
+              <FaRocket className="text-3xl md:text-4xl" />
             </div>
             <div>
-              <h2 className="text-5xl md:text-6xl font-black tracking-tight text-slate-900 leading-tight">المهام المتاحة</h2>
-              <p className="mt-4 text-lg md:text-xl font-bold text-slate-500 max-w-lg leading-relaxed">استكشف الفرص التطوعية الميدانية المتاحة لك الآن بناءً على تصنيفاتك الحالية.</p>
+              <h2 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 leading-tight">المهام المتاحة</h2>
+              <p className="mt-2 md:mt-4 text-base md:text-xl font-bold text-slate-500 max-w-lg leading-relaxed">استكشف الفرص التطوعية الميدانية المتاحة لك الآن بناءً على تصنيفاتك الحالية.</p>
             </div>
           </div>
 
-          <div className="grid w-full gap-6 md:w-auto md:grid-cols-[minmax(350px,480px)_180px]">
+          <div className="grid w-full gap-4 md:gap-6 lg:w-auto lg:grid-cols-[minmax(300px,480px)_150px]">
             <div className="relative group">
-              <FaSearch className="absolute right-6 top-1/2 -translate-y-1/2 text-emerald-600/50 group-focus-within:text-emerald-600 transition-colors text-xl" />
+              <FaSearch className="absolute right-6 top-1/2 -translate-y-1/2 text-emerald-600/50 group-focus-within:text-emerald-600 transition-colors text-lg md:text-xl" />
               <input
                 type="text"
                 value={searchTerm}
@@ -178,12 +178,12 @@ export default function AvailableMissionsTab() {
                   setCurrentPage(1);
                 }}
                 placeholder="ابحث عن تحدي متاح..."
-                className="w-full rounded-[28px] border-2 border-slate-100 bg-white py-5 pr-16 pl-6 text-slate-900 text-lg outline-none transition focus:border-emerald-400/50 focus:ring-8 focus:ring-emerald-500/5 shadow-sm"
+                className="w-full rounded-[22px] md:rounded-[28px] border-2 border-slate-100 bg-white py-4 md:py-5 pr-14 md:pr-16 pl-6 text-slate-900 text-base md:text-lg outline-none transition focus:border-emerald-400/50 focus:ring-8 focus:ring-emerald-500/5 shadow-sm"
               />
             </div>
 
             <div className="relative group">
-              <FaLayerGroup className="absolute right-6 top-1/2 -translate-y-1/2 text-emerald-600/50 text-xl" />
+              <FaLayerGroup className="absolute right-6 top-1/2 -translate-y-1/2 text-emerald-600/50 text-lg md:text-xl" />
               <input
                 type="number"
                 value={userLevel}
@@ -194,7 +194,7 @@ export default function AvailableMissionsTab() {
                 placeholder="المستوى"
                 min="1"
                 max="100"
-                className="w-full rounded-[28px] border-2 border-slate-100 bg-white py-5 pr-16 pl-6 text-slate-900 text-lg outline-none transition focus:border-emerald-400/50 focus:ring-8 focus:ring-emerald-500/5 shadow-sm font-mono tabular-nums"
+                className="w-full rounded-[22px] md:rounded-[28px] border-2 border-slate-100 bg-white py-4 md:py-5 pr-14 md:pr-16 pl-6 text-slate-900 text-base md:text-lg outline-none transition focus:border-emerald-400/50 focus:ring-8 focus:ring-emerald-500/5 shadow-sm font-mono tabular-nums"
               />
             </div>
           </div>

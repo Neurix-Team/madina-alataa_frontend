@@ -270,6 +270,21 @@ const LocationsTab = () => {
 
   return (
     <div className="pro-page" style={{ background: 'transparent' }}>
+      <style>{`
+        @media (max-width: 640px) {
+          .pro-container { padding: 20px !important; width: 100% !important; max-width: 100vw !important; overflow-x: hidden !important; box-sizing: border-box !important; }
+          .pro-card-grid { grid-template-columns: 1fr !important; gap: 20px !important; width: 100% !important; }
+          .pro-card { overflow: hidden !important; min-height: auto !important; margin: 0 !important; width: 100% !important; box-sizing: border-box !important; border-radius: 20px !important; }
+          .pro-card .pro-card-actions { flex-wrap: wrap !important; gap: 10px !important; padding: 12px !important; }
+          .pro-card .pro-card-actions .pro-btn { width: auto !important; flex: 1 !important; height: 44px !important; }
+          .pro-card .pro-card-body .pro-data-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+          .pro-header { flex-direction: column !important; align-items: center !important; text-align: center !important; gap: 24px !important; margin-bottom: 30px !important; }
+          .pro-header-actions { flex-direction: column !important; gap: 12px !important; width: 100% !important; }
+          .pro-header-actions .pro-btn { width: 100% !important; justify-content: center !important; height: 48px !important; }
+          .pro-data-value { word-break: break-all !important; font-size: 14px !important; line-height: 1.5 !important; margin-top: 4px !important; }
+          .pro-stats { grid-template-columns: 1fr !important; gap: 12px !important; }
+        }
+      `}</style>
       <div className="pro-container">
         {/* Header */}
         <div className="pro-header">

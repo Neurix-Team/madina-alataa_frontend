@@ -268,19 +268,19 @@ const NAV_ITEMS = [
   { id: 'levels',       label: 'المستويات',        icon: FaLayerGroup, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'missions',    label: 'المهام',           icon: FaFlag, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'admin',       label: 'الإدارة',          icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
-  { id: 'my-children', label: 'أطفالي', icon: FaChild },
-  { id: 'volunteer-requests', label: 'طلبات التطوع', icon: FaHandsHelping, dividerBefore: true },
-  { id: 'volunteer-orders', label: 'تطوعاتي', icon: FaHandsHelping },
+  { id: 'my-children', label: 'أطفالي', icon: FaChild, condition: PERMISSIONS.VIEW_CHILDREN },
+  { id: 'volunteer-requests', label: 'طلبات التطوع', icon: FaHandsHelping, dividerBefore: true, condition: PERMISSIONS.VIEW_VOLUNTEER_FEATURES },
+  { id: 'volunteer-orders', label: 'تطوعاتي', icon: FaHandsHelping, condition: PERMISSIONS.VIEW_VOLUNTEER_FEATURES },
   // Donation Orders System
-  { id: 'donation-orders-donor', label: 'طلبات التبرع', icon: FaHandHoldingHeart, dividerBefore: true },
-  { id: 'my-donation-orders', label: 'تبرعاتي', icon: FaCoins },
+  { id: 'donation-orders-donor', label: 'طلبات التبرع', icon: FaHandHoldingHeart, dividerBefore: true, condition: PERMISSIONS.VIEW_DONOR_FEATURES },
+  { id: 'my-donation-orders', label: 'تبرعاتي', icon: FaCoins, condition: PERMISSIONS.VIEW_DONOR_FEATURES },
   // Donation Orders - Admin only
   { id: 'donation-orders', label: 'طلبات المتبرعين', icon: FaHandHoldingHeart, condition: PERMISSIONS.VIEW_ADMIN },
   ];
 
-// ── Avatar ────────────────────────────────────────────────────────────────
+// ── Avatar (photo-style) ──────────────────────────────────────────────────
 const AvatarSVG = ({ bg, accessory }) => {
-  const bgColor = `#${bg || '1d6ed8'}`;
+  const imageUrl = getAvatarImageUrl();
   const accessoryMap = {
     crown:    FaCrown,
     glasses:  FaGlasses,
@@ -289,49 +289,51 @@ const AvatarSVG = ({ bg, accessory }) => {
     scarf:    FaRibbon,
     headband: FaRibbon,
   };
-  const AccessoryIcon = accessoryMap[accessory] || FaCrown;
+  const AccessoryIcon = accessoryMap[accessory] || null;
 
-
-  
   return (
     <div style={{
       width: 54,
       height: 54,
       borderRadius: '50%',
-      background: `radial-gradient(circle at 35% 30%, ${bgColor}ee, ${bgColor}88)`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: 26,
-      border: '2px solid rgba(255,255,255,0.25)',
-      boxShadow: [
-        '0 4px 18px rgba(0,0,0,0.35)',
-        '0 0 0 4px rgba(29,110,216,0.2)',
-        'inset 0 1px 0 rgba(255,255,255,0.25)',
-      ].join(', '),
-      flexShrink: 0,
+      overflow: 'hidden',
+      background: '#e6edf8',
+      display: 'inline-block',
       position: 'relative',
-      transition: 'transform 0.3s ease',
+      boxShadow: '0 6px 18px rgba(0,0,0,0.35)',
+      border: '1px solid rgba(255,255,255,0.06)',
+      flexShrink: 0,
     }}>
       <img
-        src={getAvatarImageUrl()}
-        alt="Saved avatar"
+        src={imageUrl || '/public/default-avatar.jpg'}
+        alt="Avatar"
         style={{
-          width: 38,
-          height: 38,
-          borderRadius: '50%',
+          width: '100%',
+          height: '100%',
           objectFit: 'cover',
-          border: '1px solid rgba(255,255,255,0.28)',
-          background: 'rgba(255,255,255,0.08)',
+          display: 'block',
+          transform: 'translateZ(0)',
+          filter: 'contrast(1.02) saturate(1.05)'
         }}
       />
-      <span style={{
-        position: 'absolute',
-        top: -7,
-        right: -5,
-        fontSize: 15,
-        filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))',
-      }}><AccessoryIcon /></span>
+
+      {AccessoryIcon && (
+        <span style={{
+          position: 'absolute',
+          bottom: -2,
+          right: -2,
+          width: 20,
+          height: 20,
+          borderRadius: '50%',
+          background: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+        }}>
+          <AccessoryIcon style={{ fontSize: 12, color: '#f59e0b' }} />
+        </span>
+      )}
     </div>
   );
 };
@@ -467,9 +469,9 @@ export default function Sidebar({
   };
 
   const visibleItems = NAV_ITEMS.filter((item) => {
-    // Volunteer requests: admin only
+    // Volunteer requests: visible for admin and volunteer.
     if (item.id === 'volunteer-requests') {
-      if (!isAdmin) return false;
+      return isAdmin || isVolunteer;
     }
 
     // Volunteer orders: only show to admin or volunteer
@@ -492,6 +494,12 @@ export default function Sidebar({
     if (item.id === 'my-children' && isAdmin) {
       return false;
     }
+    // Hide profile button for admin users (keep visible for others)
+    if (item.id === 'profile' && isAdmin) return false;
+
+    // Remove activities nav item entirely
+    if (item.id === 'activities') return false;
+
     return !item.condition || can(item.condition);
   });
 
@@ -728,22 +736,24 @@ export default function Sidebar({
               marginBottom: 12,
               direction: 'rtl',
             }}>
-              <button
-                type="button"
-                onClick={() => navigate('/avatar')}
-                title="تغيير الصورة الشخصية"
-                style={{
-                  border: 'none',
-                  background: 'transparent',
-                  padding: 0,
-                  margin: 0,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  borderRadius: '50%',
-                }}
-              >
-                <AvatarSVG bg={avatarTheme.bg} accessory={avatarTheme.accessory} />
-              </button>
+              {!isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => navigate('/avatar')}
+                  title="تغيير الصورة الشخصية"
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    padding: 0,
+                    margin: 0,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    borderRadius: '50%',
+                  }}
+                >
+                  <AvatarSVG bg={avatarTheme.bg} accessory={avatarTheme.accessory} />
+                </button>
+              )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
                   fontSize: 13,

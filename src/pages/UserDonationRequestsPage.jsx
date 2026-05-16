@@ -354,62 +354,46 @@ const UserDonationRequestsPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000,
-              padding: '20px'
-            }}
+            className="app-modal-overlay"
             onClick={() => setIsDonateModalOpen(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="donation-requests-page__card"
-              style={{ 
-                maxWidth: '600px', 
-                width: '100%', 
-                maxHeight: '80vh', 
-                overflow: 'auto' 
-              }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="app-modal-card"
+              style={{ maxWidth: '720px' }}
               onClick={(e) => e.stopPropagation()}
+              dir="rtl"
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3 style={{ color: 'var(--text)', margin: 0 }}>تبرع لطلب: {selectedRequestForDonation.title || 'بدون عنوان'}</h3>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+              <div className="app-modal-header">
+                <div>
+                  <h3 className="app-modal-title">تبرع لطلب</h3>
+                  <p className="app-modal-subtitle">{selectedRequestForDonation.title || 'بدون عنوان'}</p>
+                </div>
+                <button
                   onClick={() => setIsDonateModalOpen(false)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-muted)',
-                    cursor: 'pointer',
-                    fontSize: '20px'
-                  }}
+                  className="app-modal-close"
+                  aria-label="Close donation modal"
                 >
                   ×
-                </motion.button>
+                </button>
               </div>
 
-              <CreateDonationForm 
-                requestInfo={selectedRequestForDonation}
-                onSuccess={() => {
-                  setIsDonateModalOpen(false);
-                  setSelectedRequestForDonation(null);
-                }}
-                onError={(errorMessage) => {
-                  setError(errorMessage);
-                }}
-              />
+              <div className="overflow-y-auto">
+                <div style={{ padding: 18 }}>
+                  <CreateDonationForm
+                    requestInfo={selectedRequestForDonation}
+                    onSuccess={() => {
+                      setIsDonateModalOpen(false);
+                      setSelectedRequestForDonation(null);
+                    }}
+                    onError={(errorMessage) => {
+                      setError(errorMessage);
+                    }}
+                  />
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
@@ -556,7 +540,7 @@ const result = await donationOrdersService.createDonationOrder(payload);
             name="amount"
             value={formData.amount}
             onChange={handleInputChange}
-            className="donation-requests-page__input"
+            className="app-form-input"
             placeholder="أدخل المبلغ"
             min="1"
             step="0.01"
@@ -572,7 +556,7 @@ const result = await donationOrdersService.createDonationOrder(payload);
             name="paymentMethod"
             value={formData.paymentMethod}
             onChange={handleInputChange}
-            className="donation-requests-page__input"
+            className="app-form-input"
             required
           >
             <option value="">اختر طريقة الدفع</option>
@@ -592,7 +576,7 @@ const result = await donationOrdersService.createDonationOrder(payload);
             name="category"
             value={formData.category}
             onChange={handleInputChange}
-            className="donation-requests-page__input"
+            className="app-form-input"
             required
           >
             <option value="">اختر الفئة</option>
@@ -613,7 +597,7 @@ const result = await donationOrdersService.createDonationOrder(payload);
             name="targetLocation"
             value={formData.targetLocation}
             onChange={handleInputChange}
-            className="donation-requests-page__input"
+            className="app-form-input"
             placeholder="أدخل الموقع المستهدف"
           />
         </div>
@@ -626,7 +610,7 @@ const result = await donationOrdersService.createDonationOrder(payload);
             name="receipt"
             value={formData.receipt}
             onChange={handleInputChange}
-            className="donation-requests-page__input"
+            className="app-form-input app-form-textarea"
             placeholder="أدخل تفاصيل الإيصال"
             rows={3}
           />
@@ -640,7 +624,7 @@ const result = await donationOrdersService.createDonationOrder(payload);
             name="impactReport"
             value={formData.impactReport}
             onChange={handleInputChange}
-            className="donation-requests-page__input"
+            className="app-form-input app-form-textarea"
             placeholder="أدخل تفاصيل تقرير الأثر"
             rows={3}
           />
@@ -653,7 +637,7 @@ const result = await donationOrdersService.createDonationOrder(payload);
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           disabled={loading}
-          className="donation-requests-page__btn is-success"
+          className="app-btn-primary"
           style={{ flex: 1 }}
         >
           {loading ? (
@@ -674,7 +658,7 @@ const result = await donationOrdersService.createDonationOrder(payload);
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onSuccess()}
-          className="donation-requests-page__btn is-secondary"
+          className="app-btn-secondary"
           style={{ flex: 1 }}
         >
           إلغاء

@@ -8,9 +8,6 @@ const unwrapUserLevelResponse = (payload) => {
 };
 
 export const userLevelsService = {
-  /**
-   * جلب بيانات المستوى والـ XP للمستخدم الحالي
-   */
   getMyLevel: async () => {
     try {
       const response = await axiosClient.get(`${USER_LEVELS_API_URL}/my`);
@@ -23,50 +20,40 @@ export const userLevelsService = {
     }
   },
 
-  /**
-   * جلب تفاصيل المستوى لمستخدم معين (للأدمن)
-   * @param {string} userId - معرف المستخدم
-   */
-  getUserLevelAdmin: async (userId) => {
+  getUserLevelAdminResponse: async (userId) => {
     try {
-      // المحاولة الأولى: المسار المتوقع حسب الكود الحالي
-      const response = await axiosClient.get(`${USER_LEVELS_API_URL}/admin/profile/${userId}`);
-      return unwrapUserLevelResponse(response.data);
+      const response = await axiosClient.get(`${USER_LEVELS_API_URL}/admin/user/${userId}`);
+      const raw = response.data;
+      const item = unwrapUserLevelResponse(raw);
+      return { raw, item };
     } catch (error) {
-      if (error.response?.status === 404) {
-        try {
-          // المحاولة الثانية: مسار بديل محتمل /api/UserLevels/admin/{userId}
-          const altResponse = await axiosClient.get(`${USER_LEVELS_API_URL}/admin/${userId}`);
-          return unwrapUserLevelResponse(altResponse.data);
-        } catch (altError) {
-          // إذا فشلت المحاولة البديلة أيضاً، نرمي الخطأ الأصلي أو نعالج الـ 404
-          console.warn(`User level not found for ${userId} even with alternative path.`);
-        }
-      }
-      console.error(`Error fetching user level for ${userId}:`, error);
+      console.error(`Error fetching user level response for ${userId}:`, error);
       throw error;
     }
   },
 
-  /**
-   * تحديث بيانات المستوى لمستخدم معين (للأدمن)
-   * @param {string} userId - معرف المستخدم
-   * @param {Object} data - البيانات الجديدة (xp, kp, levelId)
-   */
-  updateUserLevelAdmin: async (userId, data) => {
+  getUserLevelAdmin: async (userId) => {
+    const res = await userLevelsService.getUserLevelAdminResponse(userId);
+    return res.item;
+  },
+
+  updateUserLevelAdminResponse: async (userId, data) => {
     try {
       const response = await axiosClient.put(`${USER_LEVELS_API_URL}/admin/${userId}`, data);
-      return unwrapUserLevelResponse(response.data);
+      const raw = response.data;
+      const item = unwrapUserLevelResponse(raw);
+      return { raw, item };
     } catch (error) {
-      console.error(`Error updating user level for ${userId}:`, error);
+      console.error(`Error updating user level response for ${userId}:`, error);
       throw error;
     }
   },
 
-  /**
-   * حذف بيانات المستوى لمستخدم معين (للأدمن)
-   * @param {string} userId - معرف المستخدم
-   */
+  updateUserLevelAdmin: async (userId, data) => {
+    const res = await userLevelsService.updateUserLevelAdminResponse(userId, data);
+    return res.item;
+  },
+
   deleteUserLevelAdmin: async (userId) => {
     try {
       const response = await axiosClient.delete(`${USER_LEVELS_API_URL}/admin/${userId}`);
@@ -75,7 +62,7 @@ export const userLevelsService = {
       console.error(`Error deleting user level for ${userId}:`, error);
       throw error;
     }
-  }
+  },
 };
 
 export default userLevelsService;

@@ -15,6 +15,13 @@ import './styles/badges.css';
 import App from './App';
 import 'wicg-inert';
 
+const restoreHashRouteFromPath = () => {
+  if (window.location.hash || window.location.pathname === '/') return;
+
+  const routePath = `${window.location.pathname}${window.location.search}`;
+  window.history.replaceState(null, '', `/#${routePath}`);
+};
+
 // import { worker } from './mocks/browser';
 
 // ✅ إلغاء تسجيل أي Service Worker قديم (مثل MSW) ومسح الكاش في وضع التطوير
@@ -43,6 +50,8 @@ if (import.meta.env.DEV && 'serviceWorker' in navigator) {
 }
 
 const renderApp = () => {
+  restoreHashRouteFromPath();
+
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
       <Router>

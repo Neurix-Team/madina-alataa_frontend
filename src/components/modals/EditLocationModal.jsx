@@ -125,9 +125,8 @@ const EditLocationModal = ({ isOpen, onClose, onSubmit, location }) => {
                 </div>
 
                 <div className="app-form-group">
-                  <label className="app-form-label">المستوى المطلوب</label>
+                  <label className="app-form-label">المستوى المطلوب <span style={{color: '#f59e0b', marginInlineStart: 8}}>★</span></label>
                   <div className="relative">
-                    <FaStar className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-400" />
                     <input
                       type="number"
                       name="requiredLevel"

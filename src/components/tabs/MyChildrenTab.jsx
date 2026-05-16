@@ -304,7 +304,11 @@ const MyChildrenTab = () => {
       const response = await childrenService.getMyChildren();
       setChildren(response);
     } catch (err) {
-      setError(err.response?.data?.message || 'فشل في جلب الأطفال');
+      if (err.response?.status === 403) {
+        setError('عذراً، ليس لديك صلاحية للوصول إلى هذه الصفحة. قد تكون هذه الميزة غير متاحة لحساب المسؤول (Admin).');
+      } else {
+        setError(err.response?.data?.message || 'فشل في جلب الأطفال');
+      }
       console.error('Error fetching children:', err);
     } finally {
       setLoading(false);

@@ -445,6 +445,7 @@ const [pagination, setPagination] = useState({
   // Assign Roles State
   const [availableRoles, setAvailableRoles] = useState([]);
   const [selectedRoles, setSelectedRoles] = useState([]);
+  const [selectedRolesToAssign, setSelectedRolesToAssign] = useState([]);
   const [originalRoles, setOriginalRoles] = useState([]);
   const [assigningRoles, setAssigningRoles] = useState(false);
   const [assignRolesError, setAssignRolesError] = useState(null);
@@ -593,7 +594,12 @@ const [pagination, setPagination] = useState({
       console.log('Fetch user level detail error:', err);
       
       // إذا كان الخطأ 404، فهذا يعني أن المستخدم ليس لديه سجل مستويات بعد، لا نعتبرها مشكلة كبيرة
-      if (err.response?.status === 404 || err.message?.includes('404')) {
+      if (
+        err.response?.status === 404 ||
+        err.response?.status === 405 ||
+        err.message?.includes('404') ||
+        err.message?.includes('405')
+      ) {
         setUserLevelData(null);
         setUserLevelRaw(null);
         setLevelForm({ xp: 0, kp: 0, levelId: '' });
@@ -1313,42 +1319,22 @@ const [pagination, setPagination] = useState({
 
   // Assign Roles Functions
   const handleAssignRoles = async () => {
-    if (!selectedUserForUpdate?.id || selectedRoles.length === 0) return;
+    if (!selectedUserForUpdate?.id || selectedRolesToAssign.length === 0) return;
 
     setAssigningRoles(true);
     setAssignRolesError(null);
     setAssignRolesSuccess(false);
 
     try {
-      const payloads = [
-        { roles: selectedRoles },
-        { roleNames: selectedRoles },
-        selectedRoles,
-      ];
-      let resp = null;
-      let lastError = null;
-
-      for (const payload of payloads) {
-        try {
-          console.log('ASSIGN ROLES PAYLOAD:', payload);
-          resp = await axiosClient.post(`/api/user/${selectedUserForUpdate.id}/roles/assign`, payload);
-          break;
-        } catch (requestError) {
-          lastError = requestError;
-          console.warn('Assign roles payload failed:', payload, requestError.response?.data || requestError.message);
-          if (requestError.response?.status !== 400) {
-            throw requestError;
-          }
-        }
-      }
-
-      if (!resp && lastError) {
-        throw lastError;
-      }
+      const payload = { roles: selectedRolesToAssign };
+      
+      console.log('ASSIGN ROLES PAYLOAD:', payload);
+      const resp = await axiosClient.post(`/api/user/${selectedUserForUpdate.id}/roles/assign`, payload);
 
       console.log('ASSIGN ROLES API RESPONSE:', resp.data);
 
       setAssignRolesSuccess(true);
+      setSelectedRolesToAssign([]);
       
       // Refresh user details to show updated roles
       setTimeout(() => {
@@ -1381,6 +1367,14 @@ const [pagination, setPagination] = useState({
 
   const handleRoleToggle = (role) => {
     setSelectedRoles(prev => 
+      prev.includes(role) 
+        ? prev.filter(r => r !== role)
+        : [...prev, role]
+    );
+  };
+
+  const handleRoleToAssignToggle = (role) => {
+    setSelectedRolesToAssign(prev => 
       prev.includes(role) 
         ? prev.filter(r => r !== role)
         : [...prev, role]
@@ -2310,19 +2304,21 @@ const [pagination, setPagination] = useState({
                               gap: 8,
                               padding: '8px',
                               borderRadius: 8,
-                              background: selectedRoles.includes(role) ? '#e0e7ff' : '#ffffff',
+                              background: selectedRolesToAssign.includes(role) ? '#e0e7ff' : '#ffffff',
                               cursor: 'pointer',
-                              transition: 'all 0.2s ease'
+                              transition: 'all 0.2s ease',
+                              opacity: selectedUserForUpdate?.roles?.includes(role) ? 0.6 : 1
                             }}
                           >
                             <input
                               type="checkbox"
-                              checked={selectedRoles.includes(role)}
-                              onChange={() => handleRoleToggle(role)}
+                              checked={selectedRolesToAssign.includes(role)}
+                              disabled={selectedUserForUpdate?.roles?.includes(role)}
+                              onChange={() => handleRoleToAssignToggle(role)}
                               style={{ margin: 0 }}
                             />
                             <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>
-                              {role}
+                              {role} {selectedUserForUpdate?.roles?.includes(role) ? '(موجود بالفعل)' : ''}
                             </span>
                           </label>
                         ))}
@@ -2796,6 +2792,7 @@ const [pagination, setPagination] = useState({
                       const user = users.find(u => u.id === e.target.value);
                       if (user) {
                         openUpdateForm(user);
+                        setSelectedRolesToAssign([]);
                         setActive('assignRoles');
                       }
                     }}
@@ -2836,19 +2833,21 @@ const [pagination, setPagination] = useState({
                               gap: 8,
                               padding: '8px',
                               borderRadius: 8,
-                              background: selectedRoles.includes(role) ? '#e0e7ff' : '#ffffff',
+                              background: selectedRolesToAssign.includes(role) ? '#e0e7ff' : '#ffffff',
                               cursor: 'pointer',
-                              transition: 'all 0.2s ease'
+                              transition: 'all 0.2s ease',
+                              opacity: selectedUserForUpdate?.roles?.includes(role) ? 0.6 : 1
                             }}
                           >
                             <input
                               type="checkbox"
-                              checked={selectedRoles.includes(role)}
-                              onChange={() => handleRoleToggle(role)}
+                              checked={selectedRolesToAssign.includes(role)}
+                              disabled={selectedUserForUpdate?.roles?.includes(role)}
+                              onChange={() => handleRoleToAssignToggle(role)}
                               style={{ margin: 0 }}
                             />
                             <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>
-                              {role}
+                              {role} {selectedUserForUpdate?.roles?.includes(role) ? '(موجود بالفعل)' : ''}
                             </span>
                           </label>
                         ))}
@@ -2879,7 +2878,7 @@ const [pagination, setPagination] = useState({
 
                 <div style={{ display: 'flex', gap: 12 }}>
                   {/* Show save button only when roles are selected */}
-                  {selectedRoles.length > 0 && (
+                  {selectedRolesToAssign.length > 0 && (
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -2898,7 +2897,7 @@ const [pagination, setPagination] = useState({
                         boxShadow: '0 10px 15px -3px rgba(236, 72, 153, 0.2)'
                       }}
                     >
-                      {assigningRoles ? 'جاري التعيين...' : `حفظ ${selectedRoles.length} دور(أدوار)`}
+                      {assigningRoles ? 'جاري التعيين...' : `إضافة ${selectedRolesToAssign.length} دور(أدوار)`}
                     </motion.button>
                   )}
 
@@ -2907,7 +2906,7 @@ const [pagination, setPagination] = useState({
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setActive('list')}
                     style={{
-                      flex: selectedRoles.length > 0 ? 1 : 'auto',
+                      flex: selectedRolesToAssign.length > 0 ? 1 : 'auto',
                       padding: '14px',
                       borderRadius: 14,
                       background: '#f1f5f9',

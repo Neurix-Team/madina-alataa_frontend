@@ -140,8 +140,9 @@ const AuthScreen = () => {
   const [success, setSuccess] = useState(false);
 
   const goByRole = (user) => {
+    if (!user) return;
     // التأكد من فحص الأدوار بغض النظر عن حالة الأحرف (Admin أو admin)
-    const roles = user.roles.map(r => r.toLowerCase());
+    const roles = (user.roles || []).map(r => String(r).toLowerCase());
     
     if (roles.includes('admin')) {
       navigate('/admin');

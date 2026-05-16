@@ -422,6 +422,61 @@ const PARTNER_CSS = `
     font-size: 13px;
     font-weight: 800;
   }
+
+  @media (max-width: 640px) {
+    .partners-tab {
+      padding: 16px;
+      gap: 16px;
+    }
+
+    .partners-header {
+      padding: 20px;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .partners-controls {
+      flex-direction: column;
+    }
+
+    .partners-search {
+      width: 100%;
+    }
+
+    .partners-search__input {
+      width: 100%;
+    }
+
+    .partners-add-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .partners-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .partner-card {
+      padding: 20px;
+      border-radius: 20px;
+    }
+
+    .partner-card__actions {
+      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .partner-card__btn {
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    .partner-card__title {
+      font-size: 16px;
+    }
+  }
 `;
 
 const PartnersTab = () => {
