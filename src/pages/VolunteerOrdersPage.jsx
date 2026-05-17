@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaHandsHelping,
@@ -35,10 +36,10 @@ const getOrderStatus = (order) =>
   order?.adminStatus ??
   null;
 const getOrderProgress = (order) => order?.progress ?? order?.currentProgress ?? order?.completionProgress ?? 0;
-const PROGRESS_OPTIONS = [
-  { value: 0, label: 'لم يبدأ' },
-  { value: 1, label: 'قيد التنفيذ' },
-  { value: 2, label: 'مكتمل' },
+const getProgressOptions = (t) => [
+  { value: 0, label: t('volunteer.progress_not_started') },
+  { value: 1, label: t('volunteer.progress_in_progress') },
+  { value: 2, label: t('volunteer.progress_completed') },
 ];
 
 const parseRoles = (user) => {
@@ -89,6 +90,8 @@ const deriveOrderStatus = (order) => {
 };
 
 const VolunteerOrdersPage = () => {
+  const { t } = useTranslation();
+  const PROGRESS_OPTIONS = getProgressOptions(t);
   const { user } = useAuth();
   const roles = parseRoles(user);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -311,17 +314,20 @@ const VolunteerOrdersPage = () => {
     }
   };
 
-  const handleProgressSave = async (orderId) => {
+  const handleProgressChange = async (orderId, progressValue) => {
+    if (!orderId) return;
+
+    const nextDraftProgress = Number(progressValue) || 0;
+    setProgressDrafts((prev) => ({ ...prev, [orderId]: nextDraftProgress }));
     setActionLoading((prev) => ({ ...prev, [orderId]: 'progress' }));
     try {
-      const progressValue = Number(progressDrafts[orderId]) || 0;
-      const updatedResponse = await volunteerOrdersService.updateVolunteerOrderProgress(orderId, progressValue);
+      const updatedResponse = await volunteerOrdersService.updateVolunteerOrderProgress(orderId, nextDraftProgress);
       const updatedOrder = updatedResponse?.value || updatedResponse?.data || updatedResponse || {};
       const nextProgress =
         updatedOrder?.progress ??
         updatedOrder?.currentProgress ??
         updatedOrder?.completionProgress ??
-        progressValue;
+        nextDraftProgress;
       const nextStatus = nextProgress > 0 ? 'in_progress' : (getOrderStatus(updatedOrder) || 'approved');
 
       const mergeUpdatedOrder = (order) => {
@@ -442,7 +448,7 @@ const VolunteerOrdersPage = () => {
             }}
             style={{ ...tabButtonStyle, ...(activeTab === 'my' ? activeTabStyle : {}) }}
           >
-            {isAdmin ? 'كل طلبات المتطوعين' : 'تطوعاتي'}
+            {isAdmin ? t('volunteer.all_orders') : t('volunteer.my_orders')}
           </button>
           {!isAdmin && (
             <button
@@ -453,7 +459,7 @@ const VolunteerOrdersPage = () => {
               }}
               style={{ ...tabButtonStyle, ...(activeTab === 'accepted' ? activeTabStyle : {}) }}
             >
-              طلباتي المقبولة
+              {t('volunteer.accepted_orders')}
             </button>
           )}
           {isAdmin && (
@@ -465,7 +471,7 @@ const VolunteerOrdersPage = () => {
               }}
               style={{ ...tabButtonStyle, ...(activeTab === 'pending' ? activeTabStyle : {}) }}
             >
-              الطلبات المعلقة ({pendingCount})
+              {t('volunteer.pending_orders')} ({pendingCount})
             </button>
           )}
           <select
@@ -495,7 +501,7 @@ const VolunteerOrdersPage = () => {
             type="search"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="بحث بالعنوان أو نوع الخدمة أو الحالة"
+            placeholder={t('volunteer.search_placeholder')}
             style={{ ...inputStyle, flex: 1 }}
           />
         </div>
@@ -504,7 +510,7 @@ const VolunteerOrdersPage = () => {
           <div style={panelStyle}>
             <div style={panelHeaderStyle}>
               <div>
-                <h2 style={sectionTitleStyle}>{activeTab === 'pending' ? 'الطلبات المعلقة' : 'قائمة التطوعات'}</h2>
+                <h2 style={sectionTitleStyle}>{activeTab === 'pending' ? t('volunteer.pending_orders') : t('volunteer.all_orders')}</h2>
                 <p style={sectionMetaStyle}>
                   {activeTab === 'pending'
                     ? 'GET `/api/VolunteerOrders/pending?PageNumber=1&PageSize=1`'
@@ -520,10 +526,10 @@ const VolunteerOrdersPage = () => {
             {loading ? (
               <div style={loadingBoxStyle}>
                 <FaSpinner className="animate-spin" />
-                <span>جاري تحميل البيانات...</span>
+                <span>{t('common.loading')}</span>
               </div>
             ) : filteredCurrentOrders.length === 0 ? (
-              <div style={emptyBoxStyle}>لا توجد عناصر في هذا القسم.</div>
+              <div style={emptyBoxStyle}>{t('common.no_data')}</div>
             ) : (
               <div style={{ display: 'grid', gap: 14 }}>
                 <AnimatePresence mode="wait">
@@ -532,7 +538,7 @@ const VolunteerOrdersPage = () => {
                     const derivedStatus = deriveOrderStatus(order);
                     const chip = statusChip(derivedStatus);
                     const normalizedStatus = normalizeStatus(derivedStatus);
-                    const isApproved = normalizedStatus === 'approved';
+                    const canUpdateProgress = Boolean(orderId) && (isAdmin || activeTab === 'my') && ['approved', 'in_progress'].includes(normalizedStatus);
                     const isPending = normalizedStatus === 'pending';
 
                     return (
@@ -563,9 +569,11 @@ const VolunteerOrdersPage = () => {
 
                           <div style={metaGridStyle}>
                             <span style={metaItemStyle}><FaClock /> {order.createdAt || order.orderDate || 'تاريخ الطلب'}</span>
-                            <span style={metaItemStyle}>
-                              <FaTasks /> {isAdmin ? `progress: ${getOrderProgress(order)}` : (activeTab === 'accepted' ? 'مقبول' : 'approved')}
-                            </span>
+                            {!canUpdateProgress && (
+                              <span style={metaItemStyle}>
+                                <FaTasks /> {PROGRESS_OPTIONS.find(opt => opt.value === getOrderProgress(order))?.label || t('volunteer.progress_not_started')}
+                              </span>
+                            )}
                           </div>
 
                           {activeTab === 'accepted' && (
@@ -593,60 +601,38 @@ const VolunteerOrdersPage = () => {
                             </motion.div>
                           )}
 
-                          {isAdmin && isApproved && (
+                          {canUpdateProgress && (
                             <div style={progressRowStyle}>
-                              <select
-                                value={progressDrafts[orderId] ?? getOrderProgress(order)}
-                                onChange={async (event) => {
-                                  const newProgress = Number(event.target.value);
-                                  setProgressDrafts((prev) => ({
-                                    ...prev,
-                                    [orderId]: newProgress
-                                  }));
-                                  
-                                  // Immediate API call on change
-                                  setActionLoading((prev) => ({ ...prev, [orderId]: 'progress' }));
-                                  try {
-                                    const updatedResponse = await volunteerOrdersService.updateVolunteerOrderProgress(orderId, newProgress);
-                                    const updatedOrder = updatedResponse?.value || updatedResponse?.data || updatedResponse || {};
-                                    const nextStatus = newProgress > 0 ? 'in_progress' : (getOrderStatus(updatedOrder) || 'approved');
-                                    
-                                    const mergeUpdatedOrder = (order) => {
-                                      if (getOrderId(order) !== orderId) return order;
-                                      return {
-                                        ...order,
-                                        ...updatedOrder,
-                                        progress: getOrderProgress(updatedOrder) || newProgress,
-                                        status: nextStatus,
-                                      };
-                                    };
-                                    
-                                    setOrders((prev) => prev.map(mergeUpdatedOrder));
-                                    setPendingOrders((prev) => prev.map(mergeUpdatedOrder));
-                                    if (getOrderId(selectedOrder) === orderId) {
-                                      setSelectedOrder((prev) => ({
-                                        ...prev,
-                                        ...updatedOrder,
-                                        progress: getOrderProgress(updatedOrder) || newProgress,
-                                        status: nextStatus,
-                                      }));
-                                    }
-                                  } catch (error) {
-                                    console.error('Failed to update progress:', error);
-                                    alert(error.message || 'فشل في تحديث التقدم');
-                                  } finally {
-                                    setActionLoading((prev) => ({ ...prev, [orderId]: null }));
-                                  }
-                                }}
-                                disabled={actionLoading[orderId] === 'progress'}
-                                style={{ ...inputStyle, maxWidth: 120 }}
-                              >
-                                {PROGRESS_OPTIONS.map((option) => (
-                                  <option key={option.value} value={option.value}>
-                                    {option.label}
-                                  </option>
-                                ))}
-                              </select>
+                              {isAdmin ? (
+                                <div style={{ 
+                                  padding: '8px 12px', 
+                                  borderRadius: '10px', 
+                                  background: '#f8fafc', 
+                                  border: '1px solid #e2e8f0',
+                                  color: '#475569',
+                                  fontSize: '12px',
+                                  fontWeight: 700,
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 6
+                                }}>
+                                  <FaTasks size={10} />
+                                   <span>{PROGRESS_OPTIONS.find(opt => opt.value === getOrderProgress(order))?.label || t('volunteer.progress_not_started')}</span>
+                                 </div>
+                              ) : (
+                                <select
+                                  value={progressDrafts[orderId] ?? getOrderProgress(order)}
+                                  onChange={(event) => handleProgressChange(orderId, event.target.value)}
+                                  disabled={actionLoading[orderId] === 'progress'}
+                                  style={{ ...inputStyle, maxWidth: 120 }}
+                                >
+                                  {PROGRESS_OPTIONS.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                      {option.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
                             </div>
                           )}
                         </div>

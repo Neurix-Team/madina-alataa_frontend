@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import AudioManager from '../../services/AudioManager';
 import {
   FaSun,
@@ -31,88 +32,88 @@ import {
   FiZap,
 } from 'react-icons/fi';
 
-const DAILY_TASKS = [
+const getDailyTasks = (t) => [
   {
     id: 'dt_1',
     icon: FaSun,
-    title: 'صلاة الفجر في وقتها',
-    desc: 'ابدأ يومك بالصلاة في وقتها وستشعر بالبركة طوال اليوم.',
-    category: 'روحاني',
+    title: t('daily.tasks.dt_1.title'),
+    desc: t('daily.tasks.dt_1.desc'),
+    category: t('daily.categories.spiritual'),
     kp: 30,
     xp: 60,
-    duration: '10 دقائق',
+    duration: `10 ${t('daily.minutes')}`,
     color: '#f59e0b',
     bg: '#fffbeb',
   },
   {
     id: 'dt_2',
     icon: FaBookOpen,
-    title: 'قراءة ورد يومي من القرآن',
-    desc: 'اقرأ صفحة أو أكثر من القرآن الكريم يومياً.',
-    category: 'تعليم',
+    title: t('daily.tasks.dt_2.title'),
+    desc: t('daily.tasks.dt_2.desc'),
+    category: t('daily.categories.education'),
     kp: 40,
     xp: 80,
-    duration: '15 دقيقة',
+    duration: `15 ${t('daily.minutes')}`,
     color: '#0ea5e9',
     bg: '#f0f9ff',
   },
   {
     id: 'dt_3',
     icon: FaHandsHelping,
-    title: 'مساعدة شخص واحد على الأقل',
-    desc: 'ساعد شخصاً في حاجته سواء كانت صغيرة أو كبيرة.',
-    category: 'خدمة',
+    title: t('daily.tasks.dt_3.title'),
+    desc: t('daily.tasks.dt_3.desc'),
+    category: t('daily.categories.service'),
     kp: 50,
     xp: 100,
-    duration: '30 دقيقة',
-    color: '#22c55e',
-    bg: '#f0fdf4',
+    duration: t('daily.all_day'),
+    color: '#10b981',
+    bg: '#ecfdf5',
   },
   {
     id: 'dt_4',
     icon: FaTint,
-    title: 'شرب 8 أكواب ماء',
-    desc: 'حافظ على صحتك بشرب كميتك اليومية من الماء.',
-    category: 'صحة',
+    title: t('daily.tasks.dt_4.title'),
+    desc: t('daily.tasks.dt_4.desc'),
+    category: t('daily.categories.health'),
     kp: 20,
     xp: 40,
-    duration: 'طوال اليوم',
-    color: '#38bdf8',
-    bg: '#f0f9ff',
+    duration: t('daily.all_day'),
+    color: '#3b82f6',
+    bg: '#eff6ff',
   },
   {
     id: 'dt_5',
     icon: FaRunning,
-    title: 'تمرين رياضي خفيف',
-    desc: 'مشي أو تمارين بسيطة لمدة 20 دقيقة على الأقل.',
-    category: 'صحة',
-    kp: 35,
-    xp: 70,
-    duration: '20 دقيقة',
-    color: '#f97316',
-    bg: '#fff7ed',
+    title: t('daily.tasks.dt_5.title'),
+    desc: t('daily.tasks.dt_5.desc'),
+    category: t('daily.categories.health'),
+    kp: 30,
+    xp: 60,
+    duration: `20 ${t('daily.minutes')}`,
+    color: '#ef4444',
+    bg: '#fef2f2',
   },
   {
     id: 'dt_6',
     icon: FaSmileBeam,
-    title: 'ابتسم لثلاثة أشخاص',
-    desc: 'الابتسامة صدقة. أضف البهجة لمن حولك.',
-    category: 'اجتماعي',
+    title: t('daily.tasks.dt_6.title'),
+    desc: t('daily.tasks.dt_6.desc'),
+    category: t('daily.categories.social'),
     kp: 15,
     xp: 30,
-    duration: 'لحظات',
-    color: '#ec4899',
-    bg: '#fdf2f8',
+    duration: t('daily.all_day'),
+    color: '#d946ef',
+    bg: '#fdf4ff',
   },
   {
     id: 'dt_7',
     icon: FaPenFancy,
-    title: 'كتابة 3 أشياء تشكر عليها',
-    desc: 'سجّل في دفترك ثلاثة أشياء جميلة حدثت اليوم.',
-    category: 'تطوير',
+    title: t('daily.tasks.dt_7.title'),
+    desc: t('daily.tasks.dt_7.desc'),
+    category: t('daily.categories.social'),
     kp: 25,
     xp: 50,
-    duration: '5 دقائق',
+    duration: `5 ${t('daily.minutes')}`,
     color: '#8b5cf6',
     bg: '#f5f3ff',
   },
@@ -1496,34 +1497,39 @@ const ReminderCard = memo(() => {
   );
 });
 
-const AllDoneCelebration = memo(() => (
-  <div className="dt-celebration">
-    <span className="dt-celebration__icon">
-      <FaTrophy />
-    </span>
-    <div>
-      <div className="dt-celebration__title">أكملت كل مهامك اليوم!</div>
-      <div className="dt-celebration__desc">
-        سلسلتك تزداد قوة! استمر غداً للحفاظ عليها.
+const AllDoneCelebration = memo(() => {
+  const { t } = useTranslation();
+  return (
+    <div className="dt-celebration">
+      <span className="dt-celebration__icon">
+        <FaTrophy />
+      </span>
+      <div>
+        <div className="dt-celebration__title">{t('daily.all_done_title', { defaultValue: 'أكملت كل مهامك اليوم!' })}</div>
+        <div className="dt-celebration__desc">
+          {t('daily.all_done_desc', { defaultValue: 'سلسلتك تزداد قوة! استمر غداً للحفاظ عليها.' })}
+        </div>
       </div>
     </div>
-  </div>
-));
+  );
+});
 
 const DailyTasksTab = () => {
+  const { t } = useTranslation();
+  const tasks = getDailyTasks(t);
   const [doneIds, setDoneIds] = useState(loadDoneToday);
   const [streak, setStreak] = useState(loadStreak);
   const [rewardClaimed, setRewardClaimed] = useState(loadRewardClaimed);
   const [showCelebration, setShowCelebration] = useState(false);
   const prevDoneCount = useRef(doneIds.size);
 
-  const totalTasks = DAILY_TASKS.length;
+  const totalTasks = tasks.length;
   const doneCount = doneIds.size;
-  const todayXp = DAILY_TASKS.filter((task) => doneIds.has(task.id)).reduce(
+  const todayXp = tasks.filter((task) => doneIds.has(task.id)).reduce(
     (sum, task) => sum + task.xp,
     0
   );
-  const todayKp = DAILY_TASKS.filter((task) => doneIds.has(task.id)).reduce(
+  const todayKp = tasks.filter((task) => doneIds.has(task.id)).reduce(
     (sum, task) => sum + task.kp,
     0
   );
@@ -1599,9 +1605,9 @@ const DailyTasksTab = () => {
         <div className="dt-header__icon">
           <FiCheckCircle />
         </div>
-        <div className="dt-header__title">المهام اليومية</div>
+        <div className="dt-header__title">{t('daily.title')}</div>
         <div className="dt-header__subtitle">
-          حافظ على استمراريتك اليومية واجمع XP و KP كل يوم
+          {t('daily.subtitle')}
         </div>
       </div>
 
@@ -1629,10 +1635,10 @@ const DailyTasksTab = () => {
           <div>
             <div className="dt-reward-panel__title">
               <FaGift />
-              <span>مكافأتك اليومية</span>
+              <span>{t('daily.reward_title')}</span>
             </div>
             <div style={{ color: '#64748b', fontSize: 13, fontWeight: 700, marginTop: 4 }}>
-              اجمع النقاط وأكمل المهام لتحصل على XP و KP.
+              {t('daily.reward_desc')}
             </div>
           </div>
 
@@ -1662,7 +1668,7 @@ const DailyTasksTab = () => {
             {rewardClaimed ? (
               <>
                 <FaCheckCircle />
-                <span>تمت المطالبة</span>
+                <span>{t('daily.claimed')}</span>
               </>
             ) : (
               <>
@@ -1675,7 +1681,7 @@ const DailyTasksTab = () => {
 
         <div className="dt-reward-cards">
           <div className="dt-reward-mini">
-            <div className="dt-reward-mini__label">نقاط XP اليوم</div>
+            <div className="dt-reward-mini__label">{t('daily.xp_today')}</div>
             <div className="dt-reward-mini__value">
               <FiTarget />
               <span>{todayXp}</span>
@@ -1683,7 +1689,7 @@ const DailyTasksTab = () => {
           </div>
 
           <div className="dt-reward-mini">
-            <div className="dt-reward-mini__label">نقاط KP اليوم</div>
+            <div className="dt-reward-mini__label">{t('daily.kp_today')}</div>
             <div className="dt-reward-mini__value">
               <FaStar />
               <span>{todayKp}</span>
@@ -1691,10 +1697,10 @@ const DailyTasksTab = () => {
           </div>
 
           <div className="dt-reward-mini">
-            <div className="dt-reward-mini__label">الحالة</div>
+            <div className="dt-reward-mini__label">{t('daily.status')}</div>
             <div className="dt-reward-mini__value">
               {doneCount === totalTasks ? <FaCheckCircle /> : <FiZap />}
-              <span>{doneCount === totalTasks ? 'مكتمل' : 'قيد الإنجاز'}</span>
+              <span>{doneCount === totalTasks ? t('common.completed') : t('daily.in_progress')}</span>
             </div>
           </div>
         </div>
@@ -1705,11 +1711,11 @@ const DailyTasksTab = () => {
           <FaCheckCircle />
         </span>
         <span>
-          مهام اليوم ({doneCount}/{totalTasks})
+          {t('daily.today_tasks')} ({doneCount}/{totalTasks})
         </span>
       </div>
 
-      {DAILY_TASKS.map((task, i) => (
+      {tasks.map((task, i) => (
         <DailyTaskCard
           key={task.id}
           task={task}
@@ -1725,7 +1731,7 @@ const DailyTasksTab = () => {
         <span className="dt-section-title__icon">
           <FaBell />
         </span>
-        <span>إشعار التذكير اليومي</span>
+        <span>{t('daily.reminder_title')}</span>
       </div>
 
       <ReminderCard />

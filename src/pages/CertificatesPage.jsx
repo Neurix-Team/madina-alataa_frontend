@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FaRibbon } from 'react-icons/fa';
 import { certificatesService } from '../services/certificatesService';
 import { useAuth } from '../hooks/useAuth';
 
 const CertificatesPage = () => {
+  const { t } = useTranslation();
   const { isAdmin } = useAuth();
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,14 +28,14 @@ const CertificatesPage = () => {
         setCertificates(response.items);
       } catch (err) {
         console.error('Failed to fetch certificates page data:', err);
-        setError('فشل في تحميل الشهادات.');
+        setError(t('certificates.error'));
       } finally {
         setLoading(false);
       }
     };
 
     loadCertificates();
-  }, [isAdmin]);
+  }, [isAdmin, t]);
 
   return (
     <div style={{ padding: 24 }}>
@@ -44,21 +46,21 @@ const CertificatesPage = () => {
               <FaRibbon />
             </div>
             <div>
-              <h2 className="pro-header-title">الشهادات</h2>
-              <p className="pro-header-subtitle">عرض الشهادات المتاحة من API</p>
+              <h2 className="pro-header-title">{t('certificates.title')}</h2>
+              <p className="pro-header-subtitle">{t('certificates.subtitle')}</p>
             </div>
           </div>
         </div>
 
         <div className="pro-card">
           {loading ? (
-            <div style={{ color: 'var(--text-muted)' }}>جاري تحميل الشهادات...</div>
+            <div style={{ color: 'var(--text-muted)' }}>{t('certificates.loading')}</div>
           ) : error ? (
             <div style={{ color: 'var(--danger)' }}>{error}</div>
           ) : (
             <div style={{ display: 'grid', gap: 16 }}>
               {certificates.length === 0 ? (
-                <div style={{ color: 'var(--text-muted)' }}>لا توجد شهادات متاحة.</div>
+                <div style={{ color: 'var(--text-muted)' }}>{t('certificates.no_data')}</div>
               ) : (
                 certificates.map((certificate, index) => (
                   <div
@@ -74,10 +76,10 @@ const CertificatesPage = () => {
                       {certificate.title || 'Certificate'}
                     </div>
                     <div style={{ color: 'var(--text-muted)', fontSize: 14, marginBottom: 6 }}>
-                      {certificate.description || 'لا يوجد وصف'}
+                      {certificate.description || t('certificates.no_description')}
                     </div>
                     {certificate.issuedAt ? (
-                      <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>تاريخ الإصدار: {certificate.issuedAt}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>{t('certificates.issued_at')}: {certificate.issuedAt}</div>
                     ) : null}
                   </div>
                 ))

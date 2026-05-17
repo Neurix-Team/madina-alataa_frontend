@@ -4,6 +4,7 @@
  * Tapping a zone opens the ZoneDetailModal.
  */
 import React, { memo, useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { FaBell, FaChevronDown } from 'react-icons/fa';
 import zonesData from '../../data/zonesData';
@@ -32,6 +33,7 @@ const COLOR_MAP = {
 };
 
 const ZoneCard = memo(({ zone, completedQuests, onOpenZone }) => {
+  const { t } = useTranslation();
   const colors   = COLOR_MAP[zone.color] ?? COLOR_MAP.sky;
   const total    = zone.quests.length;
   const done     = zone.quests.filter((q) => completedQuests.has(q.id)).length;
@@ -45,60 +47,92 @@ const ZoneCard = memo(({ zone, completedQuests, onOpenZone }) => {
         background: colors.bg,
         border: `2px solid ${allDone ? '#86efac' : colors.border}`,
         borderRadius: 20,
-        padding: '18px 20px',
+        padding: '20px 16px',
         cursor: 'pointer',
         transition: 'transform 0.15s, box-shadow 0.15s',
         boxShadow: '0 3px 12px rgba(0,0,0,0.07)',
         direction: 'rtl',
         position: 'relative',
-        overflow: 'hidden',
+        minHeight: '140px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
       }}
       onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.13)'; }}
       onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)';    e.currentTarget.style.boxShadow = '0 3px 12px rgba(0,0,0,0.07)'; }}
     >
       {allDone && (
-        <div style={{ position: 'absolute', top: 10, left: 12, background: '#dcfce7', color: '#166534', fontSize: 10, fontWeight: 900, padding: '2px 8px', borderRadius: 99 }}>
-          ✅ مكتمل
+        <div style={{ position: 'absolute', top: 10, left: 12, background: '#dcfce7', color: '#166534', fontSize: 10, fontWeight: 900, padding: '2px 8px', borderRadius: 99, zIndex: 2 }}>
+          ✅ {t('common.completed')}
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12, width: '100%' }}>
         <div style={{
-          width: 56, height: 56, borderRadius: 16, flexShrink: 0,
+          width: 48, height: 48, borderRadius: 14, flexShrink: 0,
           background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 28, border: `2px solid ${colors.border}`,
+          fontSize: 24, border: `2px solid ${colors.border}`,
           boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
         }}>
           {zone.emoji}
         </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 2 }}>{zone.title}</div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{zone.desc}</div>
+        
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ 
+            fontSize: 15, 
+            fontWeight: 900, 
+            color: 'var(--text-primary)', 
+            marginBottom: 2,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            {zone.title}
+          </div>
+          <div style={{ 
+            fontSize: 11, 
+            color: 'var(--text-secondary)', 
+            fontWeight: 600,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            {zone.desc}
+          </div>
         </div>
+
         <div style={{
-          background: colors.badge, color: '#fff',
-          borderRadius: 99, padding: '4px 12px',
-          fontSize: 11, fontWeight: 900, flexShrink: 0,
+          background: colors.badge, 
+          color: '#fff',
+          borderRadius: 8, 
+          padding: '4px 8px',
+          fontSize: 10, 
+          fontWeight: 900, 
+          flexShrink: 0,
+          whiteSpace: 'nowrap',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
         }}>
-          {done}/{total} مهمة
+          {t('common.mission')} {done}/{total}
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div style={{ height: 7, background: 'rgba(0,0,0,0.07)', borderRadius: 99, overflow: 'hidden' }}>
-        <div style={{
-          height: '100%',
-          width: `${Math.max(pct, pct > 0 ? 6 : 0)}%`,
-          background: allDone
-            ? 'linear-gradient(90deg,#34d399,#10b981)'
-            : `linear-gradient(90deg,${colors.border},${colors.badge})`,
-          borderRadius: 99,
-          transition: 'width 0.8s ease-out',
-        }} />
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5 }}>
-        <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>التقدم</span>
-        <span style={{ fontSize: 10, fontWeight: 900, color: colors.badge }}>{pct}%</span>
+      <div>
+        {/* Progress bar */}
+        <div style={{ height: 6, background: 'rgba(0,0,0,0.07)', borderRadius: 99, overflow: 'hidden' }}>
+          <div style={{
+            height: '100%',
+            width: `${Math.max(pct, pct > 0 ? 6 : 0)}%`,
+            background: allDone
+              ? 'linear-gradient(90deg,#34d399,#10b981)'
+              : `linear-gradient(90deg,${colors.border},${colors.badge})`,
+            borderRadius: 99,
+            transition: 'width 0.8s ease-out',
+          }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5 }}>
+          <span style={{ fontSize: 9, color: '#94a3b8', fontWeight: 700 }}>{t('common.progress')}</span>
+          <span style={{ fontSize: 9, fontWeight: 900, color: colors.badge }}>{pct}%</span>
+        </div>
       </div>
     </div>
   );
@@ -719,7 +753,7 @@ const MapTab = ({ onOpenZone }) => {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))' }}>
+          <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))' }}>
             {zonesData.map((zone) => (
               <ZoneCard
                 key={zone.id}

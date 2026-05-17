@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaHeart } from 'react-icons/fa';
 import UrgencyBadge from '../UrgencyBadge/UrgencyBadge';
 
-const EGP_FORMATTER = new Intl.NumberFormat('en-US');
-
 export default function CaseCard({ caseItem, index = 0 }) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [filled, setFilled] = useState(false);
+
+  const EGP_FORMATTER = useMemo(() => new Intl.NumberFormat(i18n.language === 'ar' ? 'ar-EG' : 'en-US'), [i18n.language]);
 
   useEffect(() => {
     const t = setTimeout(() => setFilled(true), 120 + (index * 90));
@@ -73,7 +75,7 @@ export default function CaseCard({ caseItem, index = 0 }) {
 
       <div style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ color: '#334155', fontWeight: 900, fontSize: 14 }}>التقدم</span>
+          <span style={{ color: '#334155', fontWeight: 900, fontSize: 14 }}>{t('cases.funded')}</span>
           <span style={{ color: '#0f172a', fontWeight: 900, fontSize: 20 }}>{progress}%</span>
         </div>
         <div
@@ -118,7 +120,7 @@ export default function CaseCard({ caseItem, index = 0 }) {
           }}
         >
           <FaEye />
-          عرض التفاصيل
+          {t('common.details')}
         </button>
         <button
           onClick={() => navigate(`/donate/${caseItem.id}`)}
@@ -138,7 +140,7 @@ export default function CaseCard({ caseItem, index = 0 }) {
           }}
         >
           <FaHeart />
-          تبرع
+          {t('cases.donate_now')}
         </button>
       </div>
     </article>

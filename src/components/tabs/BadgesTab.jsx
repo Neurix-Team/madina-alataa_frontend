@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaAward,
@@ -25,11 +26,11 @@ const initialFormState = {
   category: '',
 };
 
-const categoryOptions = [
-  { value: 'trophy', label: 'كأس' },
-  { value: 'award', label: 'جائزة' },
-  { value: 'medal', label: 'ميدالية' },
-  { value: 'star', label: 'نجمة' },
+const getCategoryOptions = (t) => [
+  { value: 'trophy', label: t('badges.categories.trophy') },
+  { value: 'award', label: t('badges.categories.award') },
+  { value: 'medal', label: t('badges.categories.medal') },
+  { value: 'star', label: t('badges.categories.star') },
 ];
 
 const overlayStyle = {
@@ -210,51 +211,57 @@ function BadgeForm({
   successMessage,
   onCancel,
 }) {
+  const { t } = useTranslation();
+  const categoryOptions = getCategoryOptions(t);
+
   return (
     <form onSubmit={onSubmit}>
       <div style={{ display: 'grid', gap: '16px' }}>
         <label style={{ display: 'grid', gap: '8px', color: 'var(--text)', fontWeight: 700 }}>
-          <span>اسم الوسام</span>
+          <span>{t('badges.form.name')}</span>
           <input
             type="text"
             value={formData.name}
             onChange={(event) => onChange('name', event.target.value)}
             required
+            placeholder={t('badges.form.name_placeholder')}
             style={inputStyle}
           />
         </label>
 
         <label style={{ display: 'grid', gap: '8px', color: 'var(--text)', fontWeight: 700 }}>
-          <span>الوصف</span>
+          <span>{t('badges.form.description')}</span>
           <textarea
             rows={3}
             value={formData.description}
             onChange={(event) => onChange('description', event.target.value)}
             required
+            placeholder={t('badges.form.description_placeholder')}
             style={textareaStyle}
           />
         </label>
 
         <label style={{ display: 'grid', gap: '8px', color: 'var(--text)', fontWeight: 700 }}>
-          <span>المتطلبات</span>
+          <span>{t('badges.form.requirement')}</span>
           <textarea
             rows={3}
             value={formData.requirement}
             onChange={(event) => onChange('requirement', event.target.value)}
             required
+            placeholder={t('badges.form.requirement_placeholder')}
             style={textareaStyle}
           />
         </label>
 
         <label style={{ display: 'grid', gap: '8px', color: 'var(--text)', fontWeight: 700 }}>
-          <span>الفئة</span>
+          <span>{t('badges.form.category')}</span>
           <select
             value={formData.category}
             onChange={(event) => onChange('category', event.target.value)}
             required
             style={inputStyle}
           >
-            <option value="">اختر الفئة</option>
+            <option value="">{t('badges.form.category_select')}</option>
             {categoryOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -280,7 +287,7 @@ function BadgeForm({
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
         <button type="button" onClick={onCancel} disabled={submitting} style={secondaryButtonStyle}>
-          إلغاء
+          {t('common.cancel')}
         </button>
         <button type="submit" disabled={submitting} style={primaryButtonStyle}>
           {submitting ? <FaSpinner className="animate-spin" /> : null}
@@ -375,6 +382,7 @@ const successBoxStyle = {
 };
 
 export default function BadgesTab() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const isAdmin = useMemo(
     () => (user?.roles || []).some((role) => String(role).toLowerCase() === 'admin'),
@@ -420,7 +428,7 @@ export default function BadgesTab() {
       setTotalCount(normalized.totalCount);
     } catch (requestError) {
       console.error('BADGES LIST ERROR:', requestError);
-      setError('فشل في تحميل الأوسمة. حاول مرة أخرى.');
+      setError(t('badges.error_loading', { defaultValue: 'فشل في تحميل الأوسمة. حاول مرة أخرى.' }));
     } finally {
       setLoading(false);
     }

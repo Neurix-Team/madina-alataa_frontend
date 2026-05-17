@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { axiosClient } from '../services/axiosClient';
@@ -151,11 +152,11 @@ const styles = {
   },
 };
 
-const navItems = [
-  { id: 'profile', label: 'الملف الشخصي', icon: FaUser },
-  { id: 'roadmap', label: 'خريطة المهام', icon: FaMap },
-  { id: 'donations', label: 'سجل التبرعات', icon: FaMoneyBillWave },
-  { id: 'settings', label: 'الإعدادات', icon: FaCog },
+const getNavItems = (t) => [
+  { id: 'profile', label: t('sidebar.profile'), icon: FaUser },
+  { id: 'roadmap', label: t('sidebar.map'), icon: FaMap },
+  { id: 'donations', label: t('sidebar.my-donations'), icon: FaMoneyBillWave },
+  { id: 'settings', label: t('sidebar.admin'), icon: FaCog },
 ];
 
 const badges = [
@@ -193,6 +194,8 @@ const buildGoogleMapEmbedUrl = (lat, lng) => {
 };
 
 export default function ProfileV2Page() {
+  const { t } = useTranslation();
+  const navItems = getNavItems(t);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout, fetchMe } = useAuth();
@@ -795,7 +798,7 @@ export default function ProfileV2Page() {
               fontSize: 13,
             }}>
               <FaShieldAlt />
-              <span>حساب موثق ✓</span>
+              <span>{t('profile.verified_account')} ✓</span>
             </div>
           </div>
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaHandsHelping,
@@ -119,6 +120,7 @@ const getVolunteerRequestChip = (status) => {
 };
 
 const VolunteerRequestsPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const roles = parseRoles(user);
   const isAdmin = roles.includes('admin');
@@ -451,13 +453,13 @@ const VolunteerRequestsPage = () => {
 
   function getUrgencyLabel(level) {
     const levels = {
-      1: { label: 'منخفض', color: '#16a34a', bg: 'rgba(34,197,94,.14)' },
-      2: { label: 'متوسط', color: '#ca8a04', bg: 'rgba(234,179,8,.16)' },
-      3: { label: 'عالٍ', color: '#ea580c', bg: 'rgba(249,115,22,.15)' },
-      4: { label: 'حرج', color: '#dc2626', bg: 'rgba(239,68,68,.16)' },
-      5: { label: 'طارئ', color: '#7c3aed', bg: 'rgba(168,85,247,.16)' },
+      1: { label: '1', color: '#16a34a', bg: 'rgba(34,197,94,.14)' },
+      2: { label: '2', color: '#ca8a04', bg: 'rgba(234,179,8,.16)' },
+      3: { label: '3', color: '#ea580c', bg: 'rgba(249,115,22,.15)' },
+      4: { label: '4', color: '#dc2626', bg: 'rgba(239,68,68,.16)' },
+      5: { label: '5', color: '#7c3aed', bg: 'rgba(168,85,247,.16)' },
     };
-    return levels[level] || { label: 'درجة الاستعجال', color: '#64748b', bg: 'rgba(148,163,184,.16)' };
+    return levels[level] || { label: level, color: '#64748b', bg: 'rgba(148,163,184,.16)' };
   }
 
   const renderRequestModal = () => {
@@ -475,12 +477,12 @@ const VolunteerRequestsPage = () => {
           <div className="app-modal-header">
             <div>
               <h2 className="app-modal-title">
-                {formMode === 'create' ? 'إضافة طلب تطوع' : 'تعديل طلب تطوع'}
+                {formMode === 'create' ? t('volunteer_requests.form.title_create') : t('volunteer_requests.form.title_edit')}
               </h2>
               <p className="app-modal-subtitle">
                 {formMode === 'create'
-                  ? 'أدخل بيانات الطلب ثم احفظه مباشرة في قاعدة البيانات.'
-                  : 'عدّل البيانات المطلوبة ثم احفظ التغييرات.'}
+                  ? t('volunteer_requests.form.subtitle_create')
+                  : t('volunteer_requests.form.subtitle_edit')}
               </p>
             </div>
             <button type="button" onClick={closeFormModal} className="app-modal-close">

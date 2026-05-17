@@ -89,6 +89,10 @@ export const donationRequestsService = {
           throw new Error('الخادم غير مُهيأ لمعالجة الطلبات (Activity service غير مفعّل). تواصل مع الفريق المسؤول عن الـ API.');
         }
 
+        if (detail.includes("cannot be tracked because another instance with the same key value")) {
+          throw new Error('حدث خطأ في النظام عند معالجة الطلب (تضارب في بيانات طلب التبرع). يرجى التواصل مع الدعم الفني لحل هذه المشكلة في قاعدة البيانات.');
+        }
+
         throw new Error(
           responseData?.title ||
           responseData?.message ||
@@ -291,7 +295,7 @@ export const donationRequestsService = {
     try {
       console.log('✅ Approving donation request:', id);
 
-      const response = await axiosClient.patch(`${DONATION_REQUESTS_API_URL}/${id}/approve`);
+      const response = await axiosClient.patch(`${DONATION_REQUESTS_API_URL}/${id}/approve`, {});
 
       console.log('✅ Approve Donation Request Success:', response.data);
       return response.data;
@@ -301,6 +305,11 @@ export const donationRequestsService = {
       if (error.response) {
         const responseData = error.response.data;
         console.error('❌ RAW_API_ERROR:', JSON.stringify(responseData, null, 2));
+
+        const detail = String(responseData?.detail || '');
+        if (detail.includes("cannot be tracked because another instance with the same key value")) {
+          throw new Error('حدث خطأ في النظام عند معالجة الطلب (تضارب في بيانات طلب التبرع). يرجى التواصل مع الدعم الفني لحل هذه المشكلة في قاعدة البيانات.');
+        }
 
         throw new Error(
           responseData?.title ||
@@ -322,7 +331,7 @@ export const donationRequestsService = {
     try {
       console.log('❌ Rejecting donation request:', id);
 
-      const response = await axiosClient.patch(`${DONATION_REQUESTS_API_URL}/${id}/reject`);
+      const response = await axiosClient.patch(`${DONATION_REQUESTS_API_URL}/${id}/reject`, {});
 
       console.log('✅ Reject Donation Request Success:', response.data);
       return response.data;
@@ -332,6 +341,11 @@ export const donationRequestsService = {
       if (error.response) {
         const responseData = error.response.data;
         console.error('❌ RAW_API_ERROR:', JSON.stringify(responseData, null, 2));
+
+        const detail = String(responseData?.detail || '');
+        if (detail.includes("cannot be tracked because another instance with the same key value")) {
+          throw new Error('حدث خطأ في النظام عند معالجة الطلب (تضارب في بيانات طلب التبرع). يرجى التواصل مع الدعم الفني لحل هذه المشكلة في قاعدة البيانات.');
+        }
 
         throw new Error(
           responseData?.title ||

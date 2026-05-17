@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { 
   FaDonate, FaSearch, FaCheck, FaTimes, FaEdit, FaEye, FaHistory, FaSpinner, 
@@ -23,6 +24,7 @@ const DetailItem = ({ label, value }) => (
 );
 
 const DonationOrdersPage = () => {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -206,8 +208,8 @@ const DonationOrdersPage = () => {
               <FaDonate />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0f172a' }}>طلبات التبرع</h1>
-              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 14, fontWeight: 500 }}>إدارة جميع طلبات التبرع والمساهمات في النظام</p>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0f172a' }}>{t('donation.title')}</h1>
+              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 14, fontWeight: 500 }}>{t('donation.subtitle')}</p>
             </div>
           </div>
         </motion.div>
@@ -271,7 +273,7 @@ const DonationOrdersPage = () => {
             <FaSearch style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input
               type="text"
-              placeholder="البحث في طلبات التبرع..."
+              placeholder={t('donation.search_placeholder')}
               value={searchTerm}
               onChange={handleSearch}
               className="pro-input"
@@ -291,13 +293,13 @@ const DonationOrdersPage = () => {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>المبلغ</th>
-                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>طريقة الدفع</th>
-                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>الفئة</th>
-                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>الموقع المستهدف</th>
-                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>الحالة</th>
-                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>التاريخ</th>
-                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>الإجراءات</th>
+                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>{t('donation.amount')}</th>
+                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>{t('donation.payment_method')}</th>
+                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>{t('donation.category')}</th>
+                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>{t('donation.target_location')}</th>
+                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>{t('donation.status')}</th>
+                  <th style={{ padding: '12px', textAlign: 'right', color: 'var(--text)' }}>{t('donation.date')}</th>
+                  <th style={{ padding: '12px', textAlign: 'center', color: 'var(--text)' }}>{t('donation.actions')}</th>
                 </tr>
               </thead>
               <tbody>

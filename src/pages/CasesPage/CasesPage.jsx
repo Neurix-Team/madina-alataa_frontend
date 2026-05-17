@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { FaHeart, FaHandsHelping, FaStar, FaClipboardList } from 'react-icons/fa';
 import CasesFilter from '../../components/cases/CasesFilter/CasesFilter';
@@ -79,6 +80,7 @@ const CASES_DATA = [
 ];
 
 export default function CasesPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { can } = usePermissions();
   const { user } = useAuth();
@@ -389,7 +391,7 @@ export default function CasesPage() {
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 border border-white/20">
                   <FaClipboardList className="text-4xl text-blue-400" />
                 </div>
-                الحالات المستحقة
+                {t('cases.title')}
               </h1>
               <p style={{ 
                 margin: '16px 0 0', 
@@ -398,7 +400,7 @@ export default function CasesPage() {
                 fontWeight: 800,
                 textShadow: '0 2px 4px rgba(0,0,0,0.2)'
               }}>
-                ساهم معنا في تغيير حياة الأسر المحتاجة عبر دعم الحالات الموثقة
+                {t('cases.subtitle')}
               </p>
             </div>
           </section>
@@ -432,7 +434,7 @@ export default function CasesPage() {
                   textAlign: 'center',
                 }}
               >
-                لا توجد حالات مطابقة للفلاتر الحالية.
+                {t('common.no_data')}
               </div>
             )}
           </section>

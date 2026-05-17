@@ -13,7 +13,13 @@ const getDonationOrdersErrorMessage = (error, fallbackMessage) => {
     if (firstErrorEntry?.[0]) return firstErrorEntry[0];
   }
 
-  if (responseData?.detail) return responseData.detail;
+  if (responseData?.detail) {
+    // Handle specific EF Core tracking error with a more user-friendly message
+    if (responseData.detail.includes("cannot be tracked because another instance with the same key value")) {
+      return 'حدث خطأ في النظام عند معالجة الطلب (تضارب في بيانات طلب التبرع المرتبط). يرجى التواصل مع الدعم الفني لحل هذه المشكلة في قاعدة البيانات.';
+    }
+    return responseData.detail;
+  }
   if (responseData?.message) return responseData.message;
   if (responseData?.title) return responseData.title;
 
@@ -195,13 +201,7 @@ if (!payload.amount || payload.amount <= 0) {
       console.log(`Approving donation order: ${orderId}`);
       console.log(`Full API URL: ${DONATION_ORDERS_API_URL}/${orderId}/approve`);
       
-      // Check if the order exists first before approving
-      const orderDetails = await donationOrdersService.getDonationOrderById(orderId);
-      if (!orderDetails) {
-        throw new Error('طلب التبرع غير موجود');
-      }
-      
-      const response = await axiosClient.patch(`${DONATION_ORDERS_API_URL}/${orderId}/approve`);
+      const response = await axiosClient.patch(`${DONATION_ORDERS_API_URL}/${orderId}/approve`, {});
       console.log('Approve Donation Order Response:', response.data);
       return normalizeDonationOrderDetailsResponse(response.data);
     } catch (error) {
@@ -220,13 +220,7 @@ if (!payload.amount || payload.amount <= 0) {
       console.log(`Rejecting donation order: ${orderId}`);
       console.log(`Full API URL: ${DONATION_ORDERS_API_URL}/${orderId}/reject`);
       
-      // Check if order exists first before rejecting
-      const orderDetails = await donationOrdersService.getDonationOrderById(orderId);
-      if (!orderDetails) {
-        throw new Error('طلب التبرع غير موجود');
-      }
-      
-      const response = await axiosClient.patch(`${DONATION_ORDERS_API_URL}/${orderId}/reject`);
+      const response = await axiosClient.patch(`${DONATION_ORDERS_API_URL}/${orderId}/reject`, {});
       console.log('Reject Donation Order Response:', response.data);
       return normalizeDonationOrderDetailsResponse(response.data);
     } catch (error) {

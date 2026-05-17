@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import JellyButton from '../common/JellyButton';
 import { beneficiariesData } from '../../data/beneficiariesData';
 import useGameState from '../../hooks/useGameState';
@@ -34,7 +35,7 @@ const CSS = `
 
   .impact-home-top-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 14px;
   }
 
@@ -480,6 +481,7 @@ const StatMiniCard = ({ number, label, color, delay, icon: Icon }) => (
 );
 
 const ImpactTab = () => {
+  const { t } = useTranslation();
   const { state, actions } = useGameState();
   const { userStats, completedQuests = new Set() } = state;
   const { handleDonate } = actions;
@@ -493,34 +495,34 @@ const ImpactTab = () => {
 
   const topCards = [
     {
-      head: 'تأثير',
-      side: 'إجمالي',
+      head: t('impact.impact'),
+      side: t('impact.total'),
       icon: FaChartLine,
-      label: 'نقاط التأثير',
+      label: t('impact.impact_score'),
       value: (userStats?.impactScore || 0).toLocaleString(),
       className: 'impact-home-card impact-home-card--blue',
     },
     {
-      head: 'إنجاز',
-      side: 'شهري',
+      head: t('impact.achievement'),
+      side: t('impact.monthly'),
       icon: FaCheckCircle,
-      label: 'المهام المكتملة',
+      label: t('impact.completed_missions'),
       value: completedCount,
       className: 'impact-home-card impact-home-card--green',
     },
     {
-      head: 'مستوى',
-      side: 'حالي',
+      head: t('impact.level'),
+      side: t('impact.current'),
       icon: FaLayerGroup,
-      label: 'المستوى الحالي',
+      label: t('impact.current_level'),
       value: levelNow,
       className: 'impact-home-card impact-home-card--purple',
     },
     {
-      head: 'عطاء',
-      side: 'هذا الأسبوع',
+      head: t('impact.giving'),
+      side: t('impact.this_week'),
       icon: FaHandHoldingHeart,
-      label: 'نقاط العطاء',
+      label: t('impact.giving_points'),
       value: currentWeekGive,
       className: 'impact-home-card impact-home-card--orange',
     },
@@ -529,21 +531,21 @@ const ImpactTab = () => {
   const summaryCards = [
     {
       number: completedCount,
-      label: 'مهمة مكتملة',
+      label: t('impact.completed_missions'),
       color: '#3ba2f8',
       delay: 0,
       icon: FaCheckCircle,
     },
     {
       number: userStats?.impactScore || 0,
-      label: 'نقطة تأثير',
+      label: t('impact.impact_score'),
       color: '#10b981',
       delay: 0.1,
       icon: FiTrendingUp,
     },
     {
       number: helpedCount,
-      label: 'شخص ساعدته',
+      label: t('impact.people_helped'),
       color: '#f59e0b',
       delay: 0.2,
       icon: FaUsers,
@@ -583,9 +585,9 @@ const ImpactTab = () => {
         <div className="impact-hero__icon">
           <FaGlobe />
         </div>
-        <div className="impact-hero__title">التأثير الواقعي</div>
+        <div className="impact-hero__title">{t('impact.real_impact')}</div>
         <div className="impact-hero__subtitle">
-          هنا يظهر الأثر الحقيقي الذي تصنعه مساهماتك في المجتمع
+          {t('impact.real_impact_desc')}
         </div>
       </div>
 
@@ -607,40 +609,40 @@ const ImpactTab = () => {
           <span className="impact-panel__title-icon">
             <FiBarChart2 />
           </span>
-          <span>تفاصيل تأثيرك</span>
+          <span>{t('impact.impact_details')}</span>
         </div>
 
         <div className="impact-panel__subtitle">
-          توزيع مساهماتك بين أنواع العمل المجتمعي المختلفة
+          {t('impact.impact_distribution')}
         </div>
 
         <ProgressBar
-          label="مساعدة المسنين"
-          count="12 مهمة"
+          label={t('impact.elderly_support')}
+          count={t('impact.missions_plural', { count: 12 })}
           value={80}
           color="linear-gradient(90deg,#f87171,#ef4444)"
           icon={FaHeart}
         />
 
         <ProgressBar
-          label="دعم الأيتام"
-          count="7 مهام"
+          label={t('impact.orphan_support')}
+          count={t('impact.missions_plural', { count: 7 })}
           value={55}
           color="linear-gradient(90deg,#c084fc,#a855f7)"
           icon={FaUserFriends}
         />
 
         <ProgressBar
-          label="خدمة الحي"
-          count="18 مهمة"
+          label={t('impact.neighborhood_service')}
+          count={t('impact.missions_plural', { count: 18 })}
           value={90}
           color="linear-gradient(90deg,#38bdf8,#1d6ed8)"
           icon={FaShieldAlt}
         />
 
         <ProgressBar
-          label="العمل البيئي"
-          count="5 مهام"
+          label={t('impact.environmental_work')}
+          count={t('impact.missions_plural', { count: 5 })}
           value={40}
           color="linear-gradient(90deg,#4ade80,#16a34a)"
           icon={FaGlobe}
