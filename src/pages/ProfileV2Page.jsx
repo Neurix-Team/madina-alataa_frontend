@@ -194,6 +194,14 @@ const buildGoogleMapEmbedUrl = (lat, lng) => {
 };
 
 export default function ProfileV2Page() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const { t } = useTranslation();
   const navItems = getNavItems(t);
   const navigate = useNavigate();

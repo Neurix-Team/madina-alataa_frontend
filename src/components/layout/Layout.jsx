@@ -163,7 +163,8 @@ const Layout = () => {
           gap: 16px;
           min-height: 100vh;
           padding: 16px;
-          background: var(--bg-app);
+          position: relative;
+          z-index: 1;
         }
 
         .layout-main {

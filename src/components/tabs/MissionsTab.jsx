@@ -31,6 +31,14 @@ import {
 } from 'react-icons/fa';
 
 const MissionsTab = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [missions, setMissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -191,12 +199,16 @@ const MissionsTab = () => {
       style={{
         minHeight: '100vh',
         width: '100%',
-        padding: '32px 24px',
+        padding: isMobile ? '12px' : '32px 24px',
         color: '#0f172a',
         background: 'transparent',
       }}
     >
       <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
         @media (max-width: 640px) {
           .missions-header { 
             padding: 20px !important; 
@@ -226,7 +238,7 @@ const MissionsTab = () => {
           margin: '0 auto',
           display: 'flex',
           flexDirection: 'column',
-          gap: '28px',
+          gap: isMobile ? '16px' : '28px',
         }}
       >
 
@@ -236,7 +248,7 @@ const MissionsTab = () => {
           animate={{ opacity: 1, y: 0 }}
           className="missions-header"
           style={{
-            padding: '24px 32px',
+            padding: isMobile ? '20px' : '24px 32px',
             borderRadius: 24,
             background: '#fff',
             border: '1px solid rgba(148,163,184,0.15)',
@@ -244,40 +256,55 @@ const MissionsTab = () => {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: 24,
+            marginBottom: isMobile ? 16 : 24,
             flexWrap: 'wrap',
-            gap: 20
+            gap: isMobile ? 16 : 20
           }}
         >
-          <div className="missions-header-info" style={{ display: 'flex', alignItems: 'center', gap: 20, minWidth: 0, flex: '1 1 320px' }}>
+          <div className="missions-header-info" style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'center' : 'center', 
+            gap: isMobile ? 12 : 20, 
+            minWidth: 0, 
+            flex: isMobile ? '1 1 100%' : '1 1 320px',
+            textAlign: isMobile ? 'center' : 'right'
+          }}>
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '64px',
-                height: '64px',
+                width: isMobile ? '52px' : '64px',
+                height: isMobile ? '52px' : '64px',
                 flexShrink: 0,
-                borderRadius: '18px',
+                borderRadius: isMobile ? '14px' : '18px',
                 background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #a855f7 100%)',
                 color: '#fff',
                 boxShadow: '0 12px 28px -8px rgba(99, 102, 241, 0.55)',
               }}
             >
-              <FaTasks style={{ fontSize: '26px' }} />
+              <FaTasks style={{ fontSize: isMobile ? '20px' : '26px' }} />
             </div>
             <div style={{ minWidth: 0 }}>
-              <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#020617', margin: 0, lineHeight: 1.2 }}>
+              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#020617', margin: 0, lineHeight: 1.2 }}>
                 إدارة المهام
               </h2>
-              <p style={{ marginTop: '8px', fontSize: '14px', lineHeight: 1.6, color: '#475569', maxWidth: '480px' }}>
-                إدارة المهام الميدانية والمكافآت والعناوين المرتبطة بها من واجهة أوضح وأكثر تنظيمًا.
+              <p style={{ marginTop: isMobile ? '4px' : '8px', fontSize: isMobile ? '12px' : '14px', lineHeight: 1.6, color: '#475569', maxWidth: '480px' }}>
+                إدارة المهام الميدانية والمكافآت والعناوين المرتبطة بها.
               </p>
             </div>
           </div>
 
-            <div className="missions-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              <div className="missions-search-wrapper" style={{ position: 'relative', width: '320px', maxWidth: '100%' }}>
+            <div className="missions-actions" style={{ 
+              display: 'flex', 
+              flexDirection: isMobile ? 'column' : 'row',
+              alignItems: 'center', 
+              gap: '12px', 
+              flexWrap: 'wrap',
+              width: isMobile ? '100%' : 'auto'
+            }}>
+              <div className="missions-search-wrapper" style={{ position: 'relative', width: isMobile ? '100%' : '320px', maxWidth: '100%' }}>
                 <FaSearch
                   style={{
                     position: 'absolute',
@@ -292,14 +319,14 @@ const MissionsTab = () => {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="ابحث عن مهمة محددة..."
+                  placeholder="ابحث عن مهمة..."
                   style={{
                     width: '100%',
                     borderRadius: '14px',
                     border: '1px solid #e2e8f0',
                     background: '#fff',
                     padding: '12px 48px 12px 16px',
-                    fontSize: '14px',
+                    fontSize: isMobile ? '12px' : '14px',
                     fontWeight: 500,
                     color: '#0f172a',
                     outline: 'none',
@@ -309,7 +336,7 @@ const MissionsTab = () => {
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.02, y: -1 }}
+                whileHover={isMobile ? {} : { scale: 1.02, y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowAddModal(true)}
                 className="missions-add-btn"
@@ -321,12 +348,13 @@ const MissionsTab = () => {
                   borderRadius: '14px',
                   background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #a855f7 100%)',
                   padding: '12px 22px',
-                  fontSize: '14px',
+                  fontSize: isMobile ? '12px' : '14px',
                   fontWeight: 700,
                   color: '#fff',
                   border: 'none',
                   cursor: 'pointer',
                   boxShadow: '0 10px 24px -8px rgba(99, 102, 241, 0.55)',
+                  width: isMobile ? '100%' : 'auto'
                 }}
               >
                 <FaPlus style={{ fontSize: '12px' }} />
@@ -335,29 +363,12 @@ const MissionsTab = () => {
             </div>
         </motion.div>
 
-        {/* ===== Error Message ===== */}
-        {error && (
-          <div
-            style={{
-              borderRadius: '14px',
-              border: '1px solid #fecaca',
-              background: 'rgba(254, 242, 242, 0.95)',
-              padding: '14px 20px',
-              fontSize: '14px',
-              fontWeight: 500,
-              color: '#b91c1c',
-            }}
-          >
-            {error}
-          </div>
-        )}
-
         {/* ===== Stats Cards ===== */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: '20px',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: isMobile ? '12px' : '20px',
           }}
         >
           {stats.map((stat, i) => (
@@ -366,43 +377,43 @@ const MissionsTab = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
-              whileHover={{ y: -4 }}
+              whileHover={isMobile ? {} : { y: -4 }}
               style={{
                 position: 'relative',
                 overflow: 'hidden',
-                borderRadius: '18px',
+                borderRadius: isMobile ? '14px' : '18px',
                 border: '1px solid rgba(255, 255, 255, 0.6)',
                 background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.92) 100%)',
                 backdropFilter: 'blur(16px)',
                 WebkitBackdropFilter: 'blur(16px)',
-                padding: '20px',
+                padding: isMobile ? '16px' : '20px',
                 boxShadow: '0 10px 30px -12px rgba(15, 23, 42, 0.3)',
                 transition: 'box-shadow 0.3s',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '12px' : '16px' }}>
                 <div
                   className={`${stat.bg} ${stat.border} ${stat.accent}`}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: '56px',
-                    height: '56px',
+                    width: isMobile ? '44px' : '56px',
+                    height: isMobile ? '44px' : '56px',
                     flexShrink: 0,
-                    borderRadius: '14px',
+                    borderRadius: isMobile ? '12px' : '14px',
                     borderWidth: '1px',
                     borderStyle: 'solid',
-                    fontSize: '22px',
+                    fontSize: isMobile ? '18px' : '22px',
                   }}
                 >
                   <stat.icon />
                 </div>
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ marginBottom: '4px', fontSize: '13px', fontWeight: 500, color: '#475569' }}>
+                  <div style={{ marginBottom: '2px', fontSize: isMobile ? '11px' : '13px', fontWeight: 500, color: '#475569' }}>
                     {stat.label}
                   </div>
-                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#020617', fontVariantNumeric: 'tabular-nums' }}>
+                  <div style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#020617', fontVariantNumeric: 'tabular-nums' }}>
                     {stat.value}
                   </div>
                 </div>
@@ -416,7 +427,7 @@ const MissionsTab = () => {
           <div
             style={{
               display: 'flex',
-              minHeight: '360px',
+              minHeight: isMobile ? '240px' : '360px',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
@@ -426,12 +437,12 @@ const MissionsTab = () => {
               background: 'rgba(255, 255, 255, 0.9)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              padding: '40px',
+              padding: isMobile ? '24px' : '40px',
               boxShadow: '0 20px 50px -15px rgba(15, 23, 42, 0.3)',
             }}
           >
-            <FaSpinner style={{ animation: 'spin 1s linear infinite', fontSize: '44px', color: '#6366f1' }} />
-            <div style={{ fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>جاري استدعاء سجلات المهام...</div>
+            <FaSpinner style={{ animation: 'spin 1s linear infinite', fontSize: isMobile ? '32px' : '44px', color: '#6366f1' }} />
+            <div style={{ fontSize: isMobile ? '15px' : '17px', fontWeight: 700, color: '#0f172a' }}>جاري التحميل...</div>
           </div>
         ) : displayedMissions.length === 0 ? (
           <div
@@ -445,7 +456,7 @@ const MissionsTab = () => {
               background: 'rgba(255, 255, 255, 0.9)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              padding: '64px 24px',
+              padding: isMobile ? '40px 20px' : '64px 24px',
               textAlign: 'center',
               boxShadow: '0 20px 50px -15px rgba(15, 23, 42, 0.3)',
             }}
@@ -456,26 +467,23 @@ const MissionsTab = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '80px',
-                height: '80px',
+                width: isMobile ? '64px' : '80px',
+                height: isMobile ? '64px' : '80px',
                 borderRadius: '20px',
                 background: 'linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%)',
                 color: '#4f46e5',
               }}
             >
-              <FaTasks style={{ fontSize: '32px' }} />
+              <FaTasks style={{ fontSize: isMobile ? '24px' : '32px' }} />
             </div>
-            <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#020617', margin: 0 }}>لا توجد مهام مسجلة</h3>
-            <p style={{ marginTop: '12px', maxWidth: '420px', fontSize: '14px', lineHeight: 1.7, color: '#475569' }}>
-              لم يتم العثور على أي مهام في قاعدة البيانات حاليًا. اضغط على "إضافة مهمة" لإنشاء أول مهمة.
-            </p>
+            <h3 style={{ fontSize: isMobile ? '18px' : '22px', fontWeight: 800, color: '#020617', margin: 0 }}>لا توجد مهام</h3>
           </div>
         ) : (
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-              gap: '24px',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))',
+              gap: isMobile ? '16px' : '24px',
               justifyContent: 'start',
             }}
           >
@@ -490,19 +498,19 @@ const MissionsTab = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  whileHover={{ y: -6 }}
+                  whileHover={isMobile ? {} : { y: -6 }}
                   style={{
                     position: 'relative',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '18px',
+                    gap: isMobile ? '14px' : '18px',
                     overflow: 'hidden',
-                    borderRadius: '22px',
+                    borderRadius: isMobile ? '18px' : '22px',
                     border: '1px solid rgba(255, 255, 255, 0.6)',
                     background: 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.92) 100%)',
                     backdropFilter: 'blur(16px)',
                     WebkitBackdropFilter: 'blur(16px)',
-                    padding: '24px',
+                    padding: isMobile ? '16px' : '24px',
                     boxShadow: '0 15px 40px -15px rgba(15, 23, 42, 0.35)',
                     transition: 'box-shadow 0.3s',
                   }}
@@ -521,19 +529,19 @@ const MissionsTab = () => {
 
                   {/* Card Header */}
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
-                    <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: isMobile ? '8px' : '12px' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px' }}>
                         <span
                           className={diff.badge}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '6px',
+                            gap: '4px',
                             borderRadius: '999px',
                             borderWidth: '1px',
                             borderStyle: 'solid',
-                            padding: '5px 10px',
-                            fontSize: '11px',
+                            padding: isMobile ? '3px 8px' : '5px 10px',
+                            fontSize: isMobile ? '10px' : '11px',
                             fontWeight: 700,
                           }}
                         >
@@ -544,13 +552,13 @@ const MissionsTab = () => {
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '6px',
+                            gap: '4px',
                             borderRadius: '999px',
                             border: `1px solid ${isActive ? '#a7f3d0' : '#fecaca'}`,
                             background: isActive ? '#ecfdf5' : '#fef2f2',
                             color: isActive ? '#047857' : '#b91c1c',
-                            padding: '5px 10px',
-                            fontSize: '11px',
+                            padding: isMobile ? '3px 8px' : '5px 10px',
+                            fontSize: isMobile ? '10px' : '11px',
                             fontWeight: 700,
                           }}
                         >
@@ -560,7 +568,7 @@ const MissionsTab = () => {
                       </div>
                       <h3
                         style={{
-                          fontSize: '19px',
+                          fontSize: isMobile ? '16px' : '19px',
                           fontWeight: 800,
                           lineHeight: 1.4,
                           color: '#020617',
@@ -576,30 +584,33 @@ const MissionsTab = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      flexDirection: isMobile ? 'row' : 'column', 
+                      gap: isMobile ? '4px' : '8px' 
+                    }}>
                       <motion.button
-                        whileHover={{ scale: 1.08 }}
+                        whileHover={isMobile ? {} : { scale: 1.08 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleViewMission(mission.id)}
-                        title="عرض التفاصيل"
+                        title="عرض"
                         style={{
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          width: '36px',
-                          height: '36px',
+                          width: isMobile ? '32px' : '36px',
+                          height: isMobile ? '32px' : '36px',
                           borderRadius: '10px',
                           border: '1px solid #bae6fd',
                           background: '#f0f9ff',
                           color: '#0284c7',
                           cursor: 'pointer',
-                          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
                         }}
                       >
-                        <FaEye style={{ fontSize: '13px' }} />
+                        <FaEye size={isMobile ? 12 : 13} />
                       </motion.button>
                       <motion.button
-                        whileHover={{ scale: 1.08 }}
+                        whileHover={isMobile ? {} : { scale: 1.08 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleEditMission(mission)}
                         title="تعديل"
@@ -607,20 +618,19 @@ const MissionsTab = () => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          width: '36px',
-                          height: '36px',
+                          width: isMobile ? '32px' : '36px',
+                          height: isMobile ? '32px' : '36px',
                           borderRadius: '10px',
                           border: '1px solid #fde68a',
                           background: '#fffbeb',
                           color: '#d97706',
                           cursor: 'pointer',
-                          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
                         }}
                       >
-                        <FaEdit style={{ fontSize: '13px' }} />
+                        <FaEdit size={isMobile ? 12 : 13} />
                       </motion.button>
                       <motion.button
-                        whileHover={{ scale: 1.08 }}
+                        whileHover={isMobile ? {} : { scale: 1.08 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleDeleteMission(mission.id)}
                         title="حذف"
@@ -628,17 +638,16 @@ const MissionsTab = () => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          width: '36px',
-                          height: '36px',
+                          width: isMobile ? '32px' : '36px',
+                          height: isMobile ? '32px' : '36px',
                           borderRadius: '10px',
                           border: '1px solid #fecaca',
                           background: '#fef2f2',
                           color: '#dc2626',
                           cursor: 'pointer',
-                          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
                         }}
                       >
-                        <FaTrash style={{ fontSize: '13px' }} />
+                        <FaTrash size={isMobile ? 12 : 13} />
                       </motion.button>
                     </div>
                   </div>
@@ -652,7 +661,7 @@ const MissionsTab = () => {
                   />
 
                   {/* Rewards Grid */}
-                  <div style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  <div style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: isMobile ? '6px' : '10px' }}>
                     {[
                       { icon: FaTrophy, val: mission.kpReward, label: 'نقاط خير', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
                       { icon: FaStar, val: mission.xpReward, label: 'خبرة', color: '#c026d3', bg: '#fdf4ff', border: '#f5d0fe' },
@@ -664,15 +673,15 @@ const MissionsTab = () => {
                           borderRadius: '12px',
                           border: `1px solid ${reward.border}`,
                           background: reward.bg,
-                          padding: '12px 8px',
+                          padding: isMobile ? '8px 4px' : '12px 8px',
                           textAlign: 'center',
                         }}
                       >
-                        <reward.icon style={{ display: 'block', margin: '0 auto 6px', fontSize: '15px', color: reward.color }} />
-                        <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', fontVariantNumeric: 'tabular-nums' }}>
+                        <reward.icon style={{ display: 'block', margin: '0 auto 4px', fontSize: isMobile ? '12px' : '15px', color: reward.color }} />
+                        <div style={{ fontSize: isMobile ? '15px' : '18px', fontWeight: 800, color: '#0f172a', fontVariantNumeric: 'tabular-nums' }}>
                           {reward.val || 0}
                         </div>
-                        <div style={{ marginTop: '2px', fontSize: '10px', fontWeight: 700, color: reward.color }}>
+                        <div style={{ marginTop: '2px', fontSize: isMobile ? '9px' : '10px', fontWeight: 700, color: reward.color }}>
                           {reward.label}
                         </div>
                       </div>
@@ -686,30 +695,68 @@ const MissionsTab = () => {
 
         {/* ===== Pagination ===== */}
         {totalPages > 1 && (
-          <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                borderRadius: '12px',
-                border: '1px solid rgba(255,255,255,0.6)',
-                background: 'rgba(255,255,255,0.92)',
-                backdropFilter: 'blur(12px)',
-                padding: '10px 18px',
-                fontSize: '13px',
-                fontWeight: 700,
-                color: '#334155',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                opacity: currentPage === 1 ? 0.4 : 1,
-                boxShadow: '0 6px 20px -8px rgba(15,23,42,0.3)',
-              }}
-            >
-              <FaArrowRight style={{ fontSize: '11px' }} />
-              <span>السابق</span>
-            </button>
+          <div style={{ 
+            marginTop: '8px', 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            gap: isMobile ? '10px' : '12px' 
+          }}>
+            <div style={{ display: 'flex', gap: '8px', width: isMobile ? '100%' : 'auto' }}>
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{
+                  flex: isMobile ? 1 : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255,255,255,0.6)',
+                  background: 'rgba(255,255,255,0.92)',
+                  backdropFilter: 'blur(12px)',
+                  padding: '10px 18px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: '#334155',
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === 1 ? 0.4 : 1,
+                  boxShadow: '0 6px 20px -8px rgba(15,23,42,0.3)',
+                }}
+              >
+                <FaArrowRight style={{ fontSize: '11px' }} />
+                <span>السابق</span>
+              </button>
+              
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{
+                  flex: isMobile ? 1 : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255,255,255,0.6)',
+                  background: 'rgba(255,255,255,0.92)',
+                  backdropFilter: 'blur(12px)',
+                  padding: '10px 18px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: '#334155',
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === totalPages ? 0.4 : 1,
+                  boxShadow: '0 6px 20px -8px rgba(15,23,42,0.3)',
+                }}
+              >
+                <span>التالي</span>
+                <FaArrowLeft style={{ fontSize: '11px' }} />
+              </button>
+            </div>
+
             <div
               style={{
                 borderRadius: '12px',
@@ -721,33 +768,12 @@ const MissionsTab = () => {
                 fontWeight: 700,
                 color: '#334155',
                 boxShadow: '0 6px 20px -8px rgba(15,23,42,0.3)',
+                width: isMobile ? '100%' : 'auto',
+                textAlign: 'center'
               }}
             >
               صفحة {currentPage} من {totalPages}
             </div>
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                borderRadius: '12px',
-                border: '1px solid rgba(255,255,255,0.6)',
-                background: 'rgba(255,255,255,0.92)',
-                backdropFilter: 'blur(12px)',
-                padding: '10px 18px',
-                fontSize: '13px',
-                fontWeight: 700,
-                color: '#334155',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                opacity: currentPage === totalPages ? 0.4 : 1,
-                boxShadow: '0 6px 20px -8px rgba(15,23,42,0.3)',
-              }}
-            >
-              <span>التالي</span>
-              <FaArrowLeft style={{ fontSize: '11px' }} />
-            </button>
           </div>
         )}
       </div>

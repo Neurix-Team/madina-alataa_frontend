@@ -168,6 +168,12 @@
   background: var(--bg-card);
 }
 
+.app-form-input.with-icon,
+.app-form-select.with-icon,
+.app-form-textarea.with-icon {
+  padding-right: 60px !important;
+}
+
 .app-form-actions {
   display: flex;
   justify-content: flex-end;

@@ -382,6 +382,14 @@ const successBoxStyle = {
 };
 
 export default function BadgesTab() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const { t } = useTranslation();
   const { user } = useAuth();
   const isAdmin = useMemo(
@@ -584,51 +592,58 @@ export default function BadgesTab() {
 
   return (
     <div className="badges-tab" style={{ background: 'transparent' }}>
-      <div className="badges-tab__container" style={{ padding: '24px', maxWidth: '1240px', margin: '0 auto' }}>
+      <div className="badges-tab__container" style={{ padding: isMobile ? '12px' : '24px', maxWidth: '1240px', margin: '0 auto' }}>
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
-            marginBottom: '24px',
+            marginBottom: isMobile ? '16px' : '24px',
             borderRadius: '28px',
             background: 'var(--bg-card)',
             boxShadow: 'var(--shadow-lg)',
             border: '1px solid var(--border-light)',
             color: 'var(--text-primary)',
-            padding: '28px',
+            padding: isMobile ? '20px' : '28px',
             display: 'flex',
-            gap: '18px',
+            gap: isMobile ? '12px' : '18px',
             alignItems: 'center',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? '12px' : '16px', 
+            alignItems: 'center',
+            textAlign: isMobile ? 'center' : 'right',
+            width: isMobile ? '100%' : 'auto'
+          }}>
             <div
               style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '20px',
+                width: isMobile ? '52px' : '64px',
+                height: isMobile ? '52px' : '64px',
+                borderRadius: isMobile ? '14px' : '20px',
                 background: 'var(--primary-light)',
                 color: 'var(--primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '28px',
+                fontSize: isMobile ? '22px' : '28px',
               }}
             >
               <FaTrophy />
             </div>
             <div>
-              <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900, color: 'var(--text-primary)' }}>الأوسمة والشارات</h2>
-              <p style={{ margin: '6px 0 0 0', color: 'var(--text-secondary)', fontWeight: 700 }}>
+              <h2 style={{ margin: 0, fontSize: isMobile ? '20px' : '28px', fontWeight: 900, color: 'var(--text-primary)' }}>الأوسمة والشارات</h2>
+              <p style={{ margin: '6px 0 0 0', color: 'var(--text-secondary)', fontWeight: 700, fontSize: isMobile ? '12px' : '14px' }}>
                 إدارة الأوسمة والجوائز التي يحصل عليها المتطوعون بناءً على نشاطهم.
               </p>
             </div>
           </div>
 
           {isAdmin ? (
-            <button type="button" onClick={handleOpenCreate} className="app-btn-primary">
+            <button type="button" onClick={handleOpenCreate} className="app-btn-primary" style={{ width: isMobile ? '100%' : 'auto' }}>
               <FaPlus />
               <span>إضافة وسام جديد</span>
             </button>
@@ -637,7 +652,7 @@ export default function BadgesTab() {
 
         {/* Search Section */}
         <div className="pro-section" style={{ marginBottom: 0 }}>
-          <div className="pro-input-group" style={{ maxWidth: '500px' }}>
+          <div className="pro-input-group" style={{ maxWidth: isMobile ? '100%' : '500px' }}>
             <FaSearch className="pro-input-icon" />
             <input
               type="text"
@@ -645,6 +660,7 @@ export default function BadgesTab() {
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="البحث باسم الوسام أو المتطلبات..."
               className="pro-input with-icon"
+              style={{ fontSize: isMobile ? '13px' : '14px' }}
             />
           </div>
         </div>
@@ -662,15 +678,15 @@ export default function BadgesTab() {
             borderRadius: '24px',
             background: 'var(--surface)',
             border: '1px solid var(--border)',
-            minHeight: '260px',
+            minHeight: isMobile ? '200px' : '260px',
             display: 'grid',
             placeItems: 'center',
             color: 'var(--text-muted)',
           }}
         >
           <div style={{ textAlign: 'center' }}>
-            <FaSpinner className="animate-spin" size={28} color="#0f766e" />
-            <p style={{ margin: '14px 0 0 0' }}>جاري تحميل الأوسمة...</p>
+            <FaSpinner className="animate-spin" size={isMobile ? 24 : 28} color="#0f766e" />
+            <p style={{ margin: '14px 0 0 0', fontSize: isMobile ? '12px' : '14px' }}>جاري تحميل الأوسمة...</p>
           </div>
         </div>
       ) : badges.length === 0 ? (
@@ -679,18 +695,18 @@ export default function BadgesTab() {
             borderRadius: '24px',
             background: 'var(--surface)',
             border: '1px dashed var(--border)',
-            minHeight: '260px',
-            display: 'grid',
+            minHeight: isMobile ? '200px' : '260px',
+            display: 'grid', 
             placeItems: 'center',
             textAlign: 'center',
             color: 'var(--text-muted)',
-            padding: '24px',
+            padding: isMobile ? '20px' : '24px',
           }}
         >
           <div>
-            <FaTrophy size={42} />
-            <h3 style={{ color: 'var(--text)', marginBottom: '8px' }}>لا توجد أوسمة حالياً</h3>
-            <p style={{ margin: 0 }}>
+            <FaTrophy size={isMobile ? 36 : 42} />
+            <h3 style={{ color: 'var(--text)', marginBottom: '8px', fontSize: isMobile ? 16 : 18 }}>لا توجد أوسمة حالياً</h3>
+            <p style={{ margin: 0, fontSize: isMobile ? '12px' : '14px' }}>
               {isAdmin ? 'ابدأ بإضافة وسام جديد.' : 'سيتم عرض الأوسمة هنا بعد إضافتها.'}
             </p>
           </div>
@@ -700,8 +716,8 @@ export default function BadgesTab() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '18px',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))',
+              gap: isMobile ? '16px' : '18px',
             }}
           >
             {filteredBadges.map((badge, index) => (
@@ -711,10 +727,10 @@ export default function BadgesTab() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.04 }}
                 style={{
-                  borderRadius: '24px',
+                  borderRadius: isMobile ? '20px' : '24px',
                   background: 'linear-gradient(180deg, var(--surface), rgba(255,255,255,0.96))',
                   border: '1px solid var(--border)',
-                  padding: '20px',
+                  padding: isMobile ? '16px' : '20px',
                   boxShadow: '0 14px 34px rgba(15, 23, 42, 0.08)',
                 }}
               >
@@ -823,7 +839,7 @@ export default function BadgesTab() {
           </div>
 
           {totalPages > 1 ? (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 onClick={() => setPageNumber((current) => Math.max(1, current - 1))}
@@ -859,7 +875,7 @@ export default function BadgesTab() {
 
       <AnimatePresence>
         {createOpen ? (
-          <BadgeModal title="إضافة شارة" onClose={() => !submitting && setCreateOpen(false)}>
+          <BadgeModal title="إضافة شارة" onClose={() => !submitting && setCreateOpen(false)} maxWidth={isMobile ? '100%' : '680px'}>
             <BadgeForm
               formData={formData}
               onChange={handleFormChange}
@@ -877,7 +893,7 @@ export default function BadgesTab() {
 
       <AnimatePresence>
         {editOpen ? (
-          <BadgeModal title="تعديل الوسام" onClose={() => !submitting && setEditOpen(false)}>
+          <BadgeModal title="تعديل الوسام" onClose={() => !submitting && setEditOpen(false)} maxWidth={isMobile ? '100%' : '680px'}>
             <BadgeForm
               formData={formData}
               onChange={handleFormChange}
@@ -895,7 +911,7 @@ export default function BadgesTab() {
 
       <AnimatePresence>
         {detailsOpen ? (
-          <BadgeModal title="تفاصيل الوسام" onClose={() => setDetailsOpen(false)} maxWidth="760px">
+          <BadgeModal title="تفاصيل الوسام" onClose={() => setDetailsOpen(false)} maxWidth={isMobile ? '100%' : '760px'}>
             {detailsLoading ? (
               <div style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--text-muted)' }}>
                 <FaSpinner className="animate-spin" size={28} color="#0f766e" />
@@ -965,7 +981,7 @@ export default function BadgesTab() {
 
       <AnimatePresence>
         {deleteOpen ? (
-          <BadgeModal title="تأكيد حذف الوسام" onClose={() => !deleting && setDeleteOpen(false)} maxWidth="480px">
+          <BadgeModal title="تأكيد حذف الوسام" onClose={() => !deleting && setDeleteOpen(false)} maxWidth={isMobile ? '100%' : '480px'}>
             <div style={{ textAlign: 'center' }}>
               <div
                 style={{

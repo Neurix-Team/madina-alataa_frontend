@@ -283,10 +283,59 @@ const CHILDREN_CSS = `
     border-radius: 14px;
     background: rgba(220,38,38,0.1);
     display: flex;
-    align-items: center;
-    justify-content: center;
+    alignItems: center;
+    justifyContent: center;
     font-size: 24px;
     flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    .my-children-tab {
+      padding: 12px;
+      gap: 16px;
+    }
+
+    .children-header {
+      padding: 20px;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .children-header__content {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .children-header__title {
+      font-size: 22px;
+    }
+
+    .children-add-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .children-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .child-card {
+      padding: 16px;
+    }
+
+    .child-card__header {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .child-card__icon {
+      margin: 0 auto;
+    }
+
+    .children-empty {
+      padding: 40px 20px;
+    }
   }
 `;
 

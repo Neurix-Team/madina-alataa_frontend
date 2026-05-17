@@ -12,6 +12,14 @@ import {
 } from 'react-icons/fa';
 
 const LocationsTab = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [locations, setLocations] = useState([]);
   const [availableLocations, setAvailableLocations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -184,42 +192,54 @@ const LocationsTab = () => {
   const LocationCard = ({ location, showActions = true, index }) => (
     <motion.div 
       variants={cardVariants}
-      whileHover={{ y: -8, scale: 1.01 }}
+      whileHover={isMobile ? {} : { y: -8, scale: 1.01 }}
       className="pro-card pro-hover-scale relative overflow-hidden"
+      style={{
+        padding: isMobile ? '12px' : '0',
+        borderRadius: isMobile ? '16px' : '24px',
+      }}
     >
       {/* gradient overlays (non-interactive) */}
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(240,249,255,0.98),rgba(255,255,255,0.5)_45%,rgba(236,253,245,0.58))]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(240,249,255,0.98),rgba(255,255,255,0.56)_48%,rgba(236,253,245,0.65))]" />
 
-      <div className="relative z-10 p-4">
-      <div className="pro-card-header">
+      <div className="relative z-10 p-0">
+      <div className="pro-card-header" style={{ 
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center',
+        gap: isMobile ? 8 : 12,
+        padding: isMobile ? '8px 4px' : '16px'
+      }}>
         <div className="pro-flex pro-items-center pro-gap-3">
-          <div className="pro-number">{index + 1}</div>
+          <div className="pro-number" style={{ width: isMobile ? 28 : 32, height: isMobile ? 28 : 32, fontSize: isMobile ? 12 : 14 }}>{index + 1}</div>
           <div>
-            <h3 className="pro-card-title" style={{ color: '#0f172a' }}>{location.name}</h3>
+            <h3 className="pro-card-title" style={{ color: '#0f172a', fontSize: isMobile ? 15 : 18 }}>{location.name}</h3>
           </div>
         </div>
-        <span className="pro-badge pro-badge-warning">
+        <span className="pro-badge pro-badge-warning" style={{ fontSize: isMobile ? 10 : 12 }}>
           <FaStar style={{ fontSize: '10px' }} />
           مستوى {location.requiredLevel}
         </span>
       </div>
       
-      <div className="pro-card-body">
-        <div className="pro-data-grid">
-          <div className="pro-data-item">
-            <p className="pro-data-label">
+      <div className="pro-card-body" style={{ padding: isMobile ? '8px 4px' : '16px' }}>
+        <div className="pro-data-grid" style={{ 
+          gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit, minmax(150px, 1fr))',
+          gap: isMobile ? 8 : 12
+        }}>
+          <div className="pro-data-item" style={{ padding: isMobile ? '8px' : '12px 10px' }}>
+            <p className="pro-data-label" style={{ fontSize: isMobile ? 10 : 11 }}>
               <FaCompass style={{ color: 'var(--primary-light)' }} />
               خط الطول
             </p>
-            <p className="pro-data-value" style={{ color: '#0f172a' }}>{location.longitude || '0.0000'}</p>
+            <p className="pro-data-value" style={{ color: '#0f172a', fontSize: isMobile ? 12 : 15 }}>{location.longitude || '0.0000'}</p>
           </div>
-          <div className="pro-data-item">
-            <p className="pro-data-label">
+          <div className="pro-data-item" style={{ padding: isMobile ? '8px' : '12px 10px' }}>
+            <p className="pro-data-label" style={{ fontSize: isMobile ? 10 : 11 }}>
               <FaGlobe style={{ color: 'var(--accent)' }} />
               خط العرض
             </p>
-            <p className="pro-data-value" style={{ color: '#0f172a' }}>{location.latitude || '0.0000'}</p>
+            <p className="pro-data-value" style={{ color: '#0f172a', fontSize: isMobile ? 12 : 15 }}>{location.latitude || '0.0000'}</p>
           </div>
         </div>
       </div>
@@ -227,49 +247,80 @@ const LocationsTab = () => {
       </div>
 
       {showActions ? (
-        <div className="pro-card-actions" style={{ display: 'flex', gap: '10px', marginTop: '12px', position: 'relative', zIndex: 20 }}>
+        <div className="pro-card-actions" style={{ 
+          display: 'flex', 
+          gap: isMobile ? '8px' : '10px', 
+          marginTop: isMobile ? '8px' : '12px', 
+          padding: isMobile ? '4px' : '0',
+          position: 'relative', 
+          zIndex: 20 
+        }}>
           <motion.button 
-            whileHover={{ scale: 1.05 }} 
+            whileHover={isMobile ? {} : { scale: 1.05 }} 
             whileTap={{ scale: 0.95 }} 
             onClick={() => handleViewLocation(location.id)} 
             className="pro-btn pro-btn-icon"
             title="عرض"
-            style={{ color: '#1d4ed8', background: '#dbeafe', border: '1px solid #60a5fa', opacity: 1, boxShadow: '0 8px 18px rgba(37, 99, 235, 0.18)' }}
+            style={{ 
+              color: '#1d4ed8', 
+              background: '#dbeafe', 
+              border: '1px solid #60a5fa', 
+              opacity: 1, 
+              boxShadow: '0 8px 18px rgba(37, 99, 235, 0.18)',
+              flex: isMobile ? 1 : 'none',
+              height: isMobile ? 36 : 40
+            }}
           >
-            <FaEye />
+            <FaEye size={isMobile ? 14 : 16} />
           </motion.button>
           <motion.button 
-            whileHover={{ scale: 1.05 }} 
+            whileHover={isMobile ? {} : { scale: 1.05 }} 
             whileTap={{ scale: 0.95 }} 
             onClick={() => handleEditLocation(location)} 
             className="pro-btn pro-btn-icon"
             title="تعديل"
-            style={{ color: '#b45309', background: '#fef3c7', border: '1px solid #f59e0b', opacity: 1, boxShadow: '0 8px 18px rgba(217, 119, 6, 0.18)' }}
+            style={{ 
+              color: '#b45309', 
+              background: '#fef3c7', 
+              border: '1px solid #f59e0b', 
+              opacity: 1, 
+              boxShadow: '0 8px 18px rgba(217, 119, 6, 0.18)',
+              flex: isMobile ? 1 : 'none',
+              height: isMobile ? 36 : 40
+            }}
           >
-            <FaEdit />
+            <FaEdit size={isMobile ? 14 : 16} />
           </motion.button>
           <motion.button 
-            whileHover={{ scale: 1.05 }} 
+            whileHover={isMobile ? {} : { scale: 1.05 }} 
             whileTap={{ scale: 0.95 }} 
             onClick={() => handleDeleteLocation(location.id)} 
             className="pro-btn pro-btn-icon"
             title="حذف"
-            style={{ color: '#b91c1c', background: '#fee2e2', border: '1px solid #f87171', opacity: 1, boxShadow: '0 8px 18px rgba(220, 38, 38, 0.18)' }}
+            style={{ 
+              color: '#b91c1c', 
+              background: '#fee2e2', 
+              border: '1px solid #f87171', 
+              opacity: 1, 
+              boxShadow: '0 8px 18px rgba(220, 38, 38, 0.18)',
+              flex: isMobile ? 1 : 'none',
+              height: isMobile ? 36 : 40
+            }}
           >
-            <FaTrash />
+            <FaTrash size={isMobile ? 14 : 16} />
           </motion.button>
         </div>
       ) : (
-        <div className="pro-info-box">
-          <FaCheckCircle />
-          <span>موقع متاح لمستواك</span>
+        <div className="pro-info-box" style={{ padding: isMobile ? '8px' : '12px' }}>
+          <FaCheckCircle size={isMobile ? 14 : 16} />
+          <span style={{ fontSize: isMobile ? 12 : 14 }}>موقع متاح لمستواك</span>
         </div>
       )}
     </motion.div>
   );
 
   return (
-    <div className="pro-page" style={{ background: 'transparent' }}>
+    <div className="pro-page" style={{ background: 'transparent', padding: isMobile ? '12px' : '32px 24px' }}>
       <style>{`
         .pro-data-value {
           word-break: break-all !important;

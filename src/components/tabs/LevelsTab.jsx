@@ -280,6 +280,14 @@ function LevelForm({
 }
 
 export default function LevelsTab() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const { user } = useAuth();
   const isAdmin = useMemo(
     () => (user?.roles || []).some((role) => String(role).toLowerCase() === 'admin'),
@@ -481,49 +489,56 @@ export default function LevelsTab() {
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1240px', margin: '0 auto' }}>
+    <div style={{ padding: isMobile ? '12px' : '24px', maxWidth: '1240px', margin: '0 auto' }}>
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         style={{
-          marginBottom: '24px',
-          borderRadius: '28px',
+          marginBottom: isMobile ? '16px' : '24px',
+          borderRadius: 28,
           background:
             'radial-gradient(circle at top right, rgba(45, 212, 191, 0.28), transparent 30%), linear-gradient(135deg, #0f172a, #1f2937)',
           color: '#fff',
-          padding: '28px',
+          padding: isMobile ? '20px' : '28px',
           display: 'flex',
-          gap: '18px',
+          gap: isMobile ? 12 : '18px',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
         }}
       >
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? 12 : '16px', 
+          alignItems: 'center',
+          textAlign: isMobile ? 'center' : 'right',
+          width: isMobile ? '100%' : 'auto'
+        }}>
           <div
             style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '20px',
+              width: isMobile ? '52px' : '64px',
+              height: isMobile ? '52px' : '64px',
+              borderRadius: isMobile ? '14px' : '20px',
               background: 'rgba(255,255,255,0.14)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '28px',
+              fontSize: isMobile ? '24px' : '28px',
             }}
           >
             <FaLayerGroup />
           </div>
           <div>
-            <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900 }}>المستويات</h2>
-            <p style={{ margin: '6px 0 0 0', color: 'rgba(255,255,255,0.78)', fontWeight: 700 }}>
+            <h2 style={{ margin: 0, fontSize: isMobile ? '20px' : '28px', fontWeight: 900 }}>المستويات</h2>
+            <p style={{ margin: '6px 0 0 0', color: 'rgba(255,255,255,0.78)', fontWeight: 700, fontSize: isMobile ? '12px' : '14px' }}>
               عرض مستويات النظام لكل المستخدمين، مع إدارة كاملة للأدمن فقط.
             </p>
           </div>
         </div>
 
         {isAdmin ? (
-          <button type="button" onClick={handleOpenCreate} style={primaryButtonStyle}>
+          <button type="button" onClick={handleOpenCreate} style={{ ...primaryButtonStyle, width: isMobile ? '100%' : 'auto' }}>
             <FaPlus />
             <span>إضافة مستوى</span>
           </button>
@@ -543,15 +558,15 @@ export default function LevelsTab() {
             borderRadius: '24px',
             background: 'var(--surface)',
             border: '1px solid var(--border)',
-            minHeight: '260px',
+            minHeight: isMobile ? '200px' : '260px',
             display: 'grid',
             placeItems: 'center',
             color: 'var(--text-muted)',
           }}
         >
           <div style={{ textAlign: 'center' }}>
-            <FaSpinner className="animate-spin" size={28} color="#0f766e" />
-            <p style={{ margin: '14px 0 0 0' }}>جاري تحميل المستويات...</p>
+            <FaSpinner className="animate-spin" size={isMobile ? 24 : 28} color="#0f766e" />
+            <p style={{ margin: '14px 0 0 0', fontSize: isMobile ? '12px' : '14px' }}>جاري تحميل المستويات...</p>
           </div>
         </div>
       ) : levels.length === 0 ? (
@@ -560,18 +575,18 @@ export default function LevelsTab() {
             borderRadius: '24px',
             background: 'var(--surface)',
             border: '1px dashed var(--border)',
-            minHeight: '260px',
+            minHeight: isMobile ? '200px' : '260px',
             display: 'grid',
             placeItems: 'center',
             textAlign: 'center',
             color: 'var(--text-muted)',
-            padding: '24px',
+            padding: isMobile ? '20px' : '24px',
           }}
         >
           <div>
-            <FaLayerGroup size={42} />
-            <h3 style={{ color: 'var(--text)', marginBottom: '8px' }}>لا توجد مستويات حالياً</h3>
-            <p style={{ margin: 0 }}>
+            <FaLayerGroup size={isMobile ? 36 : 42} />
+            <h3 style={{ color: 'var(--text)', marginBottom: '8px', fontSize: isMobile ? 16 : 18 }}>لا توجد مستويات حالياً</h3>
+            <p style={{ margin: 0, fontSize: isMobile ? '12px' : '14px' }}>
               {isAdmin ? 'ابدأ بإضافة مستوى جديد.' : 'سيتم عرض المستويات هنا بعد إضافتها.'}
             </p>
           </div>
@@ -581,8 +596,8 @@ export default function LevelsTab() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '18px',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: isMobile ? 16 : '18px',
             }}
           >
             {levels.map((level, index) => (
@@ -592,33 +607,38 @@ export default function LevelsTab() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.04 }}
                 style={{
-                  borderRadius: '24px',
+                  borderRadius: isMobile ? 20 : '24px',
                   background: 'linear-gradient(180deg, var(--surface), rgba(255,255,255,0.96))',
                   border: '1px solid var(--border)',
-                  padding: '20px',
+                  padding: isMobile ? '16px' : '20px',
                   boxShadow: '0 14px 34px rgba(15, 23, 42, 0.08)',
+                  display: 'flex',
+                  flexDirection: isMobile ? 'column' : 'row',
+                  gap: isMobile ? 12 : '16px',
+                  alignItems: isMobile ? 'center' : 'flex-start',
+                  textAlign: isMobile ? 'center' : 'right'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
-                  <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', width: isMobile ? '100%' : 'auto', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'center' : 'flex-start' }}>
+                  <div style={{ display: 'flex', gap: isMobile ? 12 : '14px', alignItems: 'center', flex: 1, flexDirection: isMobile ? 'column' : 'row', textAlign: isMobile ? 'center' : 'right' }}>
                     <div
                       style={{
-                        width: '54px',
-                        height: '54px',
-                        borderRadius: '18px',
+                        width: isMobile ? '48px' : '54px',
+                        height: isMobile ? '48px' : '54px',
+                        borderRadius: isMobile ? '14px' : '18px',
                         background: 'linear-gradient(135deg, #14b8a6, #0f766e)',
                         color: '#fff',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '22px',
+                        fontSize: isMobile ? '18px' : '22px',
                         flexShrink: 0,
                       }}
                     >
                       <FaLayerGroup />
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <h3 style={{ margin: 0, color: 'var(--text)', fontSize: '18px', fontWeight: 800 }}>
+                      <h3 style={{ margin: 0, color: 'var(--text)', fontSize: isMobile ? '16px' : '18px', fontWeight: 800 }}>
                         المستوى {level.number || 0}
                       </h3>
                       <span
@@ -629,7 +649,7 @@ export default function LevelsTab() {
                           padding: '6px 10px',
                           background: 'rgba(15, 118, 110, 0.08)',
                           color: '#0f766e',
-                          fontSize: '12px',
+                          fontSize: isMobile ? '11px' : '12px',
                           fontWeight: 800,
                         }}
                       >
@@ -637,62 +657,49 @@ export default function LevelsTab() {
                       </span>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 8,
+                    justifyContent: isMobile ? 'center' : 'flex-start',
+                    width: isMobile ? '100%' : 'auto',
+                    marginTop: isMobile ? 12 : 0
+                  }}>
                     <button
                       type="button"
                       onClick={() => handleViewDetails(level)}
-                      style={iconButtonStyle}
+                      style={{ ...iconButtonStyle, width: isMobile ? 36 : 40, height: isMobile ? 36 : 40 }}
                       title="تفاصيل"
                     >
-                      <FaEye />
+                      <FaEye size={isMobile ? 14 : 16} />
                     </button>
                     {isAdmin ? (
                       <>
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(level)}
-                          style={iconButtonStyle}
+                          style={{ ...iconButtonStyle, width: isMobile ? 36 : 40, height: isMobile ? 36 : 40 }}
                           title="تعديل"
                         >
-                          <FaEdit />
+                          <FaEdit size={isMobile ? 14 : 16} />
                         </button>
                         <button
                           type="button"
                           onClick={() => handleOpenDelete(level)}
                           style={{
                             ...iconButtonStyle,
+                            width: isMobile ? 36 : 40,
+                            height: isMobile ? 36 : 40,
                             border: '1px solid rgba(239, 68, 68, 0.22)',
                             color: '#dc2626',
                             background: 'rgba(239, 68, 68, 0.08)',
                           }}
                           title="حذف"
                         >
-                          <FaTrash />
+                          <FaTrash size={isMobile ? 14 : 16} />
                         </button>
                       </>
                     ) : null}
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    marginTop: '16px',
-                    borderRadius: '16px',
-                    padding: '12px 14px',
-                    background: 'var(--background)',
-                    display: 'grid',
-                    gap: '8px',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-                    <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>رقم المستوى</span>
-                    <span style={{ color: 'var(--text)', fontWeight: 800 }}>{level.number || 0}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-                    <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>الحد الأقصى XP</span>
-                    <span style={{ color: 'var(--text)', fontWeight: 800 }}>
-                      {Number(level.maxXp || 0).toLocaleString('en-US')}
-                    </span>
                   </div>
                 </div>
               </motion.div>
@@ -700,23 +707,26 @@ export default function LevelsTab() {
           </div>
 
           {totalPages > 1 ? (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 onClick={() => setPageNumber((current) => Math.max(1, current - 1))}
                 disabled={pageNumber === 1}
-                style={secondaryButtonStyle}
+                style={{ ...secondaryButtonStyle, height: isMobile ? '40px' : 'auto', padding: isMobile ? '0 16px' : '12px 18px' }}
               >
                 السابق
               </button>
               <div
                 style={{
-                  padding: '12px 18px',
+                  padding: isMobile ? '8px 14px' : '12px 18px',
                   borderRadius: '14px',
                   border: '1px solid var(--border)',
                   background: 'var(--surface)',
                   color: 'var(--text)',
                   fontWeight: 800,
+                  fontSize: isMobile ? '13px' : '14px',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}
               >
                 صفحة {pageNumber} من {totalPages}
@@ -725,7 +735,7 @@ export default function LevelsTab() {
                 type="button"
                 onClick={() => setPageNumber((current) => Math.min(totalPages, current + 1))}
                 disabled={pageNumber === totalPages}
-                style={secondaryButtonStyle}
+                style={{ ...secondaryButtonStyle, height: isMobile ? '40px' : 'auto', padding: isMobile ? '0 16px' : '12px 18px' }}
               >
                 التالي
               </button>

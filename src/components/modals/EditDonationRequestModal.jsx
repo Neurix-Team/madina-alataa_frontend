@@ -148,7 +148,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
                     name="title"
                     value={formData.title}
                     onChange={handleInputChange}
-                    className="app-form-input w-full pr-12"
+                    className="app-form-input w-full with-icon"
                     placeholder="عنوان الطلب"
                   />
                 </div>
@@ -167,7 +167,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
                       name="donateAmount"
                       value={formData.donateAmount}
                       onChange={handleInputChange}
-                      className="app-form-input w-full pr-12"
+                      className="app-form-input w-full with-icon"
                       min="1"
                     />
                   </div>
@@ -199,7 +199,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
                     name="location"
                     value={formData.location}
                     onChange={handleInputChange}
-                    className="app-form-input w-full pr-12"
+                    className="app-form-input w-full with-icon"
                     placeholder="أدخل الموقع"
                   />
                 </div>
@@ -216,7 +216,7 @@ const EditDonationRequestModal = ({ isOpen, onClose, request, onSuccess }) => {
                     name="briefDescription"
                     value={formData.briefDescription}
                     onChange={handleInputChange}
-                    className="app-form-textarea w-full pr-12 min-h-[100px]"
+                    className="app-form-textarea w-full with-icon min-h-[100px]"
                     placeholder="أدخل الوصف..."
                   />
                 </div>

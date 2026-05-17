@@ -38,42 +38,47 @@ const ACTIONS = [
   { id: 'removeRoles', label: 'إزالة أدوار', Icon: FaMinus, color: '#64748b' },
 ];
 
-const PanelShell = ({ title, children, icon: Icon }) => (
+const PanelShell = ({ title, children, icon: Icon, isMobile }) => (
   <motion.div 
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     className="app-modal-card"
     style={{
       width: '100%',
-      marginBottom: '24px',
+      marginBottom: isMobile ? '16px' : '24px',
+      padding: isMobile ? '16px' : '24px',
     }}
   >
-    <div className="app-modal-header" style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '16px', marginBottom: '20px' }}>
+    <div className="app-modal-header" style={{ 
+      borderBottom: '1px solid var(--border-light)', 
+      paddingBottom: isMobile ? '12px' : '16px', 
+      marginBottom: isMobile ? '16px' : '20px' 
+    }}>
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        gap: 12,
+        gap: isMobile ? 8 : 12,
       }}>
         <div style={{
-          width: 40,
-          height: 40,
-          borderRadius: 12,
+          width: isMobile ? 32 : 40,
+          height: isMobile ? 32 : 40,
+          borderRadius: isMobile ? 10 : 12,
           background: 'var(--bg-card-2)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           color: 'var(--primary)'
         }}>
-          {Icon && <Icon size={20} />}
+          {Icon && <Icon size={isMobile ? 16 : 20} />}
         </div>
-        <h3 className="app-modal-title" style={{ fontSize: 18 }}>{title}</h3>
+        <h3 className="app-modal-title" style={{ fontSize: isMobile ? 16 : 18 }}>{title}</h3>
       </div>
     </div>
     {children}
   </motion.div>
 );
 
-const UserCard = ({ user, index }) => {
+const UserCard = ({ user, index, isMobile }) => {
   const uid = user.id || user.userId || user.userID || user.ID || `user-${index}`;
   const fullName = user.fullName || user.fullname || user.userName || user.name || user.displayName || user.email || '—';
   const email = user.email || user.emailAddress || user.Email || '—';
@@ -132,50 +137,65 @@ const UserCard = ({ user, index }) => {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
-      whileHover={{ y: -4, boxShadow: '0 12px 20px rgba(15, 23, 42, 0.06)' }}
+      whileHover={isMobile ? {} : { y: -4, boxShadow: '0 12px 20px rgba(15, 23, 42, 0.06)' }}
       style={{
-        padding: '16px',
+        padding: isMobile ? '12px' : '16px',
         borderRadius: 16,
         background: '#ffffff',
         border: '1px solid #f1f5f9',
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: 16,
+        alignItems: isMobile ? 'flex-start' : 'center',
+        gap: isMobile ? 12 : 16,
         transition: 'all 0.3s ease'
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, minWidth: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 16, width: '100%', minWidth: 0 }}>
         <div style={{
-          width: 48,
-          height: 48,
-          borderRadius: 14,
+          width: isMobile ? 40 : 48,
+          height: isMobile ? 40 : 48,
+          borderRadius: isMobile ? 12 : 14,
           background: roleInfo.bgColor,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           color: roleInfo.color,
           border: `1px solid ${roleInfo.borderColor}`,
-          fontSize: '20px'
+          fontSize: isMobile ? '16px' : '20px',
+          flexShrink: 0
         }}>
           {roleInfo.icon}
         </div>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontWeight: 900, fontSize: 15, color: '#0f172a', marginBottom: 2 }}>{fullName}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 12 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ fontWeight: 900, fontSize: isMobile ? 14 : 15, color: '#0f172a', marginBottom: 2 }}>{fullName}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: isMobile ? 11 : 12 }}>
             <FaEnvelope size={10} />
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</span>
           </div>
         </div>
       </div>
 
-      <div style={{ textAlign: 'left', minWidth: 140 }}>
-        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end', marginBottom: 8 }}>
+      <div style={{ 
+        textAlign: isMobile ? 'right' : 'left', 
+        width: isMobile ? '100%' : 'auto',
+        minWidth: isMobile ? 'auto' : 140,
+        display: isMobile ? 'flex' : 'block',
+        flexDirection: 'column',
+        alignItems: isMobile ? 'flex-end' : 'stretch'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          gap: 4, 
+          flexWrap: 'wrap', 
+          justifyContent: 'flex-end', 
+          marginBottom: isMobile ? 4 : 8 
+        }}>
           {rolesArr.length > 0 ? rolesArr.map((role, i) => (
             <span key={i} style={{
-              fontSize: 10,
+              fontSize: 9,
               fontWeight: 900,
-              padding: '3px 8px',
+              padding: '2px 6px',
               borderRadius: 999,
               background: role.toLowerCase() === 'admin' ? '#fee2e2' : '#eef2ff',
               color: role.toLowerCase() === 'admin' ? '#ef4444' : '#4338ca',
@@ -185,7 +205,7 @@ const UserCard = ({ user, index }) => {
             </span>
           )) : <span style={{ fontSize: 10, color: '#94a3b8' }}>بدون أدوار</span>}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 11, justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 10, justifyContent: 'flex-end' }}>
           <FaCalendarAlt size={10} />
           <span>{birthDay}</span>
         </div>
@@ -200,7 +220,7 @@ const formatProfileValue = (value) => {
   return String(value);
 };
 
-const UserProfilePanel = ({ profile, selectedUser, loading, error }) => {
+const UserProfilePanel = ({ profile, selectedUser, loading, error, isMobile }) => {
   if (!loading && !error && !profile) return null;
 
   const profileEntries = profile && typeof profile === 'object'
@@ -213,7 +233,7 @@ const UserProfilePanel = ({ profile, selectedUser, loading, error }) => {
       animate={{ opacity: 1, y: 0 }}
       style={{
         marginTop: 18,
-        padding: 18,
+        padding: isMobile ? 14 : 18,
         borderRadius: 16,
         background: '#f8fafc',
         border: '1px solid #dbeafe',
@@ -223,19 +243,19 @@ const UserProfilePanel = ({ profile, selectedUser, loading, error }) => {
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{
-          width: 38,
-          height: 38,
+          width: isMobile ? 32 : 38,
+          height: isMobile ? 32 : 38,
           borderRadius: 12,
           display: 'grid',
           placeItems: 'center',
           background: '#dbeafe',
           color: '#2563eb',
         }}>
-          <FaEye />
+          <FaEye size={isMobile ? 14 : 16} />
         </div>
         <div>
-          <div style={{ color: '#0f172a', fontWeight: 900 }}>بروفايل المستخدم</div>
-          <div style={{ color: '#64748b', fontSize: 12 }}>
+          <div style={{ color: '#0f172a', fontWeight: 900, fontSize: isMobile ? 14 : 16 }}>بروفايل المستخدم</div>
+          <div style={{ color: '#64748b', fontSize: isMobile ? 11 : 12 }}>
             {selectedUser?.fullName || selectedUser?.name || selectedUser?.email || 'مستخدم'}
           </div>
         </div>
@@ -254,7 +274,7 @@ const UserProfilePanel = ({ profile, selectedUser, loading, error }) => {
           {error}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(190px, 1fr))', gap: 10 }}>
           {profileEntries.map(([key, value]) => (
             <div key={key} style={{
               padding: 12,
@@ -315,6 +335,14 @@ const getStoredAuthToken = () => {
 };
 
 const UsersManagementPage = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [active, setActive] = useState('list');
   const [selectedUser, setSelectedUser] = useState(null);
   const [fetchingDetails, setFetchingDetails] = useState(false);
@@ -1541,24 +1569,46 @@ const [pagination, setPagination] = useState({
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '100%', margin: '0', minHeight: '100vh', direction: 'rtl', fontFamily: 'Cairo, sans-serif' }}>
+    <div style={{ 
+      padding: isMobile ? '12px' : '24px', 
+      maxWidth: '100%', 
+      margin: '0', 
+      minHeight: '100vh', 
+      direction: 'rtl', 
+      fontFamily: 'Cairo, sans-serif',
+      overflowX: 'hidden'
+    }}>
       {/* Header Section */}
-      <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+      <div style={{ 
+        marginBottom: isMobile ? 24 : 32, 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row',
+        justifyContent: 'space-between', 
+        alignItems: isMobile ? 'flex-start' : 'center', 
+        flexWrap: 'wrap', 
+        gap: 16 
+      }}>
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 900, color: '#1e293b', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <FaUserShield color="#6366f1" />
+          <h1 style={{ 
+            fontSize: isMobile ? 22 : 28, 
+            fontWeight: 900, 
+            color: '#1e293b', 
+            marginBottom: 8, 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 12 
+          }}>
+            <FaUserShield color="#6366f1" size={isMobile ? 24 : 28} />
             إدارة المستخدمين
           </h1>
-          <p style={{ color: '#64748b', fontSize: 15 }}>إدارة حسابات النظام، الصلاحيات، ومراقبة النشاط</p>
+          <p style={{ color: '#64748b', fontSize: isMobile ? 13 : 15 }}>إدارة حسابات النظام، الصلاحيات، ومراقبة النشاط</p>
         </div>
-        
-        {/* Search Bar */}
       </div>
 
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', 
-        gap: 12, 
+        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(160px, 1fr))', 
+        gap: isMobile ? 8 : 12, 
         marginBottom: 24 
       }}>
         {ACTIONS.filter(a => {
@@ -1569,27 +1619,29 @@ const [pagination, setPagination] = useState({
         }).map(a => (
           <motion.button
             key={a.id}
-            whileHover={{ scale: 1.02, y: -2 }}
+            whileHover={isMobile ? {} : { scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setActive(a.id)}
             style={{
-              padding: '12px 16px',
-              borderRadius: 16,
+              padding: isMobile ? '10px 8px' : '12px 16px',
+              borderRadius: isMobile ? 12 : 16,
               border: active === a.id ? 'none' : '1.5px solid #f1f5f9',
               background: active === a.id ? `linear-gradient(135deg, ${a.color}, ${a.color}dd)` : '#ffffff',
               color: active === a.id ? '#ffffff' : '#475569',
               fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 10,
-              fontSize: 13,
+              gap: isMobile ? 6 : 10,
+              fontSize: isMobile ? 11 : 13,
               boxShadow: active === a.id ? `0 8px 20px ${a.color}33` : 'none',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              textAlign: 'center'
             }}
           >
-            <a.Icon size={16} />
+            <a.Icon size={isMobile ? 14 : 16} />
             <span>{a.label}</span>
           </motion.button>
         ))}
@@ -1600,31 +1652,61 @@ const [pagination, setPagination] = useState({
           key={active}
           title={ACTIONS.find(x => x.id === active).label}
           icon={ACTIONS.find(x => x.id === active).Icon}
+          isMobile={isMobile}
         >
           {/* User Details View */}
           {active === 'details' && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              style={{ maxWidth: 600, margin: '0 auto', background: '#fff', borderRadius: 20, padding: 24, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' }}
+              style={{ 
+                maxWidth: 600, 
+                margin: '0 auto', 
+                background: '#fff', 
+                borderRadius: 20, 
+                padding: isMobile ? 16 : 24, 
+                boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' 
+              }}
             >
               {fetchingDetails ? (
                 <div style={{ textAlign: 'center', padding: 40 }}>جاري جلب التفاصيل...</div>
               ) : detailsError ? (
                 <div style={{ textAlign: 'center', color: '#ef4444', padding: 20 }}>{detailsError}</div>
               ) : selectedUser ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, borderBottom: '1px solid #f1f5f9', paddingBottom: 16 }}>
-                    <div style={{ width: 64, height: 64, borderRadius: 16, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#6366f1' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 16 : 20 }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row',
+                    alignItems: isMobile ? 'center' : 'center', 
+                    textAlign: isMobile ? 'center' : 'right',
+                    gap: 16, 
+                    borderBottom: '1px solid #f1f5f9', 
+                    paddingBottom: 16 
+                  }}>
+                    <div style={{ 
+                      width: isMobile ? 56 : 64, 
+                      height: isMobile ? 56 : 64, 
+                      borderRadius: 16, 
+                      background: '#f1f5f9', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      fontSize: isMobile ? 20 : 24, 
+                      color: '#6366f1' 
+                    }}>
                       <FaUserCircle />
                     </div>
                     <div>
-                      <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{selectedUser.fullName || selectedUser.userName}</h3>
-                      <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>{selectedUser.email}</p>
+                      <h3 style={{ margin: 0, fontSize: isMobile ? 16 : 18, fontWeight: 800 }}>{selectedUser.fullName || selectedUser.userName}</h3>
+                      <p style={{ margin: 0, fontSize: isMobile ? 12 : 13, color: '#64748b' }}>{selectedUser.email}</p>
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', 
+                    gap: isMobile ? 10 : 16 
+                  }}>
                     <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
                       <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>الاسم الكامل</span>
                       <span style={{ fontSize: 13, fontWeight: 700 }}>{selectedUser.fullName || selectedUser.fullname || selectedUser.email || 'اسم المستخدم'}</span>
@@ -1640,7 +1722,7 @@ const [pagination, setPagination] = useState({
                     </div>
                     <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
                       <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>الأدوار</span>
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
                         {selectedUser.roles?.map(role => (
                           <span key={role} style={{ fontSize: 10, background: '#e0e7ff', color: '#4338ca', padding: '2px 8px', borderRadius: 20 }}>{role}</span>
                         )) || 'مستخدم'}
@@ -1856,16 +1938,17 @@ const [pagination, setPagination] = useState({
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div style={{ 
                 display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row',
                 flexWrap: 'wrap', 
                 gap: 12, 
                 justifyContent: 'space-between',
-                alignItems: 'center',
+                alignItems: isMobile ? 'stretch' : 'center',
                 background: '#f8faff',
-                padding: '16px',
+                padding: isMobile ? '12px' : '16px',
                 borderRadius: 16,
                 border: '1px solid #edf2f7'
               }}>
-                <div style={{ position: 'relative', flex: 1, minWidth: '240px' }}>
+                <div style={{ position: 'relative', flex: 1, minWidth: isMobile ? '100%' : '240px' }}>
                   <FaSearch style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                   <input
                     placeholder="ابحث بالاسم أو البريد الإلكتروني..."
@@ -1877,14 +1960,14 @@ const [pagination, setPagination] = useState({
                       borderRadius: 12, 
                       border: '1.5px solid #e2e8f0',
                       outline: 'none',
-                      fontSize: 13,
+                      fontSize: isMobile ? 12 : 13,
                       fontFamily: 'Cairo, sans-serif'
                     }}
                   />
                 </div>
 
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <label style={{ fontSize: 13, fontWeight: 700, color: '#64748b' }}>حجم الصفحة:</label>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: isMobile ? 'space-between' : 'flex-start' }}>
+                  <label style={{ fontSize: isMobile ? 12 : 13, fontWeight: 700, color: '#64748b' }}>حجم الصفحة:</label>
                   <select 
                     value={pageSize} 
                     onChange={(e) => { setPageSize(Number(e.target.value)); setPageNumber(1); }}
@@ -1893,7 +1976,7 @@ const [pagination, setPagination] = useState({
                       borderRadius: 10, 
                       border: '1.5px solid #e2e8f0',
                       background: '#fff',
-                      fontSize: 13,
+                      fontSize: isMobile ? 12 : 13,
                       outline: 'none',
                       cursor: 'pointer'
                     }}
@@ -1926,11 +2009,11 @@ const [pagination, setPagination] = useState({
                       <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>لا يوجد مستخدمين لعرضهم.</div>
                     ) : (
                       users.map((u, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div key={idx} style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: 12 }}>
                           <div style={{ flex: 1 }}>
-                            <UserCard user={u} index={idx} />
+                            <UserCard user={u} index={idx} isMobile={isMobile} />
                           </div>
-                          <div style={{ display: 'flex', gap: 8 }}>
+                          <div style={{ display: 'flex', gap: 8, justifyContent: isMobile ? 'flex-end' : 'flex-start' }}>
                             {/* Donor Profile Icon - Available for all users */}
                             {false && (
                             <motion.button
@@ -2050,23 +2133,27 @@ const [pagination, setPagination] = useState({
                     selectedUser={selectedProfileUser}
                     loading={userProfileLoading}
                     error={userProfileError}
+                    isMobile={isMobile}
                   />
 
                   <div style={{ 
                     display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row',
                     justifyContent: 'space-between', 
                     alignItems: 'center', 
                     marginTop: 20,
                     padding: '16px',
-                    borderTop: '1px solid #f1f5f9'
+                    borderTop: '1px solid #f1f5f9',
+                    gap: isMobile ? 16 : 0
                   }}>
-                    <div style={{ display: 'flex', gap: 8 }}>
+                    <div style={{ display: 'flex', gap: 8, width: isMobile ? '100%' : 'auto' }}>
                       <motion.button 
                         whileTap={{ scale: 0.95 }}
                         disabled={pageNumber <= 1} 
                         onClick={() => setPageNumber(p => Math.max(1, p-1))} 
                         style={{ 
-                          padding: '8px 16px', 
+                          flex: isMobile ? 1 : 'none',
+                          padding: isMobile ? '8px 12px' : '8px 16px', 
                           borderRadius: 12,
                           border: '1px solid #e2e8f0',
                           background: pageNumber <= 1 ? '#f8faff' : '#fff',
@@ -2074,8 +2161,9 @@ const [pagination, setPagination] = useState({
                           cursor: pageNumber <= 1 ? 'not-allowed' : 'pointer',
                           display: 'flex',
                           alignItems: 'center',
+                          justifyContent: 'center',
                           gap: 8,
-                          fontSize: 13,
+                          fontSize: isMobile ? 12 : 13,
                           fontWeight: 800
                         }}
                       >
@@ -2088,7 +2176,8 @@ const [pagination, setPagination] = useState({
                         disabled={pageNumber >= totalPages} 
                         onClick={() => setPageNumber(p => p+1)}
                         style={{ 
-                          padding: '8px 16px', 
+                          flex: isMobile ? 1 : 'none',
+                          padding: isMobile ? '8px 12px' : '8px 16px', 
                           borderRadius: 12,
                           border: '1px solid #e2e8f0',
                           background: pageNumber >= totalPages ? '#f8faff' : '#fff',
@@ -2096,8 +2185,9 @@ const [pagination, setPagination] = useState({
                           cursor: pageNumber >= totalPages ? 'not-allowed' : 'pointer',
                           display: 'flex',
                           alignItems: 'center',
+                          justifyContent: 'center',
                           gap: 8,
-                          fontSize: 13,
+                          fontSize: isMobile ? 12 : 13,
                           fontWeight: 800
                         }}
                       >
@@ -2106,12 +2196,12 @@ const [pagination, setPagination] = useState({
                       </motion.button>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                      <div style={{ fontSize: 13, color: '#64748b' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, justifyContent: isMobile ? 'center' : 'flex-end', width: isMobile ? '100%' : 'auto' }}>
+                      <div style={{ fontSize: isMobile ? 12 : 13, color: '#64748b' }}>
                         الصفحة <span style={{ color: '#0f172a', fontWeight: 900 }}>{pageNumber}</span> من <span style={{ color: '#0f172a', fontWeight: 900 }}>{totalPages}</span>
                       </div>
                       <div style={{ height: 16, width: 1, background: '#e2e8f0' }} />
-                      <div style={{ fontSize: 13, color: '#64748b' }}>
+                      <div style={{ fontSize: isMobile ? 12 : 13, color: '#64748b' }}>
                         إجمالي: <span style={{ color: '#0f172a', fontWeight: 900 }}>{totalCount}</span>
                       </div>
                     </div>

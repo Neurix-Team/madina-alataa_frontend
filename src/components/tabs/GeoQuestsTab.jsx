@@ -489,6 +489,14 @@ function GeoQuestForm({
 }
 
 export default function GeoQuestsTab() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const { user } = useAuth();
   const isAdmin = useMemo(
     () => (user?.roles || []).some((role) => String(role).toLowerCase() === 'admin'),
@@ -769,54 +777,61 @@ export default function GeoQuestsTab() {
 
   return (
     <div className="geo-quests-tab" style={{ background: 'transparent' }}>
-      <div className="geo-quests-tab__container" style={{ padding: '24px', maxWidth: '1240px', margin: '0 auto' }}>
+      <div className="geo-quests-tab__container" style={{ padding: isMobile ? '12px' : '24px', maxWidth: '1240px', margin: '0 auto' }}>
         <motion.div
           className="geoquests-header"
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
-            marginBottom: '24px',
-            borderRadius: '28px',
+            marginBottom: isMobile ? 16 : '24px',
+            borderRadius: 28,
             background: 'var(--bg-card)',
             boxShadow: 'var(--shadow-lg)',
             border: '1px solid var(--border-light)',
             color: 'var(--text-primary)',
-            padding: '28px',
+            padding: isMobile ? '20px' : '28px',
             display: 'flex',
-            gap: '18px',
+            gap: isMobile ? 14 : '18px',
             alignItems: 'center',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? 12 : '16px', 
+            alignItems: 'center',
+            textAlign: isMobile ? 'center' : 'right',
+            width: isMobile ? '100%' : 'auto'
+          }}>
             <div
               style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '20px',
+                width: isMobile ? '52px' : '64px',
+                height: isMobile ? '52px' : '64px',
+                borderRadius: isMobile ? '14px' : '20px',
                 background: 'var(--primary-light)',
                 color: 'var(--primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '28px',
+                fontSize: isMobile ? '22px' : '28px',
               }}
             >
               <FaMapMarkedAlt />
             </div>
             <div>
-              <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900, color: 'var(--text-primary)' }}>المهام الجغرافية</h2>
-              <p style={{ margin: '6px 0 0 0', color: 'var(--text-secondary)', fontWeight: 700 }}>
-                عرض المهام المرتبطة بمواقع جغرافية محددة وإدارتها بشكل كامل.
+              <h2 style={{ margin: 0, fontSize: isMobile ? '20px' : '28px', fontWeight: 900, color: 'var(--text-primary)' }}>المهام الجغرافية</h2>
+              <p style={{ margin: '6px 0 0 0', color: 'var(--text-secondary)', fontWeight: 700, fontSize: isMobile ? '12px' : '14px' }}>
+                عرض المهام المرتبطة بمواقع محددة.
               </p>
             </div>
           </div>
 
           {isAdmin ? (
-            <button type="button" onClick={handleOpenCreate} className="app-btn-primary">
+            <button type="button" onClick={handleOpenCreate} className="app-btn-primary" style={{ width: isMobile ? '100%' : 'auto' }}>
               <FaPlus />
-              <span>إضافة مهمة جغرافية</span>
+              <span>إضافة مهمة</span>
             </button>
           ) : null}
         </motion.div>
@@ -829,15 +844,16 @@ export default function GeoQuestsTab() {
         `}</style>
 
         {/* Search Section */}
-        <div className="pro-section" style={{ marginBottom: 0 }}>
-          <div className="pro-input-group" style={{ maxWidth: '500px' }}>
+        <div className="pro-section" style={{ marginBottom: isMobile ? 16 : 0 }}>
+          <div className="pro-input-group" style={{ maxWidth: isMobile ? '100%' : '500px' }}>
             <FaSearch className="pro-input-icon" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="البحث باسم المهمة أو الموقع..."
+              placeholder="ابحث باسم المهمة أو الموقع..."
               className="pro-input with-icon"
+              style={{ fontSize: isMobile ? '12px' : '14px' }}
             />
           </div>
         </div>
@@ -855,15 +871,15 @@ export default function GeoQuestsTab() {
             borderRadius: '24px',
             background: 'var(--surface)',
             border: '1px solid var(--border)',
-            minHeight: '260px',
+            minHeight: isMobile ? '200px' : '260px',
             display: 'grid',
             placeItems: 'center',
             color: 'var(--text-muted)',
           }}
         >
           <div style={{ textAlign: 'center' }}>
-            <FaSpinner className="animate-spin" size={28} color="#2563eb" />
-            <p style={{ margin: '14px 0 0 0' }}>جاري تحميل المهام الجغرافية...</p>
+            <FaSpinner className="animate-spin" size={isMobile ? 24 : 28} color="#2563eb" />
+            <p style={{ margin: '14px 0 0 0', fontSize: isMobile ? 12 : 14 }}>جاري التحميل...</p>
           </div>
         </div>
       ) : displayedGeoQuests.length === 0 ? (
@@ -872,20 +888,17 @@ export default function GeoQuestsTab() {
             borderRadius: '24px',
             background: 'var(--surface)',
             border: '1px dashed var(--border)',
-            minHeight: '260px',
+            minHeight: isMobile ? '200px' : '260px',
             display: 'grid',
             placeItems: 'center',
             textAlign: 'center',
             color: 'var(--text-muted)',
-            padding: '24px',
+            padding: isMobile ? '20px' : '24px',
           }}
         >
           <div>
-            <FaMapMarkedAlt size={42} />
-            <h3 style={{ color: 'var(--text)', marginBottom: '8px' }}>لا توجد مهام جغرافية حالياً</h3>
-            <p style={{ margin: 0 }}>
-              {isAdmin ? 'ابدأ بإضافة مهمة جديدة.' : 'سيتم عرض المهام هنا عند توفرها.'}
-            </p>
+            <FaMapMarkedAlt size={isMobile ? 36 : 42} />
+            <h3 style={{ color: 'var(--text)', marginBottom: '8px', fontSize: isMobile ? 16 : 18 }}>لا توجد مهام جغرافية</h3>
           </div>
         </div>
       ) : (
@@ -893,8 +906,8 @@ export default function GeoQuestsTab() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '18px',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: isMobile ? 16 : '18px',
             }}
           >
             {displayedGeoQuests.map((geoQuest, index) => (
@@ -904,69 +917,81 @@ export default function GeoQuestsTab() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.04 }}
                 style={{
-                  borderRadius: '24px',
+                  borderRadius: isMobile ? 20 : '24px',
                   background: 'linear-gradient(180deg, var(--surface), rgba(255,255,255,0.96))',
                   border: '1px solid var(--border)',
-                  padding: '20px',
+                  padding: isMobile ? '16px' : '20px',
                   boxShadow: '0 14px 34px rgba(15, 23, 42, 0.08)',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
-                  <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', flex: 1 }}>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: isMobile ? 'column' : 'row',
+                  justifyContent: 'space-between', 
+                  gap: 12 
+                }}>
+                  <div style={{ display: 'flex', gap: isMobile ? 12 : '14px', alignItems: 'center', flex: 1 }}>
                     <div
                       style={{
-                        width: '54px',
-                        height: '54px',
-                        borderRadius: '18px',
+                        width: isMobile ? '44px' : '54px',
+                        height: isMobile ? '44px' : '54px',
+                        borderRadius: isMobile ? '12px' : '18px',
                         background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                         color: '#fff',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '22px',
+                        fontSize: isMobile ? '18px' : '22px',
                         flexShrink: 0,
                       }}
                     >
                       <FaMapMarkerAlt />
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <h3 style={{ margin: 0, color: 'var(--text)', fontSize: '18px', fontWeight: 800 }}>
+                      <h3 style={{ margin: 0, color: 'var(--text)', fontSize: isMobile ? '16px' : '18px', fontWeight: 800 }}>
                         {geoQuest.title || 'مهمة بدون عنوان'}
                       </h3>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 8,
+                    justifyContent: isMobile ? 'flex-end' : 'flex-start'
+                  }}>
                     <button
                       type="button"
                       onClick={() => handleViewDetails(geoQuest)}
-                      style={iconButtonStyle}
+                      style={{ ...iconButtonStyle, width: isMobile ? 36 : 40, height: isMobile ? 36 : 40 }}
                       title="تفاصيل"
                     >
-                      <FaEye />
+                      <FaEye size={isMobile ? 14 : 16} />
                     </button>
                     {isAdmin ? (
                       <>
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(geoQuest)}
-                          style={iconButtonStyle}
+                          style={{ ...iconButtonStyle, width: isMobile ? 36 : 40, height: isMobile ? 36 : 40 }}
                           title="تعديل"
                         >
-                          <FaEdit />
+                          <FaEdit size={isMobile ? 14 : 16} />
                         </button>
                         <button
                           type="button"
                           onClick={() => handleOpenDelete(geoQuest)}
                           style={{
                             ...iconButtonStyle,
+                            width: isMobile ? 36 : 40,
+                            height: isMobile ? 36 : 40,
                             border: '1px solid rgba(239, 68, 68, 0.22)',
                             color: '#dc2626',
                             background: 'rgba(239, 68, 68, 0.08)',
                           }}
                           title="حذف"
                         >
-                          <FaTrash />
+                          <FaTrash size={isMobile ? 14 : 16} />
                         </button>
                       </>
                     ) : null}
@@ -975,19 +1000,19 @@ export default function GeoQuestsTab() {
 
                 <div
                   style={{
-                    marginTop: '16px',
+                    marginTop: isMobile ? '12px' : '16px',
                     borderRadius: '16px',
-                    padding: '12px 14px',
+                    padding: isMobile ? '10px 12px' : '12px 14px',
                     background: 'var(--background)',
                     display: 'grid',
-                    gap: '8px',
+                    gap: 8,
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', fontSize: isMobile ? 12 : 14 }}>
                     <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>العنوان</span>
                     <span style={{ color: 'var(--text)', fontWeight: 800 }}>{geoQuest.title || '-'}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', fontSize: isMobile ? 12 : 14 }}>
                     <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>الموقع</span>
                     <span style={{ color: 'var(--text)', fontWeight: 800 }}>{getLocationDisplayName(geoQuest.locationId)}</span>
                   </div>
