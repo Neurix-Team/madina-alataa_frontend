@@ -1541,7 +1541,7 @@ const [pagination, setPagination] = useState({
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', direction: 'rtl', fontFamily: 'Cairo, sans-serif' }}>
+    <div style={{ padding: '24px', maxWidth: '100%', margin: '0', minHeight: '100vh', direction: 'rtl', fontFamily: 'Cairo, sans-serif' }}>
       {/* Header Section */}
       <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
         <div>

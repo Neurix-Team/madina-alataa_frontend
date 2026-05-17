@@ -271,6 +271,28 @@ const LocationsTab = () => {
   return (
     <div className="pro-page" style={{ background: 'transparent' }}>
       <style>{`
+        .pro-data-value {
+          word-break: break-all !important;
+          overflow-wrap: break-word !important;
+          font-size: 15px !important;
+          line-height: 1.4 !important;
+          direction: ltr !important;
+          display: block !important;
+        }
+        .pro-data-item {
+          padding: 12px 10px !important;
+          min-width: 0 !important;
+        }
+        .pro-data-grid {
+          gap: 10px !important;
+        }
+
+        @media (max-width: 1100px) {
+          .pro-data-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+
         @media (max-width: 640px) {
           .pro-container { padding: 20px !important; width: 100% !important; max-width: 100vw !important; overflow-x: hidden !important; box-sizing: border-box !important; }
           .pro-card-grid { grid-template-columns: 1fr !important; gap: 20px !important; width: 100% !important; }

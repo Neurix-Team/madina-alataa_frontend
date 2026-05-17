@@ -244,6 +244,15 @@ const SIDEBAR_CSS = `
       right: 0 !important;
     }
   }
+
+  /* Hide scrollbar for sidebar */
+  .sb-aside::-webkit-scrollbar {
+    display: none;
+  }
+  .sb-aside {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 `;
 
 // ── Nav items ─────────────────────────────────────────────────────────────
@@ -251,7 +260,6 @@ const NAV_ITEMS = [
   { id: 'map',         label: 'sidebar.map',    icon: FaMapMarkedAlt, condition: PERMISSIONS.VIEW_MAP },
   { id: 'profile',     label: 'sidebar.profile',    icon: FaUser },
   { id: 'avatar',      label: 'sidebar.avatar', icon: FaUser },
-  { id: 'cases',       label: 'sidebar.cases',          icon: FaHeart, condition: PERMISSIONS.VIEW_CASES },
   { id: 'daily',       label: 'sidebar.daily',   icon: FaCheckCircle, condition: PERMISSIONS.VIEW_DAILY_TASKS },
   { id: 'explore',     label: 'sidebar.explore',  icon: FaCompass, condition: PERMISSIONS.VIEW_MAP },
   { id: 'city',        label: 'sidebar.city',    icon: FaCity, condition: PERMISSIONS.VIEW_MAP },
@@ -715,7 +723,9 @@ export default function Sidebar({
         className={`sb-aside${sidebarOpen ? ' sb-aside--open' : ''}`}
         style={{
           width: 240,
-          minHeight: '100vh',
+          height: 'calc(100vh - 32px)',
+          position: 'sticky',
+          top: 16,
           /* Rich deep-navy gradient matching the app's blue palette */
           background: 'linear-gradient(180deg, #060f1e 0%, #0a1a30 20%, #0d2040 50%, #0f2744 75%, #122d52 100%)',
           border: '1px solid rgba(29,110,216,0.22)',
@@ -725,6 +735,7 @@ export default function Sidebar({
           padding: '20px 12px',
           gap: 4,
           overflowX: 'hidden',
+          overflowY: 'auto',
           flexShrink: 0,
           direction: 'rtl',
           zIndex: 50,

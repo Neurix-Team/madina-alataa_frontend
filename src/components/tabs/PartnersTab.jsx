@@ -227,9 +227,17 @@ const PARTNER_CSS = `
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 14px;
+    font-size: 13px;
     color: #64748b;
     font-weight: 600;
+    min-width: 0;
+  }
+
+  .partner-card__detail span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
   }
 
   .partner-card__detail-icon {
@@ -247,24 +255,27 @@ const PARTNER_CSS = `
 
   .partner-card__actions {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
     border-top: 1px solid rgba(226,232,240,0.9);
     padding-top: 16px;
   }
 
   .partner-card__btn {
     flex: 1;
+    min-width: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 12px 16px;
+    gap: 6px;
+    padding: 10px 12px;
     border-radius: 12px;
     font-size: 13px;
     font-weight: 700;
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap;
   }
 
   .partner-card__btn--view {
