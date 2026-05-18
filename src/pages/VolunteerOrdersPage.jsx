@@ -17,6 +17,7 @@ import { useAuth } from '../hooks/useAuth';
 import { volunteerOrdersService } from '../services/volunteerOrdersService';
 import { serviceRequestsService } from '../services/serviceRequestsService';
 import EntityHistoryModal from '../components/modals/EntityHistoryModal';
+import { showAppConfirm } from '../utils/appAlerts';
 
 const getOrderId = (order) => order?.id || order?.volunteerOrderId || order?.orderId || null;
 const getServiceRequestId = (order) =>
@@ -229,7 +230,14 @@ const VolunteerOrdersPage = () => {
 
   const handleDelete = async (orderId) => {
     if (!orderId) return;
-    if (!confirm('هل أنت متأكد من حذف عنصر التطوع؟')) return;
+    const confirmed = await showAppConfirm({
+      title: 'حذف عنصر التطوع',
+      message: 'هل أنت متأكد من حذف عنصر التطوع؟',
+      type: 'danger',
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+    });
+    if (!confirmed) return;
 
     setActionLoading((prev) => ({ ...prev, [orderId]: 'delete' }));
     try {
@@ -384,7 +392,7 @@ const VolunteerOrdersPage = () => {
   return (
     <div style={pageStyle}>
       <div style={containerStyle}>
-        <motion.div initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} 
+        <motion.div initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }}
           style={{
             padding: '24px 32px',
             borderRadius: 24,
@@ -511,15 +519,6 @@ const VolunteerOrdersPage = () => {
             <div style={panelHeaderStyle}>
               <div>
                 <h2 style={sectionTitleStyle}>{activeTab === 'pending' ? t('volunteer.pending_orders') : t('volunteer.all_orders')}</h2>
-                <p style={sectionMetaStyle}>
-                  {activeTab === 'pending'
-                    ? 'GET `/api/VolunteerOrders/pending?PageNumber=1&PageSize=1`'
-                    : activeTab === 'accepted'
-                      ? 'GET `/api/VolunteerOrders/my-orders?PageNumber=1&PageSize=1`'
-                      : isAdmin
-                        ? 'GET `/api/VolunteerOrders?PageNumber=1&PageSize=1`'
-                        : 'GET `/api/ServiceRequests/approved?PageNumber=1&PageSize=1`'}
-                </p>
               </div>
             </div>
 
@@ -577,14 +576,14 @@ const VolunteerOrdersPage = () => {
                           </div>
 
                           {activeTab === 'accepted' && (
-                            <motion.div 
+                            <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
-                              style={{ 
-                                marginTop: 12, 
-                                padding: 14, 
-                                borderRadius: 16, 
-                                background: '#0f172a', 
+                              style={{
+                                marginTop: 12,
+                                padding: 14,
+                                borderRadius: 16,
+                                background: '#0f172a',
                                 border: '1px solid rgba(255,255,255,0.05)',
                                 boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)'
                               }}
@@ -603,36 +602,21 @@ const VolunteerOrdersPage = () => {
 
                           {canUpdateProgress && (
                             <div style={progressRowStyle}>
-                              {isAdmin ? (
-                                <div style={{ 
-                                  padding: '8px 12px', 
-                                  borderRadius: '10px', 
-                                  background: '#f8fafc', 
-                                  border: '1px solid #e2e8f0',
-                                  color: '#475569',
-                                  fontSize: '12px',
-                                  fontWeight: 700,
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: 6
-                                }}>
-                                  <FaTasks size={10} />
-                                   <span>{PROGRESS_OPTIONS.find(opt => opt.value === getOrderProgress(order))?.label || t('volunteer.progress_not_started')}</span>
-                                 </div>
-                              ) : (
-                                <select
-                                  value={progressDrafts[orderId] ?? getOrderProgress(order)}
-                                  onChange={(event) => handleProgressChange(orderId, event.target.value)}
-                                  disabled={actionLoading[orderId] === 'progress'}
-                                  style={{ ...inputStyle, maxWidth: 120 }}
-                                >
-                                  {PROGRESS_OPTIONS.map((option) => (
-                                    <option key={option.value} value={option.value}>
-                                      {option.label}
-                                    </option>
-                                  ))}
-                                </select>
-                              )}
+                              <div style={{
+                                padding: '8px 12px',
+                                borderRadius: '10px',
+                                background: '#f8fafc',
+                                border: '1px solid #e2e8f0',
+                                color: '#475569',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 6
+                              }}>
+                                <FaTasks size={10} />
+                                <span>{PROGRESS_OPTIONS.find(opt => opt.value === getOrderProgress(order))?.label || t('volunteer.progress_not_started')}</span>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -704,7 +688,6 @@ const VolunteerOrdersPage = () => {
             <div style={panelHeaderStyle}>
               <div>
                 <h2 style={sectionTitleStyle}>تفاصيل عنصر التطوع</h2>
-                <p style={sectionMetaStyle}>GET `/api/VolunteerOrders/{'{id}'}`</p>
               </div>
             </div>
 
@@ -902,16 +885,16 @@ const heroIconStyle = {
   background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', color: '#fff', fontSize: 24,
   boxShadow: '0 18px 34px rgba(37,99,235,.25)',
 };
-const heroTitleStyle = { 
-  margin: 0, 
-  fontSize: 28, 
-  fontWeight: 900, 
+const heroTitleStyle = {
+  margin: 0,
+  fontSize: 28,
+  fontWeight: 900,
   color: '#ffffff',
   textShadow: '0 2px 4px rgba(0,0,0,0.3)'
 };
-const heroSubtitleStyle = { 
-  margin: '8px 0 0', 
-  color: '#cbd5e1', 
+const heroSubtitleStyle = {
+  margin: '8px 0 0',
+  color: '#cbd5e1',
   fontSize: 14,
   fontWeight: 600
 };

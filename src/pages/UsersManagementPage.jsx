@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AppLoader from '../components/common/AppLoader';
 import { axiosClient } from '../services/axiosClient';
 import { volunteersService } from '../services/volunteersService';
 import { userLevelsService } from '../services/userLevelsService';
@@ -6,6 +7,7 @@ import { userBadgesService } from '../services/userBadgesService';
 import { certificatesService } from '../services/certificatesService';
 import { profilesService } from '../services/profilesService';
 import { useAuth } from '../hooks/useAuth';
+import { showAppConfirm } from '../utils/appAlerts';
 import { 
   FaUsers, FaUserPlus, FaUserShield, FaTrash, FaKey,
   FaSearch, FaChevronRight, FaChevronLeft, FaUserCircle, FaEdit,
@@ -689,7 +691,14 @@ const [pagination, setPagination] = useState({
     
     if (!targetId) return;
 
-    if (!window.confirm('هل أنت متأكد من حذف بيانات المستوى لهذا المستخدم؟')) return;
+    const confirmed = await showAppConfirm({
+      title: 'حذف بيانات المستوى',
+      message: 'هل أنت متأكد من حذف بيانات المستوى لهذا المستخدم؟',
+      type: 'danger',
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+    });
+    if (!confirmed) return;
 
     try {
       await userLevelsService.deleteUserLevelAdmin(targetId);
@@ -1065,7 +1074,13 @@ const [pagination, setPagination] = useState({
     }
 
     const userLabel = getUserDisplayName(selectedUserForDelete);
-    const confirmed = window.confirm(`هل أنت متأكد من حذف "${userLabel}"؟ لا يمكن التراجع عن هذا الإجراء.`);
+    const confirmed = await showAppConfirm({
+      title: 'حذف المستخدم',
+      message: `هل أنت متأكد من حذف "${userLabel}"؟ لا يمكن التراجع عن هذا الإجراء.`,
+      type: 'danger',
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+    });
     if (!confirmed) return;
 
     const token = getStoredAuthToken();
@@ -1987,16 +2002,7 @@ const [pagination, setPagination] = useState({
               </div>
 
               {loading ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                    style={{ marginBottom: 12 }}
-                  >
-                    <FaUsers size={32} />
-                  </motion.div>
-                  <div style={{ fontWeight: 800 }}>جاري تحميل المستخدمين...</div>
-                </div>
+                <AppLoader message="جاري جلب قائمة المستخدمين..." />
               ) : forbidden ? (
                 <div style={{ textAlign: 'center', padding: '40px', background: '#fff1f2', borderRadius: 16, color: '#be123c' }}>
                   <FaUserShield size={32} style={{ marginBottom: 12 }} />
@@ -2689,7 +2695,7 @@ const [pagination, setPagination] = useState({
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     disabled={deleting}
-                    onClick={handleDeleteUser}
+                    onClick={() => handleDeleteUser(selectedUserForDelete)}
                     style={{
                       flex: 1,
                       padding: '14px',
@@ -3311,7 +3317,7 @@ const [pagination, setPagination] = useState({
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       disabled={deleting || !selectedUserForDelete}
-                      onClick={handleDeleteUser}
+                      onClick={() => handleDeleteUser(selectedUserForDelete)}
                       style={{
                         flex: 1,
                         padding: '14px',

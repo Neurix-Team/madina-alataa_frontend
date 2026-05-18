@@ -19,9 +19,11 @@ import {
   FaSearch,
 } from 'react-icons/fa';
 import { useAuth } from '../hooks/useAuth';
+import useGameState from '../hooks/useGameState';
 import { locationsService } from '../services/locationsService';
 import partnersService from '../services/partnersService';
 import { serviceRequestsService } from '../services/serviceRequestsService';
+import { showAppConfirm } from '../utils/appAlerts';
 import { volunteerOrdersService } from '../services/volunteerOrdersService';
 import { levelsService } from '../services/levelsService';
 import EntityHistoryModal from '../components/modals/EntityHistoryModal';
@@ -122,6 +124,7 @@ const getVolunteerRequestChip = (status) => {
 const VolunteerRequestsPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { state: gameState } = useGameState();
   const roles = parseRoles(user);
   const isAdmin = roles.includes('admin');
   const isVolunteerRole = roles.includes('volunteer');
@@ -169,6 +172,58 @@ const VolunteerRequestsPage = () => {
       return accumulator;
     }, {});
   }, [partners]);
+
+  const levelNumberById = useMemo(() => {
+    return levels.reduce((accumulator, level) => {
+      const levelId = level?.id || level?.Id || level?.levelId || level?.LevelId;
+      if (levelId) {
+        accumulator[String(levelId)] = Number(level?.number ?? level?.Number ?? 0) || 0;
+      }
+      return accumulator;
+    }, {});
+  }, [levels]);
+
+  const volunteerLevelNumber = Number(gameState?.userStats?.level || 0) || 0;
+
+  const getRequestRequiredLevelNumber = (request) => {
+    const directLevelNumber = Number(
+      request?.requiredLevel?.number ??
+      request?.requiredLevel?.Number ??
+      request?.requiredLevelNumber ??
+      request?.levelNumber ??
+      0
+    );
+
+    if (directLevelNumber > 0) {
+      return directLevelNumber;
+    }
+
+    const levelId =
+      request?.requiredLevelId ??
+      request?.requiredLevel?.id ??
+      request?.requiredLevel?.Id ??
+      '';
+
+    if (!levelId) {
+      return 0;
+    }
+
+    return Number(levelNumberById[String(levelId)] || 0) || 0;
+  };
+
+  const getRequestRequiredLevelLabel = (request) => {
+    const levelNumber = getRequestRequiredLevelNumber(request);
+    if (levelNumber > 0) {
+      return String(levelNumber);
+    }
+
+    return (
+      request?.requiredLevelId ??
+      request?.requiredLevel?.id ??
+      request?.requiredLevel?.Id ??
+      '-'
+    );
+  };
 
   const filteredRequests = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -343,7 +398,14 @@ const VolunteerRequestsPage = () => {
       alert('بيانات طلب التطوع غير مكتملة، لا يمكن الحذف.');
       return;
     }
-    if (!confirm('هل أنت متأكد من حذف طلب التطوع؟')) return;
+    const confirmed = await showAppConfirm({
+      title: 'حذف طلب التطوع',
+      message: 'هل أنت متأكد من حذف طلب التطوع؟',
+      type: 'danger',
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+    });
+    if (!confirmed) return;
 
     setActionLoading((prev) => ({ ...prev, [requestId]: 'delete' }));
     try {
@@ -778,6 +840,12 @@ const VolunteerRequestsPage = () => {
                     const urgency = getUrgencyLabel(request.urgencyLevel);
                     const requestId = getRequestId(request);
                     const currentVolunteerOrder = volunteerOrdersByRequestId[requestId];
+                    const requiredLevelNumber = getRequestRequiredLevelNumber(request);
+                    const isAboveVolunteerLevel =
+                      isVolunteerRole &&
+                      !isAdmin &&
+                      volunteerLevelNumber > 0 &&
+                      requiredLevelNumber > volunteerLevelNumber;
                     const volunteerStatusChip = currentVolunteerOrder
                       ? getVolunteerRequestChip(currentVolunteerOrder.status)
                       : null;
@@ -790,7 +858,19 @@ const VolunteerRequestsPage = () => {
                         exit={{ opacity: 0, y: -16 }}
                         transition={{ delay: index * 0.05 }}
                         className="pro-card"
-                        style={{ padding: 22 }}
+                        style={{
+                          ...cardStyle,
+                          padding: 22,
+                          background: isAboveVolunteerLevel
+                            ? 'linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)'
+                            : cardStyle.background,
+                          border: isAboveVolunteerLevel
+                            ? '1px solid rgba(100,116,139,.38)'
+                            : cardStyle.border,
+                          boxShadow: isAboveVolunteerLevel
+                            ? '0 16px 34px rgba(15,23,42,.1)'
+                            : '0 10px 24px rgba(15,23,42,.04)',
+                        }}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
                           <div style={{ flex: 1, minWidth: 260 }}>
@@ -806,6 +886,21 @@ const VolunteerRequestsPage = () => {
                                 <div style={{ marginTop: 8 }}>
                                   <span style={{ ...chipStyle, color: volunteerStatusChip.color, background: volunteerStatusChip.bg }}>
                                     {volunteerStatusChip.label}
+                                  </span>
+                                </div>
+                              )}
+                              {requiredLevelNumber > 0 && (
+                                <div style={{ marginTop: 8 }}>
+                                  <span
+                                    style={{
+                                      ...chipStyle,
+                                      color: isAboveVolunteerLevel ? '#334155' : '#475569',
+                                      background: isAboveVolunteerLevel
+                                        ? 'rgba(71,85,105,.16)'
+                                        : 'rgba(226,232,240,.85)',
+                                    }}
+                                  >
+                                    المستوى {requiredLevelNumber}
                                   </span>
                                 </div>
                               )}

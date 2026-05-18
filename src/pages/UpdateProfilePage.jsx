@@ -444,6 +444,9 @@ const handleSubmit = async (e) => {
 
     profilesService.saveProfileToStorage(updatedProfile);
 
+    // Trigger global stats sync
+    window.dispatchEvent(new CustomEvent('sync-user-stats'));
+
     setSuccess(true);
   } catch (err) {
     console.error('Error updating profile:', err);

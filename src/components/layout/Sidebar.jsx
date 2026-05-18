@@ -611,6 +611,10 @@ export default function Sidebar({
   const isVolunteer = user?.roles?.includes('volunteer');
   const isDonor = user?.roles?.includes('donor');
 
+  const displayName = userStats.name === 'جاري التحميل...' 
+    ? (user?.name || user?.fullName || user?.userName || 'جاري التحميل...')
+    : userStats.name;
+
   const isItemActive = (id) => location.pathname === NAV_PATHS[id];
 
   const handleNavClick = (id) => {
@@ -927,7 +931,7 @@ export default function Sidebar({
                   textOverflow: 'ellipsis',
                   textShadow: '0 1px 4px rgba(0,0,0,0.3)',
                 }}>
-                  {userStats.name}
+                  {displayName}
                 </div>
                 <div style={{
                   fontSize: 11,

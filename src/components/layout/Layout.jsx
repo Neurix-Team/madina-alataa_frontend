@@ -3,12 +3,17 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Notification from '../common/Notification';
+import GlobalLoadingHost from '../common/GlobalLoadingHost';
 import RocketBackground from '../common/RocketBackground';
 import CanvasBackground from '../common/CanvasBackground';
 import ConfettiOverlay from '../common/ConfettiOverlay';
 import LevelUpModal from '../modals/LevelUpModal';
 import useGameState from '../../hooks/useGameState';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { userLevelsService } from '../../services/userLevelsService';
+import { profilesService } from '../../services/profilesService';
+import { useAuth } from '../../hooks/useAuth';
+import GameEngine from '../../services/GameEngine';
 
 const TAB_TO_PATH = {
   map: '/map',
@@ -70,7 +75,67 @@ const Layout = () => {
   const {
     setActiveTab,
     setShowLevelUp,
+    syncUserStats,
   } = actions;
+
+  const { user } = useAuth();
+
+  // Initial name sync from auth
+  useEffect(() => {
+    if (user && userStats.name === 'جاري التحميل...') {
+      syncUserStats({ name: user.name || user.fullName || user.userName });
+    }
+  }, [user, userStats.name, syncUserStats]);
+
+  // Sync user stats from backend
+  useEffect(() => {
+    const fetchAndSyncStats = async () => {
+      if (!user) return;
+      
+      const isAdmin = user.roles?.includes('admin');
+      if (isAdmin) return;
+
+      try {
+        const response = await userLevelsService.getMyLevel();
+        if (response && response.item) {
+           const item = response.item;
+           
+           // Also fetch profile for name if needed
+           let name = user.name || user.fullName || user.userName || userStats.name;
+           try {
+             const profile = await profilesService.fetchMyProfile();
+             if (profile && profile.name) name = profile.name;
+           } catch (pErr) {
+             console.warn('Could not fetch profile name in Layout sync:', pErr);
+           }
+
+           syncUserStats({
+             xp: item.xp ?? item.currentXP ?? 0,
+             xpNeeded: item.xpNeeded ?? item.nextLevelXP ?? 1000,
+             level: item.level ?? item.currentLevel ?? 1,
+             kp: item.kp ?? 0,
+             title: GameEngine.titleForLevel(item.level ?? item.currentLevel ?? 1),
+             name: name,
+           });
+         }
+      } catch (err) {
+        console.error('Error syncing user stats in Layout:', err);
+      }
+    };
+
+    fetchAndSyncStats();
+     
+     // Refresh stats periodically or on focus
+     const interval = setInterval(fetchAndSyncStats, 60000); // every minute
+     window.addEventListener('focus', fetchAndSyncStats);
+     window.addEventListener('sync-user-stats', fetchAndSyncStats);
+
+     return () => {
+       clearInterval(interval);
+       window.removeEventListener('focus', fetchAndSyncStats);
+       window.removeEventListener('sync-user-stats', fetchAndSyncStats);
+     };
+   }, [user, syncUserStats]);
 
   // ── Mobile Nav ────────────────────────────────────────────────────────────
   const MOBILE_NAV = [
@@ -170,6 +235,7 @@ const Layout = () => {
         .layout-main {
           flex: 1;
           min-width: 0;
+          position: relative;
         }
 
         @media (max-width: 768px) {
@@ -194,6 +260,7 @@ const Layout = () => {
         />
 
         <main className="layout-main">
+          <GlobalLoadingHost contained />
           <Outlet />
         </main>
       </div>

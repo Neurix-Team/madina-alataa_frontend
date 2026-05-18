@@ -4,12 +4,14 @@
  * Full CRUD operations with real API integration.
  */
 import React, { useState, useEffect, useCallback, memo } from 'react';
+import AppLoader from '../common/AppLoader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { partnersService } from '../../services/partnersService';
 import AddPartnerModal from '../modals/AddPartnerModal';
 import PartnerDetailModal from '../modals/PartnerDetailModal';
 import EditPartnerModal from '../modals/EditPartnerModal';
 import EntityHistoryModal from '../modals/EntityHistoryModal';
+import { showAppConfirm } from '../../utils/appAlerts';
 
 import {
   FaBuilding,
@@ -617,7 +619,13 @@ const PartnersTab = () => {
   };
 
   const handleDeletePartner = async (partnerId) => {
-    const confirmed = window.confirm('هل أنت متأكد من حذف هذه المؤسسة؟ هذا الإجراء لا يمكن التراجع عنه.');
+    const confirmed = await showAppConfirm({
+      title: 'حذف المؤسسة',
+      message: 'هل أنت متأكد من حذف هذه المؤسسة؟ هذا الإجراء لا يمكن التراجع عنه.',
+      type: 'danger',
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+    });
     if (!confirmed) return;
 
     try {
@@ -718,9 +726,7 @@ const PartnersTab = () => {
 
       {/* Loading State */}
       {loading && (
-        <div className="partners-loading">
-          <div className="partners-loading__spinner" />
-        </div>
+        <AppLoader message="جاري تحميل قائمة المؤسسات..." />
       )}
 
       {/* Error State */}

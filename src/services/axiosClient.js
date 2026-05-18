@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { beginGlobalLoading, endGlobalLoading } from '../utils/globalLoading';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
 
@@ -45,6 +46,49 @@ export const axiosClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+const attachLoadingInterceptors = (instance) => {
+  if (instance.__madinaLoadingInterceptorsInstalled) return;
+
+  instance.interceptors.request.use(
+    (config) => {
+      const shouldTrackLoading = config?.meta?.globalLoading !== false;
+
+      if (shouldTrackLoading) {
+        config.__globalLoadingTracked = true;
+        beginGlobalLoading();
+      }
+
+      return config;
+    },
+    (error) => {
+      if (error?.config?.__globalLoadingTracked) {
+        endGlobalLoading();
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  instance.interceptors.response.use(
+    (response) => {
+      if (response?.config?.__globalLoadingTracked) {
+        endGlobalLoading();
+      }
+      return response;
+    },
+    (error) => {
+      if (error?.config?.__globalLoadingTracked) {
+        endGlobalLoading();
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  instance.__madinaLoadingInterceptorsInstalled = true;
+};
+
+attachLoadingInterceptors(axios);
+attachLoadingInterceptors(axiosClient);
 
 // Add a request interceptor to add the auth token to every request
 axiosClient.interceptors.request.use(

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import AppLoader from '../common/AppLoader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { locationsService } from '../../services/locationsService';
 import AddLocationModal from '../modals/AddLocationModal';
 import EditLocationModal from '../modals/EditLocationModal';
 import LocationDetailModal from '../modals/LocationDetailModal';
+import { showAppConfirm } from '../../utils/appAlerts';
 import { 
   FaPlus, FaSearch, FaEye, FaEdit, FaTrash, FaMapMarkerAlt, 
   FaGlobe, FaCompass, FaMapPin, FaStar, FaLock, FaUnlock,
@@ -132,7 +134,13 @@ const LocationsTab = () => {
   };
 
   const handleDeleteLocation = async (locationId) => {
-    const confirmed = window.confirm('هل أنت متأكد من حذف هذا العنوان؟ هذا الإجراء لا يمكن التراجع عنه.');
+    const confirmed = await showAppConfirm({
+      title: 'حذف العنوان',
+      message: 'هل أنت متأكد من حذف هذا العنوان؟ هذا الإجراء لا يمكن التراجع عنه.',
+      type: 'danger',
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+    });
     if (!confirmed) return;
     try {
       await locationsService.deleteLocation(locationId);
@@ -195,8 +203,11 @@ const LocationsTab = () => {
       whileHover={isMobile ? {} : { y: -8, scale: 1.01 }}
       className="pro-card pro-hover-scale relative overflow-hidden"
       style={{
-        padding: isMobile ? '12px' : '0',
-        borderRadius: isMobile ? '16px' : '24px',
+        padding: isMobile ? '12px' : '24px',
+        borderRadius: isMobile ? '16px' : '32px',
+        border: '1px solid rgba(226, 232, 240, 0.8)',
+        background: 'rgba(255, 255, 255, 0.9)',
+        backdropFilter: 'blur(10px)',
       }}
     >
       {/* gradient overlays (non-interactive) */}
@@ -208,38 +219,60 @@ const LocationsTab = () => {
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: isMobile ? 'flex-start' : 'center',
         gap: isMobile ? 8 : 12,
-        padding: isMobile ? '8px 4px' : '16px'
+        padding: '0 0 16px 0',
+        borderBottom: '1px solid rgba(226, 232, 240, 0.5)',
+        marginBottom: '16px'
       }}>
         <div className="pro-flex pro-items-center pro-gap-3">
           <div className="pro-number" style={{ width: isMobile ? 28 : 32, height: isMobile ? 28 : 32, fontSize: isMobile ? 12 : 14 }}>{index + 1}</div>
           <div>
-            <h3 className="pro-card-title" style={{ color: '#0f172a', fontSize: isMobile ? 15 : 18 }}>{location.name}</h3>
+            <h3 className="pro-card-title" style={{ color: '#0f172a', fontSize: isMobile ? 15 : 18, margin: 0 }}>{location.name}</h3>
           </div>
         </div>
-        <span className="pro-badge pro-badge-warning" style={{ fontSize: isMobile ? 10 : 12 }}>
+        <span className="pro-badge pro-badge-warning" style={{ fontSize: isMobile ? 10 : 12, marginRight: isMobile ? 0 : 'auto' }}>
           <FaStar style={{ fontSize: '10px' }} />
           مستوى {location.requiredLevel}
         </span>
       </div>
       
-      <div className="pro-card-body" style={{ padding: isMobile ? '8px 4px' : '16px' }}>
+      <div className="pro-card-body" style={{ padding: 0 }}>
         <div className="pro-data-grid" style={{ 
-          gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: isMobile ? 8 : 12
+          gridTemplateColumns: '1fr',
+          gap: isMobile ? 10 : 16
         }}>
-          <div className="pro-data-item" style={{ padding: isMobile ? '8px' : '12px 10px' }}>
-            <p className="pro-data-label" style={{ fontSize: isMobile ? 10 : 11 }}>
+          <div className="pro-data-item" style={{ 
+            padding: isMobile ? '12px' : '16px 20px',
+            background: 'rgba(248, 250, 252, 0.5)',
+            borderRadius: '16px',
+            border: '1px solid rgba(226, 232, 240, 0.5)'
+          }}>
+            <p className="pro-data-label" style={{ fontSize: isMobile ? 10 : 12, marginBottom: '8px' }}>
               <FaCompass style={{ color: 'var(--primary-light)' }} />
               خط الطول
             </p>
-            <p className="pro-data-value" style={{ color: '#0f172a', fontSize: isMobile ? 12 : 15 }}>{location.longitude || '0.0000'}</p>
+            <p className="pro-data-value" style={{ 
+              color: '#0f172a', 
+              fontSize: isMobile ? 14 : 16,
+              fontWeight: '700',
+              letterSpacing: '0.5px'
+            }}>{location.longitude || '0.0000'}</p>
           </div>
-          <div className="pro-data-item" style={{ padding: isMobile ? '8px' : '12px 10px' }}>
-            <p className="pro-data-label" style={{ fontSize: isMobile ? 10 : 11 }}>
+          <div className="pro-data-item" style={{ 
+            padding: isMobile ? '12px' : '16px 20px',
+            background: 'rgba(248, 250, 252, 0.5)',
+            borderRadius: '16px',
+            border: '1px solid rgba(226, 232, 240, 0.5)'
+          }}>
+            <p className="pro-data-label" style={{ fontSize: isMobile ? 10 : 12, marginBottom: '8px' }}>
               <FaGlobe style={{ color: 'var(--accent)' }} />
               خط العرض
             </p>
-            <p className="pro-data-value" style={{ color: '#0f172a', fontSize: isMobile ? 12 : 15 }}>{location.latitude || '0.0000'}</p>
+            <p className="pro-data-value" style={{ 
+              color: '#0f172a', 
+              fontSize: isMobile ? 14 : 16,
+              fontWeight: '700',
+              letterSpacing: '0.5px'
+            }}>{location.latitude || '0.0000'}</p>
           </div>
         </div>
       </div>
@@ -249,9 +282,11 @@ const LocationsTab = () => {
       {showActions ? (
         <div className="pro-card-actions" style={{ 
           display: 'flex', 
-          gap: isMobile ? '8px' : '10px', 
-          marginTop: isMobile ? '8px' : '12px', 
-          padding: isMobile ? '4px' : '0',
+          justifyContent: 'flex-end',
+          gap: isMobile ? '8px' : '12px', 
+          marginTop: '20px', 
+          padding: '16px 0 0 0',
+          borderTop: '1px solid rgba(226, 232, 240, 0.5)',
           position: 'relative', 
           zIndex: 20 
         }}>
@@ -320,7 +355,7 @@ const LocationsTab = () => {
   );
 
   return (
-    <div className="pro-page" style={{ background: 'transparent', padding: isMobile ? '12px' : '32px 24px' }}>
+    <div className="pro-page" style={{ background: 'transparent', padding: isMobile ? '12px' : '40px 48px' }}>
       <style>{`
         .pro-data-value {
           word-break: break-all !important;
@@ -456,10 +491,7 @@ const LocationsTab = () => {
         {/* Content Area */}
         <AnimatePresence mode="wait">
           {loading && !showAvailable ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pro-loading">
-              <div className="pro-spinner" />
-              <p className="pro-loading-text">جاري تحميل المواقع...</p>
-            </motion.div>
+            <AppLoader message="جاري تحميل المواقع..." />
           ) : (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
               {/* Results Count */}

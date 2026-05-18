@@ -22,6 +22,7 @@ import { locationsService } from '../services/locationsService';
 import ViewDonationRequestModal from '../components/modals/ViewDonationRequestModal';
 import EditDonationRequestModal from '../components/modals/EditDonationRequestModal';
 import CreateDonationRequestModal from '../components/modals/CreateDonationRequestModal';
+import { showAppConfirm } from '../utils/appAlerts';
 import EntityHistoryModal from '../components/modals/EntityHistoryModal';
 
 const getTokenFromStorage = () => {
@@ -213,7 +214,14 @@ console.log('🛡️ Is Admin:', isAdmin);
   };
 
   const handleReject = async (id) => {
-    if (!confirm('هل أنت متأكد من رفض هذا الطلب؟')) return;
+    const confirmed = await showAppConfirm({
+      title: 'رفض الطلب',
+      message: 'هل أنت متأكد من رفض هذا الطلب؟',
+      type: 'warning',
+      confirmText: 'رفض',
+      cancelText: 'إلغاء',
+    });
+    if (!confirmed) return;
     setActionLoading((prev) => ({ ...prev, [id]: 'reject' }));
     try {
       await donationRequestsService.rejectDonationRequest(id);
@@ -237,7 +245,14 @@ console.log('🛡️ Is Admin:', isAdmin);
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('هل أنت متأكد من حذف هذا الطلب؟')) return;
+    const confirmed = await showAppConfirm({
+      title: 'حذف الطلب',
+      message: 'هل أنت متأكد من حذف هذا الطلب؟',
+      type: 'danger',
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+    });
+    if (!confirmed) return;
     setActionLoading((prev) => ({ ...prev, [id]: 'delete' }));
     try {
       await donationRequestsService.deleteDonationRequest(id);

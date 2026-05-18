@@ -2,6 +2,7 @@
 import { useReducer, useCallback, useEffect } from 'react';
 import GameEngine from '../services/GameEngine';
 import AudioManager from '../services/AudioManager';
+import { showAppAlert as dispatchAppAlert } from '../utils/appAlerts';
 
 // ── Initial State ─────────────────────────────────────────────────────────
 const INITIAL_STATE = {
@@ -16,7 +17,16 @@ const INITIAL_STATE = {
   levelUpData:    { level: 1, title: 'مبتدئ' },
   notification:   null,
   userStats: {
-    name:        'البطل أحمد',
+    name:        (() => {
+      try {
+        const raw = localStorage.getItem('madeena_login_user_response');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          return parsed.userName || parsed.fullname || parsed.name || 'جاري التحميل...';
+        }
+      } catch (e) {}
+      return 'جاري التحميل...';
+    })(),
     title:       'مبتدئ',
     level:       1,
     xp:          0,
@@ -53,11 +63,22 @@ const A = {
   CLAIM_DAILY_REWARD: 'CLAIM_DAILY_REWARD',
   HANDLE_DONATE:      'HANDLE_DONATE',
   ADD_ORDER:          'ADD_ORDER',
+  SYNC_USER_STATS:    'SYNC_USER_STATS',
 };
 
 // ── Reducer ───────────────────────────────────────────────────────────────
 function reducer(state, action) {
   switch (action.type) {
+
+    case A.SYNC_USER_STATS: {
+      return {
+        ...state,
+        userStats: {
+          ...state.userStats,
+          ...action.stats,
+        },
+      };
+    }
 
     case A.LOGIN: {
       const hasVisited = localStorage.getItem('madina_visited');
@@ -290,6 +311,12 @@ export default function useGameState() {
   const addOrder = useCallback((order) =>
     dispatch({ type: A.ADD_ORDER, order }), []);
 
+  const syncUserStats = useCallback((stats) =>
+    dispatch({ type: A.SYNC_USER_STATS, stats }), []);
+
+  const showAppAlert = useCallback((options = {}) =>
+    dispatchAppAlert(options), []);
+
   return {
     state,
     actions: {
@@ -311,6 +338,8 @@ export default function useGameState() {
       claimDailyReward,
       handleDonate,
       addOrder,
+      syncUserStats,
+      showAppAlert,
     },
   };
 }

@@ -7,6 +7,7 @@ import { GuestRoute } from '../app/router/GuestRoute';
 import { CompleteRegistrationRoute } from '../app/router/CompleteRegistrationRoute';
 import { useAuth } from '../hooks/useAuth';
 import { getDefaultRouteByUser } from '../utils/authRoutes';
+import AppLoader from '../components/common/AppLoader';
 
 // Auth
 const AuthScreen = lazy(() => import('../components/auth/AuthScreen'));
@@ -68,6 +69,8 @@ const LoadingFallback = () => (
   </div>
 );
 
+const RouteLoadingFallback = () => <AppLoader message="جاري تحميل الصفحة..." fullPage />;
+
 const HomeRedirect = () => {
   const { user } = useAuth();
   return <Navigate to={getDefaultRouteByUser(user)} replace />;
@@ -75,7 +78,7 @@ const HomeRedirect = () => {
 
 export const AppRouter = () => {
   return (
-    <Suspense fallback={<LoadingFallback />}>
+    <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
         {/* Guest only routes */}
         <Route element={<GuestRoute />}>

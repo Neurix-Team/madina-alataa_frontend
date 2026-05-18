@@ -6,6 +6,7 @@ import AddMissionModal from '../modals/AddMissionModal';
 import MissionDetailModal from '../modals/MissionDetailModal';
 import EditMissionModal from '../modals/EditMissionModal';
 import EntityHistoryModal from '../modals/EntityHistoryModal';
+import { showAppConfirm } from '../../utils/appAlerts';
 import {
   FaPlus,
   FaSearch,
@@ -174,7 +175,14 @@ const MissionsTab = () => {
   };
 
   const handleDeleteMission = async (missionId) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذه المهمة؟')) return;
+    const confirmed = await showAppConfirm({
+      title: 'حذف المهمة',
+      message: 'هل أنت متأكد من حذف هذه المهمة؟',
+      type: 'danger',
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+    });
+    if (!confirmed) return;
     try {
       await missionsService.deleteMission(missionId);
       fetchMissions(currentPage);

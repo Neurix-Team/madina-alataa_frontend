@@ -22,6 +22,7 @@ import ViewDonationRequestModal from '../components/modals/ViewDonationRequestMo
 import EditDonationRequestModal from '../components/modals/EditDonationRequestModal';
 
 import CreateDonationRequestModal from '../components/modals/CreateDonationRequestModal';
+import { showAppConfirm } from '../utils/appAlerts';
 import { locationsService } from '../services/locationsService';
 
 const UserDonationRequestsPage = () => {
@@ -107,7 +108,14 @@ const UserDonationRequestsPage = () => {
   }, [locations]);
 
   const handleDelete = async (id) => {
-    if (!confirm('هل أنت متأكد من حذف هذا الطلب؟')) return;
+    const confirmed = await showAppConfirm({
+      title: 'حذف الطلب',
+      message: 'هل أنت متأكد من حذف هذا الطلب؟',
+      type: 'danger',
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+    });
+    if (!confirmed) return;
     setActionLoading((prev) => ({ ...prev, [id]: 'delete' }));
     try {
       await donationRequestsService.deleteDonationRequest(id);

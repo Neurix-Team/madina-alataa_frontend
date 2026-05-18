@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import AppLoader from '../../components/common/AppLoader';
 import { useAuth } from '../../hooks/useAuth';
 import { needsRegistrationCompletion } from '../../utils/authRoutes.js';
 
@@ -9,23 +10,12 @@ export const RoleGuard = ({ allowedRoles = [] }) => {
   const location = useLocation();
 
   if (!isInitialized) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '20px' }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        <div style={{ fontFamily: 'Cairo', fontWeight: 700, color: '#1e293b' }}>جاري التحميل...</div>
-      </div>
-    );
+    return <AppLoader message="جاري تجهيز التطبيق..." fullPage />;
   }
 
   if (!isAuthenticated || !user) {
     const returnUrl = `${location.pathname}${location.search}${location.hash}`;
-    return (
-      <Navigate
-        to="/login"
-        replace
-        state={{ from: returnUrl }}
-      />
-    );
+    return <Navigate to="/login" replace state={{ from: returnUrl }} />;
   }
 
   if (needsRegistrationCompletion(user)) {
@@ -49,13 +39,11 @@ export const RoleGuard = ({ allowedRoles = [] }) => {
     ? user.roles.map(normalizeRole)
     : [normalizeRole(user?.roles)];
 
-  // الأدمن يدخل أي RoleGuard
   if (userRoles.includes('admin')) {
     return <Outlet />;
   }
 
   const isAllowed = allowedRoles.some((role) => userRoles.includes(normalizeRole(role)));
-
   if (!isAllowed) {
     return <Navigate to="/unauthorized" replace />;
   }

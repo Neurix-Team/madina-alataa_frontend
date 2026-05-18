@@ -7,6 +7,7 @@ import {
   saveAvatarProfile,
   buildAvatarUrlFromProfile,
 } from '../../utils/avatarProfile';
+import { showAppConfirm } from '../../utils/appAlerts';
 
 // ═══════════════════════════════════════════════════════════════════════
 // 🎨 Complete Avatar Options (Same as AvatarCreator)
@@ -283,11 +284,19 @@ export default function ProfileTab({ avatarTheme, onSetColor, onSetAccessory, us
     AudioManager.getInstance().play('success');
   };
 
-  const deletePreset = (presetId) => {
-    if (confirm('هل تريد حذف هذا التصميم المحفوظ؟')) {
-      setSavedPresets(prev => prev.filter(p => p.id !== presetId));
-      AudioManager.getInstance().play('click');
-    }
+  const deletePreset = async (presetId) => {
+    const confirmed = await showAppConfirm({
+      title: 'حذف التصميم',
+      message: 'هل تريد حذف هذا التصميم المحفوظ؟',
+      type: 'warning',
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+    });
+
+    if (!confirmed) return;
+
+    setSavedPresets(prev => prev.filter(p => p.id !== presetId));
+    AudioManager.getInstance().play('click');
   };
 
   const handleSaveAvatarGlobal = () => {

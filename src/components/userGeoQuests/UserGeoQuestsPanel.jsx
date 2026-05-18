@@ -18,6 +18,7 @@ import {
   normalizeUserGeoQuest,
   userGeoQuestsService,
 } from '../../services/userGeoQuestsService';
+import { showAppConfirm } from '../../utils/appAlerts';
 
 const panelStyles = {
   card: {
@@ -627,7 +628,17 @@ useEffect(() => {
 
   const removeItem = async (item) => {
     const id = getUserGeoQuestId(item);
-    if (!id || !window.confirm('هل تريد حذف هذا العنصر من قاعدة البيانات؟')) return;
+    if (!id) return;
+
+    const confirmed = await showAppConfirm({
+      title: 'تأكيد الحذف',
+      message: 'هل تريد حذف هذا العنصر من قاعدة البيانات؟',
+      type: 'danger',
+      confirmText: 'حذف',
+      cancelText: 'إلغاء',
+    });
+
+    if (!confirmed) return;
 
     try {
       await userGeoQuestsService.deleteUserGeoQuest(id);
