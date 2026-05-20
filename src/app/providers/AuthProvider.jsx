@@ -41,17 +41,17 @@ export const AuthProvider = ({ children }) => {
 
       const response = await axiosClient.get('/api/auth/me', headerToken ? { headers: { Authorization: `Bearer ${headerToken}` } } : undefined);
       const userData = response.data;
-      
+
       if (userData) {
         const normalizedUser = {
           id: userData.id,
           name: userData.userName || userData.fullname || userData.name || '',
           email: userData.email || '',
           // roles: userData.roles || [],
-roles: normalizeRoles(userData.roles || userData.role || userData.user?.roles),
-          token: localStorage.getItem('madina_access_token') || 
-                 localStorage.getItem('auth_token') || 
-                 localStorage.getItem('accessToken'),
+          roles: normalizeRoles(userData.roles || userData.role || userData.user?.roles),
+          token: localStorage.getItem('madina_access_token') ||
+            localStorage.getItem('auth_token') ||
+            localStorage.getItem('accessToken'),
         };
 
         setUser(normalizedUser);
@@ -77,7 +77,7 @@ roles: normalizeRoles(userData.roles || userData.role || userData.user?.roles),
 
         const rawData = localStorage.getItem(STORAGE_KEY);
         let storedUser = null;
-        
+
         if (rawData) {
           try {
             const parsed = JSON.parse(rawData);
@@ -93,9 +93,9 @@ roles: normalizeRoles(userData.roles || userData.role || userData.user?.roles),
           }
         }
 
-        const token = localStorage.getItem('madina_access_token') || 
-                     localStorage.getItem('auth_token') || 
-                     localStorage.getItem('accessToken');
+        const token = localStorage.getItem('madina_access_token') ||
+          localStorage.getItem('auth_token') ||
+          localStorage.getItem('accessToken');
 
         if (token) {
           try {
@@ -133,7 +133,7 @@ roles: normalizeRoles(userData.roles || userData.role || userData.user?.roles),
 
       const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
       const loginUrl = `${apiBase.replace(/\/$/, '')}/api/auth/login`;
-      
+
       const response = await axios.post(loginUrl, payload);
       console.log('LOGIN RESPONSE:', response.data);
 
@@ -142,7 +142,7 @@ roles: normalizeRoles(userData.roles || userData.role || userData.user?.roles),
       if (responseData) {
         // تخزين الاستجابة كاملة كما هي في localStorage تحت المفتاح الجديد
         localStorage.setItem(STORAGE_KEY, JSON.stringify(responseData));
-        
+
         // تخزين التوكن في المفاتيح المعروفة لـ axiosClient
         const token = responseData.accessToken || responseData.token;
         if (token) {
@@ -153,22 +153,33 @@ roles: normalizeRoles(userData.roles || userData.role || userData.user?.roles),
 
         const normalizedUser = {
           id: responseData.userId || responseData.id || `user-${Date.now()}`,
-          name: responseData.userName || responseData.fullname || responseData.name || 'Admin',
+          name: responseData.userName || responseData.fullname || responseData.name || 'User',
           email: responseData.email || payload.email,
           // roles: responseData.roles || ['User'],
-roles: normalizeRoles(responseData.roles || responseData.role || responseData.user?.roles || ['user']),
+          roles: normalizeRoles(responseData.roles || responseData.role || responseData.user?.roles || ['user']),
           token: token,
         };
 
         console.log('NORMALIZED LOGIN USER:', normalizedUser);
         setUser(normalizedUser);
 
+        // Fetch fresh user data immediately to get correct roles and profile
+        try {
+          console.log('Fetching fresh user data after login...');
+          const freshUser = await fetchMe();
+          if (freshUser) {
+            console.log('Fresh user data fetched successfully:', freshUser);
+          }
+        } catch (fetchError) {
+          console.warn('Failed to fetch fresh user data after login:', fetchError.message);
+        }
+
         // Fetch and save user profile after login
         try {
           console.log('Fetching user profile after login...');
           const profileData = await profilesService.fetchMyProfile();
           console.log('Profile data fetched:', profileData);
-          
+
           // Save profile data to localStorage
           profilesService.saveProfileToStorage(profileData);
           console.log('Profile saved to localStorage - avatarId:', profileData.avatarId, 'profileId:', profileData.id || profileData.profileId);
@@ -181,7 +192,37 @@ roles: normalizeRoles(responseData.roles || responseData.role || responseData.us
       }
     } catch (error) {
       console.error('LOGIN API ERROR:', error.response?.data || error.message || error);
-      const errorMsg = error?.response?.data?.message || error?.response?.data?.title || 'فشل تسجيل الدخول';
+
+      let errorMsg = 'خطأ في البريد الإلكتروني أو كلمة السر';
+
+      if (error?.response?.data) {
+        const errorData = error.response.data;
+
+        // Handle ASP.NET Core Identity validation errors
+        if (errorData.errors && typeof errorData.errors === 'object') {
+          const messages = [];
+          Object.values(errorData.errors).forEach(errArray => {
+            if (Array.isArray(errArray)) {
+              messages.push(...errArray);
+            } else if (typeof errArray === 'string') {
+              messages.push(errArray);
+            }
+          });
+          if (messages.length > 0) {
+            errorMsg = messages.join(' | ');
+          }
+        } else {
+          // If the error status is 401 or 400 with a generic failure, provide the helpful message
+          if (error.response.status === 401 || errorData.title === 'One or more validation errors occurred.') {
+            errorMsg = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+          } else {
+            errorMsg = errorData.message || errorData.title || errorMsg;
+          }
+        }
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+
       setAuthError(errorMsg);
       logError(error, 'AuthProvider.login');
       return null;
@@ -218,8 +259,9 @@ roles: normalizeRoles(responseData.roles || responseData.role || responseData.us
 
       console.log('NORMALIZED REGISTER USER:', normalizedUser);
 
-      setUser(normalizedUser);
-      await secureStorage.setItem(STORAGE_KEY, normalizedUser);
+      // Removed setUser and fetchMe to prevent automatic login after registration
+      // The user will be redirected to login page to enter credentials manually
+
       return normalizedUser;
     } catch (error) {
       console.error('REGISTER API ERROR:', error?.response?.data || error?.message || error);
@@ -227,20 +269,62 @@ roles: normalizeRoles(responseData.roles || responseData.role || responseData.us
       console.error('ERROR STATUS:', error?.response?.status);
       console.error('ERROR DATA:', JSON.stringify(error?.response?.data, null, 2));
 
-      // Handle validation errors specifically
-      if (error?.response?.data?.errors) {
-        const validationErrors = error.response.data.errors;
-        const errorMessages = validationErrors.map(err => err.message || err).join(', ');
-        setAuthError(`Validation errors: ${errorMessages}`);
-      } else {
-        const errorMsg =
-          error?.response?.data?.message ||
-          error?.response?.data?.title ||
-          'فشل إنشاء الحساب';
+      let errorMsg = 'فشل إنشاء الحساب';
 
-        setAuthError(errorMsg);
+      if (error?.response?.data) {
+        const errorData = error.response.data;
+
+        // 1. If errorData is an array of errors (like ASP.NET Identity raw errors)
+        if (Array.isArray(errorData)) {
+          const messages = errorData
+            .map(err => err.description || err.message)
+            .filter(Boolean);
+          if (messages.length > 0) {
+            errorMsg = messages.join(' | ');
+          }
+        }
+        // 2. If errorData is an object with errors dictionary or array
+        else if (errorData.errors) {
+          if (Array.isArray(errorData.errors)) {
+            const messages = errorData.errors
+              .map(err => err.description || err.message)
+              .filter(Boolean);
+            if (messages.length > 0) {
+              errorMsg = messages.join(' | ');
+            }
+          } else if (typeof errorData.errors === 'object') {
+            const messages = [];
+            Object.values(errorData.errors).forEach(errArray => {
+              if (Array.isArray(errArray)) {
+                messages.push(...errArray);
+              } else if (typeof errArray === 'string') {
+                messages.push(errArray);
+              } else if (errArray && typeof errArray === 'object') {
+                messages.push(errArray.description || errArray.message || JSON.stringify(errArray));
+              }
+            });
+            if (messages.length > 0) {
+              errorMsg = messages.join(' | ');
+            }
+          }
+        }
+        // 3. Fallback to standard message/title
+        else {
+          errorMsg = errorData.message || errorData.description || errorData.title || errorMsg;
+        }
+
+        // Translate common English validation/identity errors to Arabic
+        if (typeof errorMsg === 'string') {
+          errorMsg = errorMsg.replace(/Email '.*' is already taken\./gi, 'البريد الإلكتروني مسجل بالفعل.');
+          errorMsg = errorMsg.replace(/Username '.*' is already taken\./gi, 'اسم المستخدم مسجل بالفعل.');
+          errorMsg = errorMsg.replace(/DuplicateEmail/gi, 'البريد الإلكتروني مسجل بالفعل.');
+          errorMsg = errorMsg.replace(/DuplicateUserName/gi, 'اسم المستخدم مسجل بالفعل.');
+        }
+      } else if (error.message) {
+        errorMsg = error.message;
       }
-      
+
+      setAuthError(errorMsg);
       logError(error, 'AuthProvider.register');
 
       return null;
@@ -261,201 +345,201 @@ roles: normalizeRoles(responseData.roles || responseData.role || responseData.us
     }
   };
 
-const normalizeRoles = (roles) => {
-  if (!roles) return [];
+  const normalizeRoles = (roles) => {
+    if (!roles) return [];
 
-  if (Array.isArray(roles)) {
-    return roles.map(role => String(role).toLowerCase());
-  }
+    if (Array.isArray(roles)) {
+      return roles.map(role => String(role).toLowerCase());
+    }
 
-  return [String(roles).toLowerCase()];
-};
+    return [String(roles).toLowerCase()];
+  };
 
-const googleLogin = async () => {
-  try {
-    setLoading(true);
-    setAuthError(null);
+  const googleLogin = async () => {
+    try {
+      setLoading(true);
+      setAuthError(null);
 
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
-    const callbackUrl = `${window.location.origin}/auth/callback`; // بدل /signin-google
-    const loginUrl = `${apiBase.replace(/\/$/, '')}/api/auth/google/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
+      const callbackUrl = `${window.location.origin}/auth/callback`; // بدل /signin-google
+      const loginUrl = `${apiBase.replace(/\/$/, '')}/api/auth/google/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 
-    window.location.href = loginUrl;
-    return null;
-  } catch (error) {
-    console.error('Google Login Error:', error);
-    setAuthError('Failed to initiate Google login');
-    setLoading(false);
-    return null;
-  }
-};
+      window.location.href = loginUrl;
+      return null;
+    } catch (error) {
+      console.error('Google Login Error:', error);
+      setAuthError('Failed to initiate Google login');
+      setLoading(false);
+      return null;
+    }
+  };
 
   //continue registration fetching
 
-const continueRegistration = async (userId, newPassword, extra = null) => {
-  try {
-    setAuthError(null);
+  const continueRegistration = async (userId, newPassword, extra = null) => {
+    try {
+      setAuthError(null);
 
-    if (!userId) {
-      setAuthError('UserId غير موجود، ارجعي اعملي تسجيل بجوجل مرة تانية');
+      if (!userId) {
+        setAuthError('UserId غير موجود، ارجعي اعملي تسجيل بجوجل مرة تانية');
+        return null;
+      }
+
+      const token =
+        localStorage.getItem('madina_access_token') ||
+        localStorage.getItem('auth_token') ||
+        localStorage.getItem('accessToken') ||
+        localStorage.getItem('google_temp_token') ||
+        extra?.token ||
+        extra?.accessToken ||
+        extra?.tempToken;
+
+      if (!token) {
+        setAuthError('التوكن غير موجود، لازم تعملي تسجيل بجوجل مرة تانية');
+        return null;
+      }
+
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
+      const url = `${apiBase.replace(/\/$/, '')}/api/auth/continue-registration`;
+
+      const payload = {
+        // backend expects lowercase keys
+        userid: userId,
+        newpassword: newPassword,
+        // Request backend to convert external/social user to a local account
+        // so the new password will be accepted. Backend must handle this flag.
+        convertExternal: true,
+        provider: 'Local',
+      };
+
+      console.log('Continue Registration URL:', url);
+      console.log('Continue Registration PAYLOAD:', payload);
+      console.log('Continue Registration TOKEN:', token);
+
+      const response = await axios.post(url, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Continue Registration Successful:', response.data);
+
+      const userData = response.data?.user ?? response.data;
+
+      const finalToken =
+        response.data?.token ||
+        response.data?.accessToken ||
+        userData?.token ||
+        token;
+
+      localStorage.setItem('madina_access_token', finalToken);
+      localStorage.setItem('auth_token', finalToken);
+      localStorage.setItem('accessToken', finalToken);
+
+      const normalizedUser = {
+        id: userData?.id || userData?.userId || userId,
+        name: userData?.fullname || userData?.fullName || userData?.name || 'Unknown',
+        email: userData?.email || extra?.email || extra?.Email || 'No Email',
+        roles: userData?.roles || ['User'],
+        token: finalToken,
+      };
+
+      setUser(normalizedUser);
+      await secureStorage.setItem(STORAGE_KEY, normalizedUser);
+
+      return normalizedUser;
+    } catch (error) {
+      console.error('Continue Registration Error:', error);
+      console.error('Status:', error?.response?.status);
+      console.error('Data:', error?.response?.data);
+
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.response?.data?.title ||
+        'Failed to complete registration';
+
+      setAuthError(errorMsg);
       return null;
     }
+  };
 
-    const token =
-      localStorage.getItem('madina_access_token') ||
-      localStorage.getItem('auth_token') ||
-      localStorage.getItem('accessToken') ||
-      localStorage.getItem('google_temp_token') ||
-      extra?.token ||
-      extra?.accessToken ||
-      extra?.tempToken;
+  // const continueRegistration = async (userId, newPassword) => {
+  //   try {
+  //     setAuthError(null);
 
-    if (!token) {
-      setAuthError('التوكن غير موجود، لازم تعملي تسجيل بجوجل مرة تانية');
-      return null;
-    }
+  //     if (!userId) {
+  //       setAuthError('UserId غير موجود، ارجعي اعملي تسجيل بجوجل مرة تانية');
+  //       return null;
+  //     }
 
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
-    const url = `${apiBase.replace(/\/$/, '')}/api/auth/continue-registration`;
+  //     if (!newPassword) {
+  //       setAuthError('New password مطلوب');
+  //       return null;
+  //     }
 
-    const payload = {
-      // backend expects lowercase keys
-      userid: userId,
-      newpassword: newPassword,
-      // Request backend to convert external/social user to a local account
-      // so the new password will be accepted. Backend must handle this flag.
-      convertExternal: true,
-      provider: 'Local',
-    };
+  //     const apiBase =
+  //       import.meta.env.VITE_API_BASE_URL ||
+  //       'http://champapi.neurix.uk:5001';
 
-    console.log('Continue Registration URL:', url);
-    console.log('Continue Registration PAYLOAD:', payload);
-    console.log('Continue Registration TOKEN:', token);
+  //     const url = `${apiBase.replace(/\/$/, '')}/api/auth/continue-registration`;
 
-    const response = await axios.post(url, payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+  //     const payload = {
+  //       userid: userId,
+  //       newpassword: newPassword,
+  //     };
 
-    console.log('Continue Registration Successful:', response.data);
+  //     console.log('Continue Registration URL:', url);
+  //     console.log('Continue Registration PAYLOAD:', payload);
 
-    const userData = response.data?.user ?? response.data;
+  //     const response = await axios.post(url, payload, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //     });
 
-    const finalToken =
-      response.data?.token ||
-      response.data?.accessToken ||
-      userData?.token ||
-      token;
+  //     console.log('Continue Registration Successful:', response.data);
 
-    localStorage.setItem('madina_access_token', finalToken);
-    localStorage.setItem('auth_token', finalToken);
-    localStorage.setItem('accessToken', finalToken);
+  //     const userData = response.data?.user ?? response.data;
 
-    const normalizedUser = {
-      id: userData?.id || userData?.userId || userId,
-      name: userData?.fullname || userData?.fullName || userData?.name || 'Unknown',
-      email: userData?.email || extra?.email || extra?.Email || 'No Email',
-      roles: userData?.roles || ['User'],
-      token: finalToken,
-    };
+  //     const finalToken =
+  //       response.data?.token ||
+  //       response.data?.accessToken ||
+  //       userData?.token ||
+  //       null;
 
-    setUser(normalizedUser);
-    await secureStorage.setItem(STORAGE_KEY, normalizedUser);
+  //     if (finalToken) {
+  //       localStorage.setItem('madina_access_token', finalToken);
+  //       localStorage.setItem('auth_token', finalToken);
+  //       localStorage.setItem('accessToken', finalToken);
+  //     }
 
-    return normalizedUser;
-  } catch (error) {
-    console.error('Continue Registration Error:', error);
-    console.error('Status:', error?.response?.status);
-    console.error('Data:', error?.response?.data);
+  //     const normalizedUser = {
+  //       id: userData?.id || userData?.userId || userId,
+  //       name: userData?.fullname || userData?.fullName || userData?.name || 'Unknown',
+  //       email: userData?.email || 'No Email',
+  //       roles: userData?.roles || ['User'],
+  //       token: finalToken,
+  //     };
 
-    const errorMsg =
-      error?.response?.data?.message ||
-      error?.response?.data?.title ||
-      'Failed to complete registration';
+  //     setUser(normalizedUser);
+  //     await secureStorage.setItem(STORAGE_KEY, normalizedUser);
 
-    setAuthError(errorMsg);
-    return null;
-  }
-};
+  //     return normalizedUser;
+  //   } catch (error) {
+  //     console.error('Continue Registration Error:', error);
+  //     console.error('Status:', error?.response?.status);
+  //     console.error('Data:', error?.response?.data);
 
-// const continueRegistration = async (userId, newPassword) => {
-//   try {
-//     setAuthError(null);
+  //     const errorMsg =
+  //       error?.response?.data?.message ||
+  //       error?.response?.data?.title ||
+  //       'Failed to complete registration';
 
-//     if (!userId) {
-//       setAuthError('UserId غير موجود، ارجعي اعملي تسجيل بجوجل مرة تانية');
-//       return null;
-//     }
-
-//     if (!newPassword) {
-//       setAuthError('New password مطلوب');
-//       return null;
-//     }
-
-//     const apiBase =
-//       import.meta.env.VITE_API_BASE_URL ||
-//       'http://champapi.neurix.uk:5001';
-
-//     const url = `${apiBase.replace(/\/$/, '')}/api/auth/continue-registration`;
-
-//     const payload = {
-//       userid: userId,
-//       newpassword: newPassword,
-//     };
-
-//     console.log('Continue Registration URL:', url);
-//     console.log('Continue Registration PAYLOAD:', payload);
-
-//     const response = await axios.post(url, payload, {
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//     });
-
-//     console.log('Continue Registration Successful:', response.data);
-
-//     const userData = response.data?.user ?? response.data;
-
-//     const finalToken =
-//       response.data?.token ||
-//       response.data?.accessToken ||
-//       userData?.token ||
-//       null;
-
-//     if (finalToken) {
-//       localStorage.setItem('madina_access_token', finalToken);
-//       localStorage.setItem('auth_token', finalToken);
-//       localStorage.setItem('accessToken', finalToken);
-//     }
-
-//     const normalizedUser = {
-//       id: userData?.id || userData?.userId || userId,
-//       name: userData?.fullname || userData?.fullName || userData?.name || 'Unknown',
-//       email: userData?.email || 'No Email',
-//       roles: userData?.roles || ['User'],
-//       token: finalToken,
-//     };
-
-//     setUser(normalizedUser);
-//     await secureStorage.setItem(STORAGE_KEY, normalizedUser);
-
-//     return normalizedUser;
-//   } catch (error) {
-//     console.error('Continue Registration Error:', error);
-//     console.error('Status:', error?.response?.status);
-//     console.error('Data:', error?.response?.data);
-
-//     const errorMsg =
-//       error?.response?.data?.message ||
-//       error?.response?.data?.title ||
-//       'Failed to complete registration';
-
-//     setAuthError(errorMsg);
-//     return null;
-//   }
-// };
+  //     setAuthError(errorMsg);
+  //     return null;
+  //   }
+  // };
 
   // Logout function
   const logout = async () => {
@@ -467,7 +551,11 @@ const continueRegistration = async (userId, newPassword, extra = null) => {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('accessToken');
       localStorage.removeItem('madina_auth_user');
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('user_data');
       await secureStorage.removeItem(STORAGE_KEY);
+
+      // Clear game state if necessary (handled by components listening to user=null)
     } catch (error) {
       logError(error, 'AuthProvider.logout');
       setAuthError('فشل في تسجيل الخروج');
@@ -483,15 +571,15 @@ const continueRegistration = async (userId, newPassword, extra = null) => {
 
   const isAuthenticated = !!user;
 
-const isAdmin = user?.roles?.some(
-  role => String(role).toLowerCase() === 'admin'
-) || false;
-
-const hasRole = (role) => {
-  return user?.roles?.some(
-    userRole => String(userRole).toLowerCase() === String(role).toLowerCase()
+  const isAdmin = user?.roles?.some(
+    role => String(role).toLowerCase() === 'admin'
   ) || false;
-};
+
+  const hasRole = (role) => {
+    return user?.roles?.some(
+      userRole => String(userRole).toLowerCase() === String(role).toLowerCase()
+    ) || false;
+  };
 
   // const value = useMemo(() => ({
   //   user,
@@ -510,24 +598,24 @@ const hasRole = (role) => {
   //   logout,
   // }), [user, isAuthenticated, isAdmin, bootstrapping, authError, loading]);
   const value = useMemo(() => ({
-  user,
-  setUser,
-  isAuthenticated,
-  isAdmin,
-  hasRole,
-  bootstrapping,
-  isInitialized,
-  authError,
-  setAuthError,
-  loading,
-  login,
-  register,
-  guestLogin,
-  googleLogin,
-  continueRegistration,
-  fetchMe,
-  logout,
-}), [user, isAuthenticated, isAdmin, bootstrapping, isInitialized, authError, loading]);
+    user,
+    setUser,
+    isAuthenticated,
+    isAdmin,
+    hasRole,
+    bootstrapping,
+    isInitialized,
+    authError,
+    setAuthError,
+    loading,
+    login,
+    register,
+    guestLogin,
+    googleLogin,
+    continueRegistration,
+    fetchMe,
+    logout,
+  }), [user, isAuthenticated, isAdmin, bootstrapping, isInitialized, authError, loading]);
 
   return (
     <AuthContext.Provider value={value}>

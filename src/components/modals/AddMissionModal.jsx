@@ -137,7 +137,10 @@ const AddMissionModal = ({ isOpen, onClose, onSubmit, locations = [] }) => {
             {/* Header */}
             <div className="app-modal-header">
               <div className="flex items-center gap-4">
-                <div className="w-[52px] h-[52px] rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+                <div
+                  className="w-[52px] h-[52px] rounded-2xl flex items-center justify-center shadow-sm"
+                  style={{ background: 'var(--bg-card-2)', color: 'var(--primary)', border: '1px solid var(--border)' }}
+                >
                   <FaPlus className="text-xl" />
                 </div>
                 <div>
@@ -231,7 +234,7 @@ const AddMissionModal = ({ isOpen, onClose, onSubmit, locations = [] }) => {
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="app-form-actions pt-4 border-t border-slate-100">
+                <div className="app-form-actions pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
                   <button
                     type="submit"
                     disabled={loading}

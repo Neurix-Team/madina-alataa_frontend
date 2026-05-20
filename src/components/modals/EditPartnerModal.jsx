@@ -82,11 +82,6 @@ const EditPartnerModal = ({ isOpen, onClose, onSubmit, partner }) => {
 
   if (!isOpen || !partner) return null;
 
-  const fieldClass =
-    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-blue-50/30 focus:ring-4 focus:ring-blue-100/50';
-
-  const labelClass = 'block text-sm font-bold text-slate-700 mb-2 mr-1';
-
   return (
     <AnimatePresence>
       <motion.div
@@ -107,7 +102,14 @@ const EditPartnerModal = ({ isOpen, onClose, onSubmit, partner }) => {
           {/* Header */}
           <div className="app-modal-header">
             <div className="flex items-center gap-4">
-              <div className="w-[52px] h-[52px] rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm">
+              <div
+                className="w-[52px] h-[52px] rounded-2xl flex items-center justify-center shadow-sm"
+                style={{
+                  background: 'rgba(245, 158, 11, 0.12)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  color: 'var(--warning)',
+                }}
+              >
                 <FaEdit className="text-xl" />
               </div>
               <div>
@@ -209,7 +211,7 @@ const EditPartnerModal = ({ isOpen, onClose, onSubmit, partner }) => {
               </div>
 
               {/* Footer Buttons */}
-              <div className="app-form-actions pt-4 border-t border-slate-100">
+              <div className="app-form-actions pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
                 <button
                   type="button"
                   onClick={onClose}

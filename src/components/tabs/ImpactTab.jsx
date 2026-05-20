@@ -30,7 +30,7 @@ const CSS = `
     display: grid;
     gap: 18px;
     font-family: 'Cairo', sans-serif;
-    color: #0f172a;
+    color: var(--text-primary);
   }
 
   .impact-home-top-grid {
@@ -44,7 +44,7 @@ const CSS = `
     padding: 16px 16px 14px;
     color: #fff;
     min-height: 104px;
-    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.10);
+    box-shadow: var(--shadow-md);
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(255,255,255,0.10);
@@ -128,14 +128,12 @@ const CSS = `
   }
 
   .impact-hero {
-    background:
-      radial-gradient(circle at top right, rgba(73,198,242,0.10), transparent 26%),
-      radial-gradient(circle at bottom left, rgba(184,140,248,0.08), transparent 24%),
-      linear-gradient(135deg, #ffffff 0%, #f8fcff 55%, #faf7ff 100%);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     border-radius: 24px;
     padding: 20px 24px;
-    box-shadow: 0 18px 40px rgba(15,23,42,0.06);
-    border: 1.5px solid rgba(226,232,240,0.9);
+    box-shadow: var(--shadow-lg);
+    border: 1.5px solid var(--glass-border);
     text-align: center;
   }
 
@@ -147,21 +145,21 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
-    color: #2563eb;
-    box-shadow: 0 12px 24px rgba(59,130,246,0.08);
+    background: var(--bg-card-2);
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
     font-size: 24px;
   }
 
   .impact-hero__title {
     font-size: 24px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 4px;
   }
 
   .impact-hero__subtitle {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 13px;
     font-weight: 700;
   }
@@ -173,14 +171,16 @@ const CSS = `
   }
 
   .impact-stat-card {
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     border-radius: 20px;
     padding: 18px 16px;
     text-align: center;
-    box-shadow: 0 12px 28px rgba(15,23,42,0.05);
-    border: 1.5px solid rgba(226,232,240,0.9);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--glass-border);
     animation: impactPopIn 0.4s ease-out backwards;
     direction: rtl;
+    color: var(--text-primary);
   }
 
   .impact-stat-card__icon {
@@ -191,8 +191,9 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8fafc;
+    background: var(--bg-card-2);
     font-size: 18px;
+    border: 1px solid var(--border);
   }
 
   .impact-stat-card__value {
@@ -204,17 +205,19 @@ const CSS = `
 
   .impact-stat-card__label {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 800;
   }
 
   .impact-panel {
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     border-radius: 22px;
     padding: 22px 24px;
-    box-shadow: 0 14px 30px rgba(15,23,42,0.05);
-    border: 1.5px solid rgba(226,232,240,0.9);
+    box-shadow: var(--shadow-md);
+    border: 1.5px solid var(--glass-border);
     direction: rtl;
+    color: var(--text-primary);
   }
 
   .impact-panel__title {
@@ -223,7 +226,7 @@ const CSS = `
     gap: 10px;
     font-size: 17px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 6px;
   }
 
@@ -234,15 +237,15 @@ const CSS = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #eef8ff, #f7f2ff);
-    color: #2563eb;
-    border: 1px solid rgba(186,230,253,0.9);
+    background: var(--bg-card-2);
+    color: var(--primary);
+    border: 1px solid var(--border);
     font-size: 14px;
   }
 
   .impact-panel__subtitle {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 700;
     margin-bottom: 14px;
   }
@@ -269,23 +272,23 @@ const CSS = `
     gap: 8px;
     font-size: 13px;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--text-primary);
   }
 
   .impact-progress-row__label-icon {
     font-size: 13px;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   .impact-progress-row__count {
     font-size: 12px;
     font-weight: 900;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   .impact-progress-row__track {
     height: 10px;
-    background: rgba(226,232,240,0.9);
+    background: var(--border);
     border-radius: 999px;
     overflow: hidden;
   }
@@ -301,7 +304,7 @@ const CSS = `
     align-items: center;
     gap: 12px;
     padding: 12px 0;
-    border-bottom: 1px solid rgba(226,232,240,0.9);
+    border-bottom: 1px solid var(--border);
   }
 
   .impact-beneficiary-item:last-child {
@@ -316,10 +319,10 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
-    color: #2563eb;
-    border: 1px solid rgba(186,230,253,0.9);
-    box-shadow: 0 8px 18px rgba(15,23,42,0.04);
+    background: var(--bg-card-2);
+    color: var(--primary);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
     font-size: 18px;
   }
 
@@ -331,13 +334,13 @@ const CSS = `
   .impact-beneficiary-item__name {
     font-size: 13px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 3px;
   }
 
   .impact-beneficiary-item__meta {
     font-size: 10px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 700;
     margin-top: 4px;
   }
@@ -351,15 +354,14 @@ const CSS = `
   }
 
   .impact-donate-card {
-    background:
-      radial-gradient(circle at top right, rgba(16,185,129,0.10), transparent 25%),
-      linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    background: var(--success-light);
     border-radius: 22px;
     padding: 22px 24px;
-    box-shadow: 0 14px 30px rgba(15,23,42,0.05);
-    border: 1.5px solid rgba(187,247,208,0.9);
+    box-shadow: var(--shadow-md);
+    border: 1.5px solid var(--success);
     direction: rtl;
     text-align: center;
+    color: var(--text-primary);
   }
 
   .impact-donate-card__icon {
@@ -370,22 +372,22 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #dcfce7, #ecfdf5);
-    color: #059669;
-    box-shadow: 0 12px 24px rgba(16,185,129,0.08);
+    background: var(--bg-card);
+    color: var(--success);
+    box-shadow: var(--shadow-sm);
     font-size: 24px;
   }
 
   .impact-donate-card__title {
     font-size: 18px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 8px;
   }
 
   .impact-donate-card__text {
     font-size: 13px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 700;
     margin-bottom: 14px;
   }

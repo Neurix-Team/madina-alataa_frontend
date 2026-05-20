@@ -80,6 +80,7 @@ const GENDER_OPTIONS = [
     subtitle: 'مظهر أكثر حدة',
     accent: '#2563eb',
     Icon: FaMars,
+    image: 'https://trae-user-assets.s3.amazonaws.com/1716109475000-60b6b2b2.png' // Using the provided image
   },
   {
     value: 2,
@@ -87,6 +88,7 @@ const GENDER_OPTIONS = [
     subtitle: 'مظهر أكثر نعومة',
     accent: '#db2777',
     Icon: FaVenus,
+    image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1974&auto=format&fit=crop' // Similar style girl placeholder
   },
 ];
 
@@ -102,9 +104,10 @@ const sectionIconWrap = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: 'rgba(59,130,246,0.08)',
-  color: '#2563eb',
+  background: 'var(--bg-card-2)',
+  color: 'var(--primary)',
   flexShrink: 0,
+  border: '1px solid var(--border)',
 };
 
 function hexToRgba(hex, alpha) {
@@ -122,7 +125,7 @@ function hexToRgba(hex, alpha) {
 
 function getContrastColor(hex) {
   const cleaned = String(hex || '').replace('#', '');
-  if (!/^[0-9a-fA-F]{6}$/.test(cleaned)) return '#0f172a';
+  if (!/^[0-9a-fA-F]{6}$/.test(cleaned)) return 'var(--text-primary)';
 
   const red = Number.parseInt(cleaned.slice(0, 2), 16);
   const green = Number.parseInt(cleaned.slice(2, 4), 16);
@@ -210,10 +213,12 @@ function SectionBlock({ icon: Icon, title, subtitle, children }) {
   return (
     <section
       style={{
-        background: '#ffffff',
-        border: '1px solid rgba(148,163,184,0.2)',
+        background: 'var(--glass-bg)',
+        backdropFilter: 'var(--glass-blur)',
+        border: '1px solid var(--glass-border)',
         borderRadius: 24,
         padding: 20,
+        boxShadow: 'var(--shadow-md)',
       }}
     >
       <div
@@ -228,9 +233,9 @@ function SectionBlock({ icon: Icon, title, subtitle, children }) {
           <Icon size={16} />
         </div>
         <div>
-          <div style={{ fontSize: 17, fontWeight: 900, color: '#0f172a' }}>{title}</div>
+          <div style={{ fontSize: 17, fontWeight: 900, color: 'var(--text-primary)' }}>{title}</div>
           {subtitle ? (
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b', marginTop: 2 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', marginTop: 2 }}>
               {subtitle}
             </div>
           ) : null}
@@ -251,12 +256,13 @@ function ChoiceCard({ active, accent, onClick, children }) {
       style={{
         width: '100%',
         borderRadius: 20,
-        border: active ? `1px solid ${hexToRgba(accent, 0.5)}` : '1px solid rgba(148,163,184,0.22)',
-        background: active ? hexToRgba(accent, 0.08) : '#f8fafc',
-        boxShadow: active ? `0 20px 36px ${hexToRgba(accent, 0.15)}` : 'none',
+        border: active ? `2px solid var(--primary)` : '1px solid var(--border)',
+        background: active ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-card-2)',
+        boxShadow: active ? 'var(--shadow-md)' : 'none',
         padding: 16,
         cursor: 'pointer',
         textAlign: 'right',
+        color: 'var(--text-primary)',
       }}
     >
       {children}
@@ -274,15 +280,16 @@ function ColorSwatch({ color, label, active, kind, onClick }) {
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
       style={{
-        border: active ? `1px solid ${hexToRgba(color, 0.55)}` : '1px solid rgba(148,163,184,0.22)',
+        border: active ? `2px solid var(--primary)` : '1px solid var(--border)',
         borderRadius: 20,
-        background: active ? hexToRgba(color, 0.12) : '#f8fafc',
+        background: active ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-card-2)',
         padding: 12,
         cursor: 'pointer',
         minHeight: 104,
         display: 'grid',
         placeItems: 'center',
         gap: 8,
+        color: 'var(--text-primary)',
       }}
     >
       <div
@@ -290,10 +297,10 @@ function ColorSwatch({ color, label, active, kind, onClick }) {
           width: 56,
           height: 56,
           borderRadius: 18,
-          background: kind === 'skin' ? 'linear-gradient(145deg, #fff7ed, #fefce8)' : '#ffffff',
+          background: kind === 'skin' ? 'linear-gradient(145deg, #fff7ed, #fefce8)' : 'var(--bg-card)',
           display: 'grid',
           placeItems: 'center',
-          boxShadow: 'inset 0 0 0 1px rgba(148,163,184,0.16)',
+          boxShadow: 'inset 0 0 0 1px var(--border)',
           position: 'relative',
         }}
       >
@@ -331,11 +338,11 @@ function ColorSwatch({ color, label, active, kind, onClick }) {
               width: 22,
               height: 22,
               borderRadius: 11,
-              background: color,
-              color: iconColor,
+              background: 'var(--primary)',
+              color: '#fff',
               display: 'grid',
               placeItems: 'center',
-              boxShadow: '0 8px 18px rgba(15,23,42,0.14)',
+              boxShadow: 'var(--shadow-sm)',
               fontSize: 12,
             }}
           >
@@ -343,7 +350,7 @@ function ColorSwatch({ color, label, active, kind, onClick }) {
           </div>
         ) : null}
       </div>
-      <span style={{ fontSize: 12, fontWeight: 800, color: '#334155' }}>{label}</span>
+      <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--text-primary)' }}>{label}</span>
     </motion.button>
   );
 }
@@ -360,10 +367,10 @@ function HairStyleCard({ option, active, hairColor, skinColor, clothesColor, gen
         }}
       >
         <div>
-          <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a', marginBottom: 4 }}>
+          <div style={{ fontSize: 14, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 4 }}>
             {option.label}
           </div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>
             شكل المعاينة سيتحدث مباشرة
           </div>
         </div>
@@ -373,10 +380,10 @@ function HairStyleCard({ option, active, hairColor, skinColor, clothesColor, gen
             width: 72,
             height: 72,
             borderRadius: 20,
-            background: '#ffffff',
+            background: 'var(--bg-card)',
             display: 'grid',
             placeItems: 'center',
-            boxShadow: 'inset 0 0 0 1px rgba(148,163,184,0.14)',
+            boxShadow: 'inset 0 0 0 1px var(--border)',
           }}
         >
           <MiniAvatarGlyph
@@ -598,100 +605,74 @@ const AvatarEditPage = () => {
   }
 
   return (
-    <div
-      className="avatar-edit-page"
-      style={{
-        padding: isMobile ? 16 : 24,
-        minHeight: '100vh',
-      }}
-    >
-      <div className="pro-container" style={{ maxWidth: 1280, margin: '0 auto' }}>
-        <motion.div
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 16,
-            marginBottom: 24,
-            flexWrap: 'wrap',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <motion.button
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => window.history.back()}
-              className="pro-btn pro-btn-secondary"
-              style={{ width: 46, height: 46, borderRadius: 16, padding: 0 }}
-              type="button"
-            >
-              <FaArrowLeft />
-            </motion.button>
-
-            <div
-              style={{
-                width: 54,
-                height: 54,
-                borderRadius: 18,
-                background: 'linear-gradient(135deg, #8b5cf6, #2563eb)',
-                display: 'grid',
-                placeItems: 'center',
-                color: '#f8fafc',
-                boxShadow: '0 18px 32px rgba(37,99,235,0.18)',
-              }}
-            >
-              <FaUser size={20} />
-            </div>
-
-            <div>
-              <h2 style={{ margin: 0, fontSize: isMobile ? 24 : 30, fontWeight: 900, color: '#0f172a' }}>
-                تخصيص الأفاتار
-              </h2>
-              <p style={{ margin: '6px 0 0', fontSize: 14, fontWeight: 700, color: '#64748b' }}>
-                عدّل الشكل، الألوان، وتسريحة الشعر من غير ما يتغير أي شيء في تكامل الباك
-              </p>
-            </div>
-          </div>
-
-          <div
+    <div style={{
+      minHeight: '100vh',
+      background: 'var(--bg-app)',
+      color: 'var(--text-primary)',
+      fontFamily: "'Cairo', sans-serif",
+      direction: 'rtl',
+      paddingBottom: 60,
+    }}>
+      <header style={{
+        background: 'var(--glass-bg)',
+        backdropFilter: 'var(--glass-blur)',
+        borderBottom: '1px solid var(--glass-border)',
+        padding: '16px 24px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        boxShadow: 'var(--shadow-sm)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button
+            onClick={() => window.history.back()}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              flexWrap: 'wrap',
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              border: '1px solid var(--border)',
+              background: 'var(--bg-card-2)',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+              display: 'grid',
+              placeItems: 'center',
             }}
           >
-            <div
-              style={{
-                padding: '10px 14px',
-                borderRadius: 999,
-                background: '#ffffff',
-                border: '1px solid rgba(148,163,184,0.18)',
-                fontSize: 13,
-                fontWeight: 900,
-                color: '#334155',
-              }}
-            >
-              {selectedGender.label}
-            </div>
-            <div
-              style={{
-                padding: '10px 14px',
-                borderRadius: 999,
-                background: '#ffffff',
-                border: '1px solid rgba(148,163,184,0.18)',
-                fontSize: 13,
-                fontWeight: 900,
-                color: '#334155',
-              }}
-            >
-              {selectedHairStyle.label}
-            </div>
+            <FaArrowLeft />
+          </button>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 18, fontWeight: 900 }}>تعديل الأفاتار</h1>
+            <div style={{ fontSize: 12, opacity: 0.7, fontWeight: 700 }}>صمم هويتك الرقمية الفريدة</div>
           </div>
-        </motion.div>
+        </div>
 
+        <button
+          onClick={handleSubmit}
+          disabled={saving || !avatarData.characterName.trim() || !avatarId}
+          style={{
+            padding: '10px 24px',
+            borderRadius: 14,
+            background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
+            color: '#fff',
+            border: 'none',
+            fontWeight: 900,
+            fontSize: 14,
+            cursor: (saving || !avatarData.characterName.trim() || !avatarId) ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            boxShadow: 'var(--shadow-md)',
+          }}
+        >
+          {saving ? <FaSpinner className="animate-spin" /> : <FaSave />}
+          {saving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+        </button>
+      </header>
+
+      <div style={{ maxWidth: 1280, margin: '24px auto', padding: '0 24px' }}>
         {error ? (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
@@ -744,157 +725,121 @@ const AvatarEditPage = () => {
             alignItems: 'start',
           }}
         >
-          <aside
-            style={{
-              position: isMobile ? 'static' : 'sticky',
-              top: 24,
-              background: '#ffffff',
-              border: '1px solid rgba(148,163,184,0.18)',
-              borderRadius: 28,
-              padding: isMobile ? 18 : 22,
-              boxShadow: '0 30px 60px rgba(15,23,42,0.06)',
-            }}
-          >
+          {/* Right: Preview & Stats */}
+          <div style={{ position: isMobile ? 'static' : 'sticky', top: 100, display: 'grid', gap: 20 }}>
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 12,
-                marginBottom: 14,
+                background: 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
+                borderRadius: 32,
+                border: '1px solid var(--glass-border)',
+                padding: 32,
+                boxShadow: 'var(--shadow-lg)',
+                textAlign: 'center',
+                position: 'relative',
+                overflow: 'hidden',
               }}
             >
-              <div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#0f172a', marginBottom: 4 }}>
-                  المعاينة الحية
-                </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b' }}>
-                  الصورة تتغير فوراً مع كل اختيار
-                </div>
-              </div>
-
               <div
                 style={{
-                  padding: '8px 12px',
-                  borderRadius: 999,
-                  background: hexToRgba(selectedGender.accent, 0.12),
-                  color: selectedGender.accent,
-                  fontSize: 12,
-                  fontWeight: 900,
+                  position: 'absolute',
+                  inset: 0,
+                  background: previewBackgrounds[avatarData.gender],
+                  opacity: 0.1,
                 }}
-              >
-                {selectedGender.label}
+              />
+
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div
+                  style={{
+                    width: 240,
+                    height: 240,
+                    borderRadius: '50%',
+                    background: 'var(--bg-card-2)',
+                    margin: '0 auto 24px',
+                    display: 'grid',
+                    placeItems: 'center',
+                    boxShadow: 'var(--shadow-md)',
+                    border: '8px solid var(--border)',
+                  }}
+                >
+                  <img
+                    src={avatarPreviewUrl}
+                    alt="Preview"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    display: 'inline-block',
+                    padding: '8px 20px',
+                    borderRadius: 999,
+                    background: 'var(--bg-card-2)',
+                    border: '1px solid var(--border)',
+                    fontSize: 14,
+                    fontWeight: 900,
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  هويتك الرقمية
+                </div>
               </div>
             </div>
 
             <div
               style={{
-                borderRadius: 30,
-                padding: 18,
-                background: previewBackgrounds[Number(avatarData.gender)] || previewBackgrounds[1],
-                boxShadow: `inset 0 0 0 1px ${hexToRgba(selectedGender.accent, 0.12)}`,
+                background: 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
+                borderRadius: 24,
+                border: '1px solid var(--glass-border)',
+                padding: 24,
+                boxShadow: 'var(--shadow-md)',
               }}
             >
-              <div
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 12,
+                    background: 'var(--bg-card-2)',
+                    color: 'var(--primary)',
+                    display: 'grid',
+                    placeItems: 'center',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  <FaSignature />
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 900 }}>اسم الشخصية</div>
+              </div>
+
+              <input
+                placeholder="مثلاً: بطل المدينة"
+                name="characterName"
+                value={avatarData.characterName}
+                onChange={handleInputChange}
                 style={{
                   width: '100%',
-                  aspectRatio: '1 / 1',
-                  borderRadius: 28,
-                  overflow: 'hidden',
-                  background: '#f8fafc',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 24px 60px rgba(15,23,42,0.12)',
+                  padding: '14px 18px',
+                  borderRadius: 14,
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg-card-2)',
+                  color: 'var(--text-primary)',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  fontFamily: "'Cairo', sans-serif",
                 }}
-              >
-                <img
-                  src={avatarPreviewUrl}
-                  alt="معاينة الأفاتار"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gap: 10, marginTop: 16 }}>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'auto 1fr',
-                    gap: 12,
-                    alignItems: 'center',
-                    background: 'rgba(255,255,255,0.72)',
-                    borderRadius: 20,
-                    padding: 12,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 56,
-                      height: 56,
-                      borderRadius: 18,
-                      background: '#ffffff',
-                      display: 'grid',
-                      placeItems: 'center',
-                    }}
-                  >
-                    <MiniAvatarGlyph
-                      gender={avatarData.gender}
-                      skinColor={avatarData.skinColor || skinColors[0].value}
-                      hairColor={avatarData.hairColor || hairColors[0].value}
-                      clothesColor={avatarData.clothesColor || clothesColors[0].value}
-                      hairStyle={avatarData.hairStyle || hairStyles[0].value}
-                    />
-                  </div>
-
-                  <div>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: '#64748b', marginBottom: 4 }}>
-                      اسم الشخصية
-                    </div>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#0f172a', lineHeight: 1.35 }}>
-                      {avatarData.characterName || 'اكتب اسم الشخصية'}
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                    gap: 10,
-                  }}
-                >
-                  {[
-                    { label: 'الجنس', value: selectedGender.label },
-                    { label: 'التسريحة', value: selectedHairStyle.label },
-                    { label: 'الألوان', value: 'مخصصة' },
-                  ].map((item) => (
-                    <div
-                      key={item.label}
-                      style={{
-                        background: 'rgba(255,255,255,0.72)',
-                        borderRadius: 18,
-                        padding: 12,
-                        minHeight: 76,
-                      }}
-                    >
-                      <div style={{ fontSize: 11, fontWeight: 800, color: '#64748b', marginBottom: 6 }}>
-                        {item.label}
-                      </div>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a', lineHeight: 1.5 }}>
-                        {item.value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              />
             </div>
-          </aside>
+          </div>
 
           <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 18 }}>
             <SectionBlock
               icon={FaUser}
-              title="الجنس والهوية"
-              subtitle="اختيار الجنس يغيّر صياغة المعاينة والخلفية مباشرة"
+              title="النوع والمظهر العام"
+              subtitle="اختر القالب الأساسي لشخصيتك"
             >
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 }}>
                 {GENDER_OPTIONS.map((option) => {
@@ -911,36 +856,23 @@ const AvatarEditPage = () => {
                         setSuccess(false);
                       }}
                     >
-                      <div
-                        style={{
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <div style={{
+                          width: 52,
+                          height: 52,
+                          borderRadius: 16,
+                          background: active ? 'var(--bg-card)' : 'var(--bg-card-2)',
                           display: 'grid',
-                          gridTemplateColumns: '1fr auto',
-                          gap: 12,
-                          alignItems: 'center',
-                        }}
-                      >
-                        <div>
-                          <div style={{ fontSize: 16, fontWeight: 900, color: '#0f172a', marginBottom: 4 }}>
-                            {option.label}
-                          </div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b' }}>
-                            {option.subtitle}
-                          </div>
+                          placeItems: 'center',
+                          color: active ? option.accent : 'var(--text-secondary)',
+                          fontSize: 22,
+                          border: '1px solid var(--border)',
+                        }}>
+                          <Icon size={24} />
                         </div>
-
-                        <div
-                          style={{
-                            width: 74,
-                            height: 74,
-                            borderRadius: 22,
-                            background: '#ffffff',
-                            display: 'grid',
-                            placeItems: 'center',
-                            boxShadow: 'inset 0 0 0 1px rgba(148,163,184,0.16)',
-                            color: option.accent,
-                          }}
-                        >
-                          <Icon size={28} />
+                        <div>
+                          <div style={{ fontWeight: 900, fontSize: 16, color: 'var(--text-primary)' }}>{option.label}</div>
+                          <div style={{ fontSize: 12, opacity: 0.7, fontWeight: 700, color: 'var(--text-secondary)' }}>{option.subtitle}</div>
                         </div>
                       </div>
                     </ChoiceCard>

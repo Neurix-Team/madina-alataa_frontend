@@ -38,21 +38,20 @@ const TEAM_CSS = `
     display: grid;
     gap: 16px;
     font-family: 'Cairo', sans-serif;
-    color: #0f172a;
+    color: var(--text-primary);
   }
 
   .tc-header {
     position: relative;
     overflow: hidden;
     border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.92) 100%);
-    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     padding: 28px 32px;
-    box-shadow: rgba(15, 23, 42, 0.4) 0px 20px 50px -20px, rgba(255, 255, 255, 0.4) 0px 0px 0px 1px inset;
+    box-shadow: var(--shadow-lg);
     text-align: center;
   }
-
   .tc-header__icon {
     width: 56px;
     height: 56px;
@@ -61,45 +60,45 @@ const TEAM_CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #eef8ff, #ecfdf5);
-    color: #2563eb;
+    background: var(--bg-card-2);
+    color: var(--primary);
     font-size: 24px;
-    box-shadow: 0 12px 24px rgba(59,130,246,0.08);
+    box-shadow: var(--shadow-sm);
   }
 
   .tc-header__title {
     font-size: 24px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 4px;
   }
 
   .tc-header__subtitle {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 13px;
     font-weight: 700;
   }
 
   .tc-info {
-    background: linear-gradient(135deg,#f0fdf4,#dcfce7);
-    border: 1.5px solid #86efac;
+    background: var(--success-light);
+    border: 1.5px solid var(--success);
     border-radius: 18px;
     padding: 14px 18px;
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 12px 24px rgba(22,163,74,0.05);
+    box-shadow: var(--shadow-sm);
   }
 
   .tc-info__icon {
     width: 46px;
     height: 46px;
     border-radius: 16px;
-    background: rgba(255,255,255,0.72);
+    background: var(--bg-card);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #15803d;
+    color: var(--success);
     font-size: 22px;
     flex-shrink: 0;
   }
@@ -107,15 +106,16 @@ const TEAM_CSS = `
   .tc-info__title {
     font-size: 13px;
     font-weight: 900;
-    color: #166534;
+    color: var(--success);
     margin-bottom: 2px;
   }
 
   .tc-info__desc {
     font-size: 12px;
-    color: #15803d;
+    color: var(--success);
     font-weight: 700;
     line-height: 1.7;
+    opacity: 0.9;
   }
 
   .tc-list {
@@ -125,12 +125,13 @@ const TEAM_CSS = `
   }
 
   .tc-card {
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     border-radius: 22px;
     overflow: hidden;
-    box-shadow: 0 14px 30px rgba(15,23,42,0.05);
+    box-shadow: var(--shadow-md);
     direction: rtl;
-    border: 1.5px solid rgba(226,232,240,0.9);
+    border: 1px solid var(--glass-border);
   }
 
   .tc-card__topline {
@@ -153,14 +154,14 @@ const TEAM_CSS = `
     height: 58px;
     border-radius: 18px;
     flex-shrink: 0;
-    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
-    border: 2px solid rgba(226,232,240,0.9);
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #2563eb;
+    color: var(--primary);
     font-size: 24px;
-    box-shadow: 0 8px 18px rgba(15,23,42,0.04);
+    box-shadow: var(--shadow-sm);
   }
 
   .tc-card__title-row {
@@ -173,12 +174,12 @@ const TEAM_CSS = `
   .tc-card__title {
     font-size: 15px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
   }
 
   .tc-card__desc {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 700;
     margin-top: 4px;
     line-height: 1.7;
@@ -195,26 +196,28 @@ const TEAM_CSS = `
   }
 
   .tc-chip--members {
-    background: #f8fafc;
-    color: #475569;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
   }
 
   .tc-chip--kp {
-    background: #fff7cc;
-    color: #92400e;
+    background: var(--success-light);
+    color: var(--success);
+    border: 1px solid var(--success);
   }
 
   .tc-chip--xp {
-    background: #eff6ff;
-    color: #1d4ed8;
+    background: var(--primary-hover);
+    color: #fff;
   }
 
   .tc-team-box {
     margin-bottom: 14px;
-    background: #f8fafc;
+    background: var(--bg-card);
     border-radius: 16px;
     padding: 12px 14px;
-    border: 1.5px solid rgba(226,232,240,0.9);
+    border: 1.5px solid var(--border);
   }
 
   .tc-team-box__row {
@@ -227,7 +230,7 @@ const TEAM_CSS = `
   .tc-team-box__label {
     font-size: 12px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -236,11 +239,12 @@ const TEAM_CSS = `
   .tc-team-box__value {
     font-size: 12px;
     font-weight: 900;
+    color: var(--text-primary);
   }
 
   .tc-progress {
     height: 8px;
-    background: rgba(226,232,240,0.9);
+    background: var(--border);
     border-radius: 999px;
     overflow: hidden;
     margin-bottom: 10px;
@@ -262,11 +266,12 @@ const TEAM_CSS = `
     display: flex;
     align-items: center;
     gap: 6px;
-    background: #fff;
+    background: var(--bg-card-2);
     border-radius: 999px;
     padding: 5px 10px;
-    border: 1.5px solid rgba(226,232,240,0.9);
+    border: 1.5px solid var(--border);
     font-size: 12px;
+    color: var(--text-primary);
   }
 
   .tc-member__avatar {
@@ -278,12 +283,12 @@ const TEAM_CSS = `
 
   .tc-member__name {
     font-weight: 800;
-    color: #0f172a;
+    color: var(--text-primary);
   }
 
   .tc-complete-badge {
     margin-top: 10px;
-    background: linear-gradient(135deg,#fbbf24,#f59e0b);
+    background: linear-gradient(135deg, var(--success), #22c55e);
     color: #fff;
     border-radius: 12px;
     padding: 8px 14px;
@@ -299,19 +304,19 @@ const TEAM_CSS = `
 
   .tc-invite {
     margin-top: 8px;
-    background: #ecfdf5;
+    background: var(--success-light);
     border-radius: 12px;
     padding: 8px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    border: 1px solid rgba(134,239,172,0.9);
+    border: 1px solid var(--success);
   }
 
   .tc-invite__label {
     font-size: 11px;
-    color: #166534;
+    color: var(--success);
     font-weight: 800;
     display: inline-flex;
     align-items: center;
@@ -321,7 +326,7 @@ const TEAM_CSS = `
   .tc-invite__code {
     font-size: 14px;
     font-weight: 900;
-    color: #15803d;
+    color: var(--success);
     letter-spacing: 0.1em;
   }
 
@@ -333,15 +338,15 @@ const TEAM_CSS = `
   .tc-note {
     text-align: center;
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 700;
   }
 
   .tc-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.42);
-    backdrop-filter: blur(3px);
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
     z-index: 100;
   }
 
@@ -350,16 +355,17 @@ const TEAM_CSS = `
     top: 50%;
     left: 50%;
     transform: translate(-50%,-50%);
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     border-radius: 24px;
     padding: 28px 26px;
     max-width: 340px;
     width: 90%;
     z-index: 110;
     direction: rtl;
-    box-shadow: 0 24px 60px rgba(15,23,42,0.18);
+    box-shadow: var(--shadow-lg);
     animation: tcPop 0.3s ease-out;
-    border: 1.5px solid rgba(226,232,240,0.9);
+    border: 1.5px solid var(--glass-border);
   }
 
   .tc-modal__title {
@@ -368,13 +374,13 @@ const TEAM_CSS = `
     gap: 8px;
     font-size: 18px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 6px;
   }
 
   .tc-modal__desc {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 700;
     margin-bottom: 16px;
   }
@@ -382,19 +388,19 @@ const TEAM_CSS = `
   .tc-input {
     width: 100%;
     padding: 12px 14px;
-    border: 1.5px solid rgba(226,232,240,0.9);
+    border: 1.5px solid var(--border);
     border-radius: 14px;
     font-family: 'Cairo', sans-serif;
     font-size: 14px;
     font-weight: 800;
-    color: #0f172a;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    color: var(--text-primary);
+    background: var(--input-bg);
     outline: none;
     margin-bottom: 16px;
   }
 
   .tc-input:focus {
-    border-color: #93c5fd;
+    border-color: var(--primary);
     box-shadow: 0 0 0 4px rgba(59,130,246,0.10);
   }
 
@@ -403,17 +409,18 @@ const TEAM_CSS = `
     top: 24px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     border-radius: 16px;
     padding: 12px 24px;
-    box-shadow: 0 20px 44px rgba(15,23,42,0.16);
+    box-shadow: var(--shadow-lg);
     font-family: 'Cairo', sans-serif;
     font-weight: 900;
     font-size: 14px;
-    color: #0f172a;
+    color: var(--text-primary);
     z-index: 300;
     direction: rtl;
-    border: 2px solid rgba(226,232,240,0.9);
+    border: 2px solid var(--glass-border);
     animation: tcPop 0.3s ease-out;
     white-space: nowrap;
   }

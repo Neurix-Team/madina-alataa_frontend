@@ -190,12 +190,12 @@ const UpdateProfilePage = () => {
     [myProfileData, hasDonorRole, hasVolunteerRole]
   );
   const canSubmit =
-  !saving &&
-  !!String(profileId || '').trim();
+    !saving &&
+    !!String(profileId || '').trim();
 
   const navigate = useNavigate();
 
- 
+
 
   // Load profile data on mount
   useEffect(() => {
@@ -210,7 +210,7 @@ const UpdateProfilePage = () => {
         const storedAvatarId = profilesService.getStoredAvatarId();
 
         console.log('Stored profile data:', { storedProfileId, storedProfile, storedAvatarId });
-        
+
 
         if (storedProfile) {
           const currentProfileId = storedProfile.id || storedProfile.profileId || storedProfile.profile?.id || storedProfileId;
@@ -367,94 +367,94 @@ const UpdateProfilePage = () => {
     setError(null);
   };
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
+  //   const handleSubmit = async (e) => {
+  //     e.preventDefault();
 
-//     if (!profileId) {
-//       setError('معرف الملف الشخصي غير متوفر. يرجى إعادة تسجيل الدخول.');
-//       return;
-//     }
+  //     if (!profileId) {
+  //       setError('معرف الملف الشخصي غير متوفر. يرجى إعادة تسجيل الدخول.');
+  //       return;
+  //     }
 
-//     setSaving(true);
-//     setError(null);
-//     setSuccess(false);
+  //     setSaving(true);
+  //     setError(null);
+  //     setSuccess(false);
 
-//     try {
-//       // console.log('Updating profile:', profileId, formData);
-//       // const result = await profilesService.updateProfile(profileId, formData);
-//      const payload = {
-//   rating: Number(formData.rating) || 0,
-//   impact: Number(formData.impact) || 0,
-//   avatarId: String(formData.avatarId || '').trim(),
-//   levelId: String(formData.levelId || '').trim(),
-// };
+  //     try {
+  //       // console.log('Updating profile:', profileId, formData);
+  //       // const result = await profilesService.updateProfile(profileId, formData);
+  //      const payload = {
+  //   rating: Number(formData.rating) || 0,
+  //   impact: Number(formData.impact) || 0,
+  //   avatarId: String(formData.avatarId || '').trim(),
+  //   levelId: String(formData.levelId || '').trim(),
+  // };
 
-// console.log('Updating profile:', profileId, payload);
+  // console.log('Updating profile:', profileId, payload);
 
-// const result = await profilesService.updateProfile(profileId, payload);
-//       console.log('Profile updated successfully:', result);
+  // const result = await profilesService.updateProfile(profileId, payload);
+  //       console.log('Profile updated successfully:', result);
 
-//       // Update localStorage with new data
-//       const updatedProfile = {
-//         ...profilesService.getProfileFromStorage(),
-//         ...formData,
-//         id: profileId,
-//       };
-//       profilesService.saveProfileToStorage(updatedProfile);
+  //       // Update localStorage with new data
+  //       const updatedProfile = {
+  //         ...profilesService.getProfileFromStorage(),
+  //         ...formData,
+  //         id: profileId,
+  //       };
+  //       profilesService.saveProfileToStorage(updatedProfile);
 
-//       setSuccess(true);
-//     } catch (err) {
-//       console.error('Error updating profile:', err);
-//       setError(err.message || 'فشل في تحديث الملف الشخصي');
-//     } finally {
-//       setSaving(false);
-//     }
-//   };
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  //       setSuccess(true);
+  //     } catch (err) {
+  //       console.error('Error updating profile:', err);
+  //       setError(err.message || 'فشل في تحديث الملف الشخصي');
+  //     } finally {
+  //       setSaving(false);
+  //     }
+  //   };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!String(profileId || '').trim()) {
-    setError('معرف الملف الشخصي غير متوفر. يرجى إعادة تحميل الصفحة.');
-    return;
-  }
+    if (!String(profileId || '').trim()) {
+      setError('معرف الملف الشخصي غير متوفر. يرجى إعادة تحميل الصفحة.');
+      return;
+    }
 
-  setSaving(true);
-  setError(null);
-  setSuccess(false);
+    setSaving(true);
+    setError(null);
+    setSuccess(false);
 
-  try {
-    const payload = {
-      rating: Number(formData.rating) || 0,
-      impact: Number(formData.impact) || 0,
-      avatarId: String(formData.avatarId || myProfileData?.avatarId || '').trim(),
-      levelId: String(formData.levelId || myProfileData?.levelId || '').trim(),
-    };
+    try {
+      const payload = {
+        rating: Number(formData.rating) || 0,
+        impact: Number(formData.impact) || 0,
+        avatarId: String(formData.avatarId || myProfileData?.avatarId || '').trim(),
+        levelId: String(formData.levelId || myProfileData?.levelId || '').trim(),
+      };
 
-    console.log('Updating profile:', profileId, payload);
+      console.log('Updating profile:', profileId, payload);
 
-    const result = await profilesService.updateProfile(profileId, payload);
+      const result = await profilesService.updateProfile(profileId, payload);
 
-    console.log('Profile updated successfully:', result);
+      console.log('Profile updated successfully:', result);
 
-    const updatedProfile = {
-      ...profilesService.getProfileFromStorage(),
-      ...payload,
-      id: profileId,
-    };
+      const updatedProfile = {
+        ...profilesService.getProfileFromStorage(),
+        ...payload,
+        id: profileId,
+      };
 
-    profilesService.saveProfileToStorage(updatedProfile);
+      profilesService.saveProfileToStorage(updatedProfile);
 
-    // Trigger global stats sync
-    window.dispatchEvent(new CustomEvent('sync-user-stats'));
+      // Trigger global stats sync
+      window.dispatchEvent(new CustomEvent('sync-user-stats'));
 
-    setSuccess(true);
-  } catch (err) {
-    console.error('Error updating profile:', err);
-    setError(err.message || 'فشل في تحديث الملف الشخصي');
-  } finally {
-    setSaving(false);
-  }
-};
+      setSuccess(true);
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      setError(err.message || 'فشل في تحديث الملف الشخصي');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -482,26 +482,27 @@ const handleSubmit = async (e) => {
       <div className="pro-container mx-auto max-w-6xl" style={{ maxWidth: '1100px', margin: '0 auto' }}>
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="pro-header-left bg-white/90"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
           style={{
-            marginBottom: '24px',
-            padding: '20px',
-            borderRadius: '24px',
             display: 'flex',
             alignItems: 'center',
             gap: '16px',
-            boxShadow: 'var(--shadow-lg)'
+            marginBottom: '32px',
+            padding: '24px',
+            borderRadius: '24px',
+            background: 'var(--glass-bg)',
+            backdropFilter: 'var(--glass-blur)',
+            border: '1px solid var(--glass-border)',
+            boxShadow: 'var(--shadow-lg)',
           }}
         >
           <div
-            className="pro-header-icon"
             style={{
               width: '48px',
               height: '48px',
               borderRadius: '14px',
-              background: 'linear-gradient(135deg, rgb(56, 189, 248), rgb(99, 102, 241))',
+              background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -509,13 +510,11 @@ const handleSubmit = async (e) => {
               fontSize: '20px'
             }}
           >
-            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-              <path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path>
-            </svg>
+            <FaUser />
           </div>
           <div>
-            <h2 className="pro-header-title text-slate-950" style={{ margin: 0, fontSize: '24px', fontWeight: '900' }}>تحديث الملف الشخصي</h2>
-            <p className="pro-header-subtitle text-slate-600" style={{ margin: '4px 0 0', fontSize: '14px' }}>واجهة مرتبة لتعديل بيانات الحساب وعرض معلومات البروفايل بشكل أوضح.</p>
+            <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '900', color: 'var(--text-primary)' }}>تحديث الملف الشخصي</h2>
+            <p style={{ margin: '4px 0 0', fontSize: '14px', color: 'var(--text-secondary)' }}>واجهة مرتبة لتعديل بيانات الحساب وعرض معلومات البروفايل بشكل أوضح.</p>
           </div>
         </motion.div>
 
@@ -523,15 +522,18 @@ const handleSubmit = async (e) => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
           style={{
             marginBottom: '24px',
             borderRadius: '28px',
             padding: '24px',
+            background: 'var(--glass-bg)',
+            backdropFilter: 'var(--glass-blur)',
+            border: '1px solid var(--glass-border)',
+            boxShadow: 'var(--shadow-md)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <h3 style={{ color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
               <FaImage style={{ color: 'var(--primary)' }} />
               الصورة الرمزية
             </h3>
@@ -540,14 +542,14 @@ const handleSubmit = async (e) => {
               whileTap={{ scale: 0.98 }}
               type="button"
               onClick={() => setIsEditOpen((current) => !current)}
-              className="pro-btn pro-btn-secondary border border-sky-100 bg-sky-50 text-sky-700 shadow-sm"
+              className="pro-btn pro-btn-secondary"
               style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             >
               <FaEdit />
               <span>{isEditOpen ? 'إخفاء تعديل الحساب' : 'تعديل الحساب'}</span>
             </motion.button>
           </div>
-          
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px', alignItems: 'stretch' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '18px', padding: '20px', borderRadius: '22px' }}>
               {avatarLoading ? (
@@ -576,9 +578,23 @@ const handleSubmit = async (e) => {
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
-                  <div style={{ fontSize: '32px', color: avatarData.hairColor || '#000' }}>
-                    {avatarData.gender === 1 ? '👨' : '👩'}
-                  </div>
+                  {avatarPreviewUrl ? (
+                    <img
+                      src={avatarPreviewUrl}
+                      alt="Avatar"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        display: 'block',
+                        filter: 'contrast(1.02) saturate(1.05)',
+                      }}
+                    />
+                  ) : (
+                    <div style={{ fontSize: '32px', color: avatarData.hairColor || '#000' }}>
+                      {avatarData.gender === 1 ? '👨' : '👩'}
+                    </div>
+                  )}
                   {avatarData.characterName && (
                     <div style={{
                       position: 'absolute',
@@ -616,11 +632,11 @@ const handleSubmit = async (e) => {
               )}
 
               <div>
-                <p style={{ color: '#0f172a', fontWeight: '700', fontSize: '18px', marginBottom: '4px' }}>
+                <p style={{ color: 'var(--text-primary)', fontWeight: '700', fontSize: '18px', marginBottom: '4px' }}>
                   {avatarData ? avatarData.characterName || 'الأفاتار الخاص بك' : 'لا يوجد أفاتار'}
                 </p>
                 {!avatarData && (
-                  <p style={{ color: '#475569', fontSize: '14px', lineHeight: '1.8' }}>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.8' }}>
                     اضغط على تعديل الحساب لإنشاء أو تعديل الأافاتار الخاص بك.
                   </p>
                 )}
@@ -782,26 +798,27 @@ const handleSubmit = async (e) => {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
             style={{
               maxWidth: '1100px',
               marginBottom: '24px',
               borderRadius: '28px',
-              border: '1px solid #e0f2fe',
-              background: '#ffffff',
+              background: 'var(--glass-bg)',
+              backdropFilter: 'var(--glass-blur)',
+              border: '1px solid var(--glass-border)',
+              boxShadow: 'var(--shadow-md)',
               padding: '24px',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
               <FaUser style={{ color: 'var(--primary)' }} />
-              <h3 style={{ color: '#0f172a', margin: 0 }}>ملخص البروفايل</h3>
+              <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>ملخص البروفايل</h3>
             </div>
 
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
-              gap: '12px', 
-              marginBottom: activeProfileType ? '20px' : 0 
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '12px',
+              marginBottom: activeProfileType ? '20px' : 0
             }}>
               {compactProfileItems.map((item) => (
                 <SummaryMetric key={item.label} icon={item.icon} label={item.label} value={item.value} />
@@ -836,33 +853,34 @@ const handleSubmit = async (e) => {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
             style={{
               maxWidth: '1100px',
               marginBottom: '24px',
               borderRadius: '20px',
-              border: '1px solid #e6eefb',
-              background: '#ffffff',
+              background: 'var(--glass-bg)',
+              backdropFilter: 'var(--glass-blur)',
+              border: '1px solid var(--glass-border)',
+              boxShadow: 'var(--shadow-md)',
               padding: '20px',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <FaMapMarkerAlt style={{ color: 'var(--primary)' }} />
-              <h4 style={{ color: '#0f172a', margin: 0, fontSize: '16px', fontWeight: 700 }}>تفاصيل العنوان وتفاصيل المهام</h4>
+              <h4 style={{ color: 'var(--text-primary)', margin: 0, fontSize: '16px', fontWeight: 700 }}>تفاصيل العنوان وتفاصيل المهام</h4>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div style={{ padding: '14px', borderRadius: '12px', border: '1px solid #eef6ff', background: '#fcfeff' }}>
-                <div style={{ color: '#64748b', fontSize: '13px', marginBottom: '8px' }}>تفاصيل العنوان</div>
-                <div style={{ color: '#0f172a', fontWeight: 700, fontSize: '14px', marginBottom: '12px' }}>{myProfileData?.address || 'لا يوجد عنوان مسجل'}</div>
+              <div style={{ padding: '14px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-card-2)' }}>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '8px' }}>تفاصيل العنوان</div>
+                <div style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '14px', marginBottom: '12px' }}>{myProfileData?.address || 'لا يوجد عنوان مسجل'}</div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button className="pro-btn pro-btn-secondary" style={{ padding: '10px 12px' }}>تحديث العنوان</button>
                   <button className="pro-btn" style={{ padding: '10px 12px' }}>إضافة عنوان</button>
                 </div>
               </div>
 
-              <div style={{ padding: '14px', borderRadius: '12px', border: '1px solid #eef6ff', background: '#fcfeff' }}>
-                <div style={{ color: '#64748b', fontSize: '13px', marginBottom: '8px' }}>تفاصيل المهام</div>
-                <div style={{ color: '#0f172a', fontWeight: 700, fontSize: '14px', marginBottom: '12px' }}>{(myProfileData?.tasks || []).length ? (myProfileData.tasks.join('، ')) : 'لا توجد مهام مسجلة'}</div>
+              <div style={{ padding: '14px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-card-2)' }}>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '8px' }}>تفاصيل المهام</div>
+                <div style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '14px', marginBottom: '12px' }}>{(myProfileData?.tasks || []).length ? (myProfileData.tasks.join('، ')) : 'لا توجد مهام مسجلة'}</div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button className="pro-btn pro-btn-secondary" style={{ padding: '10px 12px' }}>تحديث المهام</button>
                   <button className="pro-btn" style={{ padding: '10px 12px' }}>إضافة مهام</button>
@@ -883,33 +901,39 @@ const handleSubmit = async (e) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.12 }}
-              className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
-              style={{ padding: 20, borderRadius: 20 }}
+              style={{
+                padding: 20,
+                borderRadius: 20,
+                background: 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
+                border: '1px solid var(--glass-border)',
+                boxShadow: 'var(--shadow-md)',
+              }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <FaArrowUp style={{ color: 'var(--success)' }} />
-                <h3 style={{ color: '#0f172a', margin: 0 }}>بيانات المستوى</h3>
+                <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>بيانات المستوى</h3>
               </div>
 
               {myLevelLoading ? (
-                <div style={{ color: '#64748b' }}>جاري تحميل بيانات المستوى...</div>
+                <div style={{ color: 'var(--text-secondary)' }}>جاري تحميل بيانات المستوى...</div>
               ) : myLevelError ? (
                 <div style={{ color: 'var(--danger)' }}>{myLevelError}</div>
               ) : myLevelData ? (
                 <div style={{ display: 'grid', gap: '12px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-                    <div style={{ padding: '12px', borderRadius: '12px', border: '1px solid #e0f2fe', background: '#f8fafc' }}>
-                      <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '6px' }}>XP</div>
-                      <div style={{ color: '#0f172a', fontWeight: 700 }}>{myLevelData.xp ?? 0}</div>
+                    <div style={{ padding: '12px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-card-2)' }}>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '6px' }}>XP</div>
+                      <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{myLevelData.xp ?? 0}</div>
                     </div>
-                    <div style={{ padding: '12px', borderRadius: '12px', border: '1px solid #e0f2fe', background: '#f8fafc' }}>
-                      <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '6px' }}>KP</div>
-                      <div style={{ color: '#0f172a', fontWeight: 700 }}>{myLevelData.kp ?? 0}</div>
+                    <div style={{ padding: '12px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-card-2)' }}>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '6px' }}>KP</div>
+                      <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{myLevelData.kp ?? 0}</div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div style={{ color: '#64748b' }}>لا توجد بيانات مستوى متاحة.</div>
+                <div style={{ color: 'var(--text-secondary)' }}>لا توجد بيانات مستوى متاحة.</div>
               )}
             </motion.div>
 
@@ -917,20 +941,26 @@ const handleSubmit = async (e) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.18 }}
-              className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
-              style={{ padding: 20, borderRadius: 20 }}
+              style={{
+                padding: 20,
+                borderRadius: 20,
+                background: 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
+                border: '1px solid var(--glass-border)',
+                boxShadow: 'var(--shadow-md)',
+              }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <FaMedal style={{ color: '#d97706' }} />
-                <h3 style={{ color: '#0f172a', margin: 0 }}>شهاداتي</h3>
+                <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>شهاداتي</h3>
               </div>
 
               {myCertificatesLoading ? (
-                <div style={{ color: '#64748b' }}>جاري تحميل الشهادات...</div>
+                <div style={{ color: 'var(--text-secondary)' }}>جاري تحميل الشهادات...</div>
               ) : myCertificatesError ? (
                 <div style={{ color: 'var(--danger)' }}>{myCertificatesError}</div>
               ) : myCertificates.length === 0 ? (
-                <div style={{ color: '#64748b' }}>لا توجد شهادات متاحة.</div>
+                <div style={{ color: 'var(--text-secondary)' }}>لا توجد شهادات متاحة.</div>
               ) : (
                 <div style={{ display: 'grid', gap: 12 }}>
                   {myCertificates.map((certificate, index) => (
@@ -939,18 +969,18 @@ const handleSubmit = async (e) => {
                       style={{
                         padding: 12,
                         borderRadius: 12,
-                        border: '1px solid #e0f2fe',
-                        background: '#ffffff',
+                        border: '1px solid var(--border)',
+                        background: 'var(--bg-card-2)',
                       }}
                     >
-                      <div style={{ color: '#0f172a', fontWeight: 800, marginBottom: 6 }}>
+                      <div style={{ color: 'var(--text-primary)', fontWeight: 800, marginBottom: 6 }}>
                         {certificate.title || 'Certificate'}
                       </div>
-                      <div style={{ color: '#64748b', fontSize: 13 }}>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
                         {certificate.description || 'لا يوجد وصف'}
                       </div>
                       {certificate.issuedAt ? (
-                        <div style={{ color: '#64748b', fontSize: 12, marginTop: 6 }}>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 6 }}>
                           <FaCalendarAlt size={11} /> <span>تاريخ الإصدار: {certificate.issuedAt}</span>
                         </div>
                       ) : null}
@@ -964,23 +994,29 @@ const handleSubmit = async (e) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.24 }}
-              className="pro-card border border-sky-100 bg-white shadow-xl shadow-sky-100/60"
-              style={{ padding: 20, borderRadius: 20 }}
+              style={{
+                padding: 20,
+                borderRadius: 20,
+                background: 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
+                border: '1px solid var(--glass-border)',
+                boxShadow: 'var(--shadow-md)',
+              }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <FaMedal style={{ color: '#f59e0b' }} />
-                <h3 style={{ color: '#0f172a', margin: 0 }}>شارات المستخدم</h3>
+                <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>شارات المستخدم</h3>
               </div>
 
               {userBadgesLoading ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-secondary)' }}>
                   <FaSpinner className="animate-spin" />
                   <span>جاري تحميل الشارات...</span>
                 </div>
               ) : userBadgesError ? (
-                <div style={{ color: 'var(--danger)', padding: '12px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)' }}>{userBadgesError}</div>
+                <div style={{ color: 'var(--danger)', padding: '12px', borderRadius: '12px', background: 'var(--error-light)' }}>{userBadgesError}</div>
               ) : userBadges.length === 0 ? (
-                <div style={{ color: '#64748b', textAlign: 'center', padding: '20px', border: '1px dashed #bae6fd', borderRadius: '12px' }}>لا توجد شارات متاحة لهذا المستخدم.</div>
+                <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '20px', border: '1px dashed var(--border)', borderRadius: '12px' }}>لا توجد شارات متاحة لهذا المستخدم.</div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px' }}>
                   {userBadges.map((badge, index) => {
@@ -991,7 +1027,7 @@ const handleSubmit = async (e) => {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.03 }}
-                        whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(14,165,233,0.12)' }}
+                        whileHover={{ y: -4, boxShadow: 'var(--shadow-lg)' }}
                         style={{
                           display: 'flex',
                           flexDirection: 'column',
@@ -999,19 +1035,19 @@ const handleSubmit = async (e) => {
                           gap: '8px',
                           padding: '12px',
                           borderRadius: '14px',
-                          border: '1px solid #e0f2fe',
-                          background: 'linear-gradient(135deg, #ffffff, #fbfdff)',
+                          border: '1px solid var(--border)',
+                          background: 'var(--bg-card-2)',
                           textAlign: 'center',
                         }}
                       >
                         {badge.imageUrl ? (
                           <img src={badge.imageUrl} alt={badge.name} style={{ width: 52, height: 52, borderRadius: 12, objectFit: 'cover', border: '2px solid var(--primary)' }} />
                         ) : (
-                          <div style={{ width: 52, height: 52, borderRadius: 12, display: 'grid', placeItems: 'center', background: '#fff7ed', color: '#f59e0b' }}>
+                          <div style={{ width: 52, height: 52, borderRadius: 12, display: 'grid', placeItems: 'center', background: 'var(--bg-card)', color: 'var(--primary)' }}>
                             <FaMedal />
                           </div>
                         )}
-                        <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '13px' }}>{badge.name || badge.badgeName || 'شارة'}</div>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '13px' }}>{badge.name || badge.badgeName || 'شارة'}</div>
                       </motion.div>
                     );
                   })}
@@ -1031,15 +1067,16 @@ function SummaryMetric({ icon: Icon, label, value }) {
       style={{
         padding: '14px',
         borderRadius: '16px',
-        border: '1px solid #e0f2fe',
-        background: '#ffffff',
+        border: '1px solid var(--border)',
+        background: 'var(--bg-card-2)',
+        boxShadow: 'var(--shadow-sm)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '12px', marginBottom: '8px' }}>
-        <Icon style={{ color: '#38bdf8' }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '8px' }}>
+        <Icon style={{ color: 'var(--primary)' }} />
         <span>{label}</span>
       </div>
-      <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '16px' }}>{value}</div>
+      <div style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '16px' }}>{value}</div>
     </div>
   );
 }
@@ -1051,9 +1088,11 @@ function RoleSection({ title, subtitle, icon: Icon, accent, items, emptyMessage 
       animate={{ opacity: 1, x: 0 }}
       style={{
         padding: '20px',
-        borderRadius: '24px',
-        border: '1px solid #e0f2fe',
-        background: '#f8fafc',
+        borderRadius: '20px',
+        border: '1px solid var(--glass-border)',
+        background: 'var(--glass-bg)',
+        backdropFilter: 'var(--glass-blur)',
+        boxShadow: 'var(--shadow-md)',
         marginTop: '20px',
       }}
     >
@@ -1075,13 +1114,13 @@ function RoleSection({ title, subtitle, icon: Icon, accent, items, emptyMessage 
           <Icon />
         </div>
         <div>
-          <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '16px' }}>{title}</div>
-          <div style={{ color: '#64748b', fontSize: '12px' }}>{subtitle}</div>
+          <div style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '16px' }}>{title}</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{subtitle}</div>
         </div>
       </div>
 
       {items.length === 0 ? (
-        <div style={{ color: '#64748b', fontSize: '14px', marginTop: '14px', textAlign: 'center', padding: '20px', border: '1px dashed #bae6fd', borderRadius: '16px' }}>{emptyMessage}</div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '14px', textAlign: 'center', padding: '20px', border: '1px dashed var(--border)', borderRadius: '16px', background: 'var(--bg-card-2)' }}>{emptyMessage}</div>
       ) : (
         <div className="role-section-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '16px' }}>
           {items.map((item, idx) => (
@@ -1090,20 +1129,21 @@ function RoleSection({ title, subtitle, icon: Icon, accent, items, emptyMessage 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              whileHover={{ scale: 1.02, backgroundColor: '#eff6ff' }}
+              whileHover={{ scale: 1.02 }}
               style={{
                 padding: '16px',
                 borderRadius: '18px',
-                border: '1px solid #dbeafe',
-                background: '#ffffff',
+                border: '1px solid var(--border)',
+                background: 'var(--bg-card-2)',
+                boxShadow: 'var(--shadow-sm)',
                 transition: 'all 0.2s ease',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '11px', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '11px', marginBottom: '8px' }}>
                 <item.icon style={{ color: accent, fontSize: '14px' }} />
                 <span>{item.label}</span>
               </div>
-              <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '15px', wordBreak: 'break-word' }}>{String(item.value)}</div>
+              <div style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '15px', wordBreak: 'break-word' }}>{String(item.value)}</div>
             </motion.div>
           ))}
         </div>

@@ -122,7 +122,10 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
             {/* Header */}
             <div className="app-modal-header">
               <div className="flex flex-1 items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600 border border-sky-100 shadow-sm">
+                <div
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-sm"
+                  style={{ background: 'var(--bg-card-2)', color: 'var(--primary)', border: '1px solid var(--border)' }}
+                >
                   <FaTasks className="text-lg" />
                 </div>
                 <div className="flex-1">
@@ -179,7 +182,7 @@ export default function MissionDetailModal({ isOpen, onClose, mission }) {
             </div>
 
             {/* Footer */}
-            <div className="app-form-actions mt-6 border-t border-slate-100 pt-4">
+            <div className="app-form-actions mt-6 border-t pt-4" style={{ borderColor: 'var(--border)' }}>
               <button
                 onClick={onClose}
                 className="app-btn-secondary w-full"
@@ -199,7 +202,7 @@ const DetailItem = ({ label, value }) => (
     padding: '14px',
     borderRadius: '16px',
     background: 'var(--bg-card-2)',
-    border: '1px solid var(--border-light)',
+    border: '1px solid var(--border)',
     display: 'grid',
     gap: '6px'
   }}>
@@ -212,8 +215,8 @@ const RewardItem = ({ icon: Icon, label, value, color }) => (
   <div style={{
     padding: '14px',
     borderRadius: '16px',
-    background: 'var(--bg-card)',
-    border: '1px solid var(--border-light)',
+    background: 'var(--bg-card-2)',
+    border: '1px solid var(--border)',
     display: 'flex',
     alignItems: 'center',
     gap: '12px'

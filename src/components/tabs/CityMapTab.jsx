@@ -106,7 +106,7 @@ const CityMapTab = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gap: 12, marginBottom: 18, padding: '18px 20px', borderRadius: 22, border: '1px solid rgba(148,163,184,0.2)', background: 'rgba(255,255,255,0.9)', boxShadow: '0 24px 60px rgba(15,23,42,0.06)' }}>
+      <div className="city-focus-panel" style={{ display: 'grid', gap: 12, marginBottom: 18, padding: '18px 20px', borderRadius: 22, border: '1px solid var(--glass-border)', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--shadow-md)' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', justifyContent: 'space-between', direction: 'rtl' }}>
           <div>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#334155' }}>تركيز المدينة</span>

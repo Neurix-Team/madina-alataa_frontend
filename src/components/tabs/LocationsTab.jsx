@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AppLoader from '../common/AppLoader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { locationsService } from '../../services/locationsService';
+import { useAuth } from '../../hooks/useAuth';
 import AddLocationModal from '../modals/AddLocationModal';
 import EditLocationModal from '../modals/EditLocationModal';
 import LocationDetailModal from '../modals/LocationDetailModal';
@@ -14,6 +15,7 @@ import {
 } from 'react-icons/fa';
 
 const LocationsTab = () => {
+  const { isAdmin } = useAuth();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   useEffect(() => {
@@ -205,14 +207,19 @@ const LocationsTab = () => {
       style={{
         padding: isMobile ? '12px' : '24px',
         borderRadius: isMobile ? '16px' : '32px',
-        border: '1px solid rgba(226, 232, 240, 0.8)',
-        background: 'rgba(255, 255, 255, 0.9)',
-        backdropFilter: 'blur(10px)',
+        border: '1px solid var(--glass-border)',
+        background: 'var(--glass-bg)',
+        backdropFilter: 'var(--glass-blur)',
+        boxShadow: 'var(--shadow-md)',
       }}
     >
-      {/* gradient overlays (non-interactive) */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(240,249,255,0.98),rgba(255,255,255,0.5)_45%,rgba(236,253,245,0.58))]" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(240,249,255,0.98),rgba(255,255,255,0.56)_48%,rgba(236,253,245,0.65))]" />
+      {/* subtle overlay, theme-safe in light and dark modes */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), transparent 45%, rgba(16, 185, 129, 0.08))',
+        }}
+      />
 
       <div className="relative z-10 p-0">
       <div className="pro-card-header" style={{ 
@@ -226,7 +233,7 @@ const LocationsTab = () => {
         <div className="pro-flex pro-items-center pro-gap-3">
           <div className="pro-number" style={{ width: isMobile ? 28 : 32, height: isMobile ? 28 : 32, fontSize: isMobile ? 12 : 14 }}>{index + 1}</div>
           <div>
-            <h3 className="pro-card-title" style={{ color: '#0f172a', fontSize: isMobile ? 15 : 18, margin: 0 }}>{location.name}</h3>
+            <h3 className="pro-card-title" style={{ color: 'var(--text-primary)', fontSize: isMobile ? 15 : 18, margin: 0 }}>{location.name}</h3>
           </div>
         </div>
         <span className="pro-badge pro-badge-warning" style={{ fontSize: isMobile ? 10 : 12, marginRight: isMobile ? 0 : 'auto' }}>
@@ -242,16 +249,16 @@ const LocationsTab = () => {
         }}>
           <div className="pro-data-item" style={{ 
             padding: isMobile ? '12px' : '16px 20px',
-            background: 'rgba(248, 250, 252, 0.5)',
+            background: 'var(--bg-card-2)',
             borderRadius: '16px',
-            border: '1px solid rgba(226, 232, 240, 0.5)'
+            border: '1px solid var(--border)'
           }}>
             <p className="pro-data-label" style={{ fontSize: isMobile ? 10 : 12, marginBottom: '8px' }}>
               <FaCompass style={{ color: 'var(--primary-light)' }} />
               خط الطول
             </p>
             <p className="pro-data-value" style={{ 
-              color: '#0f172a', 
+              color: 'var(--text-primary)',
               fontSize: isMobile ? 14 : 16,
               fontWeight: '700',
               letterSpacing: '0.5px'
@@ -259,16 +266,16 @@ const LocationsTab = () => {
           </div>
           <div className="pro-data-item" style={{ 
             padding: isMobile ? '12px' : '16px 20px',
-            background: 'rgba(248, 250, 252, 0.5)',
+            background: 'var(--bg-card-2)',
             borderRadius: '16px',
-            border: '1px solid rgba(226, 232, 240, 0.5)'
+            border: '1px solid var(--border)'
           }}>
             <p className="pro-data-label" style={{ fontSize: isMobile ? 10 : 12, marginBottom: '8px' }}>
               <FaGlobe style={{ color: 'var(--accent)' }} />
               خط العرض
             </p>
             <p className="pro-data-value" style={{ 
-              color: '#0f172a', 
+              color: 'var(--text-primary)',
               fontSize: isMobile ? 14 : 16,
               fontWeight: '700',
               letterSpacing: '0.5px'
@@ -286,7 +293,7 @@ const LocationsTab = () => {
           gap: isMobile ? '8px' : '12px', 
           marginTop: '20px', 
           padding: '16px 0 0 0',
-          borderTop: '1px solid rgba(226, 232, 240, 0.5)',
+          borderTop: '1px solid var(--border)',
           position: 'relative', 
           zIndex: 20 
         }}>
@@ -297,11 +304,11 @@ const LocationsTab = () => {
             className="pro-btn pro-btn-icon"
             title="عرض"
             style={{ 
-              color: '#1d4ed8', 
-              background: '#dbeafe', 
-              border: '1px solid #60a5fa', 
+              color: 'var(--primary)',
+              background: 'var(--bg-card-2)',
+              border: '1px solid var(--border)',
               opacity: 1, 
-              boxShadow: '0 8px 18px rgba(37, 99, 235, 0.18)',
+              boxShadow: 'var(--shadow-sm)',
               flex: isMobile ? 1 : 'none',
               height: isMobile ? 36 : 40
             }}
@@ -315,11 +322,12 @@ const LocationsTab = () => {
             className="pro-btn pro-btn-icon"
             title="تعديل"
             style={{ 
-              color: '#b45309', 
-              background: '#fef3c7', 
-              border: '1px solid #f59e0b', 
+              color: 'var(--warning)',
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
               opacity: 1, 
-              boxShadow: '0 8px 18px rgba(217, 119, 6, 0.18)',
+              boxShadow: 'var(--shadow-sm)',
+              display: isAdmin ? 'inline-flex' : 'none',
               flex: isMobile ? 1 : 'none',
               height: isMobile ? 36 : 40
             }}
@@ -333,11 +341,12 @@ const LocationsTab = () => {
             className="pro-btn pro-btn-icon"
             title="حذف"
             style={{ 
-              color: '#b91c1c', 
-              background: '#fee2e2', 
-              border: '1px solid #f87171', 
+              color: 'var(--error)',
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
               opacity: 1, 
-              boxShadow: '0 8px 18px rgba(220, 38, 38, 0.18)',
+              boxShadow: 'var(--shadow-sm)',
+              display: isAdmin ? 'inline-flex' : 'none',
               flex: isMobile ? 1 : 'none',
               height: isMobile ? 36 : 40
             }}
@@ -417,6 +426,7 @@ const LocationsTab = () => {
               <span>{showAvailable ? 'عرض الكل' : 'العناوين المتاحة'}</span>
             </motion.button>
             
+            {isAdmin && (
             <motion.button 
               whileHover={{ scale: 1.02 }} 
               whileTap={{ scale: 0.98 }} 
@@ -426,6 +436,7 @@ const LocationsTab = () => {
               <FaPlus />
               <span>إضافة عنوان</span>
             </motion.button>
+            )}
           </div>
         </div>
 
@@ -495,13 +506,13 @@ const LocationsTab = () => {
           ) : (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
               {/* Results Count */}
-              <p className="pro-section-title" style={{ color: '#ffffff', fontSize: '24px', fontWeight: '900', textShadow: '0 2px 10px rgba(0,0,0,0.2)', marginBottom: '20px' }}>
+              <p className="pro-section-title" style={{ color: 'var(--text-primary)', fontSize: '24px', fontWeight: '900', marginBottom: '20px' }}>
                 {showAvailable ? `${availableLocations.length} موقع متاح` : `${filteredLocations.length} موقع مسجل`}
               </p>
 
               <div className="pro-card-grid">
                 {(showAvailable ? availableLocations : filteredLocations).map((loc, index) => (
-                  <LocationCard key={loc.id} location={loc} showActions={!showAvailable} index={index} />
+                  <LocationCard key={loc.id} location={loc} showActions index={index} />
                 ))}
               </div>
 
@@ -514,6 +525,7 @@ const LocationsTab = () => {
                   <p className="pro-empty-text">
                     لم يتم العثور على مواقع تطابق معايير البحث. جرب بحثاً مختلفاً أو أضف موقعاً جديداً.
                   </p>
+                  {isAdmin && (
                   <motion.button 
                     whileHover={{ scale: 1.02 }} 
                     whileTap={{ scale: 0.98 }} 
@@ -522,6 +534,7 @@ const LocationsTab = () => {
                   >
                     إضافة موقع جديد
                   </motion.button>
+                  )}
                 </motion.div>
               )}
             </motion.div>

@@ -119,7 +119,10 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
             {/* Header */}
             <div className="app-modal-header">
               <div className="flex items-center gap-4">
-                <div className="w-[52px] h-[52px] rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm">
+                <div
+                  className="w-[52px] h-[52px] rounded-2xl flex items-center justify-center shadow-sm"
+                  style={{ background: 'var(--bg-card-2)', color: 'var(--warning)', border: '1px solid var(--border)' }}
+                >
                   <FaEdit className="text-xl" />
                 </div>
                 <div>
@@ -226,7 +229,7 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="app-form-actions pt-4 border-t border-slate-100">
+                <div className="app-form-actions pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
                   <button
                     type="submit"
                     disabled={loading}
@@ -260,9 +263,9 @@ export default function EditMissionModal({ isOpen, onClose, onSubmit, mission, l
 
 function ReviewRow({ label, value, mono = false }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-[18px] border border-amber-100 bg-white px-4 py-3.5 shadow-sm">
-      <span className="text-sm font-medium text-slate-600">{label}</span>
-      <span className={`text-sm font-semibold text-slate-900 ${mono ? 'font-mono break-all text-left' : ''}`} dir={mono ? 'ltr' : undefined}>
+    <div className="flex items-center justify-between gap-4 rounded-[18px] px-4 py-3.5 shadow-sm" style={{ background: 'var(--bg-card-2)', border: '1px solid var(--border)' }}>
+      <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</span>
+      <span className={`text-sm font-semibold ${mono ? 'font-mono break-all text-left' : ''}`} style={{ color: 'var(--text-primary)' }} dir={mono ? 'ltr' : undefined}>
         {value}
       </span>
     </div>

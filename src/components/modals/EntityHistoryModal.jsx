@@ -93,8 +93,10 @@ const modalStyle = {
   maxHeight: '90vh',
   overflowY: 'auto',
   borderRadius: 24,
-  background: '#fff',
-  boxShadow: '0 30px 80px rgba(15,23,42,.28)',
+  background: 'var(--glass-bg)',
+  backdropFilter: 'var(--glass-blur)',
+  border: '1px solid var(--glass-border)',
+  boxShadow: 'var(--shadow-lg)',
   padding: 22,
   display: 'grid',
   gap: 18,
@@ -122,9 +124,9 @@ const closeBtnStyle = {
   width: 40,
   height: 40,
   borderRadius: 12,
-  border: '1px solid rgba(148,163,184,.2)',
-  background: '#fff',
-  color: '#334155',
+  border: '1px solid var(--border)',
+  background: 'var(--bg-card-2)',
+  color: 'var(--text-primary)',
   cursor: 'pointer',
 };
 
@@ -132,11 +134,11 @@ const stateBoxStyle = {
   minHeight: 180,
   borderRadius: 18,
   border: '1px dashed rgba(148,163,184,.35)',
-  background: 'rgba(248,250,252,.95)',
+  background: 'var(--bg-card-2)',
   display: 'grid',
   placeItems: 'center',
   textAlign: 'center',
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   gap: 10,
   padding: 24,
 };
@@ -144,35 +146,37 @@ const stateBoxStyle = {
 const itemCardStyle = {
   padding: 16,
   borderRadius: 18,
-  border: '1px solid rgba(226,232,240,.9)',
-  background: 'linear-gradient(180deg, #fff, #f8fbff)',
+  border: '1px solid var(--border)',
+  background: 'var(--bg-card)',
+  boxShadow: 'var(--shadow-sm)',
   display: 'grid',
   gap: 12,
 };
 
 const itemTitleStyle = {
-  color: '#0f172a',
+  color: 'var(--text-primary)',
   fontSize: 16,
   fontWeight: 800,
 };
 
 const itemMetaStyle = {
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   fontSize: 12,
   marginTop: 4,
 };
 
 const itemDescriptionStyle = {
   margin: 0,
-  color: '#334155',
+  color: 'var(--text-primary)',
   lineHeight: 1.7,
 };
 
 const chipStyle = {
   padding: '6px 10px',
   borderRadius: 999,
-  background: 'rgba(37,99,235,.1)',
-  color: '#2563eb',
+  background: 'var(--bg-card-2)',
+  color: 'var(--primary)',
+  border: '1px solid var(--border)',
   fontSize: 12,
   fontWeight: 800,
   whiteSpace: 'nowrap',
@@ -187,20 +191,20 @@ const metaListStyle = {
 const metaRowStyle = {
   padding: '10px 12px',
   borderRadius: 14,
-  background: 'rgba(248,250,252,.95)',
-  border: '1px solid rgba(226,232,240,.9)',
+  background: 'var(--bg-card-2)',
+  border: '1px solid var(--border)',
   display: 'grid',
   gap: 4,
 };
 
 const metaLabelStyle = {
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   fontSize: 12,
   fontWeight: 700,
 };
 
 const metaValueStyle = {
-  color: '#0f172a',
+  color: 'var(--text-primary)',
   fontSize: 13,
   fontWeight: 800,
   wordBreak: 'break-word',
@@ -247,7 +251,14 @@ const EntityHistoryModal = ({ isOpen, entityId, title = 'سجل النشاط', o
         {/* Header */}
         <div className="app-modal-header">
           <div className="flex items-center gap-4">
-            <div className="w-[52px] h-[52px] rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+            <div
+              className="w-[52px] h-[52px] rounded-2xl flex items-center justify-center shadow-sm"
+              style={{
+                background: 'var(--bg-card-2)',
+                border: '1px solid var(--border)',
+                color: 'var(--primary)',
+              }}
+            >
               <FaHistory className="text-xl" />
             </div>
             <div>

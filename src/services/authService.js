@@ -10,6 +10,7 @@ export const authService = {
     const requestBody = {
       email: payload.email,
       password: payload.password,
+      confirmPassword: payload.confirmPassword,
       fullname: payload.fullname,
       birthDate: payload.birthDate,
     };

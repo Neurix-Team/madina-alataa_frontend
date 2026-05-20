@@ -110,7 +110,7 @@ const getVolunteerRequestChip = (status) => {
     return { label: 'approved', color: '#16a34a', bg: 'rgba(34,197,94,.14)' };
   }
   if (status === 'in_progress') {
-    return { label: 'in progress', color: '#2563eb', bg: 'rgba(59,130,246,.14)' };
+    return { label: 'in progress', color: 'var(--primary)', bg: 'var(--bg-card-2)' };
   }
   if (status === 'rejected') {
     return { label: 'rejected', color: '#dc2626', bg: 'rgba(239,68,68,.14)' };
@@ -521,7 +521,7 @@ const VolunteerRequestsPage = () => {
       4: { label: '4', color: '#dc2626', bg: 'rgba(239,68,68,.16)' },
       5: { label: '5', color: '#7c3aed', bg: 'rgba(168,85,247,.16)' },
     };
-    return levels[level] || { label: level, color: '#64748b', bg: 'rgba(148,163,184,.16)' };
+    return levels[level] || { label: level, color: 'var(--text-secondary)', bg: 'var(--bg-card-2)' };
   }
 
   const renderRequestModal = () => {
@@ -722,9 +722,10 @@ const VolunteerRequestsPage = () => {
           style={{
             padding: '24px 32px',
             borderRadius: 24,
-            background: '#fff',
-            border: '1px solid rgba(148,163,184,0.15)',
-            boxShadow: '0 20px 50px rgba(15,23,42,0.06)',
+            background: 'var(--glass-bg)',
+            backdropFilter: 'var(--glass-blur)',
+            border: '1px solid var(--glass-border)',
+            boxShadow: 'var(--shadow-md)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -740,16 +741,16 @@ const VolunteerRequestsPage = () => {
               borderRadius: 16,
               display: 'grid',
               placeItems: 'center',
-              background: '#eff6ff',
-              color: '#2563eb',
+              background: 'var(--bg-card-2)',
+              color: 'var(--primary)',
               fontSize: 24,
-              border: '1px solid #bfdbfe'
+              border: '1px solid var(--border)'
             }}>
               <FaHandsHelping />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0f172a' }}>طلبات التطوع</h1>
-              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 14, fontWeight: 500 }}>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: 'var(--text-primary)' }}>طلبات التطوع</h1>
+              <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500 }}>
                 عرض الطلبات مع التوكن، بيدجيشن، تفاصيل كل عنصر، وإدارة كاملة للأدمن.
               </p>
             </div>
@@ -801,7 +802,7 @@ const VolunteerRequestsPage = () => {
         )}
 
         <div style={{ ...panelStyle, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
-          <FaSearch style={{ color: '#2563eb' }} />
+          <FaSearch style={{ color: 'var(--primary)' }} />
           <input
             type="search"
             value={searchTerm}
@@ -861,25 +862,21 @@ const VolunteerRequestsPage = () => {
                         style={{
                           ...cardStyle,
                           padding: 22,
-                          background: isAboveVolunteerLevel
-                            ? 'linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)'
-                            : cardStyle.background,
+                          background: isAboveVolunteerLevel ? 'var(--bg-card-2)' : cardStyle.background,
                           border: isAboveVolunteerLevel
-                            ? '1px solid rgba(100,116,139,.38)'
+                            ? '1px solid var(--border)'
                             : cardStyle.border,
-                          boxShadow: isAboveVolunteerLevel
-                            ? '0 16px 34px rgba(15,23,42,.1)'
-                            : '0 10px 24px rgba(15,23,42,.04)',
+                          boxShadow: 'var(--shadow-sm)',
                         }}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
                           <div style={{ flex: 1, minWidth: 260 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                              <h3 style={{ margin: 0, fontSize: 19, color: '#0f172a', fontWeight: 800 }}>
+                              <h3 style={{ margin: 0, fontSize: 19, color: 'var(--text-primary)', fontWeight: 800 }}>
                                 {request.title || request.name || request.requestName || request.serviceRequestTitle || 'بدون عنوان'}
                               </h3>
                             </div>
-                              <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
+                              <p style={{ margin: '6px 0 0', color: 'var(--text-secondary)', fontSize: 13 }}>
                                 {request.serviceType || request.title || 'خدمة الطلب'}
                               </p>
                               {volunteerStatusChip && (
@@ -894,10 +891,10 @@ const VolunteerRequestsPage = () => {
                                   <span
                                     style={{
                                       ...chipStyle,
-                                      color: isAboveVolunteerLevel ? '#334155' : '#475569',
+                                      color: isAboveVolunteerLevel ? 'var(--text-primary)' : 'var(--text-secondary)',
                                       background: isAboveVolunteerLevel
-                                        ? 'rgba(71,85,105,.16)'
-                                        : 'rgba(226,232,240,.85)',
+                                        ? 'var(--bg-card-2)'
+                                        : 'var(--bg-card-2)',
                                     }}
                                   >
                                     المستوى {requiredLevelNumber}
@@ -918,7 +915,7 @@ const VolunteerRequestsPage = () => {
                           </div>
 
                           {request.briefDescription && (
-                            <p style={{ margin: 0, color: '#334155', lineHeight: 1.7 }}>
+                            <p style={{ margin: 0, color: 'var(--text-primary)', lineHeight: 1.7 }}>
                               {request.briefDescription}
                             </p>
                           )}
@@ -928,7 +925,7 @@ const VolunteerRequestsPage = () => {
                           <button type="button" onClick={() => handleViewDetails(requestId)} style={iconButtonStyle} title="التفاصيل">
                             <FaEye />
                           </button>
-                          <button type="button" onClick={() => setHistoryEntityId(requestId)} style={{ ...iconButtonStyle, color: '#0f172a' }} title="عرض السجل">
+                          <button type="button" onClick={() => setHistoryEntityId(requestId)} style={{ ...iconButtonStyle, color: 'var(--text-primary)' }} title="عرض السجل">
                             <FaHistory />
                           </button>
                           {isAdmin && (
@@ -998,8 +995,8 @@ const VolunteerRequestsPage = () => {
             ) : (
               <div style={{ display: 'grid', gap: 16 }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: 21, color: '#0f172a' }}>{selectedRequest.title || 'بدون عنوان'}</h3>
-                  <p style={{ margin: '6px 0 0', color: '#64748b' }}>{selectedRequest.serviceType || selectedRequest.title || 'خدمة الطلب'}</p>
+                  <h3 style={{ margin: 0, fontSize: 21, color: 'var(--text-primary)' }}>{selectedRequest.title || 'بدون عنوان'}</h3>
+                  <p style={{ margin: '6px 0 0', color: 'var(--text-secondary)' }}>{selectedRequest.serviceType || selectedRequest.title || 'خدمة الطلب'}</p>
                 </div>
 
                 <div style={detailsGridStyle}>
@@ -1016,7 +1013,7 @@ const VolunteerRequestsPage = () => {
 
                 <div>
                   <h4 style={detailLabelStyle}>الوصف</h4>
-                  <p style={{ margin: '6px 0 0', color: '#334155', lineHeight: 1.8 }}>
+                  <p style={{ margin: '6px 0 0', color: 'var(--text-primary)', lineHeight: 1.8 }}>
                     {selectedRequest.briefDescription || 'لا يوجد وصف.'}
                   </p>
                 </div>
@@ -1105,6 +1102,18 @@ const VolunteerRequestsPage = () => {
                   <DetailItem label="مستوى المتطلب" value={selectedRequest.requiredLevelId || '-'} />
                   <DetailItem label="الشريك" value={partnerNameById[selectedRequest.partnerId] || selectedRequest.title || 'الشريك المرتبط بالطلب'} />
                   <DetailItem label="الخريطة" value={locationNameById[selectedRequest.locationId] || selectedRequest.title || 'موقع الطلب'} />
+                  {selectedRequest.volunteer && (
+                    <DetailItem
+                      label="المتطوع"
+                      value={selectedRequest.volunteer.name || selectedRequest.volunteer.fullName || selectedRequest.volunteer.email || 'لا يوجد متطوع'}
+                    />
+                  )}
+                  {selectedRequest.donor && (
+                    <DetailItem
+                      label="المتبرع"
+                      value={selectedRequest.donor.name || selectedRequest.donor.fullName || selectedRequest.donor.email || 'لا يوجد متبرع'}
+                    />
+                  )}
                 </div>
 
                 <div>
@@ -1145,16 +1154,9 @@ const VolunteerRequestsPage = () => {
 };
 
 const DetailItem = ({ label, value }) => (
-  <div style={{
-    padding: '14px',
-    borderRadius: 16,
-    background: 'rgba(248, 250, 252, 0.95)',
-    border: '1px solid rgba(226, 232, 240, 0.9)',
-    display: 'grid',
-    gap: '6px'
-  }}>
-    <span style={{ color: '#64748b', fontSize: 12, fontWeight: 700 }}>{label}</span>
-    <strong style={{ color: '#0f172a', fontSize: 14, fontWeight: 800, wordBreak: 'break-word' }}>{value}</strong>
+  <div style={detailItemStyle}>
+    <span style={detailLabelStyle}>{label}</span>
+    <strong style={detailValueStyle}>{value}</strong>
   </div>
 );
 
@@ -1217,21 +1219,22 @@ const statsGridStyle = {
 const statCardStyle = {
   padding: 18,
   borderRadius: 20,
-  background: '#fff',
-  border: '1px solid rgba(226,232,240,.9)',
-  boxShadow: '0 10px 30px rgba(15,23,42,.04)',
+  background: 'var(--glass-bg)',
+  backdropFilter: 'var(--glass-blur)',
+  border: '1px solid var(--glass-border)',
+  boxShadow: 'var(--shadow-sm)',
   display: 'grid',
   gap: 8,
 };
 
 const statLabelStyle = {
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   fontSize: 13,
   fontWeight: 700,
 };
 
 const statValueStyle = {
-  color: '#0f172a',
+  color: 'var(--text-primary)',
   fontSize: 24,
   fontWeight: 900,
 };
@@ -1245,9 +1248,10 @@ const contentGridStyle = {
 const panelStyle = {
   padding: 20,
   borderRadius: 24,
-  background: '#fff',
-  border: '1px solid rgba(226,232,240,.9)',
-  boxShadow: '0 18px 40px rgba(15,23,42,.05)',
+  background: 'var(--glass-bg)',
+  backdropFilter: 'var(--glass-blur)',
+  border: '1px solid var(--glass-border)',
+  boxShadow: 'var(--shadow-md)',
   display: 'grid',
   gap: 18,
 };
@@ -1267,14 +1271,14 @@ const panelHeaderStyle = {
 
 const sectionTitleStyle = {
   margin: 0,
-  color: '#0f172a',
+  color: 'var(--text-primary)',
   fontSize: 20,
   fontWeight: 900,
 };
 
 const sectionMetaStyle = {
   margin: '6px 0 0',
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   fontSize: 12,
 };
 
@@ -1285,7 +1289,7 @@ const loadingBoxStyle = {
   display: 'grid',
   placeItems: 'center',
   gap: 12,
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   textAlign: 'center',
   padding: 24,
 };
@@ -1293,11 +1297,11 @@ const loadingBoxStyle = {
 const emptyBoxStyle = {
   minHeight: 220,
   borderRadius: 20,
-  background: 'rgba(248,250,252,.9)',
+  background: 'var(--bg-card-2)',
   border: '1px dashed rgba(148,163,184,.45)',
   display: 'grid',
   placeItems: 'center',
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   textAlign: 'center',
   padding: 24,
 };
@@ -1316,8 +1320,9 @@ const errorAlertStyle = {
 const cardStyle = {
   padding: 18,
   borderRadius: 20,
-  border: '1px solid rgba(226,232,240,.9)',
-  background: 'linear-gradient(180deg, #fff, #f8fbff)',
+  border: '1px solid var(--border)',
+  background: 'var(--bg-card)',
+  boxShadow: 'var(--shadow-sm)',
   display: 'grid',
   gap: 14,
 };
@@ -1325,6 +1330,7 @@ const cardStyle = {
 const chipStyle = {
   borderRadius: 999,
   padding: '7px 12px',
+  border: '1px solid var(--border)',
   fontSize: 12,
   fontWeight: 800,
   whiteSpace: 'nowrap',
@@ -1345,8 +1351,8 @@ const metaItemStyle = {
   gap: 6,
   padding: '7px 12px',
   borderRadius: 999,
-  background: 'rgba(241,245,249,.9)',
-  color: '#475569',
+  background: 'var(--bg-card-2)',
+  color: 'var(--text-secondary)',
   fontSize: 12,
   fontWeight: 700,
 };
@@ -1361,9 +1367,9 @@ const iconButtonStyle = {
   width: 42,
   height: 42,
   borderRadius: 12,
-  border: '1px solid rgba(148,163,184,.2)',
-  background: '#fff',
-  color: '#2563eb',
+  border: '1px solid var(--border)',
+  background: 'var(--bg-card-2)',
+  color: 'var(--primary)',
   display: 'grid',
   placeItems: 'center',
   cursor: 'pointer',
@@ -1384,11 +1390,11 @@ const primaryButtonStyle = {
 };
 
 const secondaryButtonStyle = {
-  border: '1px solid rgba(148,163,184,.25)',
+  border: '1px solid var(--border)',
   borderRadius: 14,
   padding: '10px 16px',
-  background: '#fff',
-  color: '#334155',
+  background: 'var(--bg-card-2)',
+  color: 'var(--text-primary)',
   fontSize: 14,
   fontWeight: 700,
   cursor: 'pointer',
@@ -1418,8 +1424,10 @@ const modalStyle = {
   overflowY: 'auto',
   padding: 22,
   borderRadius: 24,
-  background: '#fff',
-  boxShadow: '0 30px 70px rgba(15,23,42,.22)',
+  background: 'var(--glass-bg)',
+  backdropFilter: 'var(--glass-blur)',
+  border: '1px solid var(--glass-border)',
+  boxShadow: 'var(--shadow-lg)',
   display: 'grid',
   gap: 20,
 };
@@ -1440,7 +1448,7 @@ const formGridStyle = {
 const fieldStyle = {
   display: 'grid',
   gap: 8,
-  color: '#334155',
+  color: 'var(--text-primary)',
   fontSize: 13,
   fontWeight: 700,
 };
@@ -1449,9 +1457,9 @@ const inputStyle = {
   width: '100%',
   padding: '11px 12px',
   borderRadius: 12,
-  border: '1px solid rgba(203,213,225,.95)',
-  background: '#fff',
-  color: '#0f172a',
+  border: '1px solid var(--input-border)',
+  background: 'var(--input-bg)',
+  color: 'var(--text-primary)',
   fontSize: 14,
 };
 
@@ -1464,20 +1472,20 @@ const detailsGridStyle = {
 const detailItemStyle = {
   padding: 14,
   borderRadius: 16,
-  background: 'rgba(248,250,252,.95)',
-  border: '1px solid rgba(226,232,240,.9)',
+  background: 'var(--bg-card-2)',
+  border: '1px solid var(--border)',
   display: 'grid',
   gap: 6,
 };
 
 const detailLabelStyle = {
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   fontSize: 12,
   fontWeight: 700,
 };
 
 const detailValueStyle = {
-  color: '#0f172a',
+  color: 'var(--text-primary)',
   fontSize: 14,
   fontWeight: 800,
   wordBreak: 'break-word',

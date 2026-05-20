@@ -184,12 +184,13 @@ export default function AvatarPage() {
       maxWidth: '1200px',
       margin: '0 auto',
       fontFamily: "'Cairo', sans-serif",
+      color: 'var(--text-primary)',
     }}>
       <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#1e293b', marginBottom: '8px' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px' }}>
           {t('avatar.title')}
         </h1>
-        <p style={{ color: '#64748b', fontSize: '18px' }}>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '18px' }}>
           {t('avatar.subtitle')}
         </p>
       </div>
@@ -197,10 +198,12 @@ export default function AvatarPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', alignItems: 'start' }}>
         {/* Left: Preview */}
         <div style={{
-          background: '#fff',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'var(--glass-blur)',
           borderRadius: '32px',
           padding: '40px',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.05)',
+          boxShadow: 'var(--shadow-lg)',
+          border: '1px solid var(--glass-border)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -212,10 +215,10 @@ export default function AvatarPage() {
             height: '320px',
             borderRadius: '50%',
             overflow: 'hidden',
-            border: '8px solid #f1f5f9',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+            border: '8px solid var(--border)',
+            boxShadow: 'var(--shadow-md)',
             marginBottom: '32px',
-            background: '#f8fafc',
+            background: 'var(--bg-card-2)',
           }}>
             <img 
               src={avatarUrl} 
@@ -230,13 +233,13 @@ export default function AvatarPage() {
               padding: '16px 40px',
               borderRadius: '20px',
               border: 'none',
-              background: savedStatus ? '#10b981' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+              background: savedStatus ? 'var(--success)' : 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
               color: '#fff',
               fontSize: '18px',
               fontWeight: 800,
               cursor: 'pointer',
               transition: 'all 0.3s ease',
-              boxShadow: '0 10px 25px rgba(37, 99, 235, 0.2)',
+              boxShadow: 'var(--shadow-md)',
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
@@ -250,9 +253,47 @@ export default function AvatarPage() {
         <div style={{ display: 'grid', gap: '24px' }}>
           {/* Gender */}
           <Section title={t('avatar.gender')}>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <OptionBtn active={profile.gender === 'boy'} onClick={() => update('gender', 'boy')}>{t('avatar.boy')}</OptionBtn>
-              <OptionBtn active={profile.gender === 'girl'} onClick={() => update('gender', 'girl')}>{t('avatar.girl')}</OptionBtn>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <button
+                onClick={() => update('gender', 'boy')}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '20px',
+                  border: profile.gender === 'boy' ? '3px solid var(--primary)' : '1px solid var(--border)',
+                  background: profile.gender === 'boy' ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-card-2)',
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <span style={{ fontSize: 32 }}>👦</span>
+                <span style={{ fontWeight: 800 }}>{t('avatar.boy')}</span>
+              </button>
+              <button
+                onClick={() => update('gender', 'girl')}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '20px',
+                  border: profile.gender === 'girl' ? '3px solid #ec4899' : '1px solid var(--border)',
+                  background: profile.gender === 'girl' ? 'rgba(236, 72, 153, 0.1)' : 'var(--bg-card-2)',
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <span style={{ fontSize: 32 }}>👧</span>
+                <span style={{ fontWeight: 800 }}>{t('avatar.girl')}</span>
+              </button>
             </div>
           </Section>
 
@@ -269,7 +310,7 @@ export default function AvatarPage() {
                     borderRadius: '50%',
                     background: `#${SKIN_MAP[tone]}`,
                     cursor: 'pointer',
-                    border: profile.skinTone === tone ? '4px solid #3b82f6' : '2px solid #e2e8f0',
+                    border: profile.skinTone === tone ? '4px solid var(--primary)' : '2px solid var(--border)',
                     transition: 'all 0.2s',
                   }}
                 />
@@ -301,7 +342,7 @@ export default function AvatarPage() {
                     borderRadius: '8px',
                     background: `#${HAIR_COLOR_MAP[color]}`,
                     cursor: 'pointer',
-                    border: profile.hairColor === color ? '3px solid #3b82f6' : '1px solid #e2e8f0',
+                    border: profile.hairColor === color ? '3px solid var(--primary)' : '1px solid var(--border)',
                   }}
                 />
               ))}
@@ -332,7 +373,7 @@ export default function AvatarPage() {
                     borderRadius: '12px',
                     background: `linear-gradient(135deg, #${BG_MAP[bg].split(',')[0]}, #${BG_MAP[bg].split(',')[1]})`,
                     cursor: 'pointer',
-                    border: profile.background === bg ? '4px solid #3b82f6' : '2px solid transparent',
+                    border: profile.background === bg ? '4px solid var(--primary)' : '2px solid transparent',
                   }}
                 />
               ))}
@@ -356,5 +397,35 @@ export default function AvatarPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <div style={{ marginBottom: '24px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-secondary)', marginBottom: '12px' }}>{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function OptionBtn({ children, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '10px 20px',
+        borderRadius: '14px',
+        border: active ? '3px solid var(--primary)' : '1.5px solid var(--border)',
+        background: active ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-card-2)',
+        color: active ? 'var(--primary)' : 'var(--text-secondary)',
+        fontWeight: 800,
+        fontSize: '14px',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+      }}
+    >
+      {children}
+    </button>
   );
 }

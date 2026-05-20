@@ -15,7 +15,7 @@ import {
 } from 'react-icons/fa';
 import { donationRequestsService } from '../../services/donationRequestsService';
 
-const cardClass = 'rounded-2xl border border-slate-200 bg-white p-6 shadow-sm';
+const cardClass = 'rounded-2xl p-6 shadow-sm';
 
 const ViewDonationRequestModal = ({
   isOpen,
@@ -49,12 +49,18 @@ const ViewDonationRequestModal = ({
   };
 
   const DetailItem = ({ label, value, icon: Icon, fullWidth = false }) => (
-    <div className={`p-4 rounded-2xl bg-slate-50/95 border border-slate-200/90 flex flex-col gap-1.5 ${fullWidth ? 'col-span-full' : ''}`}>
-      <div className="flex items-center gap-2 text-slate-500">
+    <div
+      className={`p-4 rounded-2xl flex flex-col gap-1.5 ${fullWidth ? 'col-span-full' : ''}`}
+      style={{
+        background: 'var(--bg-card-2)',
+        border: '1px solid var(--border)',
+      }}
+    >
+      <div className="flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
         {Icon && <Icon className="text-sm" />}
         <span className="text-[12px] font-bold uppercase tracking-wider">{label}</span>
       </div>
-      <strong className="text-slate-900 text-[14px] font-extrabold break-words">
+      <strong className="text-[14px] font-extrabold break-words" style={{ color: 'var(--text-primary)' }}>
         {value || 'غير محدد'}
       </strong>
     </div>
@@ -126,19 +132,19 @@ const ViewDonationRequestModal = ({
           <div className="overflow-y-auto">
             {loading ? (
               <div className="py-20 flex flex-col items-center justify-center gap-4">
-                <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
-                <p className="text-slate-500 font-bold">جاري تحميل البيانات...</p>
+                <div className="w-12 h-12 border-4 rounded-full animate-spin" style={{ borderColor: 'var(--border)', borderTopColor: 'var(--primary)' }} />
+                <p className="font-bold" style={{ color: 'var(--text-secondary)' }}>جاري تحميل البيانات...</p>
               </div>
             ) : error ? (
-              <div className="p-8 rounded-2xl bg-red-50 border border-red-100 text-center">
+              <div className="p-8 rounded-2xl text-center" style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.35)' }}>
                 <FaExclamationTriangle className="text-red-500 text-4xl mx-auto mb-4" />
-                <p className="text-red-700 font-bold">{error}</p>
-                <button onClick={fetchRequestDetails} className="mt-4 text-blue-600 font-black underline">إعادة المحاولة</button>
+                <p className="font-bold" style={{ color: 'var(--error)' }}>{error}</p>
+                <button onClick={fetchRequestDetails} className="mt-4 font-black underline" style={{ color: 'var(--primary)' }}>إعادة المحاولة</button>
               </div>
             ) : request ? (
               <div className="space-y-6">
                 <div className="flex flex-col gap-2">
-                  <h3 className="text-[22px] font-black text-slate-900 m-0">{request.title}</h3>
+                  <h3 className="text-[22px] font-black m-0" style={{ color: 'var(--text-primary)' }}>{request.title}</h3>
                   <div className="flex flex-wrap gap-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold border ${urgency.bg} ${urgency.color} ${urgency.border}`}>
                       الاستعجال: {urgency.label}
@@ -158,9 +164,9 @@ const ViewDonationRequestModal = ({
 
                 {request.briefDescription && (
                   <div>
-                    <h4 className="text-slate-500 text-[12px] font-bold uppercase tracking-wider mb-2">الوصف</h4>
-                    <div className="p-4 rounded-2xl bg-slate-50/50 border border-slate-100">
-                      <p className="text-slate-700 text-[15px] leading-relaxed m-0">{request.briefDescription}</p>
+                    <h4 className="text-[12px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-secondary)' }}>الوصف</h4>
+                    <div className="p-4 rounded-2xl" style={{ background: 'var(--bg-card-2)', border: '1px solid var(--border)' }}>
+                      <p className="text-[15px] leading-relaxed m-0" style={{ color: 'var(--text-primary)' }}>{request.briefDescription}</p>
                     </div>
                   </div>
                 )}
@@ -185,17 +191,24 @@ const ViewDonationRequestModal = ({
 
 function InfoCard({ icon: Icon, iconBg, iconColor, label, value, mono = false }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div
+      className="rounded-2xl p-5 shadow-sm"
+      style={{
+        background: 'var(--bg-card-2)',
+        border: '1px solid var(--border)',
+      }}
+    >
       <div className="mb-3 flex items-center gap-3">
         <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg} ${iconColor}`}>
           <Icon className="text-sm" />
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
           {label}
         </span>
       </div>
       <div
-        className={`break-words text-sm font-bold text-slate-900 ${mono ? 'font-mono break-all' : ''}`}
+        className={`break-words text-sm font-bold ${mono ? 'font-mono break-all' : ''}`}
+        style={{ color: 'var(--text-primary)' }}
         dir={mono ? 'ltr' : undefined}
       >
         {value}

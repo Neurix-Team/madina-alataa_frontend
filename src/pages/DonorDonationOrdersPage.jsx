@@ -6,6 +6,7 @@ import {
   FaMapMarkerAlt, FaCreditCard, FaTag, FaFileAlt, FaArrowLeft
 } from 'react-icons/fa';
 import { donationOrdersService } from '../services/donationOrdersService';
+import { profilesService } from '../services/profilesService';
 
 const DonorDonationOrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -13,6 +14,7 @@ const DonorDonationOrdersPage = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [profileData, setProfileData] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
@@ -26,6 +28,85 @@ const DonorDonationOrdersPage = () => {
     loadDonationOrders();
   }, [currentPage]);
 
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const storedProfile = profilesService.getProfileFromStorage();
+        if (storedProfile) {
+          setProfileData(storedProfile);
+        }
+
+        const freshProfile = await profilesService.fetchMyProfile();
+        if (freshProfile) {
+          setProfileData(freshProfile);
+        }
+      } catch (err) {
+        console.warn('Failed to load profile data:', err);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  const getNestedProfileSection = (profile, key) => {
+    if (!profile || typeof profile !== 'object') return null;
+    const candidates = [key, `${key}Profile`, `${key}Data`, `${key}Info`, `${key}s`, `${key}Type`];
+    return candidates.reduce((found, candidate) => found || profile[candidate] || null, null);
+  };
+
+  const getProfileValue = (source, keys) => {
+    if (!source || typeof source !== 'object') return null;
+    return keys.reduce((value, key) => {
+      if (value != null) return value;
+      if (source[key] !== undefined && source[key] !== null) return source[key];
+      return null;
+    }, null);
+  };
+
+  const formatStatValue = (value) => {
+    if (value === null || value === undefined || value === '') return 'غير متوفر';
+    return typeof value === 'number' ? value.toLocaleString('ar-EG') : value;
+  };
+
+  const profileVolunteerData = getNestedProfileSection(profileData, 'volunteer');
+  const profileDonorData = getNestedProfileSection(profileData, 'donor');
+  const profileName = profileData?.name || profileData?.fullName || profileData?.displayName || profileData?.email || 'المستخدم';
+  const profileRoles = [];
+  if (profileVolunteerData) profileRoles.push('متطوع');
+  if (profileDonorData) profileRoles.push('متبرع');
+  const profileRoleLabel = profileRoles.join(' • ');
+
+  const volunteerStats = profileVolunteerData ? [
+    { label: 'ساعات التطوع', value: getProfileValue(profileVolunteerData, ['totalHours', 'hours', 'total_hours', 'volunteerHours', 'hoursCount']) },
+    { label: 'XP', value: getProfileValue(profileVolunteerData, ['xp', 'XP', 'experiencePoints', 'experience']) },
+    { label: 'KP', value: getProfileValue(profileVolunteerData, ['kp', 'KP', 'knowledgePoints', 'karmaPoints']) },
+    { label: 'المستوى', value: getProfileValue(profileVolunteerData, ['level', 'levelId', 'levelName', 'volunteerLevel']) },
+  ] : [];
+
+  const donorStats = profileDonorData ? [
+    { label: 'عدد التبرعات', value: getProfileValue(profileDonorData, ['donationCount', 'totalDonations', 'donationsCount', 'donationRequests']) },
+    { label: 'إجمالي التبرعات', value: getProfileValue(profileDonorData, ['donatedAmount', 'totalAmount', 'donationsTotal', 'amountDonated']) },
+    { label: 'مستوى الدعم', value: getProfileValue(profileDonorData, ['supportLevel', 'level', 'tier', 'donorLevel']) },
+    { label: 'تأثير', value: getProfileValue(profileDonorData, ['impact', 'impactScore', 'impactValue']) },
+  ] : [];
+
+  const volunteerSummaryItems = profileVolunteerData ? [
+    { label: 'نوع المتطوع', value: getProfileValue(profileVolunteerData, ['type', 'volunteerType', 'category']) },
+    { label: 'المهارات', value: Array.isArray(profileVolunteerData.skills) ? profileVolunteerData.skills.join('، ') : getProfileValue(profileVolunteerData, ['skills', 'skill', 'skillName']) },
+    { label: 'حالة التطوع', value: getProfileValue(profileVolunteerData, ['status', 'state', 'availability']) },
+  ] : [];
+
+  const donorSummaryItems = profileDonorData ? [
+    { label: 'البنك / قناة التبرع', value: getProfileValue(profileDonorData, ['bank', 'paymentChannel', 'preferredChannel']) },
+    { label: 'نوع المتبرع', value: getProfileValue(profileDonorData, ['type', 'donorType', 'category']) },
+  ] : [];
+
+  const hasProfileDetails = Boolean(profileData && (profileVolunteerData || profileDonorData));
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   const loadDonationOrders = async () => {
     try {
       setLoading(true);
@@ -37,7 +118,7 @@ const DonorDonationOrdersPage = () => {
       const paginationData = response.pagination || response;
       
       setOrders(Array.isArray(ordersData) ? ordersData : []);
-      setTotalPages(paginationData.totalPages || paginationData.totalPages || 1);
+      setTotalPages(paginationData.totalPages || 1);
       
       console.log('All donation orders loaded:', ordersData);
       console.log('Pagination data:', paginationData);
@@ -114,9 +195,10 @@ const DonorDonationOrdersPage = () => {
   if (loading) {
     return (
       <div className="donor-donation-orders-page" style={{ padding: '24px', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <FaSpinner className="animate-spin" size={48} style={{ color: 'var(--primary)', marginBottom: '16px' }} />
-          <p style={{ color: 'var(--text)' }}>جاري تحميل طلبات التبرع...</p>
+        <div className="pro-card donor-donation-orders-page__loadingCard" style={{ maxWidth: '520px', width: '100%', textAlign: 'center' }}>
+          <FaSpinner className="animate-spin" size={48} style={{ color: 'var(--primary)', marginBottom: '20px' }} />
+          <h3 style={{ color: 'var(--text-primary)', margin: '0 0 10px' }}>جاري تحميل طلبات التبرع</h3>
+          <p style={{ color: 'var(--text-muted)', margin: 0 }}>انتظر لحظة، نقوم بتنزيل أحدث البيانات من حسابك.</p>
         </div>
       </div>
     );
@@ -195,6 +277,107 @@ const DonorDonationOrdersPage = () => {
           >
             <FaCheckCircle />
             <span>{success}</span>
+          </motion.div>
+        )}
+
+        {hasProfileDetails && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="pro-card donor-donation-orders-page__profilePanel"
+            style={{ marginBottom: '24px' }}
+          >
+            <div className="pro-card-header">
+              <div>
+                <h3 className="pro-card-title" style={{ margin: 0, fontSize: '28px' }}>بيانات الحساب</h3>
+                <p className="pro-card-subtitle" style={{ margin: 0 }}>{profileName} • {profileRoleLabel || 'مستخدم'}</p>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {profileVolunteerData && (
+                  <span style={{ padding: '6px 14px', borderRadius: '999px', background: 'rgba(16, 185, 129, 0.16)', color: 'var(--success)', fontWeight: 700, fontSize: '13px' }}>
+                    متطوع
+                  </span>
+                )}
+                {profileDonorData && (
+                  <span style={{ padding: '6px 14px', borderRadius: '999px', background: 'rgba(37, 99, 235, 0.16)', color: 'var(--primary)', fontWeight: 700, fontSize: '13px' }}>
+                    متبرع
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gap: '18px', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+              {profileVolunteerData && (
+                <div className="glass-card" style={{ display: 'grid', gap: '18px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                    <div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '4px' }}>بيانات المتطوع</div>
+                      <div style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '16px' }}>تفاصيل الدور التطوعي</div>
+                    </div>
+                    <span style={{ padding: '6px 12px', borderRadius: '999px', background: 'rgba(59, 130, 246, 0.16)', color: 'var(--primary)', fontWeight: 700, fontSize: '12px' }}>
+                      نشاط المتطوع
+                    </span>
+                  </div>
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      {volunteerStats.slice(0, 2).map((stat) => (
+                        <div key={stat.label} style={{ padding: '14px', borderRadius: '16px', background: 'var(--bg-card-2)', border: '1px solid var(--border)' }}>
+                          <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '6px' }}>{stat.label}</div>
+                          <div style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{formatStatValue(stat.value)}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      {volunteerStats.slice(2).map((stat) => (
+                        <div key={stat.label} style={{ padding: '14px', borderRadius: '16px', background: 'var(--bg-card-2)', border: '1px solid var(--border)' }}>
+                          <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '6px' }}>{stat.label}</div>
+                          <div style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{formatStatValue(stat.value)}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'grid', gap: '10px' }}>
+                      {volunteerSummaryItems.map((item) => (
+                        <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', borderRadius: '16px', background: 'var(--background)', border: '1px solid var(--border)' }}>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{item.label}</span>
+                          <strong style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{formatStatValue(item.value)}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {profileDonorData && (
+                <div className="glass-card" style={{ display: 'grid', gap: '18px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                    <div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '4px' }}>بيانات المتبرع</div>
+                      <div style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '16px' }}>تفاصيل دعم التبرعات</div>
+                    </div>
+                    <span style={{ padding: '6px 12px', borderRadius: '999px', background: 'rgba(16, 185, 129, 0.16)', color: 'var(--success)', fontWeight: 700, fontSize: '12px' }}>
+                      مساهمات خيرية
+                    </span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    {donorStats.map((stat) => (
+                      <div key={stat.label} style={{ padding: '14px', borderRadius: '16px', background: 'var(--bg-card-2)', border: '1px solid var(--border)' }}>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '6px' }}>{stat.label}</div>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{formatStatValue(stat.value)}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'grid', gap: '10px' }}>
+                    {donorSummaryItems.map((item) => (
+                      <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', borderRadius: '16px', background: 'var(--background)', border: '1px solid var(--border)' }}>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{item.label}</span>
+                        <strong style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{formatStatValue(item.value)}</strong>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
 
@@ -385,7 +568,8 @@ const DonorDonationOrdersPage = () => {
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'rgba(0, 0, 0, 0.5)',
+              background: 'rgba(15, 23, 42, 0.55)',
+              backdropFilter: 'blur(8px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -426,27 +610,27 @@ const DonorDonationOrdersPage = () => {
               </div>
 
               <div style={{ display: 'grid', gap: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-card-2)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                   <span style={{ color: 'var(--text-muted)' }}>المبلغ:</span>
                   <span style={{ color: 'var(--text)' }}>{selectedOrder.amount || 0}</span>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-card-2)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                   <span style={{ color: 'var(--text-muted)' }}>طريقة الدفع:</span>
                   <span style={{ color: 'var(--text)' }}>{selectedOrder.paymentMethod || 'غير محدد'}</span>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-card-2)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                   <span style={{ color: 'var(--text-muted)' }}>الفئة:</span>
                   <span style={{ color: 'var(--text)' }}>{selectedOrder.category || 'غير محدد'}</span>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-card-2)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                   <span style={{ color: 'var(--text-muted)' }}>الموقع المستهدف:</span>
                   <span style={{ color: 'var(--text)' }}>{selectedOrder.targetLocation || 'غير محدد'}</span>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-card-2)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                   <span style={{ color: 'var(--text-muted)' }}>الحالة:</span>
                   <span
                     style={{
@@ -462,20 +646,34 @@ const DonorDonationOrdersPage = () => {
                   </span>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-card-2)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                   <span style={{ color: 'var(--text-muted)' }}>تاريخ الإنشاء:</span>
                   <span style={{ color: 'var(--text)' }}>{formatDate(selectedOrder.createdAt)}</span>
                 </div>
 
+                {selectedOrder.donor && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-card-2)', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>المتبرع:</span>
+                    <span style={{ color: 'var(--text)' }}>{selectedOrder.donor.name || selectedOrder.donor.fullName || selectedOrder.donor.email || 'غير متوفر'}</span>
+                  </div>
+                )}
+
+                {selectedOrder.volunteer && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-card-2)', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>المتطوع:</span>
+                    <span style={{ color: 'var(--text)' }}>{selectedOrder.volunteer.name || selectedOrder.volunteer.fullName || selectedOrder.volunteer.email || 'غير متوفر'}</span>
+                  </div>
+                )}
+
                 {selectedOrder.receipt && (
-                  <div style={{ padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
+                  <div style={{ padding: '12px', background: 'var(--bg-card-2)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                     <div style={{ color: 'var(--text-muted)', marginBottom: '8px' }}>الإيصال:</div>
                     <div style={{ color: 'var(--text)' }}>{selectedOrder.receipt}</div>
                   </div>
                 )}
 
                 {selectedOrder.impactReport && (
-                  <div style={{ padding: '12px', background: 'var(--background)', borderRadius: '8px' }}>
+                  <div style={{ padding: '12px', background: 'var(--bg-card-2)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                     <div style={{ color: 'var(--text-muted)', marginBottom: '8px' }}>تقرير الأثر:</div>
                     <div style={{ color: 'var(--text)' }}>{selectedOrder.impactReport}</div>
                   </div>

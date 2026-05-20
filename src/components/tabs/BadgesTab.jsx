@@ -49,10 +49,11 @@ const modalStyle = {
   maxWidth: '680px',
   maxHeight: '88vh',
   overflowY: 'auto',
-  background: 'var(--surface)',
-  border: '1px solid var(--border)',
+  background: 'var(--glass-bg)',
+  backdropFilter: 'var(--glass-blur)',
+  border: '1px solid var(--glass-border)',
   borderRadius: '24px',
-  boxShadow: '0 24px 80px rgba(15, 23, 42, 0.18)',
+  boxShadow: 'var(--shadow-lg)',
   padding: '24px',
 };
 
@@ -599,9 +600,10 @@ export default function BadgesTab() {
           style={{
             marginBottom: isMobile ? '16px' : '24px',
             borderRadius: '28px',
-            background: 'var(--bg-card)',
-            boxShadow: 'var(--shadow-lg)',
-            border: '1px solid var(--border-light)',
+            background: 'var(--glass-bg)',
+            backdropFilter: 'var(--glass-blur)',
+            boxShadow: 'var(--shadow-md)',
+            border: '1px solid var(--glass-border)',
             color: 'var(--text-primary)',
             padding: isMobile ? '20px' : '28px',
             display: 'flex',
@@ -728,10 +730,11 @@ export default function BadgesTab() {
                 transition={{ delay: index * 0.04 }}
                 style={{
                   borderRadius: isMobile ? '20px' : '24px',
-                  background: 'linear-gradient(180deg, var(--surface), rgba(255,255,255,0.96))',
-                  border: '1px solid var(--border)',
+                  background: 'var(--glass-bg)',
+                  backdropFilter: 'var(--glass-blur)',
+                  border: '1px solid var(--glass-border)',
                   padding: isMobile ? '16px' : '20px',
-                  boxShadow: '0 14px 34px rgba(15, 23, 42, 0.08)',
+                  boxShadow: 'var(--shadow-md)',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
@@ -763,8 +766,8 @@ export default function BadgesTab() {
                             marginTop: '8px',
                             borderRadius: '999px',
                             padding: '6px 10px',
-                            background: 'rgba(15, 118, 110, 0.08)',
-                            color: '#0f766e',
+                            background: 'var(--bg-card-2)',
+                            color: 'var(--success)',
                             fontSize: '12px',
                             fontWeight: 800,
                           }}
@@ -823,7 +826,8 @@ export default function BadgesTab() {
                       marginTop: '16px',
                       borderRadius: '16px',
                       padding: '12px 14px',
-                      background: 'var(--background)',
+                      background: 'var(--bg-card-2)',
+                      border: '1px solid var(--border)',
                     }}
                   >
                     <div style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 800 }}>
@@ -853,8 +857,8 @@ export default function BadgesTab() {
                   padding: '12px 18px',
                   borderRadius: '14px',
                   border: '1px solid var(--border)',
-                  background: 'var(--surface)',
-                  color: 'var(--text)',
+                  background: 'var(--glass-bg)',
+                  color: 'var(--text-primary)',
                   fontWeight: 800,
                 }}
               >

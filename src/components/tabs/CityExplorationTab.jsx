@@ -1,4 +1,4 @@
-﻿
+
 // src/components/tabs/CityExplorationTab.jsx
 import React, {
   useState,
@@ -62,18 +62,18 @@ const CITY_EXPLORATION_STYLES = `
     display: grid;
     gap: 18px;
     font-family: 'Cairo', sans-serif;
-    color: #0f172a;
+    color: var(--text-primary);
   }
 
   .ce-header {
     position: relative;
     overflow: hidden;
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.92) 100%);
-    backdrop-filter: blur(20px);
-    padding: 28px 32px;
-    box-shadow: rgba(15, 23, 42, 0.4) 0px 20px 50px -20px, rgba(255, 255, 255, 0.4) 0px 0px 0px 1px inset;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    padding: 24px;
+    box-shadow: var(--shadow-md);
   }
 
   .ce-header__top {
@@ -82,18 +82,18 @@ const CITY_EXPLORATION_STYLES = `
     align-items: center;
     gap: 14px;
     flex-wrap: wrap;
+    margin-bottom: 12px;
   }
 
   .ce-header__title {
     margin: 0;
-    font-size: 24px;
+    font-size: 21px;
     line-height: 1.2;
     font-weight: 900;
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #0f172a;
-    letter-spacing: -0.3px;
+    color: var(--text-primary);
   }
 
   .ce-header__title-icon {
@@ -103,29 +103,30 @@ const CITY_EXPLORATION_STYLES = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #49c6f2, #5bb5f3);
-    color: #fff;
-    box-shadow: 0 10px 22px rgba(73,198,242,0.24);
+    background: var(--bg-card-2);
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
     font-size: 18px;
+    border: 1px solid var(--border);
   }
 
   .ce-header__subtitle {
-    margin: 8px 0 0;
-    color: #64748b;
-    font-size: 14px;
+    margin: 6px 0 0;
+    color: var(--text-secondary);
+    font-size: 13px;
     font-weight: 700;
   }
 
   .ce-level-badge {
     min-width: 110px;
-    padding: 14px 16px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #f7f2ff, #f2f7ff);
-    border: 1px solid rgba(221,214,254,0.95);
+    padding: 12px;
+    border-radius: 16px;
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
     display: grid;
     gap: 4px;
     justify-items: center;
-    box-shadow: 0 10px 24px rgba(168,85,247,0.07);
+    box-shadow: var(--shadow-sm);
   }
 
   .ce-level-badge__num {
@@ -133,56 +134,35 @@ const CITY_EXPLORATION_STYLES = `
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-size: 22px;
+    font-size: 20px;
     line-height: 1;
     font-weight: 900;
-    color: #7c3aed;
+    color: var(--primary);
   }
 
   .ce-level-badge__label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
-    color: #64748b;
-  }
-
-  .ce-header__progress-bar {
-    margin-top: 16px;
-    height: 10px;
-    background: rgba(226,232,240,0.9);
-    border-radius: 999px;
-    overflow: hidden;
-  }
-
-  .ce-header__progress-fill {
-    height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #49c6f2 0%, #56dcc9 50%, #be93ff 100%);
-    box-shadow: 0 0 18px rgba(73,198,242,0.25);
-    transition: width 0.5s ease;
-  }
-
-  .ce-header__progress-text {
-    margin: 8px 0 0;
-    font-size: 12px;
-    font-weight: 800;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   .ce-stats {
     display: grid;
     gap: 12px;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    margin-top: 12px;
   }
 
   .ce-stat-chip {
-    border-radius: 20px;
-    padding: 14px 16px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    border: 1px solid rgba(226,232,240,0.9);
-    box-shadow: 0 12px 26px rgba(15,23,42,0.04);
+    border-radius: 18px;
+    padding: 14px;
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
     gap: 6px;
+    color: var(--text-primary);
   }
 
   .ce-stat-chip__val {
@@ -191,18 +171,18 @@ const CITY_EXPLORATION_STYLES = `
     gap: 8px;
     font-size: 17px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
   }
 
   .ce-stat-chip__icon {
-    color: #49c6f2;
+    color: var(--primary);
     font-size: 16px;
   }
 
   .ce-stat-chip__lbl {
     font-size: 12px;
     font-weight: 700;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   .ce-section-title {
@@ -211,7 +191,7 @@ const CITY_EXPLORATION_STYLES = `
     gap: 10px;
     font-size: 16px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-top: 4px;
   }
 
@@ -222,9 +202,9 @@ const CITY_EXPLORATION_STYLES = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #eef8ff, #f7f2ff);
-    color: #5b9ef2;
-    border: 1px solid rgba(186,230,253,0.95);
+    background: var(--bg-card-2);
+    color: var(--primary);
+    border: 1px solid var(--border);
     font-size: 14px;
   }
 
@@ -232,22 +212,26 @@ const CITY_EXPLORATION_STYLES = `
     position: relative;
     border-radius: 22px;
     overflow: hidden;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
-    border: 1px solid rgba(226,232,240,0.9);
-    box-shadow: 0 14px 30px rgba(15,23,42,0.05);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
     transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
     cursor: pointer;
+    color: var(--text-primary);
   }
 
   .ce-location-card:hover.ce-location-card--unlocked {
     transform: translateY(-4px);
-    box-shadow: 0 18px 36px rgba(15,23,42,0.08);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
   }
 
   .ce-location-card--locked {
     opacity: 0.82;
     cursor: default;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    background: var(--bg-card-2);
+    backdrop-filter: none;
   }
 
   .ce-location-card__accent {
@@ -273,9 +257,9 @@ const CITY_EXPLORATION_STYLES = `
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid;
-    box-shadow: 0 8px 20px rgba(15,23,42,0.06);
-    background: #fff;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    background: var(--bg-card-2);
   }
 
   .ce-location-card__icon {
@@ -290,27 +274,27 @@ const CITY_EXPLORATION_STYLES = `
   .ce-location-card__name {
     font-size: 17px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 2px;
   }
 
   .ce-location-card__name-en {
     font-size: 11px;
     font-weight: 700;
-    color: #94a3b8;
+    color: var(--text-muted);
     margin-bottom: 5px;
   }
 
   .ce-location-card__desc {
     font-size: 12px;
     font-weight: 700;
-    color: #64748b;
+    color: var(--text-secondary);
     margin-bottom: 10px;
   }
 
   .ce-card-progress {
     height: 8px;
-    background: rgba(226,232,240,0.9);
+    background: var(--border);
     border-radius: 999px;
     overflow: hidden;
   }
@@ -337,29 +321,30 @@ const CITY_EXPLORATION_STYLES = `
   }
 
   .ce-location-card__lock {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 20px;
   }
 
   .ce-location-card__level-req {
     padding: 5px 10px;
     border-radius: 999px;
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--bg-card);
+    color: var(--text-secondary);
     font-size: 11px;
     font-weight: 900;
+    border: 1px solid var(--border);
   }
 
   .ce-explore-btn {
     border: none;
     border-radius: 14px;
-    background: linear-gradient(135deg, #49c6f2, #5ba6ef);
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
     color: #ffffff;
     padding: 10px 14px;
     font-size: 12px;
     font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 10px 22px rgba(73,198,242,0.22);
+    box-shadow: var(--shadow-glow);
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -368,13 +353,14 @@ const CITY_EXPLORATION_STYLES = `
   .ce-detail {
     display: grid;
     gap: 16px;
+    color: var(--text-primary);
   }
 
   .ce-detail__back {
     width: fit-content;
     border: none;
-    background: linear-gradient(135deg, #eff6ff, #f5f3ff);
-    color: #334155;
+    background: var(--bg-card-2);
+    color: var(--text-primary);
     border-radius: 14px;
     padding: 10px 14px;
     font-size: 13px;
@@ -383,7 +369,8 @@ const CITY_EXPLORATION_STYLES = `
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    border: 1px solid rgba(226,232,240,0.9);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
   }
 
   .ce-detail__hero {
@@ -458,8 +445,8 @@ const CITY_EXPLORATION_STYLES = `
     border: none;
     border-radius: 18px;
     padding: 14px 16px;
-    background: linear-gradient(135deg, #0f172a, #334155);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--bg-card-2), var(--bg-card));
+    color: var(--text-primary);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -467,7 +454,8 @@ const CITY_EXPLORATION_STYLES = `
     cursor: pointer;
     font-size: 13px;
     font-weight: 900;
-    box-shadow: 0 14px 28px rgba(15,23,42,0.14);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
   }
 
   .ce-ai-btn--loading {
@@ -483,7 +471,7 @@ const CITY_EXPLORATION_STYLES = `
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.9);
+    background: var(--text-primary);
     animation: ceBlink 1s infinite ease-in-out;
   }
 
@@ -497,22 +485,23 @@ const CITY_EXPLORATION_STYLES = `
 
   .ce-task-card {
     position: relative;
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-    border: 1px solid rgba(226,232,240,0.9);
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
     border-radius: 22px;
     padding: 18px;
-    box-shadow: 0 12px 28px rgba(15,23,42,0.05);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
+    color: var(--text-primary);
   }
 
   .ce-task-card--done {
-    background: linear-gradient(180deg, #f0fdf4 0%, #f7fff9 100%);
-    border-color: rgba(134,239,172,0.9);
+    background: var(--success-light);
+    border-color: var(--success);
   }
 
   .ce-task-card--ai {
-    border-color: rgba(221,214,254,0.95);
-    box-shadow: 0 14px 30px rgba(168,85,247,0.06);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
   }
 
   .ce-task-card__ai-badge {
@@ -521,11 +510,11 @@ const CITY_EXPLORATION_STYLES = `
     left: 14px;
     padding: 6px 10px;
     border-radius: 999px;
-    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
-    color: #7c3aed;
+    background: var(--primary-hover);
+    color: #fff;
     font-size: 11px;
     font-weight: 900;
-    border: 1px solid rgba(221,214,254,0.95);
+    border: 1px solid var(--primary);
   }
 
   .ce-task-card__header {
@@ -543,24 +532,24 @@ const CITY_EXPLORATION_STYLES = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
-    color: #4f46e5;
-    border: 1px solid rgba(226,232,240,0.9);
-    box-shadow: 0 8px 18px rgba(15,23,42,0.05);
+    background: var(--bg-card);
+    color: var(--primary);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
     font-size: 24px;
   }
 
   .ce-task-card__title {
     font-size: 16px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
   }
 
   .ce-task-card__story {
     margin: 12px 0;
     font-size: 13px;
     font-weight: 700;
-    color: #64748b;
+    color: var(--text-secondary);
     line-height: 1.8;
   }
 

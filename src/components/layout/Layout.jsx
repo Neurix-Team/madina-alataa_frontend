@@ -7,6 +7,7 @@ import GlobalLoadingHost from '../common/GlobalLoadingHost';
 import RocketBackground from '../common/RocketBackground';
 import CanvasBackground from '../common/CanvasBackground';
 import ConfettiOverlay from '../common/ConfettiOverlay';
+import { FaBell } from 'react-icons/fa';
 import LevelUpModal from '../modals/LevelUpModal';
 import useGameState from '../../hooks/useGameState';
 import { useState, useEffect } from 'react';
@@ -80,12 +81,12 @@ const Layout = () => {
 
   const { user } = useAuth();
 
-  // Initial name sync from auth
+  // Initial name sync from auth - ensure it updates when user changes
   useEffect(() => {
-    if (user && userStats.name === 'جاري التحميل...') {
+    if (user) {
       syncUserStats({ name: user.name || user.fullName || user.userName });
     }
-  }, [user, userStats.name, syncUserStats]);
+  }, [user?.id, syncUserStats]);
 
   // Sync user stats from backend
   useEffect(() => {
@@ -259,7 +260,7 @@ const Layout = () => {
           setSidebarOpen={setSidebarOpen}
         />
 
-        <main className="layout-main">
+        <main className="layout-main" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <GlobalLoadingHost contained />
           <Outlet />
         </main>
@@ -267,6 +268,15 @@ const Layout = () => {
 
         {/* Mobile Nav Bar */}
         <MobileNavBar activeTab={activeTab} onNavClick={handleNavClick} />
+
+        <button
+          type="button"
+          className="layout-fixed-notificationBtn"
+          onClick={() => navigate('/notifications')}
+          title="الإشعارات"
+        >
+          <FaBell />
+        </button>
 
         {/* Modals and overlays */}
         {showLevelUp && (

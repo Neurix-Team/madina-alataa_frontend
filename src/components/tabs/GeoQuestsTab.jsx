@@ -44,10 +44,11 @@ const modalStyle = {
   maxWidth: '860px',
   maxHeight: '90vh',
   overflowY: 'auto',
-  background: 'var(--surface)',
-  border: '1px solid var(--border)',
+  background: 'var(--glass-bg)',
+  backdropFilter: 'var(--glass-blur)',
+  border: '1px solid var(--glass-border)',
   borderRadius: '28px',
-  boxShadow: '0 24px 80px rgba(15, 23, 42, 0.18)',
+  boxShadow: 'var(--shadow-lg)',
   padding: '24px',
 };
 
@@ -55,11 +56,12 @@ const inputStyle = {
   width: '100%',
   borderRadius: '14px',
   border: '1px solid var(--border)',
-  background: 'var(--background)',
-  color: 'var(--text)',
+  background: 'var(--input-bg)',
+  color: 'var(--text-primary)',
   padding: '12px 14px',
   fontFamily: "'Cairo', sans-serif",
   fontSize: '14px',
+  outline: 'none',
 };
 
 const primaryButtonStyle = {
@@ -69,12 +71,13 @@ const primaryButtonStyle = {
   gap: '8px',
   border: 'none',
   borderRadius: '14px',
-  background: 'linear-gradient(135deg, #1d4ed8, #2563eb)',
+  background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
   color: '#fff',
   padding: '12px 18px',
   cursor: 'pointer',
   fontFamily: "'Cairo', sans-serif",
   fontWeight: 800,
+  boxShadow: 'var(--shadow-sm)',
 };
 
 const secondaryButtonStyle = {
@@ -84,8 +87,8 @@ const secondaryButtonStyle = {
   gap: '8px',
   border: '1px solid var(--border)',
   borderRadius: '14px',
-  background: 'var(--background)',
-  color: 'var(--text)',
+  background: 'var(--bg-card-2)',
+  color: 'var(--text-primary)',
   padding: '12px 18px',
   cursor: 'pointer',
   fontFamily: "'Cairo', sans-serif",
@@ -97,8 +100,8 @@ const iconButtonStyle = {
   height: '40px',
   borderRadius: '12px',
   border: '1px solid var(--border)',
-  background: 'var(--background)',
-  color: 'var(--text)',
+  background: 'var(--bg-card-2)',
+  color: 'var(--text-primary)',
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -107,9 +110,9 @@ const iconButtonStyle = {
 
 const errorBoxStyle = {
   borderRadius: '14px',
-  border: '1px solid rgba(239, 68, 68, 0.25)',
-  background: 'rgba(239, 68, 68, 0.08)',
-  color: '#dc2626',
+  border: '1px solid var(--error)',
+  background: 'var(--error-light)',
+  color: 'var(--error)',
   padding: '12px 14px',
   display: 'flex',
   alignItems: 'center',
@@ -118,9 +121,9 @@ const errorBoxStyle = {
 
 const successBoxStyle = {
   borderRadius: '14px',
-  border: '1px solid rgba(16, 185, 129, 0.25)',
-  background: 'rgba(16, 185, 129, 0.08)',
-  color: '#059669',
+  border: '1px solid var(--success)',
+  background: 'var(--success-light)',
+  color: 'var(--success)',
   padding: '12px 14px',
   display: 'flex',
   alignItems: 'center',
@@ -259,27 +262,29 @@ function LocationMapSelector({
       <div
         style={{
           borderRadius: '22px',
-          border: '1px solid var(--border)',
-          background:
-            'radial-gradient(circle at top right, rgba(59,130,246,0.18), transparent 30%), linear-gradient(180deg, #eff6ff, #dbeafe)',
+          border: '1px solid var(--glass-border)',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'var(--glass-blur)',
           padding: '18px',
+          boxShadow: 'var(--shadow-md)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
           <div>
-            <div style={{ color: '#1d4ed8', fontWeight: 900 }}>اختيار الموقع من الخريطة</div>
-            <div style={{ color: '#1e3a8a', fontSize: '13px', marginTop: '4px' }}>
+            <div style={{ color: 'var(--primary)', fontWeight: 900 }}>اختيار الموقع من الخريطة</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '4px' }}>
               اضغط على أي نقطة لربط المهمة الجغرافية بموقع واضح.
             </div>
           </div>
           <div
             style={{
               borderRadius: '999px',
-              background: 'rgba(255,255,255,0.8)',
+              background: 'var(--bg-card-2)',
               padding: '8px 12px',
-              color: '#0f172a',
+              color: 'var(--text-primary)',
               fontWeight: 800,
               fontSize: '13px',
+              border: '1px solid var(--border)',
             }}
           >
             {selectedLocation ? `المحدد: ${selectedLocation.name}` : 'اختر موقع المهمة'}
@@ -290,16 +295,16 @@ function LocationMapSelector({
           style={{
             borderRadius: '18px',
             overflow: 'hidden',
-            border: '1px solid rgba(29, 78, 216, 0.12)',
-            background: 'rgba(255,255,255,0.7)',
+            border: '1px solid var(--border)',
+            background: 'var(--bg-card-2)',
           }}
         >
           {validMapLocations.length > 0 ? (
             <svg viewBox="0 0 360 200" style={{ width: '100%', display: 'block' }}>
               <defs>
                 <linearGradient id="geoQuestMapBg" x1="0%" x2="100%" y1="0%" y2="100%">
-                  <stop offset="0%" stopColor="#f8fbff" />
-                  <stop offset="100%" stopColor="#dbeafe" />
+                  <stop offset="0%" stopColor="var(--bg-card)" />
+                  <stop offset="100%" stopColor="var(--bg-card-2)" />
                 </linearGradient>
               </defs>
               <rect width="360" height="200" fill="url(#geoQuestMapBg)" />
@@ -346,7 +351,7 @@ function LocationMapSelector({
                       textAnchor="middle"
                       fontSize="10"
                       fontWeight="700"
-                      fill="#0f172a"
+                      fill="var(--text-primary)"
                     >
                       {location.name}
                     </text>
@@ -810,12 +815,14 @@ export default function GeoQuestsTab() {
                 width: isMobile ? '52px' : '64px',
                 height: isMobile ? '52px' : '64px',
                 borderRadius: isMobile ? '14px' : '20px',
-                background: 'var(--primary-light)',
+                background: 'var(--bg-card-2)',
                 color: 'var(--primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: isMobile ? '22px' : '28px',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow-sm)',
               }}
             >
               <FaMapMarkedAlt />
@@ -840,6 +847,41 @@ export default function GeoQuestsTab() {
             .geoquests-header { padding: 14px !important; }
             .geoquests-header h2 { font-size: 18px !important; }
             .geoquests-header .app-btn-primary { width: 100% !important; margin-top: 10px !important; }
+          }
+
+          .geo-quest-map {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-card-2);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border);
+          }
+
+          .geo-quest-marker {
+            cursor: pointer;
+            transition: transform 0.2s ease, filter 0.2s ease;
+          }
+
+          .geo-quest-marker:hover {
+            transform: scale(1.25) translateY(-2px);
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+          }
+
+          .geo-quest-marker--active {
+            filter: drop-shadow(0 0 8px var(--primary));
+          }
+
+          .geo-quest-legend {
+            display: flex;
+            gap: 12px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+            padding: 12px 16px;
+            background: var(--bg-card-2);
+            border-radius: 14px;
+            border: 1px solid var(--border);
           }
         `}</style>
 
@@ -918,10 +960,10 @@ export default function GeoQuestsTab() {
                 transition={{ delay: index * 0.04 }}
                 style={{
                   borderRadius: isMobile ? 20 : '24px',
-                  background: 'linear-gradient(180deg, var(--surface), rgba(255,255,255,0.96))',
+                  background: 'var(--bg-card-2)',
                   border: '1px solid var(--border)',
                   padding: isMobile ? '16px' : '20px',
-                  boxShadow: '0 14px 34px rgba(15, 23, 42, 0.08)',
+                  boxShadow: 'var(--shadow-md)',
                 }}
               >
                 <div style={{ 
@@ -936,7 +978,7 @@ export default function GeoQuestsTab() {
                         width: isMobile ? '44px' : '54px',
                         height: isMobile ? '44px' : '54px',
                         borderRadius: isMobile ? '12px' : '18px',
-                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                        background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
                         color: '#fff',
                         display: 'flex',
                         alignItems: 'center',
@@ -948,7 +990,7 @@ export default function GeoQuestsTab() {
                       <FaMapMarkerAlt />
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <h3 style={{ margin: 0, color: 'var(--text)', fontSize: isMobile ? '16px' : '18px', fontWeight: 800 }}>
+                      <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: isMobile ? '16px' : '18px', fontWeight: 800 }}>
                         {geoQuest.title || 'مهمة بدون عنوان'}
                       </h3>
                     </div>
@@ -1003,18 +1045,19 @@ export default function GeoQuestsTab() {
                     marginTop: isMobile ? '12px' : '16px',
                     borderRadius: '16px',
                     padding: isMobile ? '10px 12px' : '12px 14px',
-                    background: 'var(--background)',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
                     display: 'grid',
                     gap: 8,
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', fontSize: isMobile ? 12 : 14 }}>
-                    <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>العنوان</span>
-                    <span style={{ color: 'var(--text)', fontWeight: 800 }}>{geoQuest.title || '-'}</span>
+                    <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>العنوان</span>
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{geoQuest.title || '-'}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', fontSize: isMobile ? 12 : 14 }}>
-                    <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>الموقع</span>
-                    <span style={{ color: 'var(--text)', fontWeight: 800 }}>{getLocationDisplayName(geoQuest.locationId)}</span>
+                    <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>الموقع</span>
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{getLocationDisplayName(geoQuest.locationId)}</span>
                   </div>
                 </div>
 

@@ -380,7 +380,7 @@ const VolunteerOrdersPage = () => {
       return { label: 'approved', color: '#16a34a', bg: 'rgba(34,197,94,.14)' };
     }
     if (normalized === 'in_progress') {
-      return { label: 'in progress', color: '#2563eb', bg: 'rgba(59,130,246,.14)' };
+      return { label: 'in progress', color: 'var(--primary)', bg: 'var(--bg-card-2)' };
     }
     if (normalized === 'rejected') {
       return { label: 'rejected', color: '#dc2626', bg: 'rgba(239,68,68,.14)' };
@@ -396,9 +396,10 @@ const VolunteerOrdersPage = () => {
           style={{
             padding: '24px 32px',
             borderRadius: 24,
-            background: '#fff',
-            border: '1px solid rgba(148,163,184,0.15)',
-            boxShadow: '0 20px 50px rgba(15,23,42,0.06)',
+            background: 'var(--glass-bg)',
+            backdropFilter: 'var(--glass-blur)',
+            border: '1px solid var(--glass-border)',
+            boxShadow: 'var(--shadow-md)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -414,16 +415,16 @@ const VolunteerOrdersPage = () => {
               borderRadius: 16,
               display: 'grid',
               placeItems: 'center',
-              background: '#eff6ff',
-              color: '#2563eb',
+              background: 'var(--bg-card-2)',
+              color: 'var(--primary)',
               fontSize: 24,
-              border: '1px solid #bfdbfe'
+              border: '1px solid var(--border)'
             }}>
               <FaHandsHelping />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0f172a' }}>{pageTitle}</h1>
-              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 14, fontWeight: 500 }}>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: 'var(--text-primary)' }}>{pageTitle}</h1>
+              <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500 }}>
                 إدارة أوامر التطوع، التفاصيل، الحذف، والطلبات المعلقة للأدمن.
               </p>
             </div>
@@ -504,7 +505,7 @@ const VolunteerOrdersPage = () => {
         )}
 
         <div style={{ ...panelStyle, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
-          <FaSearch style={{ color: '#2563eb' }} />
+          <FaSearch style={{ color: 'var(--primary)' }} />
           <input
             type="search"
             value={searchTerm}
@@ -552,11 +553,11 @@ const VolunteerOrdersPage = () => {
                         <div style={{ display: 'grid', gap: 12 }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'flex-start' }}>
                             <div>
-                              <h3 style={{ margin: 0, fontSize: 18, color: '#0f172a' }}>
+                              <h3 style={{ margin: 0, fontSize: 18, color: 'var(--text-primary)' }}>
                                 {order.title || order.serviceRequestTitle || order.requestName || order.name || `طلب ${index + 1}`}
                               </h3>
                               {isAdmin && (
-                                <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
+                                <p style={{ margin: '6px 0 0', color: 'var(--text-secondary)', fontSize: 13 }}>
                                   {order.serviceRequestTitle || order.title || order.serviceType || 'طلب تطوع'}
                                 </p>
                               )}
@@ -583,16 +584,16 @@ const VolunteerOrdersPage = () => {
                                 marginTop: 12,
                                 padding: 14,
                                 borderRadius: 16,
-                                background: '#0f172a',
-                                border: '1px solid rgba(255,255,255,0.05)',
-                                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)'
+                                background: 'var(--bg-card-2)',
+                                border: '1px solid var(--border)',
+                                boxShadow: 'var(--shadow-sm)'
                               }}
                             >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, color: '#38bdf8' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, color: 'var(--primary)' }}>
                                 <FaTasks size={14} />
                                 <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.05em' }}>تفاصيل المهمة المقبولة</span>
                               </div>
-                              <div style={{ display: 'grid', gap: 8, color: '#e2e8f0', fontSize: 13, fontWeight: 700 }}>
+                              <div style={{ display: 'grid', gap: 8, color: 'var(--text-primary)', fontSize: 13, fontWeight: 700 }}>
                                 <span>{order.serviceRequestTitle || order.title || 'طلب تطوع'}</span>
                                 <span>{order.serviceType || order.category || order.title || 'خدمة الطلب'}</span>
                                 <span>{statusChip(deriveOrderStatus(order)).label}</span>
@@ -605,9 +606,9 @@ const VolunteerOrdersPage = () => {
                               <div style={{
                                 padding: '8px 12px',
                                 borderRadius: '10px',
-                                background: '#f8fafc',
-                                border: '1px solid #e2e8f0',
-                                color: '#475569',
+                                background: 'var(--bg-card-2)',
+                                border: '1px solid var(--border)',
+                                color: 'var(--text-secondary)',
                                 fontSize: '12px',
                                 fontWeight: 700,
                                 display: 'inline-flex',
@@ -628,7 +629,7 @@ const VolunteerOrdersPage = () => {
                           <button
                             type="button"
                             onClick={() => setHistoryEntityId(orderId)}
-                            style={{ ...iconButtonStyle, color: '#0f172a' }}
+                            style={{ ...iconButtonStyle, color: 'var(--text-primary)' }}
                             title="عرض السجل"
                           >
                             <FaHistory />
@@ -741,8 +742,10 @@ const VolunteerOrdersPage = () => {
               overflowY: 'auto',
               padding: 22,
               borderRadius: 24,
-              background: '#fff',
-              boxShadow: 'rgba(15, 23, 42, 0.22) 0px 30px 70px',
+              background: 'var(--glass-bg)',
+              backdropFilter: 'var(--glass-blur)',
+              border: '1px solid var(--glass-border)',
+              boxShadow: 'var(--shadow-lg)',
               display: 'grid',
               gap: 20,
               position: 'relative',
@@ -751,8 +754,8 @@ const VolunteerOrdersPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
               <div>
-                <h3 style={{ margin: 0, color: '#0f172a', fontSize: 20, fontWeight: 900 }}>تفاصيل عنصر التطوع</h3>
-                <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13, fontWeight: 500 }}>
+                <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: 20, fontWeight: 900 }}>تفاصيل عنصر التطوع</h3>
+                <p style={{ margin: '6px 0 0', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 500 }}>
                   معلومات الطلب وحالته الحالية
                 </p>
               </div>
@@ -767,9 +770,9 @@ const VolunteerOrdersPage = () => {
                   width: 42,
                   height: 42,
                   borderRadius: 12,
-                  border: '1px solid rgba(148, 163, 184, 0.2)',
-                  background: '#fff',
-                  color: '#2563eb',
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg-card-2)',
+                  color: 'var(--primary)',
                   display: 'grid',
                   placeItems: 'center',
                   cursor: 'pointer',
@@ -793,10 +796,10 @@ const VolunteerOrdersPage = () => {
             ) : selectedOrder ? (
               <div style={{ display: 'grid', gap: 20 }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: 21, color: '#0f172a', fontWeight: 800 }}>
+                  <h3 style={{ margin: 0, fontSize: 21, color: 'var(--text-primary)', fontWeight: 800 }}>
                     {selectedOrder.title || selectedOrder.serviceRequestTitle || 'بدون عنوان'}
                   </h3>
-                  <p style={{ margin: '6px 0 0', color: '#64748b', fontWeight: 500 }}>
+                  <p style={{ margin: '6px 0 0', color: 'var(--text-secondary)', fontWeight: 500 }}>
                     {selectedOrder.serviceType || selectedOrder.category || selectedOrder.title || 'خدمة الطلب'}
                   </p>
                 </div>
@@ -813,8 +816,8 @@ const VolunteerOrdersPage = () => {
 
                 {selectedOrder.briefDescription && (
                   <div>
-                    <h4 style={{ color: '#64748b', fontSize: 12, fontWeight: 700, margin: 0, marginBottom: 8 }}>الوصف</h4>
-                    <p style={{ margin: 0, color: '#334155', lineHeight: 1.8, fontSize: 14, fontWeight: 500 }}>
+                    <h4 style={{ color: 'var(--text-secondary)', fontSize: 12, fontWeight: 700, margin: 0, marginBottom: 8 }}>الوصف</h4>
+                    <p style={{ margin: 0, color: 'var(--text-primary)', lineHeight: 1.8, fontSize: 14, fontWeight: 500 }}>
                       {selectedOrder.briefDescription}
                     </p>
                   </div>
@@ -828,7 +831,7 @@ const VolunteerOrdersPage = () => {
       {showRejectModal && (
         <div style={overlayStyle} onClick={() => setShowRejectModal(false)}>
           <div style={modalStyle} onClick={(event) => event.stopPropagation()}>
-            <h3 style={{ margin: 0, color: '#0f172a' }}>رفض طلب التطوع</h3>
+            <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>رفض طلب التطوع</h3>
             <textarea
               value={rejectionReason}
               onChange={(event) => setRejectionReason(event.target.value)}
@@ -900,77 +903,77 @@ const heroSubtitleStyle = {
 };
 const statsGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 };
 const statCardStyle = {
-  padding: 14, borderRadius: 16, background: '#fff', border: '1px solid rgba(226,232,240,.9)',
-  boxShadow: '0 8px 20px rgba(15,23,42,.04)', display: 'grid', gap: 6,
+  padding: 14, borderRadius: 16, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)',
+  boxShadow: 'var(--shadow-sm)', display: 'grid', gap: 6,
 };
-const statLabelStyle = { color: '#64748b', fontSize: 12, fontWeight: 700 };
-const statValueStyle = { color: '#0f172a', fontSize: 20, fontWeight: 900 };
+const statLabelStyle = { color: 'var(--text-secondary)', fontSize: 12, fontWeight: 700 };
+const statValueStyle = { color: 'var(--text-primary)', fontSize: 20, fontWeight: 900 };
 const tabsStyle = { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' };
 const tabButtonStyle = {
-  border: '1px solid rgba(148,163,184,.25)', borderRadius: 12, padding: '8px 12px',
-  background: '#fff', color: '#334155', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+  border: '1px solid var(--border)', borderRadius: 12, padding: '8px 12px',
+  background: 'var(--bg-card-2)', color: 'var(--text-primary)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
 };
 const activeTabStyle = { background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', color: '#fff', borderColor: 'transparent' };
 const contentGridStyle = { display: 'grid', gridTemplateColumns: '1fr', gap: 14 };
 const panelStyle = {
-  padding: 16, borderRadius: 20, background: '#fff', border: '1px solid rgba(226,232,240,.9)',
-  boxShadow: '0 12px 24px rgba(15,23,42,.05)', display: 'grid', gap: 14,
+  padding: 16, borderRadius: 20, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)',
+  boxShadow: 'var(--shadow-md)', display: 'grid', gap: 14,
 };
 const panelHeaderStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 };
-const sectionTitleStyle = { margin: 0, color: '#0f172a', fontSize: 16, fontWeight: 900 };
-const sectionMetaStyle = { margin: '4px 0 0', color: '#64748b', fontSize: 11 };
+const sectionTitleStyle = { margin: 0, color: 'var(--text-primary)', fontSize: 16, fontWeight: 900 };
+const sectionMetaStyle = { margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: 11 };
 const loadingBoxStyle = {
   minHeight: 180, borderRadius: 16, border: '1px dashed rgba(148,163,184,.45)',
-  display: 'grid', placeItems: 'center', gap: 8, color: '#64748b', textAlign: 'center', padding: 16,
+  display: 'grid', placeItems: 'center', gap: 8, color: 'var(--text-secondary)', textAlign: 'center', padding: 16,
 };
 const emptyBoxStyle = {
-  minHeight: 180, borderRadius: 16, background: 'rgba(248,250,252,.9)', border: '1px dashed rgba(148,163,184,.45)',
-  display: 'grid', placeItems: 'center', color: '#64748b', textAlign: 'center', padding: 16,
+  minHeight: 180, borderRadius: 16, background: 'var(--bg-card-2)', border: '1px dashed rgba(148,163,184,.45)',
+  display: 'grid', placeItems: 'center', color: 'var(--text-secondary)', textAlign: 'center', padding: 16,
 };
 const errorAlertStyle = {
   display: 'flex', alignItems: 'center', gap: 8, padding: '12px 12px', borderRadius: 12,
   background: 'rgba(239,68,68,.12)', color: '#dc2626', border: '1px solid rgba(239,68,68,.18)',
 };
 const cardStyle = {
-  padding: 14, borderRadius: 16, border: '1px solid rgba(226,232,240,.9)',
-  background: 'linear-gradient(180deg, #fff, #f8fbff)', display: 'grid', gap: 12,
+  padding: 14, borderRadius: 16, border: '1px solid var(--border)',
+  background: 'var(--bg-card)', boxShadow: 'var(--shadow-sm)', display: 'grid', gap: 12,
 };
-const chipStyle = { borderRadius: 999, padding: '6px 10px', fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap' };
+const chipStyle = { borderRadius: 999, padding: '6px 10px', border: '1px solid var(--border)', fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap' };
 const metaGridStyle = { display: 'flex', gap: 8, flexWrap: 'wrap' };
 const metaItemStyle = {
   display: 'inline-flex', alignItems: 'center', gap: 4, padding: '6px 10px', borderRadius: 999,
-  background: 'rgba(241,245,249,.9)', color: '#475569', fontSize: 11, fontWeight: 700,
+  background: 'var(--bg-card-2)', color: 'var(--text-secondary)', fontSize: 11, fontWeight: 700,
 };
 const actionsRowStyle = { display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' };
 const iconButtonStyle = {
-  width: 36, height: 36, borderRadius: 10, border: '1px solid rgba(148,163,184,.2)', background: '#fff',
-  color: '#2563eb', display: 'grid', placeItems: 'center', cursor: 'pointer',
+  width: 36, height: 36, borderRadius: 10, border: '1px solid var(--border)', background: 'var(--bg-card-2)',
+  color: 'var(--primary)', display: 'grid', placeItems: 'center', cursor: 'pointer',
 };
 const primaryButtonStyle = {
   border: 'none', borderRadius: 12, padding: '10px 14px', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
   color: '#fff', fontSize: 12, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
 };
 const secondaryButtonStyle = {
-  border: '1px solid rgba(148,163,184,.25)', borderRadius: 12, padding: '8px 12px', background: '#fff',
-  color: '#334155', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+  border: '1px solid var(--border)', borderRadius: 12, padding: '8px 12px', background: 'var(--bg-card-2)',
+  color: 'var(--text-primary)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
 };
 const paginationStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' };
 const progressRowStyle = { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' };
 const detailItemStyle = {
-  padding: 12, borderRadius: 12, background: 'rgba(248,250,252,.95)', border: '1px solid rgba(226,232,240,.9)',
+  padding: 12, borderRadius: 12, background: 'var(--bg-card-2)', border: '1px solid var(--border)',
   display: 'grid', gap: 4,
 };
-const detailLabelStyle = { color: '#64748b', fontSize: 11, fontWeight: 700 };
-const detailValueStyle = { color: '#0f172a', fontSize: 12, fontWeight: 800, wordBreak: 'break-word' };
+const detailLabelStyle = { color: 'var(--text-secondary)', fontSize: 11, fontWeight: 700 };
+const detailValueStyle = { color: 'var(--text-primary)', fontSize: 12, fontWeight: 800, wordBreak: 'break-word' };
 const inputStyle = {
-  width: '100%', padding: '8px 10px', borderRadius: 10, border: '1px solid rgba(203,213,225,.95)',
-  background: '#fff', color: '#0f172a', fontSize: 12,
+  width: '100%', padding: '8px 10px', borderRadius: 10, border: '1px solid var(--input-border)',
+  background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: 12,
 };
 const overlayStyle = {
   position: 'fixed', inset: 0, background: 'rgba(15,23,42,.52)', display: 'grid', placeItems: 'center', zIndex: 1100, padding: 16,
 };
 const modalStyle = {
-  width: 'min(520px, 95%)', padding: 18, borderRadius: 20, background: '#fff', boxShadow: '0 24px 48px rgba(15,23,42,.22)', display: 'grid', gap: 12,
+  width: 'min(520px, 95%)', padding: 18, borderRadius: 20, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', border: '1px solid var(--glass-border)', boxShadow: 'var(--shadow-lg)', display: 'grid', gap: 12,
 };
 const modalHeaderStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 };
 const preStyle = {

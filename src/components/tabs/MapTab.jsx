@@ -21,15 +21,15 @@ import {
 import DashboardCards from '../common/DashboardCards';
 
 const COLOR_MAP = {
-  rose:    { bg: '#fff1f2', border: '#fda4af', badge: '#be123c' },
-  purple:  { bg: '#faf5ff', border: '#d8b4fe', badge: '#7e22ce' },
-  amber:   { bg: '#fffbeb', border: '#fcd34d', badge: '#b45309' },
-  sky:     { bg: '#f0f9ff', border: '#7dd3fc', badge: '#0369a1' },
-  indigo:  { bg: '#eef2ff', border: '#a5b4fc', badge: '#4338ca' },
-  emerald: { bg: '#f0fdf4', border: '#6ee7b7', badge: '#065f46' },
-  red:     { bg: '#fff5f5', border: '#fca5a5', badge: '#b91c1c' },
-  orange:  { bg: '#fff7ed', border: '#fdba74', badge: '#c2410c' },
-  blue:    { bg: '#eff6ff', border: '#93c5fd', badge: '#1d4ed8' },
+  rose:    { bg: 'rgba(255, 241, 242, 0.1)', border: 'rgba(253, 164, 175, 0.4)', badge: '#be123c' },
+  purple:  { bg: 'rgba(250, 245, 255, 0.1)', border: 'rgba(216, 180, 254, 0.4)', badge: '#7e22ce' },
+  amber:   { bg: 'rgba(255, 251, 235, 0.1)', border: 'rgba(252, 211, 77, 0.4)', badge: '#b45309' },
+  sky:     { bg: 'rgba(240, 249, 255, 0.1)', border: 'rgba(125, 211, 252, 0.4)', badge: '#0369a1' },
+  indigo:  { bg: 'rgba(238, 242, 255, 0.1)', border: 'rgba(165, 180, 252, 0.4)', badge: '#4338ca' },
+  emerald: { bg: 'rgba(240, 253, 244, 0.1)', border: 'rgba(110, 231, 183, 0.4)', badge: '#065f46' },
+  red:     { bg: 'rgba(255, 245, 245, 0.1)', border: 'rgba(252, 165, 165, 0.4)', badge: '#b91c1c' },
+  orange:  { bg: 'rgba(255, 247, 237, 0.1)', border: 'rgba(253, 186, 116, 0.4)', badge: '#c2410c' },
+  blue:    { bg: 'rgba(239, 246, 255, 0.1)', border: 'rgba(147, 197, 253, 0.4)', badge: '#1d4ed8' },
 };
 
 const ZoneCard = memo(({ zone, completedQuests, onOpenZone }) => {
@@ -44,13 +44,14 @@ const ZoneCard = memo(({ zone, completedQuests, onOpenZone }) => {
     <div
       onClick={() => { AudioManager.getInstance().play('open'); onOpenZone(zone); }}
       style={{
-        background: colors.bg,
-        border: `2px solid ${allDone ? '#86efac' : colors.border}`,
+        background: 'var(--glass-bg)',
+        backdropFilter: 'var(--glass-blur)',
+        border: `1px solid ${allDone ? 'var(--success)' : 'var(--glass-border)'}`,
         borderRadius: 20,
         padding: '20px 16px',
         cursor: 'pointer',
         transition: 'transform 0.15s, box-shadow 0.15s',
-        boxShadow: '0 3px 12px rgba(0,0,0,0.07)',
+        boxShadow: 'var(--shadow-md)',
         direction: 'rtl',
         position: 'relative',
         minHeight: '140px',
@@ -58,11 +59,11 @@ const ZoneCard = memo(({ zone, completedQuests, onOpenZone }) => {
         flexDirection: 'column',
         justifyContent: 'space-between',
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.13)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)';    e.currentTarget.style.boxShadow = '0 3px 12px rgba(0,0,0,0.07)'; }}
+      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = 'var(--shadow-lg)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)';    e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
     >
       {allDone && (
-        <div style={{ position: 'absolute', top: 10, left: 12, background: '#dcfce7', color: '#166534', fontSize: 10, fontWeight: 900, padding: '2px 8px', borderRadius: 99, zIndex: 2 }}>
+        <div style={{ position: 'absolute', top: 10, left: 12, background: 'var(--success-light)', color: 'var(--success)', fontSize: 10, fontWeight: 900, padding: '2px 8px', borderRadius: 99, zIndex: 2, border: '1px solid var(--success)' }}>
           ✅ {t('common.completed')}
         </div>
       )}
@@ -70,9 +71,9 @@ const ZoneCard = memo(({ zone, completedQuests, onOpenZone }) => {
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12, width: '100%' }}>
         <div style={{
           width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-          background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 24, border: `2px solid ${colors.border}`,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          background: 'var(--bg-card-2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 24, border: `1px solid ${colors.border}`,
+          boxShadow: 'var(--shadow-sm)',
         }}>
           {zone.emoji}
         </div>
@@ -237,15 +238,16 @@ const MapTab = ({ onOpenZone }) => {
       <DashboardCards userStats={state.userStats} completedCount={doneQuests} />
 
       <div style={{
-        background: 'var(--bg-card)',
+        background: 'var(--glass-bg)',
+        backdropFilter: 'var(--glass-blur)',
         borderRadius: 22,
         padding: 20,
         boxShadow: 'var(--shadow-md)',
-        border: '1.5px solid var(--border)',
+        border: '1px solid var(--glass-border)',
         direction: 'rtl',
         fontFamily: "'Cairo', sans-serif",
         lineHeight: 1.6,
-        color: '#0f172a'
+        color: 'var(--text-primary)'
       }}>
         <div style={{ display: 'grid', gap: 18 }}>
 
@@ -256,13 +258,13 @@ const MapTab = ({ onOpenZone }) => {
                 fontSize: 21,
                 fontWeight: 900,
                 fontFamily: "'Cairo', sans-serif",
-                color: '#0f172a'
+                color: 'var(--text-primary)'
               }}>
                 خريطة الطلبات والمستشفيات
               </h2>
               <p style={{
                 margin: '8px 0 0',
-                color: 'rgb(100, 116, 139)',
+                color: 'var(--text-secondary)',
                 fontSize: 14,
                 fontWeight: 600,
                 fontFamily: "'Cairo', sans-serif"
@@ -346,13 +348,13 @@ const MapTab = ({ onOpenZone }) => {
       <div style={{
         padding: 16,
         borderRadius: 18,
-        border: '1px solid rgba(148, 163, 184, 0.18)',
-        background: 'rgb(248, 250, 252)',
+        border: '1px solid var(--border)',
+        background: 'var(--bg-card-2)',
         fontFamily: "'Cairo', sans-serif"
       }}>
         <div style={{
           fontSize: 12,
-          color: 'rgb(71, 85, 105)',
+          color: 'var(--text-secondary)',
           fontWeight: 700,
           fontFamily: "'Cairo', sans-serif"
         }}>
@@ -363,14 +365,14 @@ const MapTab = ({ onOpenZone }) => {
           fontSize: 22,
           fontWeight: 900,
           fontFamily: "'Cairo', sans-serif",
-          color: '#0f172a'
+          color: 'var(--text-primary)'
         }}>
           {filteredMarkers.length}
         </div>
         <div style={{
           marginTop: 4,
           fontSize: 12,
-          color: 'rgb(100, 116, 139)',
+          color: 'var(--text-secondary)',
           fontWeight: 600,
           fontFamily: "'Cairo', sans-serif"
         }}>
@@ -381,13 +383,13 @@ const MapTab = ({ onOpenZone }) => {
       <div style={{
         padding: 16,
         borderRadius: 18,
-        border: '1px solid rgba(148, 163, 184, 0.18)',
-        background: 'rgb(248, 250, 252)',
+        border: '1px solid var(--border)',
+        background: 'var(--bg-card-2)',
         fontFamily: "'Cairo', sans-serif"
       }}>
         <div style={{
           fontSize: 12,
-          color: 'rgb(71, 85, 105)',
+          color: 'var(--text-secondary)',
           fontWeight: 700,
           fontFamily: "'Cairo', sans-serif"
         }}>
@@ -398,13 +400,13 @@ const MapTab = ({ onOpenZone }) => {
           fontSize: 16,
           fontWeight: 900,
           fontFamily: "'Cairo', sans-serif",
-          color: '#0f172a'
+          color: 'var(--text-primary)'
         }}>
           {nearestPlace ? `${nearestPlace.icon} ${nearestPlace.label}` : 'لا توجد علامات'}
         </div>
         <div style={{
           marginTop: 4,
-          color: 'rgb(100, 116, 139)',
+          color: 'var(--text-secondary)',
           fontSize: 13,
           fontWeight: 600,
           fontFamily: "'Cairo', sans-serif"
@@ -419,14 +421,14 @@ const MapTab = ({ onOpenZone }) => {
       <div style={{
         padding: 16,
         borderRadius: 18,
-        background: 'linear-gradient(135deg, #fff7ed, #fed7aa)',
-        border: '2px solid #fdba74',
+        background: 'rgba(245, 158, 11, 0.12)',
+        border: '1px solid rgba(245, 158, 11, 0.3)',
         fontFamily: "'Cairo', sans-serif",
-        boxShadow: '0 4px 12px rgba(251, 146, 60, 0.2)',
+        boxShadow: 'var(--shadow-sm)',
       }}>
         <div style={{
           fontSize: 14,
-          color: '#c2410c',
+          color: '#f59e0b',
           fontWeight: 800,
           fontFamily: "'Cairo', sans-serif"
         }}>
@@ -437,7 +439,7 @@ const MapTab = ({ onOpenZone }) => {
           fontSize: 28,
           fontWeight: 900,
           fontFamily: "'Cairo', sans-serif",
-          color: '#ea580c'
+          color: 'var(--text-primary)'
         }}>
           {summary.cases}
         </div>
@@ -446,14 +448,14 @@ const MapTab = ({ onOpenZone }) => {
       <div style={{
         padding: 16,
         borderRadius: 18,
-        background: 'linear-gradient(135deg, #faf5ff, #e9d5ff)',
-        border: '2px solid #d8b4fe',
+        background: 'rgba(168, 85, 247, 0.12)',
+        border: '1px solid rgba(168, 85, 247, 0.3)',
         fontFamily: "'Cairo', sans-serif",
-        boxShadow: '0 4px 12px rgba(147, 51, 234, 0.2)',
+        boxShadow: 'var(--shadow-sm)',
       }}>
         <div style={{
           fontSize: 14,
-          color: '#7e22ce',
+          color: '#a855f7',
           fontWeight: 800,
           fontFamily: "'Cairo', sans-serif"
         }}>
@@ -464,7 +466,7 @@ const MapTab = ({ onOpenZone }) => {
           fontSize: 28,
           fontWeight: 900,
           fontFamily: "'Cairo', sans-serif",
-          color: '#a855f7'
+          color: 'var(--text-primary)'
         }}>
           {summary.hospitals}
         </div>
@@ -473,14 +475,14 @@ const MapTab = ({ onOpenZone }) => {
       <div style={{
         padding: 16,
         borderRadius: 18,
-        background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
-        border: '2px solid #93c5fd',
+        background: 'rgba(59, 130, 246, 0.12)',
+        border: '1px solid rgba(59, 130, 246, 0.3)',
         fontFamily: "'Cairo', sans-serif",
-        boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)',
+        boxShadow: 'var(--shadow-sm)',
       }}>
         <div style={{
           fontSize: 14,
-          color: '#1d4ed8',
+          color: '#3b82f6',
           fontWeight: 800,
           fontFamily: "'Cairo', sans-serif"
         }}>
@@ -491,7 +493,7 @@ const MapTab = ({ onOpenZone }) => {
           fontSize: 28,
           fontWeight: 900,
           fontFamily: "'Cairo', sans-serif",
-          color: '#2563eb'
+          color: 'var(--text-primary)'
         }}>
           {filteredMarkers.length}
         </div>
@@ -504,7 +506,7 @@ const MapTab = ({ onOpenZone }) => {
         <span style={{
           fontSize: 12,
           fontWeight: 800,
-          color: 'rgb(51, 65, 85)',
+          color: 'var(--text-secondary)',
           fontFamily: "'Cairo', sans-serif"
         }}>
           حسب المدينة
@@ -517,13 +519,13 @@ const MapTab = ({ onOpenZone }) => {
               width: '100%',
               padding: '14px 40px 14px 16px',
               borderRadius: 18,
-              border: '1px solid rgba(59,130,246,0.25)',
+              border: '1px solid var(--border)',
               fontSize: 15,
               fontFamily: "'Cairo', sans-serif",
               fontWeight: 700,
-              color: '#0f172a',
-              background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
-              boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
+              color: 'var(--text-primary)',
+              background: 'var(--bg-card-2)',
+              boxShadow: 'var(--shadow-sm)',
               appearance: 'none',
               WebkitAppearance: 'none',
               MozAppearance: 'none',
@@ -532,9 +534,9 @@ const MapTab = ({ onOpenZone }) => {
             <option value="all" style={{
               fontSize: 13,
               fontWeight: 900,
-              color: '#0f172a',
+              color: 'var(--text-primary)',
               fontFamily: "'Cairo', sans-serif",
-              background: '#eef5ff'
+              background: 'var(--bg-card-2)'
             }}>
               الكل
             </option>
@@ -545,9 +547,9 @@ const MapTab = ({ onOpenZone }) => {
                 style={{
                   fontSize: 13,
                   fontWeight: 900,
-                  color: '#0f172a',
+                  color: 'var(--text-primary)',
                   fontFamily: "'Cairo', sans-serif",
-                  background: '#eef5ff'
+                  background: 'var(--bg-card-2)'
                 }}
               >
                 {city}
@@ -559,7 +561,7 @@ const MapTab = ({ onOpenZone }) => {
             right: '12px',
             top: '50%',
             transform: 'translateY(-50%)',
-            color: 'rgba(15,23,42,0.6)',
+            color: 'var(--text-secondary)',
             fontSize: '14px',
             pointerEvents: 'none',
           }} />
@@ -570,7 +572,7 @@ const MapTab = ({ onOpenZone }) => {
         <span style={{
           fontSize: 12,
           fontWeight: 800,
-          color: 'rgb(51, 65, 85)',
+          color: 'var(--text-secondary)',
           fontFamily: "'Cairo', sans-serif"
         }}>
           نوع العلامة
@@ -583,13 +585,13 @@ const MapTab = ({ onOpenZone }) => {
               width: '100%',
               padding: '14px 40px 14px 16px',
               borderRadius: 18,
-              border: '1px solid rgba(59,130,246,0.25)',
+              border: '1px solid var(--border)',
               fontSize: 15,
               fontFamily: "'Cairo', sans-serif",
               fontWeight: 700,
-              color: '#0f172a',
-              background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
-              boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
+              color: 'var(--text-primary)',
+              background: 'var(--bg-card-2)',
+              boxShadow: 'var(--shadow-sm)',
               appearance: 'none',
               WebkitAppearance: 'none',
               MozAppearance: 'none',
@@ -602,9 +604,9 @@ const MapTab = ({ onOpenZone }) => {
                 style={{
                   fontSize: 13,
                   fontWeight: 900,
-                  color: '#0f172a',
+                  color: 'var(--text-primary)',
                   fontFamily: "'Cairo', sans-serif",
-                  background: '#eef5ff'
+                  background: 'var(--bg-card-2)'
                 }}
               >
                 {type.label}
@@ -616,7 +618,7 @@ const MapTab = ({ onOpenZone }) => {
             right: '12px',
             top: '50%',
             transform: 'translateY(-50%)',
-            color: 'rgba(15,23,42,0.6)',
+            color: 'var(--text-secondary)',
             fontSize: '14px',
             pointerEvents: 'none',
           }} />
@@ -627,7 +629,7 @@ const MapTab = ({ onOpenZone }) => {
         <span style={{
           fontSize: 12,
           fontWeight: 800,
-          color: 'rgb(51, 65, 85)',
+          color: 'var(--text-secondary)',
           fontFamily: "'Cairo', sans-serif"
         }}>
           نوع الحالة
@@ -640,13 +642,13 @@ const MapTab = ({ onOpenZone }) => {
               width: '100%',
               padding: '14px 40px 14px 16px',
               borderRadius: 18,
-              border: '1px solid rgba(59,130,246,0.25)',
+              border: '1px solid var(--border)',
               fontSize: 15,
               fontFamily: "'Cairo', sans-serif",
               fontWeight: 700,
-              color: '#0f172a',
-              background: 'linear-gradient(180deg, #ffffff, #f1f7ff)',
-              boxShadow: '0 10px 22px rgba(59,130,246,0.08)',
+              color: 'var(--text-primary)',
+              background: 'var(--bg-card-2)',
+              boxShadow: 'var(--shadow-sm)',
               appearance: 'none',
               WebkitAppearance: 'none',
               MozAppearance: 'none',
@@ -659,9 +661,9 @@ const MapTab = ({ onOpenZone }) => {
                 style={{
                   fontSize: 13,
                   fontWeight: 900,
-                  color: '#0f172a',
+                  color: 'var(--text-primary)',
                   fontFamily: "'Cairo', sans-serif",
-                  background: '#eef5ff'
+                  background: 'var(--bg-card-2)'
                 }}
               >
                 {category.label}
@@ -673,7 +675,7 @@ const MapTab = ({ onOpenZone }) => {
             right: '12px',
             top: '50%',
             transform: 'translateY(-50%)',
-            color: 'rgba(15,23,42,0.6)',
+            color: 'var(--text-secondary)',
             fontSize: '14px',
             pointerEvents: 'none',
           }} />
@@ -685,11 +687,11 @@ const MapTab = ({ onOpenZone }) => {
 </div>
       <div style={{ display: 'grid', gap: 16 }}>
         <div style={{ display: 'grid', gap: 14, gridTemplateColumns: mapPanelColumns, minHeight: mapAreaMinHeight }}>
-          <div style={{ position: 'relative', borderRadius: 24, background: '#eef2ff', overflow: 'hidden', border: '1px solid rgba(148,163,184,0.2)', minHeight: mapAreaMinHeight }}>
+          <div style={{ position: 'relative', borderRadius: 24, background: 'var(--bg-card-2)', overflow: 'hidden', border: '1px solid var(--border)', minHeight: mapAreaMinHeight }}>
             <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(59,130,246,0.08), transparent 30%), radial-gradient(circle at 75% 25%, rgba(16,185,129,0.08), transparent 24%)' }} />
             <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gridTemplateRows: 'repeat(6,1fr)', opacity: 0.25 }}>
               {Array.from({ length: 48 }).map((_, index) => (
-                <div key={index} style={{ border: '1px solid rgba(148,163,184,0.08)' }} />
+                <div key={index} style={{ border: '1px solid var(--border)' }} />
               ))}
             </div>
             <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -707,11 +709,11 @@ const MapTab = ({ onOpenZone }) => {
                     height: 42,
                     borderRadius: '50%',
                     border: marker.type === 'hospital' ? '2px solid #f97316' : '2px solid #3b82f6',
-                    background: '#fff',
+                    background: 'var(--bg-card)',
                     cursor: 'pointer',
                     display: 'grid',
                     placeItems: 'center',
-                    boxShadow: '0 10px 24px rgba(15,23,42,0.12)',
+                    boxShadow: 'var(--shadow-md)',
                   }}
                   title={`${marker.label} (${marker.subtitle})`}
                 >
@@ -722,27 +724,27 @@ const MapTab = ({ onOpenZone }) => {
           </div>
 
           <div style={{ display: 'grid', gap: 12 }}>
-            <div style={{ padding: 18, borderRadius: 24, border: '1px solid rgba(148,163,184,0.2)', background: '#fff' }}>
+            <div style={{ padding: 18, borderRadius: 24, border: '1px solid var(--border)', background: 'var(--bg-card-2)', color: 'var(--text-primary)' }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 900 }}>تفاصيل Marker</h3>
               {selectedMarker ? (
                 <div style={{ marginTop: 12, display: 'grid', gap: 10 }}>
                   <div style={{ fontSize: 14, fontWeight: 900 }}>{selectedMarker.icon} {selectedMarker.label}</div>
-                  <div style={{ color: '#64748b', fontSize: 13 }}>{selectedMarker.subtitle}</div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{selectedMarker.subtitle}</div>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
-                    <span style={{ padding: '6px 10px', borderRadius: 999, background: '#eff6ff', color: '#1d4ed8', fontSize: 12 }}>{selectedMarker.type === 'case' ? 'حالة' : 'مستشفى'}</span>
-                    <span style={{ padding: '6px 10px', borderRadius: 999, background: '#ecfdf5', color: '#15803d', fontSize: 12 }}>{selectedMarker.categoryLabel}</span>
+                    <span style={{ padding: '6px 10px', borderRadius: 999, background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', fontSize: 12 }}>{selectedMarker.type === 'case' ? 'حالة' : 'مستشفى'}</span>
+                    <span style={{ padding: '6px 10px', borderRadius: 999, background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', fontSize: 12 }}>{selectedMarker.categoryLabel}</span>
                   </div>
                 </div>
               ) : (
-                <p style={{ margin: 0, color: '#64748b', fontSize: 14 }}>اختر علامة في الخريطة لعرض المزيد من التفاصيل.</p>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: 14 }}>اختر علامة في الخريطة لعرض المزيد من التفاصيل.</p>
               )}
             </div>
 
-            <div style={{ padding: 18, borderRadius: 24, border: '1px solid rgba(148,163,184,0.2)', background: '#fff' }}>
+            <div style={{ padding: 18, borderRadius: 24, border: '1px solid var(--border)', background: 'var(--bg-card-2)', color: 'var(--text-primary)' }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 900 }}>توزيع المدن</h3>
               <div style={{ marginTop: 12, display: 'grid', gap: 10 }}>
                 {cityCounts.map((item) => (
-                  <div key={item.city} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, color: '#334155', fontWeight: 700 }}>
+                  <div key={item.city} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, color: 'var(--text-primary)', fontWeight: 700 }}>
                     <span>{item.city}</span>
                     <span>{item.count}</span>
                   </div>
@@ -772,7 +774,7 @@ const MapTab = ({ onOpenZone }) => {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 30%), radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.18), transparent 28%), rgba(15, 23, 42, 0.92)',
+            background: 'rgba(0, 0, 0, 0.75)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -785,23 +787,23 @@ const MapTab = ({ onOpenZone }) => {
           <div
             style={{
               position: 'relative',
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244,246,254,0.96))',
+              background: 'var(--glass-bg)',
+              backdropFilter: 'var(--glass-blur)',
               borderRadius: '32px',
               maxWidth: '680px',
               width: '100%',
               maxHeight: '90vh',
               overflow: 'hidden',
-              border: '1px solid rgba(59,130,246,0.18)',
-              boxShadow: '0 32px 90px rgba(15,23,42,0.3)',
+              border: '1px solid var(--glass-border)',
+              boxShadow: 'var(--shadow-lg)',
               direction: 'rtl',
               padding: '24px',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-              <div style={{ position: 'absolute', top: -28, right: -28, width: 160, height: 160, borderRadius: '50%', background: 'rgba(59,130,246,0.18)' }} />
-              <div style={{ position: 'absolute', bottom: -32, left: -24, width: 120, height: 120, borderRadius: '50%', background: 'rgba(168,85,247,0.14)' }} />
-              <div style={{ position: 'absolute', top: '40%', left: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(14,165,233,0.07)' }} />
+              <div style={{ position: 'absolute', top: -28, right: -28, width: 160, height: 160, borderRadius: '50%', background: 'rgba(59,130,246,0.1)' }} />
+              <div style={{ position: 'absolute', bottom: -32, left: -24, width: 120, height: 120, borderRadius: '50%', background: 'rgba(168,85,247,0.08)' }} />
             </div>
 
             <div style={{ position: 'relative', zIndex: 1 }}>
@@ -813,8 +815,9 @@ const MapTab = ({ onOpenZone }) => {
                     borderRadius: 24,
                     display: 'grid',
                     placeItems: 'center',
-                    background: 'linear-gradient(135deg, rgba(59,130,246,0.16), rgba(168,85,247,0.18))',
-                    boxShadow: '0 16px 35px rgba(59,130,246,0.18)',
+                    background: 'var(--bg-card-2)',
+                    boxShadow: 'var(--shadow-sm)',
+                    border: '1px solid var(--border)',
                   }}>
                     <span style={{ fontSize: 36 }}>{selectedZone.emoji}</span>
                   </div>
@@ -829,7 +832,7 @@ const MapTab = ({ onOpenZone }) => {
                     >
                       {selectedZone.title}
                     </h2>
-                    <div style={{ marginTop: 6, color: '#475569', fontSize: 14, fontWeight: 700 }}>
+                    <div style={{ marginTop: 6, color: 'var(--text-secondary)', fontSize: 14, fontWeight: 700 }}>
                       {selectedZone.desc}
                     </div>
                   </div>
@@ -843,11 +846,11 @@ const MapTab = ({ onOpenZone }) => {
                     borderRadius: 16,
                     display: 'grid',
                     placeItems: 'center',
-                    border: '1px solid rgba(148,163,184,0.24)',
-                    background: '#fff',
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-card-2)',
                     cursor: 'pointer',
                     fontSize: '20px',
-                    color: '#475569',
+                    color: 'var(--text-primary)',
                     transition: 'transform 0.2s ease',
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
@@ -858,13 +861,13 @@ const MapTab = ({ onOpenZone }) => {
               </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 16, background: 'rgba(59,130,246,0.12)', color: '#1d4ed8', fontWeight: 800, fontSize: 13 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 16, background: 'rgba(59,130,246,0.12)', color: '#3b82f6', fontWeight: 800, fontSize: 13 }}>
                   ⚡ {selectedZoneStats.kp} نقاط
                 </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 16, background: 'rgba(16,185,129,0.12)', color: '#047857', fontWeight: 800, fontSize: 13 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 16, background: 'rgba(16,185,129,0.12)', color: '#10b981', fontWeight: 800, fontSize: 13 }}>
                   ⭐ {selectedZoneStats.xp} خبرة
                 </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 16, background: 'rgba(248,113,113,0.12)', color: '#b91c1c', fontWeight: 800, fontSize: 13 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 16, background: 'rgba(239,68,68,0.12)', color: '#ef4444', fontWeight: 800, fontSize: 13 }}>
                   ❤️ {selectedZoneStats.impact} تأثير
                 </span>
               </div>
@@ -880,15 +883,15 @@ const MapTab = ({ onOpenZone }) => {
                 >
                   مهمات المنطقة ({selectedZone.quests.length})
                 </h3>
-                <div style={{ display: 'grid', gap: '12px' }}>
-                  {selectedZone.quests.slice(0, 6).map((quest, idx) => (
+                <div style={{ display: 'grid', gap: '12px', maxHeight: '340px', overflowY: 'auto', paddingRight: '4px' }}>
+                  {selectedZone.quests.slice(0, 10).map((quest, idx) => (
                     <div
                       key={idx}
                       style={{
                         padding: '16px',
-                        background: 'rgba(59,130,246,0.08)',
+                        background: 'var(--bg-card-2)',
                         borderRadius: '18px',
-                        border: '1px solid rgba(59,130,246,0.16)',
+                        border: '1px solid var(--border)',
                         display: 'grid',
                         gap: '10px',
                       }}
@@ -900,43 +903,19 @@ const MapTab = ({ onOpenZone }) => {
                         <span style={{
                           padding: '6px 12px',
                           borderRadius: 999,
-                          background: 'rgba(99,102,241,0.16)',
-                          color: '#4338ca',
+                          background: 'rgba(59,130,246,0.12)',
+                          color: '#3b82f6',
                           fontSize: 12,
                           fontWeight: 900,
                         }}>
                           {quest.diff || 'متوسطة'}
                         </span>
                       </div>
-                      <div style={{ color: '#475569', fontSize: 13, lineHeight: 1.6 }}>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: 13, lineHeight: 1.6 }}>
                         {quest.story || 'تحدى نفسك في هذه المهمة واجعل العالم أفضل.'}
-                      </div>
-                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                        <span style={{ padding: '6px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.12)', color: '#065f46', fontSize: 12, fontWeight: 800 }}>
-                          {quest.kp || 0} نقاط
-                        </span>
-                        <span style={{ padding: '6px 10px', borderRadius: 999, background: 'rgba(59,130,246,0.12)', color: '#1d4ed8', fontSize: 12, fontWeight: 800 }}>
-                          {quest.xp || 0} XP
-                        </span>
-                        <span style={{ padding: '6px 10px', borderRadius: 999, background: 'rgba(248,113,113,0.12)', color: '#b91c1c', fontSize: 12, fontWeight: 800 }}>
-                          {quest.impact || 0} تأثير
-                        </span>
                       </div>
                     </div>
                   ))}
-                  {selectedZone.quests.length > 6 && (
-                    <div
-                      style={{
-                        textAlign: 'center',
-                        color: '#64748b',
-                        fontSize: 13,
-                        padding: '10px 0',
-                        borderTop: '1px dashed rgba(148,163,184,0.4)',
-                      }}
-                    >
-                      و {selectedZone.quests.length - 6} مهام إضافية...
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -947,13 +926,14 @@ const MapTab = ({ onOpenZone }) => {
                   width: '100%',
                   padding: '14px',
                   borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+                  background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
                   color: 'white',
                   border: 'none',
                   fontSize: '15px',
                   fontWeight: '900',
                   cursor: 'pointer',
                   transition: 'transform 0.2s ease, opacity 0.2s ease',
+                  boxShadow: 'var(--shadow-md)',
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.94'; e.currentTarget.style.transform = 'scale(1.01)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)'; }}

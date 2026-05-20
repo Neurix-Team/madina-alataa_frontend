@@ -13,13 +13,13 @@ const DetailItem = ({ label, value }) => (
   <div style={{
     padding: '14px',
     borderRadius: 16,
-    background: 'rgba(248, 250, 252, 0.95)',
-    border: '1px solid rgba(226, 232, 240, 0.9)',
+    background: 'var(--bg-card-2)',
+    border: '1px solid var(--border)',
     display: 'grid',
     gap: '6px'
   }}>
-    <span style={{ color: '#64748b', fontSize: 12, fontWeight: 700 }}>{label}</span>
-    <strong style={{ color: '#0f172a', fontSize: 14, fontWeight: 800, wordBreak: 'break-word' }}>{value}</strong>
+    <span style={{ color: 'var(--text-secondary)', fontSize: 12, fontWeight: 700 }}>{label}</span>
+    <strong style={{ color: 'var(--text-primary)', fontSize: 14, fontWeight: 800, wordBreak: 'break-word' }}>{value}</strong>
   </div>
 );
 
@@ -182,9 +182,10 @@ const DonationOrdersPage = () => {
           style={{
             padding: '24px 32px',
             borderRadius: 24,
-            background: '#fff',
-            border: '1px solid rgba(148,163,184,0.15)',
-            boxShadow: '0 20px 50px rgba(15,23,42,0.06)',
+            background: 'var(--glass-bg)',
+            backdropFilter: 'var(--glass-blur)',
+            border: '1px solid var(--glass-border)',
+            boxShadow: 'var(--shadow-md)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -200,16 +201,16 @@ const DonationOrdersPage = () => {
               borderRadius: 16,
               display: 'grid',
               placeItems: 'center',
-              background: '#ecfdf5',
+              background: 'var(--bg-card-2)',
               color: '#10b981',
               fontSize: 24,
-              border: '1px solid #d1fae5'
+              border: '1px solid var(--border)'
             }}>
               <FaDonate />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0f172a' }}>{t('donation.title')}</h1>
-              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 14, fontWeight: 500 }}>{t('donation.subtitle')}</p>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: 'var(--text-primary)' }}>{t('donation.title')}</h1>
+              <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500 }}>{t('donation.subtitle')}</p>
             </div>
           </div>
         </motion.div>
@@ -521,8 +522,10 @@ const DonationOrdersPage = () => {
                 overflowY: 'auto',
                 padding: 22,
                 borderRadius: 24,
-                background: '#fff',
-                boxShadow: 'rgba(15, 23, 42, 0.22) 0px 30px 70px',
+                background: 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
+                border: '1px solid var(--glass-border)',
+                boxShadow: 'var(--shadow-lg)',
                 display: 'grid',
                 gap: 20,
                 position: 'relative',
@@ -531,8 +534,8 @@ const DonationOrdersPage = () => {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                 <div>
-                  <h3 style={{ margin: 0, color: '#0f172a', fontSize: 20, fontWeight: 900 }}>تفاصيل طلب التبرع</h3>
-                  <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13, fontWeight: 500 }}>
+                  <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: 20, fontWeight: 900 }}>تفاصيل طلب التبرع</h3>
+                  <p style={{ margin: '6px 0 0', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 500 }}>
                     بيانات الطلب والوصف والحالة الحالية
                   </p>
                 </div>
@@ -543,9 +546,9 @@ const DonationOrdersPage = () => {
                     width: 42,
                     height: 42,
                     borderRadius: 12,
-                    border: '1px solid rgba(148, 163, 184, 0.2)',
-                    background: '#fff',
-                    color: '#2563eb',
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-card-2)',
+                    color: 'var(--primary)',
                     display: 'grid',
                     placeItems: 'center',
                     cursor: 'pointer',
@@ -573,8 +576,8 @@ const DonationOrdersPage = () => {
 
                 {selectedOrder.receipt && (
                   <div>
-                    <h4 style={{ color: '#64748b', fontSize: 12, fontWeight: 700, margin: 0, marginBottom: 8 }}>الإيصال</h4>
-                    <p style={{ margin: 0, color: '#334155', lineHeight: 1.8, fontSize: 14, fontWeight: 500 }}>
+                    <h4 style={{ color: 'var(--text-secondary)', fontSize: 12, fontWeight: 700, margin: 0, marginBottom: 8 }}>الإيصال</h4>
+                    <p style={{ margin: 0, color: 'var(--text-primary)', lineHeight: 1.8, fontSize: 14, fontWeight: 500 }}>
                       {selectedOrder.receipt}
                     </p>
                   </div>
@@ -582,8 +585,8 @@ const DonationOrdersPage = () => {
 
                 {selectedOrder.impactReport && (
                   <div>
-                    <h4 style={{ color: '#64748b', fontSize: 12, fontWeight: 700, margin: 0, marginBottom: 8 }}>تقرير الأثر</h4>
-                    <p style={{ margin: 0, color: '#334155', lineHeight: 1.8, fontSize: 14, fontWeight: 500 }}>
+                    <h4 style={{ color: 'var(--text-secondary)', fontSize: 12, fontWeight: 700, margin: 0, marginBottom: 8 }}>تقرير الأثر</h4>
+                    <p style={{ margin: 0, color: 'var(--text-primary)', lineHeight: 1.8, fontSize: 14, fontWeight: 500 }}>
                       {selectedOrder.impactReport}
                     </p>
                   </div>

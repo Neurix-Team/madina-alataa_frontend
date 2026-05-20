@@ -38,10 +38,11 @@ const modalStyle = {
   maxWidth: '680px',
   maxHeight: '88vh',
   overflowY: 'auto',
-  background: 'var(--surface)',
+  background: 'var(--glass-bg)',
+  backdropFilter: 'var(--glass-blur)',
   border: '1px solid var(--border)',
   borderRadius: '24px',
-  boxShadow: '0 24px 80px rgba(15, 23, 42, 0.18)',
+  boxShadow: 'var(--shadow-lg)',
   padding: '24px',
 };
 
@@ -441,10 +442,11 @@ export default function ActivitiesTab() {
         style={{
           marginBottom: '24px',
           borderRadius: '28px',
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.96), rgba(248,250,252,0.98))',
-          color: 'var(--text)',
-          border: '1px solid var(--border)',
-          boxShadow: '0 18px 42px rgba(15, 23, 42, 0.08)',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'var(--glass-blur)',
+          color: 'var(--text-primary)',
+          border: '1px solid var(--glass-border)',
+          boxShadow: 'var(--shadow-md)',
           padding: '28px',
           display: 'flex',
           gap: '18px',
@@ -470,8 +472,8 @@ export default function ActivitiesTab() {
             <FaBolt />
           </div>
           <div>
-            <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900 }}>الأنشطة</h2>
-            <p style={{ margin: '6px 0 0 0', color: 'var(--text-muted)', fontWeight: 700 }}>
+            <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 900, color: 'var(--text-primary)' }}>الأنشطة</h2>
+            <p style={{ margin: '6px 0 0 0', color: 'var(--text-secondary)', fontWeight: 700 }}>
               عرض الأنشطة والتفاصيل لكل المستخدمين، مع إدارة كاملة للأدمن فقط.
             </p>
           </div>
@@ -547,10 +549,11 @@ export default function ActivitiesTab() {
               transition={{ delay: index * 0.04 }}
               style={{
                 borderRadius: '24px',
-                background: 'linear-gradient(180deg, var(--surface), rgba(255,255,255,0.96))',
+                background: 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
                 border: '1px solid var(--border)',
                 padding: '20px',
-                boxShadow: '0 14px 34px rgba(15, 23, 42, 0.08)',
+                boxShadow: 'var(--shadow-md)',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>

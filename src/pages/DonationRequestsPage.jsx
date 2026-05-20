@@ -440,20 +440,25 @@ console.log('🛡️ Is Admin:', isAdmin);
                         <div className="donation-requests-page__actions">
                           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleViewDetails(request)} className="donation-requests-page__actionBtn is-info" title="عرض التفاصيل">
                             <FaEye />
+                            <span className="donation-requests-page__actionLabel">تفاصيل</span>
                           </motion.button>
                           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleEdit(request)} className="donation-requests-page__actionBtn is-edit" title="تعديل">
                             <FaEdit />
+                            <span className="donation-requests-page__actionLabel">تعديل</span>
                           </motion.button>
                           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleDelete(request.id)} disabled={actionLoading[request.id]} className="donation-requests-page__actionBtn is-delete" title="حذف">
                             {actionLoading[request.id] === 'delete' ? <FaSpinner className="animate-spin" /> : <FaTrash />}
+                            <span className="donation-requests-page__actionLabel">مسح</span>
                           </motion.button>
                           {request.status?.toLowerCase() === 'pending' && (
                             <>
                               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleApprove(request.id)} disabled={actionLoading[request.id]} className="donation-requests-page__actionBtn is-approve" title="قبول الطلب">
                                 {actionLoading[request.id] === 'approve' ? <FaSpinner className="animate-spin" /> : <FaCheck />}
+                                <span className="donation-requests-page__actionLabel">قبول</span>
                               </motion.button>
                               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleReject(request.id)} disabled={actionLoading[request.id]} className="donation-requests-page__actionBtn is-reject" title="رفض الطلب">
                                 {actionLoading[request.id] === 'reject' ? <FaSpinner className="animate-spin" /> : <FaTimes />}
+                                <span className="donation-requests-page__actionLabel">رفض</span>
                               </motion.button>
                             </>
                           )}

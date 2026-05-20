@@ -1,7 +1,7 @@
 // src/components/layout/Sidebar.jsx
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import GameEngine   from '../../services/GameEngine';
+import GameEngine from '../../services/GameEngine';
 import ThemeService from '../../services/ThemeService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -41,6 +41,7 @@ import {
   FaBolt,
   FaHandsHelping,
   FaGlobe,
+  FaSignOutAlt,
 } from 'react-icons/fa';
 import { getAvatarImageUrl } from '../../utils/avatarProfile';
 
@@ -236,7 +237,7 @@ const SIDEBAR_CSS = `
       top: 0 !important;
       right: -260px !important;
       transition: right 0.32s cubic-bezier(0.4, 0, 0.2, 1) !important;
-      z-index: 55 !important;
+      z-index: 1001 !important;
       min-height: 100vh !important;
       height: 100% !important;
     }
@@ -253,31 +254,114 @@ const SIDEBAR_CSS = `
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  .sb-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 8px;
+    border-radius: 18px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    z-index: 5;
+  }
+  .sb-icon-btn {
+    width: 100%;
+    height: 40px;
+    border-radius: 13px;
+    border: 1px solid var(--border);
+    background: var(--bg-card-2);
+    color: var(--text-secondary);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .sb-icon-btn:hover {
+    transform: translateY(-1px);
+    background: var(--bg-card);
+    color: var(--text-primary);
+  }
+  .sb-icon-btn--theme.is-dark {
+    color: #fbbf24;
+    background: rgba(251,191,36,0.12);
+    border-color: rgba(251,191,36,0.28);
+  }
+  .sb-icon-btn--logout {
+    color: var(--error);
+    background: rgba(239,68,68,0.08);
+    border-color: rgba(239,68,68,0.22);
+  }
+  .sb-lang-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 100%;
+    padding: 8px;
+    border-radius: 16px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-lg);
+    z-index: 20;
+  }
+  .sb-lang-item {
+    width: 100%;
+    min-height: 38px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    background: transparent;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: right;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  }
+  .sb-lang-item:hover {
+    background: var(--bg-card-2);
+    color: var(--text-primary);
+  }
+  .sb-lang-item.is-active {
+    background: rgba(37,99,235,0.12);
+    border-color: rgba(37,99,235,0.18);
+    color: var(--primary);
+  }
 `;
 
 // ── Nav items ─────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { id: 'map',         label: 'sidebar.map',    icon: FaMapMarkedAlt, condition: PERMISSIONS.VIEW_MAP },
-  { id: 'profile',     label: 'sidebar.profile',    icon: FaUser },
-  { id: 'avatar',      label: 'sidebar.avatar', icon: FaUser },
-  { id: 'daily',       label: 'sidebar.daily',   icon: FaCheckCircle, condition: PERMISSIONS.VIEW_DAILY_TASKS },
-  { id: 'explore',     label: 'sidebar.explore',  icon: FaCompass, condition: PERMISSIONS.VIEW_MAP },
-  { id: 'city',        label: 'sidebar.city',    icon: FaCity, condition: PERMISSIONS.VIEW_MAP },
-  { id: 'geo',         label: 'sidebar.geo',     icon: FaMapMarkerAlt, condition: PERMISSIONS.VIEW_GEO_QUESTS },
-  { id: 'team',        label: 'sidebar.team',    icon: FaUsers, condition: PERMISSIONS.VIEW_TEAM_CHALLENGES },
-  { id: 'badges',      label: 'sidebar.badges',          icon: FaTrophy, condition: PERMISSIONS.VIEW_BADGES },
-  { id: 'certificates', label: 'sidebar.certificates',         icon: FaRibbon },
-  { id: 'leaderboard', label: 'sidebar.leaderboard',        icon: FaChartBar, condition: PERMISSIONS.VIEW_LEADERBOARD },
-  { id: 'impact',      label: 'sidebar.impact',             icon: FaHeart, condition: PERMISSIONS.VIEW_IMPACT },
-  { id: 'parents',     label: 'sidebar.parents',   icon: FaUserFriends, dividerBefore: true, condition: PERMISSIONS.VIEW_PARENTS },
-  { id: 'create-request', label: 'sidebar.create-request',    icon: FaPlus, condition: PERMISSIONS.CREATE_REQUEST },
-  { id: 'my-donations',    label: 'sidebar.my-donations',        icon: FaCoins, condition: PERMISSIONS.VIEW_MY_DONATIONS },
-  { id: 'orders',      label: 'sidebar.orders',          icon: FaBoxOpen, condition: PERMISSIONS.VIEW_ORDERS },
-  { id: 'locations',    label: 'sidebar.locations',         icon: FaMapMarkerAlt, condition: PERMISSIONS.VIEW_ADMIN },
-  { id: 'activities',   label: 'sidebar.activities',          icon: FaBolt, condition: PERMISSIONS.VIEW_ADMIN },
-  { id: 'levels',       label: 'sidebar.levels',        icon: FaLayerGroup, condition: PERMISSIONS.VIEW_ADMIN },
-  { id: 'missions',    label: 'sidebar.missions',           icon: FaFlag, condition: PERMISSIONS.VIEW_ADMIN },
-  { id: 'admin',       label: 'sidebar.admin',          icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
+  { id: 'map', label: 'sidebar.map', icon: FaMapMarkedAlt, condition: PERMISSIONS.VIEW_MAP },
+  { id: 'profile', label: 'sidebar.profile', icon: FaUser },
+  { id: 'impact', label: 'sidebar.impact', icon: FaHeart, condition: PERMISSIONS.VIEW_IMPACT },
+  { id: 'avatar', label: 'sidebar.avatar', icon: FaUser },
+  { id: 'daily', label: 'sidebar.daily', icon: FaCheckCircle, condition: PERMISSIONS.VIEW_DAILY_TASKS },
+  { id: 'available-missions', label: 'sidebar.available-missions', icon: FaPlay },
+  { id: 'explore', label: 'sidebar.explore', icon: FaCompass, condition: PERMISSIONS.VIEW_MAP },
+  { id: 'city', label: 'sidebar.city', icon: FaCity, condition: PERMISSIONS.VIEW_MAP },
+  { id: 'geo', label: 'sidebar.geo', icon: FaMapMarkerAlt, condition: PERMISSIONS.VIEW_GEO_QUESTS },
+  { id: 'team', label: 'sidebar.team', icon: FaUsers, condition: PERMISSIONS.VIEW_TEAM_CHALLENGES },
+  { id: 'badges', label: 'sidebar.badges', icon: FaTrophy, condition: PERMISSIONS.VIEW_BADGES },
+  { id: 'certificates', label: 'sidebar.certificates', icon: FaRibbon },
+  { id: 'leaderboard', label: 'sidebar.leaderboard', icon: FaChartBar, condition: PERMISSIONS.VIEW_LEADERBOARD },
+  { id: 'parents', label: 'sidebar.parents', icon: FaUserFriends, dividerBefore: true, condition: PERMISSIONS.VIEW_PARENTS },
+  { id: 'create-request', label: 'sidebar.create-request', icon: FaPlus, condition: PERMISSIONS.CREATE_REQUEST },
+  { id: 'my-donations', label: 'sidebar.my-donations', icon: FaCoins, condition: PERMISSIONS.VIEW_MY_DONATIONS },
+  { id: 'orders', label: 'sidebar.orders', icon: FaBoxOpen, condition: PERMISSIONS.VIEW_ORDERS },
+  { id: 'locations', label: 'sidebar.locations', icon: FaMapMarkerAlt },
+  { id: 'activities', label: 'sidebar.activities', icon: FaBolt, condition: PERMISSIONS.VIEW_ADMIN },
+  { id: 'levels', label: 'sidebar.levels', icon: FaLayerGroup, condition: PERMISSIONS.VIEW_ADMIN },
+  { id: 'missions', label: 'sidebar.missions', icon: FaFlag, condition: PERMISSIONS.VIEW_ADMIN },
+  { id: 'admin', label: 'sidebar.admin', icon: FaCog, condition: PERMISSIONS.VIEW_ADMIN },
   { id: 'my-children', label: 'sidebar.my-children', icon: FaChild, condition: PERMISSIONS.VIEW_CHILDREN },
   { id: 'volunteer-requests', label: 'sidebar.volunteer-requests', icon: FaHandsHelping, dividerBefore: true, condition: PERMISSIONS.VIEW_VOLUNTEER_FEATURES },
   { id: 'volunteer-orders', label: 'sidebar.volunteer-orders', icon: FaHandsHelping, condition: PERMISSIONS.VIEW_VOLUNTEER_FEATURES },
@@ -286,17 +370,17 @@ const NAV_ITEMS = [
   { id: 'my-donation-orders', label: 'sidebar.my-donation-orders', icon: FaCoins, condition: PERMISSIONS.VIEW_DONOR_FEATURES },
   // Donation Orders - Admin only
   { id: 'donation-orders', label: 'sidebar.donation-orders', icon: FaHandHoldingHeart, condition: PERMISSIONS.VIEW_ADMIN },
-  ];
+];
 
 // ── Avatar (photo-style) ──────────────────────────────────────────────────
 const AvatarSVG = ({ bg, accessory }) => {
   const imageUrl = getAvatarImageUrl();
   const accessoryMap = {
-    crown:    FaCrown,
-    glasses:  FaGlasses,
-    hat:      FaHatCowboy,
-    star:     FaStar,
-    scarf:    FaRibbon,
+    crown: FaCrown,
+    glasses: FaGlasses,
+    hat: FaHatCowboy,
+    star: FaStar,
+    scarf: FaRibbon,
     headband: FaRibbon,
   };
   const AccessoryIcon = accessoryMap[accessory] || null;
@@ -353,7 +437,7 @@ const NavBtn = ({ item, active, onClick }) => {
   const { t } = useTranslation();
   return (
     <button
-    type='button'
+      type='button'
       onClick={() => onClick(item.id)}
       title={t(item.label)}
       className={`sb-nav-btn${active ? ' sb-nav-btn--active' : ''}`}
@@ -394,7 +478,7 @@ const DarkModeToggle = () => {
   return (
     <button
       onClick={toggle}
-      title={isDark ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
+      title={isDark ? 'الوضع الليلي' : 'الوضع النهاري'}
       className="sb-dark-toggle"
       style={{
         background: isDark
@@ -416,10 +500,10 @@ const DarkModeToggle = () => {
       }}
     >
       <span style={{ fontSize: 18, flexShrink: 0 }}>
-        {isDark ? <FaSun /> : <FaMoon />}
+        {isDark ? <FaMoon /> : <FaSun />}
       </span>
-      <span style={{ flex: 1 }}>
-        {isDark ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
+      <span style={{ flex: 1, textAlign: 'right' }}>
+        {isDark ? 'الوضع الليلي' : 'الوضع النهاري'}
       </span>
       {/* Toggle pill */}
       <span style={{
@@ -438,12 +522,12 @@ const DarkModeToggle = () => {
         <span style={{
           position: 'absolute',
           top: 3,
-          left: isDark ? 3 : 18,
+          left: isDark ? 3 : 20,
           width: 15,
           height: 15,
           borderRadius: '50%',
-          background: '#fff',
-          transition: 'left 0.28s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          background: isDark ? '#ffffff' : '#94a3b8',
+          transition: 'left 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.28s ease',
           boxShadow: '0 1px 5px rgba(0,0,0,0.3)',
         }} />
       </span>
@@ -581,6 +665,101 @@ const LanguageSwitcher = () => {
 };
 
 // ── Sidebar ───────────────────────────────────────────────────────────────
+const SidebarQuickActions = ({ onLogout }) => {
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const [isDark, setIsDark] = useState(() => ThemeService.getInstance().isDark);
+  const [showLanguages, setShowLanguages] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsub = ThemeService.getInstance().subscribe((theme) => setIsDark(theme === 'dark'));
+    return unsub;
+  }, []);
+
+  const languages = [
+    { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+    { code: 'en', name: 'English', flag: '🇬🇧' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+  ];
+
+  const handleLanguageChange = (langCode) => {
+    i18n.changeLanguage(langCode);
+    if (user?.id) {
+      localStorage.setItem(`app-language-${user.id}`, langCode);
+    }
+    localStorage.setItem('app-language', langCode);
+    setShowLanguages(false);
+  };
+
+  return (
+    <div className="sb-quick-actions">
+      <button
+        type="button"
+        className="sb-icon-btn sb-icon-btn--notification"
+        onClick={() => navigate('/notifications')}
+        title={t('sidebar.notifications', 'الإشعارات')}
+        aria-label={t('sidebar.notifications', 'الإشعارات')}
+      >
+        <FaBell />
+      </button>
+
+      <button
+        type="button"
+        className={`sb-icon-btn sb-icon-btn--theme${isDark ? ' is-dark' : ''}`}
+        onClick={() => ThemeService.getInstance().toggle()}
+        title={isDark ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
+        aria-label={isDark ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
+      >
+        {isDark ? <FaSun /> : <FaMoon />}
+      </button>
+
+      <button
+        type="button"
+        className="sb-icon-btn"
+        onClick={() => setShowLanguages((current) => !current)}
+        title={t('sidebar.change_language')}
+        aria-label={t('sidebar.change_language')}
+      >
+        <FaGlobe />
+      </button>
+
+      <button
+        type="button"
+        className="sb-icon-btn sb-icon-btn--logout"
+        onClick={onLogout}
+        title={t('sidebar.logout')}
+        aria-label={t('sidebar.logout')}
+      >
+        <FaSignOutAlt />
+      </button>
+
+      {showLanguages && (
+        <div className="sb-lang-menu">
+          {languages.map((lang) => {
+            const active = i18n.language === lang.code;
+
+            return (
+              <button
+                key={lang.code}
+                type="button"
+                className={`sb-lang-item${active ? ' is-active' : ''}`}
+                onClick={() => handleLanguageChange(lang.code)}
+              >
+                <span>{lang.flag}</span>
+                <span style={{ flex: 1 }}>{lang.name}</span>
+                {active && <FaCheckCircle size={12} />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Sidebar({
   activeTab,
   setActiveTab,
@@ -590,13 +769,12 @@ export default function Sidebar({
   setSidebarOpen,
 }) {
   const { t, i18n } = useTranslation();
-  const { logout } = useAuth();
   const xpPct = GameEngine.xpPercent(userStats.xp, userStats.xpNeeded);
 
   const navigate = useNavigate();
   const location = useLocation();
   const { can } = usePermissions();
-  const { user } = useAuth();
+  const { user, logout, isAdmin: authIsAdmin, hasRole } = useAuth();
 
   useEffect(() => {
     if (user?.id) {
@@ -606,12 +784,19 @@ export default function Sidebar({
       }
     }
   }, [user?.id, i18n]);
-  const isAdmin = user?.roles?.includes('admin');
-  const isParent = user?.roles?.includes('parent');
-  const isVolunteer = user?.roles?.includes('volunteer');
-  const isDonor = user?.roles?.includes('donor');
+  // Use isAdmin from auth context for consistency
+  const isAdmin = authIsAdmin;
+  const isParent = hasRole('parent');
+  // Donor and Volunteer items should be visible for regular users, donors, and volunteers
+  const isVolunteer = hasRole('volunteer');
+  const isDonor = hasRole('donor');
+  const isRegularUser = !isAdmin && !isParent && !isVolunteer && !isDonor;
+  const canAccessAvailableMissions = isRegularUser || isVolunteer || isDonor;
 
-  const displayName = userStats.name === 'جاري التحميل...' 
+  // Items related to giving (donations and volunteering)
+  const canSeeGivingItems = isAdmin || isDonor || isVolunteer || isRegularUser;
+
+  const displayName = userStats.name === 'جاري التحميل...'
     ? (user?.name || user?.fullName || user?.userName || 'جاري التحميل...')
     : userStats.name;
 
@@ -631,20 +816,39 @@ export default function Sidebar({
       return false;
     }
 
-    // Volunteer requests: visible for admin and volunteer only
+    // List of items that should be visible to all regular roles (User, Donor, Volunteer)
+    const alwaysVisibleIds = [
+      'map', 'profile', 'avatar', 'daily', 'explore', 'city', 'geo',
+      'team', 'badges', 'certificates', 'leaderboard', 'impact', 'locations',
+      'my-donations', 'orders', 'my-children'
+    ];
+
+    if (item.id === 'available-missions') {
+      return canAccessAvailableMissions;
+    }
+
+    if (alwaysVisibleIds.includes(item.id)) {
+      if (isAdmin) {
+        // Still apply admin-specific hiding rules
+        if (['avatar', 'my-donations', 'orders', 'my-children', 'profile', 'available-missions'].includes(item.id)) return false;
+      }
+      // If it's one of the requested items and user is not admin, it should be visible
+      if (!isAdmin) return true;
+    }
+
+    // Volunteer requests: visible for admin, volunteer, donor, and regular user
     if (item.id === 'volunteer-requests') {
-      return isAdmin || isVolunteer;
+      return canSeeGivingItems;
     }
 
-    // Volunteer orders: visible for admin and volunteer only
-    // (Admin sees "طلبات المتطوعين", Volunteer sees "تطوعاتي")
+    // Volunteer orders: visible for admin, volunteer, donor, and regular user
     if (item.id === 'volunteer-orders') {
-      return isAdmin || isVolunteer;
+      return canSeeGivingItems;
     }
 
-    // Donation-related items (donor view + my donations): only show to admin or donor
-    if (['donation-orders-donor', 'my-donation-orders', 'my-donations'].includes(item.id)) {
-      if (!(isAdmin || isDonor)) return false;
+    // Donation-related items: visible for admin, volunteer, donor, and regular user
+    if (['donation-orders-donor', 'my-donation-orders'].includes(item.id)) {
+      return canSeeGivingItems;
     }
 
     if (isAdmin && (item.id === 'parents' || item.id === 'create-request' || item.id === 'my-children')) {
@@ -695,7 +899,7 @@ export default function Sidebar({
 
       {/* Hamburger (mobile) */}
       <button
-       type="button"
+        type="button"
         onClick={() => setSidebarOpen(!sidebarOpen)}
         className="sb-hamburger"
         style={{
@@ -742,7 +946,7 @@ export default function Sidebar({
           overflowY: 'auto',
           flexShrink: 0,
           direction: 'rtl',
-          zIndex: 50,
+          zIndex: 1000,
           margin: '0',
           animation: 'sidebarSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
           boxShadow: [
@@ -807,6 +1011,12 @@ export default function Sidebar({
 
         {/* ── All content above orbs ── */}
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+          <SidebarQuickActions
+            onLogout={() => {
+              logout();
+              navigate('/login');
+            }}
+          />
 
           {/* ── Logo ── */}
           <div style={{
@@ -825,26 +1035,26 @@ export default function Sidebar({
                 animation: 'glowPulse 3s ease-in-out infinite',
               }} />
               <div
-  style={{
-    width: 60,
-    height: 60,
-    borderRadius: '50%',
-    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    animation: 'logoFloat 4s ease-in-out infinite',
-    boxShadow: '0 0 18px rgba(251,191,36,0.35)',
-  }}
->
-  <FaStar
-    style={{
-      color: '#ffffff',
-      fontSize: 26,
-      filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.45))',
-    }}
-  />
-</div>
+                style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  animation: 'logoFloat 4s ease-in-out infinite',
+                  boxShadow: '0 0 18px rgba(251,191,36,0.35)',
+                }}
+              >
+                <FaStar
+                  style={{
+                    color: '#ffffff',
+                    fontSize: 26,
+                    filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.45))',
+                  }}
+                />
+              </div>
             </div>
             <div style={{
               fontSize: 16,
@@ -1037,48 +1247,7 @@ export default function Sidebar({
             ))}
           </nav>
 
-          {/* ── Dark Mode Toggle ── */}
-          <DarkModeToggle />
-
-          {/* ── Language Switcher ── */}
-          <LanguageSwitcher />
-
-          {/* ── Logout Button ── */}
-          <button
-            onClick={() => {
-              logout();
-              navigate('/login');
-            }}
-            style={{
-              marginTop: 8,
-              padding: '10px 14px',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '14px',
-              cursor: 'pointer',
-              fontFamily: "'Cairo', sans-serif",
-              fontSize: 13,
-              fontWeight: 700,
-              textAlign: 'right',
-              direction: 'rtl',
-              transition: 'all 0.25s ease',
-              background: 'rgba(255,255,255,0.05)',
-              color: 'rgba(255,255,255,0.6)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,0,0,0.1)';
-              e.currentTarget.style.color = '#ff6b6b';
-              e.currentTarget.style.borderColor = 'rgba(255,107,107,0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-              e.currentTarget.style.color = 'rgba(255,255,255,0.6)';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-            }}
-          >
-            {t('sidebar.logout')}
-          </button>
-
-          {/* ── Footer ── */}
+                              {/* ── Footer ── */}
           <div style={{
             marginTop: 10,
             paddingTop: 10,

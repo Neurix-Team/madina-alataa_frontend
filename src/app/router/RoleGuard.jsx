@@ -5,7 +5,7 @@ import { needsRegistrationCompletion } from '../../utils/authRoutes.js';
 
 const normalizeRole = (role) => String(role || '').trim().toLowerCase();
 
-export const RoleGuard = ({ allowedRoles = [] }) => {
+export const RoleGuard = ({ allowedRoles = [], allowAdmin = true }) => {
   const { user, isAuthenticated, isInitialized } = useAuth();
   const location = useLocation();
 
@@ -39,7 +39,7 @@ export const RoleGuard = ({ allowedRoles = [] }) => {
     ? user.roles.map(normalizeRole)
     : [normalizeRole(user?.roles)];
 
-  if (userRoles.includes('admin')) {
+  if (allowAdmin && userRoles.includes('admin')) {
     return <Outlet />;
   }
 

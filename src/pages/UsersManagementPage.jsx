@@ -143,8 +143,9 @@ const UserCard = ({ user, index, isMobile }) => {
       style={{
         padding: isMobile ? '12px' : '16px',
         borderRadius: 16,
-        background: '#ffffff',
-        border: '1px solid #f1f5f9',
+        background: 'var(--glass-bg)',
+        backdropFilter: 'var(--glass-blur)',
+        border: '1px solid var(--glass-border)',
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
         justifyContent: 'space-between',
@@ -170,8 +171,8 @@ const UserCard = ({ user, index, isMobile }) => {
           {roleInfo.icon}
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontWeight: 900, fontSize: isMobile ? 14 : 15, color: '#0f172a', marginBottom: 2 }}>{fullName}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: isMobile ? 11 : 12 }}>
+          <div style={{ fontWeight: 900, fontSize: isMobile ? 14 : 15, color: 'var(--text-primary)', marginBottom: 2 }}>{fullName}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: isMobile ? 11 : 12 }}>
             <FaEnvelope size={10} />
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</span>
           </div>
@@ -199,15 +200,15 @@ const UserCard = ({ user, index, isMobile }) => {
               fontWeight: 900,
               padding: '2px 6px',
               borderRadius: 999,
-              background: role.toLowerCase() === 'admin' ? '#fee2e2' : '#eef2ff',
-              color: role.toLowerCase() === 'admin' ? '#ef4444' : '#4338ca',
-              border: `1px solid ${role.toLowerCase() === 'admin' ? '#fecaca' : '#e0e7ff'}`
+              background: role.toLowerCase() === 'admin' ? 'rgba(239, 68, 68, 0.12)' : 'var(--bg-card-2)',
+              color: role.toLowerCase() === 'admin' ? 'var(--error)' : 'var(--primary)',
+              border: `1px solid ${role.toLowerCase() === 'admin' ? 'rgba(239, 68, 68, 0.35)' : 'var(--border)'}`
             }}>
               {role}
             </span>
-          )) : <span style={{ fontSize: 10, color: '#94a3b8' }}>بدون أدوار</span>}
+          )) : <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>بدون أدوار</span>}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 10, justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: 10, justifyContent: 'flex-end' }}>
           <FaCalendarAlt size={10} />
           <span>{birthDay}</span>
         </div>
@@ -237,8 +238,9 @@ const UserProfilePanel = ({ profile, selectedUser, loading, error, isMobile }) =
         marginTop: 18,
         padding: isMobile ? 14 : 18,
         borderRadius: 16,
-        background: '#f8fafc',
-        border: '1px solid #dbeafe',
+        background: 'var(--glass-bg)',
+        backdropFilter: 'var(--glass-blur)',
+        border: '1px solid var(--glass-border)',
         display: 'grid',
         gap: 14,
       }}
@@ -250,21 +252,22 @@ const UserProfilePanel = ({ profile, selectedUser, loading, error, isMobile }) =
           borderRadius: 12,
           display: 'grid',
           placeItems: 'center',
-          background: '#dbeafe',
-          color: '#2563eb',
+          background: 'var(--bg-card-2)',
+          color: 'var(--primary)',
+          border: '1px solid var(--border)',
         }}>
           <FaEye size={isMobile ? 14 : 16} />
         </div>
         <div>
-          <div style={{ color: '#0f172a', fontWeight: 900, fontSize: isMobile ? 14 : 16 }}>بروفايل المستخدم</div>
-          <div style={{ color: '#64748b', fontSize: isMobile ? 11 : 12 }}>
+          <div style={{ color: 'var(--text-primary)', fontWeight: 900, fontSize: isMobile ? 14 : 16 }}>بروفايل المستخدم</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: isMobile ? 11 : 12 }}>
             {selectedUser?.fullName || selectedUser?.name || selectedUser?.email || 'مستخدم'}
           </div>
         </div>
       </div>
 
       {loading ? (
-        <div style={{ color: '#64748b', fontWeight: 700 }}>جاري تحميل البروفايل...</div>
+        <div style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>جاري تحميل البروفايل...</div>
       ) : error ? (
         <div style={{
           padding: 12,
@@ -281,13 +284,13 @@ const UserProfilePanel = ({ profile, selectedUser, loading, error, isMobile }) =
             <div key={key} style={{
               padding: 12,
               borderRadius: 12,
-              background: '#fff',
-              border: '1px solid #e2e8f0',
+              background: 'var(--bg-card-2)',
+              border: '1px solid var(--border)',
               minWidth: 0,
             }}>
-              <div style={{ color: '#64748b', fontSize: 11, fontWeight: 800, marginBottom: 6 }}>{key}</div>
+              <div style={{ color: 'var(--text-secondary)', fontSize: 11, fontWeight: 800, marginBottom: 6 }}>{key}</div>
               <div style={{
-                color: '#0f172a',
+                color: 'var(--text-primary)',
                 fontSize: 13,
                 fontWeight: 700,
                 whiteSpace: typeof value === 'object' ? 'pre-wrap' : 'normal',
@@ -1584,7 +1587,7 @@ const [pagination, setPagination] = useState({
   };
 
   return (
-    <div style={{ 
+    <div className="users-management-page" style={{
       padding: isMobile ? '12px' : '24px', 
       maxWidth: '100%', 
       margin: '0', 
@@ -1607,7 +1610,7 @@ const [pagination, setPagination] = useState({
           <h1 style={{ 
             fontSize: isMobile ? 22 : 28, 
             fontWeight: 900, 
-            color: '#1e293b', 
+            color: 'var(--text-primary)',
             marginBottom: 8, 
             display: 'flex', 
             alignItems: 'center', 
@@ -1616,7 +1619,7 @@ const [pagination, setPagination] = useState({
             <FaUserShield color="#6366f1" size={isMobile ? 24 : 28} />
             إدارة المستخدمين
           </h1>
-          <p style={{ color: '#64748b', fontSize: isMobile ? 13 : 15 }}>إدارة حسابات النظام، الصلاحيات، ومراقبة النشاط</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: isMobile ? 13 : 15 }}>إدارة حسابات النظام، الصلاحيات، ومراقبة النشاط</p>
         </div>
       </div>
 
@@ -1640,9 +1643,9 @@ const [pagination, setPagination] = useState({
             style={{
               padding: isMobile ? '10px 8px' : '12px 16px',
               borderRadius: isMobile ? 12 : 16,
-              border: active === a.id ? 'none' : '1.5px solid #f1f5f9',
-              background: active === a.id ? `linear-gradient(135deg, ${a.color}, ${a.color}dd)` : '#ffffff',
-              color: active === a.id ? '#ffffff' : '#475569',
+              border: active === a.id ? 'none' : '1.5px solid var(--border)',
+              background: active === a.id ? `linear-gradient(135deg, ${a.color}, ${a.color}dd)` : 'var(--bg-card-2)',
+              color: active === a.id ? '#ffffff' : 'var(--text-secondary)',
               fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
@@ -1677,7 +1680,9 @@ const [pagination, setPagination] = useState({
               style={{ 
                 maxWidth: 600, 
                 margin: '0 auto', 
-                background: '#fff', 
+                background: 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
+                border: '1px solid var(--glass-border)',
                 borderRadius: 20, 
                 padding: isMobile ? 16 : 24, 
                 boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' 
@@ -1695,25 +1700,26 @@ const [pagination, setPagination] = useState({
                     alignItems: isMobile ? 'center' : 'center', 
                     textAlign: isMobile ? 'center' : 'right',
                     gap: 16, 
-                    borderBottom: '1px solid #f1f5f9', 
+                    borderBottom: '1px solid var(--border)',
                     paddingBottom: 16 
                   }}>
                     <div style={{ 
                       width: isMobile ? 56 : 64, 
                       height: isMobile ? 56 : 64, 
                       borderRadius: 16, 
-                      background: '#f1f5f9', 
+                      background: 'var(--bg-card-2)',
+                      border: '1px solid var(--border)',
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center', 
                       fontSize: isMobile ? 20 : 24, 
-                      color: '#6366f1' 
+                      color: 'var(--primary)'
                     }}>
                       <FaUserCircle />
                     </div>
                     <div>
                       <h3 style={{ margin: 0, fontSize: isMobile ? 16 : 18, fontWeight: 800 }}>{selectedUser.fullName || selectedUser.userName}</h3>
-                      <p style={{ margin: 0, fontSize: isMobile ? 12 : 13, color: '#64748b' }}>{selectedUser.email}</p>
+                      <p style={{ margin: 0, fontSize: isMobile ? 12 : 13, color: 'var(--text-secondary)' }}>{selectedUser.email}</p>
                     </div>
                   </div>
 
@@ -1722,55 +1728,55 @@ const [pagination, setPagination] = useState({
                     gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', 
                     gap: isMobile ? 10 : 16 
                   }}>
-                    <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
-                      <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>الاسم الكامل</span>
+                    <div style={{ padding: 12, borderRadius: 12, background: 'var(--bg-card-2)', border: '1px solid var(--border)' }}>
+                      <span style={{ display: 'block', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>الاسم الكامل</span>
                       <span style={{ fontSize: 13, fontWeight: 700 }}>{selectedUser.fullName || selectedUser.fullname || selectedUser.email || 'اسم المستخدم'}</span>
                     </div>
                    
-                    <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
-                      <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>البريد الإلكتروني</span>
+                    <div style={{ padding: 12, borderRadius: 12, background: 'var(--bg-card-2)', border: '1px solid var(--border)' }}>
+                      <span style={{ display: 'block', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>البريد الإلكتروني</span>
                       <span style={{ fontSize: 13, fontWeight: 700, wordBreak: 'break-all' }}>{selectedUser.email}</span>
                     </div>
-                    <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
-                      <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>تاريخ الميلاد</span>
+                    <div style={{ padding: 12, borderRadius: 12, background: 'var(--bg-card-2)', border: '1px solid var(--border)' }}>
+                      <span style={{ display: 'block', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>تاريخ الميلاد</span>
                       <span style={{ fontSize: 13, fontWeight: 700 }}>{selectedUser.birthDay || selectedUser.birthDate || 'تاريخ الميلاد'}</span>
                     </div>
-                    <div style={{ padding: 12, borderRadius: 12, background: '#f8fafc' }}>
-                      <span style={{ display: 'block', fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>الأدوار</span>
+                    <div style={{ padding: 12, borderRadius: 12, background: 'var(--bg-card-2)', border: '1px solid var(--border)' }}>
+                      <span style={{ display: 'block', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>الأدوار</span>
                       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
                         {selectedUser.roles?.map(role => (
-                          <span key={role} style={{ fontSize: 10, background: '#e0e7ff', color: '#4338ca', padding: '2px 8px', borderRadius: 20 }}>{role}</span>
+                          <span key={role} style={{ fontSize: 10, background: 'var(--bg-card-2)', color: 'var(--primary)', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: 20 }}>{role}</span>
                         )) || 'مستخدم'}
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ padding: 16, borderRadius: 16, border: '1.5px solid rgb(226, 232, 240)', background: 'rgb(248, 250, 255)' }}>
+                  <div style={{ padding: 16, borderRadius: 16, border: '1px solid var(--border)', background: 'var(--bg-card-2)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                      <h4 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: 'rgb(30, 41, 59)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <h4 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         <FaStar color="#d97706" />
                         شهادات المستخدم
                       </h4>
                     </div>
 
                     {selectedUserCertificatesLoading ? (
-                      <div style={{ color: '#64748b' }}>جاري تحميل الشهادات...</div>
+                      <div style={{ color: 'var(--text-secondary)' }}>جاري تحميل الشهادات...</div>
                     ) : selectedUserCertificatesError ? (
                       <div style={{ color: '#ef4444' }}>{selectedUserCertificatesError}</div>
                     ) : (
                       <div style={{ display: 'grid', gap: 12 }}>
                         {selectedUserCertificates.length === 0 ? (
-                          <div style={{ color: '#64748b' }}>لا توجد شهادات متاحة لهذا المستخدم.</div>
+                          <div style={{ color: 'var(--text-secondary)' }}>لا توجد شهادات متاحة لهذا المستخدم.</div>
                         ) : (
                           selectedUserCertificates.map((certificate, index) => (
                             <div
                               key={certificate.id || `user-certificate-${index}`}
-                              style={{ padding: 12, borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff' }}
+                              style={{ padding: 12, borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-card)' }}
                             >
-                              <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>
+                              <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 6 }}>
                                 {certificate.title || 'Certificate'}
                               </div>
-                              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
+                              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
                                 {certificate.description || 'لا يوجد وصف'}
                               </div>
                               {certificate.issuedAt ? (
@@ -1784,20 +1790,20 @@ const [pagination, setPagination] = useState({
                     )}
                   </div>
 
-                  <div style={{ padding: 16, borderRadius: 16, border: '1.5px solid rgb(226, 232, 240)', background: 'rgb(248, 250, 255)' }}>
+                  <div style={{ padding: 16, borderRadius: 16, border: '1px solid var(--border)', background: 'var(--bg-card-2)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                      <h4 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: 'rgb(30, 41, 59)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <h4 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         <FaStar color="#f59e0b" />
                         شارات المستخدم
                       </h4>
                     </div>
 
                     {selectedUserBadgesLoading ? (
-                      <div style={{ color: '#64748b' }}>جاري تحميل الشارات...</div>
+                      <div style={{ color: 'var(--text-secondary)' }}>جاري تحميل الشارات...</div>
                     ) : selectedUserBadgesError ? (
                       <div style={{ color: '#ef4444' }}>{selectedUserBadgesError}</div>
                     ) : selectedUserBadges.length === 0 ? (
-                      <div style={{ color: '#64748b' }}>لا توجد شارات متاحة لهذا المستخدم.</div>
+                      <div style={{ color: 'var(--text-secondary)' }}>لا توجد شارات متاحة لهذا المستخدم.</div>
                     ) : (
                       <div style={{ display: 'grid', gap: 10 }}>
                         {selectedUserBadges.map((badge, index) => {
@@ -1812,8 +1818,8 @@ const [pagination, setPagination] = useState({
                                 gap: 12,
                                 padding: 12,
                                 borderRadius: 12,
-                                border: '1px solid #e2e8f0',
-                                background: '#fff',
+                                border: '1px solid var(--border)',
+                                background: 'var(--bg-card)',
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
@@ -1829,8 +1835,8 @@ const [pagination, setPagination] = useState({
                                   </div>
                                 )}
                                 <div style={{ minWidth: 0 }}>
-                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>{badge.name || 'Badge'}</div>
-                                  <div style={{ fontSize: 12, color: '#64748b' }}>{badge.description || badge.category || 'لا يوجد وصف'}</div>
+                                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-primary)' }}>{badge.name || 'Badge'}</div>
+                                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{badge.description || badge.category || 'لا يوجد وصف'}</div>
                                 </div>
                               </div>
 
@@ -1842,8 +1848,8 @@ const [pagination, setPagination] = useState({
                     )}
 
                     {selectedBadgeDetails && (
-                      <div style={{ marginTop: 14, padding: 12, borderRadius: 12, background: '#fff', border: '1px solid #e2e8f0', display: 'grid', gap: 6 }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>تفاصيل الشارة</div>
+                      <div style={{ marginTop: 14, padding: 12, borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border)', display: 'grid', gap: 6 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-primary)' }}>تفاصيل الشارة</div>
                         <div style={{ fontSize: 12, color: '#475569' }}>الاسم: {selectedBadgeDetails.name || 'الشارة المختارة'}</div>
                         <div style={{ fontSize: 12, color: '#475569' }}>الوصف: {selectedBadgeDetails.description || selectedBadgeDetails.name || 'وصف الشارة'}</div>
                         <div style={{ fontSize: 12, color: '#475569' }}>التصنيف: {selectedBadgeDetails.category || selectedBadgeDetails.name || 'تصنيف الشارة'}</div>
@@ -1854,9 +1860,9 @@ const [pagination, setPagination] = useState({
                     )}
                   </div>
 
-                  <div style={{ padding: 16, borderRadius: 16, border: '1.5px solid rgb(226, 232, 240)', background: 'rgb(248, 250, 255)' }}>
+                  <div style={{ padding: 16, borderRadius: 16, border: '1px solid var(--border)', background: 'var(--bg-card-2)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                      <h4 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: 'rgb(30, 41, 59)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <h4 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         <FaStar color="#f59e0b" />
                         بيانات المستوى والـ XP
                       </h4>
@@ -1882,7 +1888,7 @@ const [pagination, setPagination] = useState({
                     </div>
 
                     {loadingLevel ? (
-                      <div style={{ fontSize: 12, color: '#64748b' }}>جاري التحميل...</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>جاري التحميل...</div>
                     ) : editingLevel ? (
                       <form onSubmit={handleUpdateLevel} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
                         <div>
@@ -1916,29 +1922,29 @@ const [pagination, setPagination] = useState({
                     ) : userLevelData ? (
                       <div style={{ display: 'grid', gap: 12 }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12 }}>
-                          <div style={{ textAlign: 'center', padding: 8, borderRadius: 10, background: '#fff', border: '1px solid #e2e8f0' }}>
-                            <span style={{ fontSize: 10, color: '#94a3b8', display: 'block' }}>المستوى</span>
+                          <div style={{ textAlign: 'center', padding: 8, borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                            <span style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>المستوى</span>
                             <span style={{ fontSize: 14, fontWeight: 900, color: '#4338ca' }}>{userLevelData.level?.levelNumber || 0}</span>
                           </div>
-                          <div style={{ textAlign: 'center', padding: 8, borderRadius: 10, background: '#fff', border: '1px solid #e2e8f0' }}>
-                            <span style={{ fontSize: 10, color: '#94a3b8', display: 'block' }}>XP</span>
+                          <div style={{ textAlign: 'center', padding: 8, borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                            <span style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>XP</span>
                             <span style={{ fontSize: 14, fontWeight: 900, color: '#f59e0b' }}>{userLevelData.xp || 0}</span>
                           </div>
-                          <div style={{ textAlign: 'center', padding: 8, borderRadius: 10, background: '#fff', border: '1px solid #e2e8f0' }}>
-                            <span style={{ fontSize: 10, color: '#94a3b8', display: 'block' }}>KP</span>
+                          <div style={{ textAlign: 'center', padding: 8, borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                            <span style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>KP</span>
                             <span style={{ fontSize: 14, fontWeight: 900, color: '#10b981' }}>{userLevelData.kp || 0}</span>
                           </div>
                          
                         </div>
                       </div>
                     ) : (
-                      <div style={{ fontSize: 12, color: '#94a3b8' }}>لا توجد بيانات مستوى لهذا المستخدم.</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>لا توجد بيانات مستوى لهذا المستخدم.</div>
                     )}
                   </div>
 
                   <button 
                     onClick={() => setActive('list')}
-                    style={{ padding: '12px', borderRadius: 12, border: 'none', background: '#f1f5f9', fontWeight: 700, cursor: 'pointer' }}
+                    style={{ padding: '12px', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-card-2)', color: 'var(--text-primary)', fontWeight: 700, cursor: 'pointer' }}
                   >
                     العودة للقائمة
                   </button>
@@ -1958,10 +1964,11 @@ const [pagination, setPagination] = useState({
                 gap: 12, 
                 justifyContent: 'space-between',
                 alignItems: isMobile ? 'stretch' : 'center',
-                background: '#f8faff',
+                background: 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
                 padding: isMobile ? '12px' : '16px',
                 borderRadius: 16,
-                border: '1px solid #edf2f7'
+                border: '1px solid var(--glass-border)'
               }}>
                 <div style={{ position: 'relative', flex: 1, minWidth: isMobile ? '100%' : '240px' }}>
                   <FaSearch style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
@@ -1973,7 +1980,9 @@ const [pagination, setPagination] = useState({
                       width: '100%',
                       padding: '10px 40px 10px 12px', 
                       borderRadius: 12, 
-                      border: '1.5px solid #e2e8f0',
+                      border: '1.5px solid var(--border)',
+                      background: 'var(--bg-card)',
+                      color: 'var(--text-primary)',
                       outline: 'none',
                       fontSize: isMobile ? 12 : 13,
                       fontFamily: 'Cairo, sans-serif'
@@ -1982,15 +1991,16 @@ const [pagination, setPagination] = useState({
                 </div>
 
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: isMobile ? 'space-between' : 'flex-start' }}>
-                  <label style={{ fontSize: isMobile ? 12 : 13, fontWeight: 700, color: '#64748b' }}>حجم الصفحة:</label>
+                  <label style={{ fontSize: isMobile ? 12 : 13, fontWeight: 700, color: 'var(--text-secondary)' }}>حجم الصفحة:</label>
                   <select 
                     value={pageSize} 
                     onChange={(e) => { setPageSize(Number(e.target.value)); setPageNumber(1); }}
                     style={{ 
                       padding: '8px 12px', 
                       borderRadius: 10, 
-                      border: '1.5px solid #e2e8f0',
-                      background: '#fff',
+                      border: '1.5px solid var(--border)',
+                      background: 'var(--bg-card)',
+                      color: 'var(--text-primary)',
                       fontSize: isMobile ? 12 : 13,
                       outline: 'none',
                       cursor: 'pointer'

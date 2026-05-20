@@ -8,7 +8,7 @@ export const getDefaultRouteByUser = (user) => {
   if (roles.includes('donor')) return '/cases';
   if (roles.includes('volunteer')) return '/map';
 
-  return '/profile-v2';
+  return '/cases';
 };
 
 export const needsRegistrationCompletion = (user) => {

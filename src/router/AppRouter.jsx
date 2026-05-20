@@ -114,9 +114,12 @@ export const AppRouter = () => {
             <Route path="/team-challenges" element={<TeamChallengesTab />} />
             <Route path="/avatar" element={<AvatarEditPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/locations" element={<LocationsTab />} />
 
-            {/* Available missions for users */}
-            <Route path="/available-missions" element={<AvailableMissionsTab />} />
+            {/* Available missions for user, volunteer, and donor only */}
+            <Route element={<RoleGuard allowedRoles={['user', 'volunteer', 'donor']} allowAdmin={false} />}>
+              <Route path="/available-missions" element={<AvailableMissionsTab />} />
+            </Route>
 
             {/* Cases & Donations */}
             <Route path="/cases" element={<CasesPage />} />
@@ -148,7 +151,6 @@ export const AppRouter = () => {
             <Route element={<RoleGuard allowedRoles={['admin']} />}>
               <Route path="/admin" element={<AdminTab />} />
               <Route path="/missions" element={<MissionsTab />} />
-              <Route path="/locations" element={<LocationsTab />} />
               <Route path="/incoming-requests" element={<IncomingRequestsPage />} />
               <Route path="/donation-orders" element={<DonationOrdersPage />} />
               <Route path="/donation-requests" element={<DonationRequestsPage />} />

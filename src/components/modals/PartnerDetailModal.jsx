@@ -45,7 +45,14 @@ const PartnerDetailModal = ({ isOpen, onClose, partner }) => {
             {/* Header */}
             <div className="app-modal-header">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-xl shadow-sm"
+                  style={{
+                    background: 'var(--bg-card-2)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--primary)',
+                  }}
+                >
                   <FaBuilding className="text-lg" />
                 </div>
                 <div>
@@ -91,7 +98,7 @@ const PartnerDetailModal = ({ isOpen, onClose, partner }) => {
             </div>
 
             {/* Footer */}
-            <div className="app-form-actions mt-6 border-t border-slate-100 pt-4 px-8 pb-6">
+            <div className="app-form-actions mt-6 border-t pt-4 px-8 pb-6" style={{ borderColor: 'var(--border)' }}>
               <button
                 onClick={onClose}
                 className="app-btn-secondary w-full"
@@ -111,7 +118,7 @@ const DetailItem = ({ label, value }) => (
     padding: '14px',
     borderRadius: '16px',
     background: 'var(--bg-card-2)',
-    border: '1px solid var(--border-light)',
+    border: '1px solid var(--border)',
     display: 'grid',
     gap: '6px'
   }}>

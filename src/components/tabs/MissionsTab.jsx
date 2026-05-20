@@ -208,7 +208,7 @@ const MissionsTab = () => {
         minHeight: '100vh',
         width: '100%',
         padding: isMobile ? '12px' : '32px 24px',
-        color: '#0f172a',
+        color: 'var(--text-primary)',
         background: 'transparent',
       }}
     >
@@ -258,9 +258,10 @@ const MissionsTab = () => {
           style={{
             padding: isMobile ? '20px' : '24px 32px',
             borderRadius: 24,
-            background: '#fff',
-            border: '1px solid rgba(148,163,184,0.15)',
-            boxShadow: '0 20px 50px rgba(15,23,42,0.06)',
+            background: 'var(--glass-bg)',
+            backdropFilter: 'var(--glass-blur)',
+            border: '1px solid var(--glass-border)',
+            boxShadow: 'var(--shadow-md)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -295,10 +296,10 @@ const MissionsTab = () => {
               <FaTasks style={{ fontSize: isMobile ? '20px' : '26px' }} />
             </div>
             <div style={{ minWidth: 0 }}>
-              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#020617', margin: 0, lineHeight: 1.2 }}>
+              <h2 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
                 إدارة المهام
               </h2>
-              <p style={{ marginTop: isMobile ? '4px' : '8px', fontSize: isMobile ? '12px' : '14px', lineHeight: 1.6, color: '#475569', maxWidth: '480px' }}>
+              <p style={{ marginTop: isMobile ? '4px' : '8px', fontSize: isMobile ? '12px' : '14px', lineHeight: 1.6, color: 'var(--text-secondary)', maxWidth: '480px' }}>
                 إدارة المهام الميدانية والمكافآت والعناوين المرتبطة بها.
               </p>
             </div>
@@ -319,7 +320,7 @@ const MissionsTab = () => {
                     right: '16px',
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    color: '#0284c7',
+                    color: 'var(--primary)',
                     pointerEvents: 'none',
                   }}
                 />
@@ -331,12 +332,12 @@ const MissionsTab = () => {
                   style={{
                     width: '100%',
                     borderRadius: '14px',
-                    border: '1px solid #e2e8f0',
-                    background: '#fff',
+                    border: '1px solid var(--input-border)',
+                    background: 'var(--input-bg)',
                     padding: '12px 48px 12px 16px',
                     fontSize: isMobile ? '12px' : '14px',
                     fontWeight: 500,
-                    color: '#0f172a',
+                    color: 'var(--text-primary)',
                     outline: 'none',
                     boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
                   }}
@@ -390,12 +391,12 @@ const MissionsTab = () => {
                 position: 'relative',
                 overflow: 'hidden',
                 borderRadius: isMobile ? '14px' : '18px',
-                border: '1px solid rgba(255, 255, 255, 0.6)',
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.92) 100%)',
-                backdropFilter: 'blur(16px)',
+                border: '1px solid var(--glass-border)',
+                background: 'var(--glass-bg)',
+                backdropFilter: 'var(--glass-blur)',
                 WebkitBackdropFilter: 'blur(16px)',
                 padding: isMobile ? '16px' : '20px',
-                boxShadow: '0 10px 30px -12px rgba(15, 23, 42, 0.3)',
+                boxShadow: 'var(--shadow-md)',
                 transition: 'box-shadow 0.3s',
               }}
             >
@@ -418,10 +419,10 @@ const MissionsTab = () => {
                   <stat.icon />
                 </div>
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ marginBottom: '2px', fontSize: isMobile ? '11px' : '13px', fontWeight: 500, color: '#475569' }}>
+                  <div style={{ marginBottom: '2px', fontSize: isMobile ? '11px' : '13px', fontWeight: 500, color: 'var(--text-secondary)' }}>
                     {stat.label}
                   </div>
-                  <div style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#020617', fontVariantNumeric: 'tabular-nums' }}>
+                  <div style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
                     {stat.value}
                   </div>
                 </div>
@@ -441,16 +442,16 @@ const MissionsTab = () => {
               justifyContent: 'center',
               gap: '16px',
               borderRadius: '22px',
-              border: '1px solid rgba(255, 255, 255, 0.6)',
-              background: 'rgba(255, 255, 255, 0.9)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid var(--glass-border)',
+              background: 'var(--glass-bg)',
+              backdropFilter: 'var(--glass-blur)',
+              WebkitBackdropFilter: 'var(--glass-blur)',
               padding: isMobile ? '24px' : '40px',
-              boxShadow: '0 20px 50px -15px rgba(15, 23, 42, 0.3)',
+              boxShadow: 'var(--shadow-md)',
             }}
           >
             <FaSpinner style={{ animation: 'spin 1s linear infinite', fontSize: isMobile ? '32px' : '44px', color: '#6366f1' }} />
-            <div style={{ fontSize: isMobile ? '15px' : '17px', fontWeight: 700, color: '#0f172a' }}>جاري التحميل...</div>
+            <div style={{ fontSize: isMobile ? '15px' : '17px', fontWeight: 700, color: 'var(--text-primary)' }}>جاري التحميل...</div>
           </div>
         ) : displayedMissions.length === 0 ? (
           <div
@@ -460,13 +461,13 @@ const MissionsTab = () => {
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: '22px',
-              border: '1px solid rgba(255, 255, 255, 0.6)',
-              background: 'rgba(255, 255, 255, 0.9)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid var(--glass-border)',
+              background: 'var(--glass-bg)',
+              backdropFilter: 'var(--glass-blur)',
+              WebkitBackdropFilter: 'var(--glass-blur)',
               padding: isMobile ? '40px 20px' : '64px 24px',
               textAlign: 'center',
-              boxShadow: '0 20px 50px -15px rgba(15, 23, 42, 0.3)',
+              boxShadow: 'var(--shadow-md)',
             }}
           >
             <div
@@ -484,7 +485,7 @@ const MissionsTab = () => {
             >
               <FaTasks style={{ fontSize: isMobile ? '24px' : '32px' }} />
             </div>
-            <h3 style={{ fontSize: isMobile ? '18px' : '22px', fontWeight: 800, color: '#020617', margin: 0 }}>لا توجد مهام</h3>
+            <h3 style={{ fontSize: isMobile ? '18px' : '22px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>لا توجد مهام</h3>
           </div>
         ) : (
           <div
@@ -514,12 +515,12 @@ const MissionsTab = () => {
                     gap: isMobile ? '14px' : '18px',
                     overflow: 'hidden',
                     borderRadius: isMobile ? '18px' : '22px',
-                    border: '1px solid rgba(255, 255, 255, 0.6)',
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.92) 100%)',
-                    backdropFilter: 'blur(16px)',
-                    WebkitBackdropFilter: 'blur(16px)',
+                    border: '1px solid var(--glass-border)',
+                    background: 'var(--glass-bg)',
+                    backdropFilter: 'var(--glass-blur)',
+                    WebkitBackdropFilter: 'var(--glass-blur)',
                     padding: isMobile ? '16px' : '24px',
-                    boxShadow: '0 15px 40px -15px rgba(15, 23, 42, 0.35)',
+                    boxShadow: 'var(--shadow-md)',
                     transition: 'box-shadow 0.3s',
                   }}
                 >
@@ -563,7 +564,7 @@ const MissionsTab = () => {
                             gap: '4px',
                             borderRadius: '999px',
                             border: `1px solid ${isActive ? '#a7f3d0' : '#fecaca'}`,
-                            background: isActive ? '#ecfdf5' : '#fef2f2',
+                            background: 'var(--bg-card-2)',
                             color: isActive ? '#047857' : '#b91c1c',
                             padding: isMobile ? '3px 8px' : '5px 10px',
                             fontSize: isMobile ? '10px' : '11px',
@@ -579,7 +580,7 @@ const MissionsTab = () => {
                           fontSize: isMobile ? '16px' : '19px',
                           fontWeight: 800,
                           lineHeight: 1.4,
-                          color: '#020617',
+                          color: 'var(--text-primary)',
                           margin: 0,
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
@@ -630,7 +631,7 @@ const MissionsTab = () => {
                           height: isMobile ? '32px' : '36px',
                           borderRadius: '10px',
                           border: '1px solid #fde68a',
-                          background: '#fffbeb',
+                          background: 'var(--bg-card-2)',
                           color: '#d97706',
                           cursor: 'pointer',
                         }}
@@ -664,16 +665,16 @@ const MissionsTab = () => {
                   <div
                     style={{
                       height: '1px',
-                      background: 'linear-gradient(90deg, transparent, #e2e8f0, transparent)',
+                      background: 'linear-gradient(90deg, transparent, var(--border), transparent)',
                     }}
                   />
 
                   {/* Rewards Grid */}
                   <div style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: isMobile ? '6px' : '10px' }}>
                     {[
-                      { icon: FaTrophy, val: mission.kpReward, label: 'نقاط خير', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
-                      { icon: FaStar, val: mission.xpReward, label: 'خبرة', color: '#c026d3', bg: '#fdf4ff', border: '#f5d0fe' },
-                      { icon: FaLeaf, val: mission.impactReward, label: 'تأثير', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' },
+                      { icon: FaTrophy, val: mission.kpReward, label: 'نقاط خير', color: '#d97706', bg: 'var(--bg-card-2)', border: 'var(--border)' },
+                      { icon: FaStar, val: mission.xpReward, label: 'خبرة', color: '#c026d3', bg: 'var(--bg-card-2)', border: 'var(--border)' },
+                      { icon: FaLeaf, val: mission.impactReward, label: 'تأثير', color: '#059669', bg: 'var(--bg-card-2)', border: 'var(--border)' },
                     ].map((reward, i) => (
                       <div
                         key={i}
@@ -686,7 +687,7 @@ const MissionsTab = () => {
                         }}
                       >
                         <reward.icon style={{ display: 'block', margin: '0 auto 4px', fontSize: isMobile ? '12px' : '15px', color: reward.color }} />
-                        <div style={{ fontSize: isMobile ? '15px' : '18px', fontWeight: 800, color: '#0f172a', fontVariantNumeric: 'tabular-nums' }}>
+                        <div style={{ fontSize: isMobile ? '15px' : '18px', fontWeight: 800, color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
                           {reward.val || 0}
                         </div>
                         <div style={{ marginTop: '2px', fontSize: isMobile ? '9px' : '10px', fontWeight: 700, color: reward.color }}>
@@ -723,12 +724,12 @@ const MissionsTab = () => {
                   gap: '8px',
                   borderRadius: '12px',
                   border: '1px solid rgba(255,255,255,0.6)',
-                  background: 'rgba(255,255,255,0.92)',
+                  background: 'var(--bg-card-2)',
                   backdropFilter: 'blur(12px)',
                   padding: '10px 18px',
                   fontSize: '13px',
                   fontWeight: 700,
-                  color: '#334155',
+                  color: 'var(--text-primary)',
                   cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                   opacity: currentPage === 1 ? 0.4 : 1,
                   boxShadow: '0 6px 20px -8px rgba(15,23,42,0.3)',
@@ -749,12 +750,12 @@ const MissionsTab = () => {
                   gap: '8px',
                   borderRadius: '12px',
                   border: '1px solid rgba(255,255,255,0.6)',
-                  background: 'rgba(255,255,255,0.92)',
+                  background: 'var(--bg-card-2)',
                   backdropFilter: 'blur(12px)',
                   padding: '10px 18px',
                   fontSize: '13px',
                   fontWeight: 700,
-                  color: '#334155',
+                  color: 'var(--text-primary)',
                   cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                   opacity: currentPage === totalPages ? 0.4 : 1,
                   boxShadow: '0 6px 20px -8px rgba(15,23,42,0.3)',
@@ -769,12 +770,12 @@ const MissionsTab = () => {
               style={{
                 borderRadius: '12px',
                 border: '1px solid rgba(255,255,255,0.6)',
-                background: 'rgba(255,255,255,0.92)',
+                background: 'var(--bg-card-2)',
                 backdropFilter: 'blur(12px)',
                 padding: '10px 16px',
                 fontSize: '13px',
                 fontWeight: 700,
-                color: '#334155',
+                color: 'var(--text-primary)',
                 boxShadow: '0 6px 20px -8px rgba(15,23,42,0.3)',
                 width: isMobile ? '100%' : 'auto',
                 textAlign: 'center'

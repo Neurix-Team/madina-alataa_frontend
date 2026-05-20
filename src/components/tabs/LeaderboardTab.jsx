@@ -17,18 +17,17 @@ const CSS = `
     display: grid;
     gap: 16px;
     font-family: 'Cairo', sans-serif;
-    color: #0f172a;
+    color: var(--text-primary);
   }
 
   .lb-hero {
-    background:
-      radial-gradient(circle at top right, rgba(73,198,242,0.12), transparent 28%),
-      radial-gradient(circle at bottom left, rgba(184,140,248,0.08), transparent 24%),
-      linear-gradient(135deg, #ffffff 0%, #f8fcff 55%, #faf7ff 100%);
-    border-radius: 24px;
-    padding: 20px 24px;
-    box-shadow: 0 18px 40px rgba(15,23,42,0.06);
-    border: 1.5px solid rgba(226,232,240,0.9);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
     text-align: center;
   }
 
@@ -40,22 +39,24 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #fff7cc, #fef3c7);
-    color: #b45309;
+    background: var(--bg-card-2);
+    color: #f59e0b;
     font-size: 24px;
-    box-shadow: 0 12px 24px rgba(245,158,11,0.10);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
   }
 
   .lb-hero__title {
+    margin: 0;
     font-size: 24px;
     font-weight: 900;
-    color: #0f172a;
-    margin-bottom: 4px;
+    color: var(--text-primary);
   }
 
   .lb-hero__subtitle {
-    color: #64748b;
-    font-size: 13px;
+    margin: 8px 0 0;
+    font-size: 14px;
+    color: var(--text-secondary);
     font-weight: 700;
   }
 
@@ -66,12 +67,12 @@ const CSS = `
   }
 
   .lb-summary-card {
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    background: var(--bg-card-2);
     border-radius: 20px;
     padding: 18px 16px;
     text-align: center;
-    box-shadow: 0 12px 28px rgba(15,23,42,0.05);
-    border: 1.5px solid rgba(226,232,240,0.9);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
   }
 
   .lb-summary-card__icon {
@@ -82,8 +83,9 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8fafc;
+    background: var(--bg-card);
     font-size: 18px;
+    border: 1px solid var(--border);
   }
 
   .lb-summary-card__value {
@@ -96,66 +98,69 @@ const CSS = `
   .lb-summary-card__label {
     font-size: 12px;
     font-weight: 800;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   .lb-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid;
+    gap: 12px;
   }
 
   .lb-row {
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-    border: 1.5px solid rgba(226,232,240,0.9);
+    background: var(--bg-card-2);
     border-radius: 18px;
-    padding: 14px 18px;
+    padding: 14px 20px;
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 12px;
-    box-shadow: 0 12px 28px rgba(15,23,42,0.04);
+    gap: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--shadow-sm);
     animation: lbPop 0.3s ease-out backwards;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
 
   .lb-row:hover {
     transform: translateY(-2px);
-    box-shadow: 0 18px 34px rgba(15,23,42,0.08);
+    box-shadow: var(--shadow-md);
   }
 
   .lb-row--me {
-    background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);
-    border: 2px solid #60a5fa;
-    box-shadow: 0 18px 34px rgba(29,78,216,0.22);
+    border: 2px solid var(--primary);
+    background: rgba(59, 130, 246, 0.05);
+    box-shadow: var(--shadow-md);
   }
 
   .lb-rank {
-    min-width: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
     font-weight: 900;
+    font-size: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
   }
 
   .lb-avatar {
-    width: 46px;
-    height: 46px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
-    border: 1.5px solid rgba(226,232,240,0.9);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    object-fit: cover;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #2563eb;
     font-size: 22px;
     flex-shrink: 0;
-    box-shadow: 0 8px 18px rgba(15,23,42,0.04);
+    background: var(--bg-card);
+    color: var(--primary);
   }
 
   .lb-row--me .lb-avatar {
-    background: rgba(255,255,255,0.12);
-    border-color: rgba(255,255,255,0.16);
+    background: var(--primary);
+    border-color: var(--primary);
     color: #fff;
   }
 
@@ -165,39 +170,28 @@ const CSS = `
   }
 
   .lb-name {
-    font-size: 14px;
-    font-weight: 900;
-    color: #0f172a;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-bottom: 3px;
-  }
-
-  .lb-row--me .lb-name {
-    color: #fff;
   }
 
   .lb-sub {
-    font-size: 11px;
+    font-size: 13px;
+    color: var(--text-secondary);
     font-weight: 700;
-    color: #64748b;
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
-  .lb-row--me .lb-sub {
-    color: rgba(255,255,255,0.86);
-  }
-
   .lb-score {
+    font-size: 18px;
     font-weight: 900;
-    font-size: 14px;
-    color: #92400e;
-    background: #fff7cc;
-    padding: 6px 12px;
-    border-radius: 999px;
+    color: var(--primary);
     white-space: nowrap;
     flex-shrink: 0;
     display: inline-flex;
@@ -206,9 +200,8 @@ const CSS = `
   }
 
   .lb-row--me .lb-score {
-    background: rgba(255,255,255,0.14);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.16);
+    color: var(--primary);
+    font-weight: 900;
   }
 
   @keyframes lbPop {

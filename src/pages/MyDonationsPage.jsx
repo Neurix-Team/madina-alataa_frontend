@@ -232,78 +232,96 @@ const CSS = `
   }
 
   .md-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(248,250,252,0.96));
-    border-radius: 18px;
-    padding: 20px;
-    border: 1px solid rgba(203, 213, 225, 0.4);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    transition: all 0.25s ease;
     position: relative;
-    overflow: hidden;
-    animation: mdSlideInUp 0.4s ease-out backwards;
-  }
-
-  .md-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
-    border-color: rgba(59, 130, 246, 0.2);
-  }
-
-  .md-card__shine {
-    position: absolute;
-    top: 0;
-    right: -100px;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-    pointer-events: none;
+    border-radius: 22px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    color: var(--text-primary);
   }
 
   .md-card__body {
-    position: relative;
-    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .md-card__top {
     display: flex;
-    align-items: flex-start;
     justify-content: space-between;
-    gap: 14px;
-    margin-bottom: 12px;
+    align-items: flex-start;
+    gap: 12px;
   }
 
   .md-card__case {
-    font-size: 15px;
-    font-weight: 900;
-    color: #1e293b;
-    margin: 0 0 4px 0;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
   }
 
   .md-card__beneficiary {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 600;
-    margin: 0;
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 700;
   }
 
   .md-card__amount {
-    text-align: right;
+    text-align: left;
+    display: grid;
+    gap: 4px;
   }
 
   .md-card__amount-value {
     font-size: 18px;
     font-weight: 900;
-    color: #1d4ed8;
+    color: var(--primary);
   }
 
   .md-card__amount-type {
     font-size: 11px;
-    color: #64748b;
-    font-weight: 700;
-    display: inline-flex;
+    color: var(--text-secondary);
+    font-weight: 800;
+    display: flex;
     align-items: center;
-    gap: 6px;
-    margin-top: 2px;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+
+  .md-card__inner {
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-card-2);
+  }
+
+  .md-card__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .md-card__meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .md-card__meta-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+
+  .md-card__meta-value {
+    font-size: 13px;
+    font-weight: 700;
   }
 
   .md-meta {

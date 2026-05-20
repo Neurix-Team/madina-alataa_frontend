@@ -15,6 +15,22 @@
   --pro-shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
 }
 
+[data-theme="dark"] {
+  --pro-surface: rgba(15, 23, 42, 0.72);
+  --pro-surface-strong: rgba(30, 41, 59, 0.9);
+  --pro-border-soft: rgba(51, 65, 85, 0.5);
+  --pro-border-strong: rgba(59, 130, 246, 0.3);
+  --pro-text-main: #f8fafc;
+  --pro-text-soft: #e2e8f0;
+  --pro-text-muted: #94a3b8;
+  --pro-brand-soft: rgba(59, 130, 246, 0.2);
+  --pro-success-soft: rgba(16, 185, 129, 0.2);
+  --pro-warning-soft: rgba(245, 158, 11, 0.2);
+  --pro-danger-soft: rgba(239, 68, 68, 0.2);
+  --pro-shadow-lg: 0 28px 70px rgba(0, 0, 0, 0.4);
+  --pro-shadow-md: 0 18px 40px rgba(0, 0, 0, 0.3);
+}
+
 .mission-page,
 .donation-requests-page,
 .create-donation-page,
@@ -39,7 +55,7 @@
   background:
     radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 30%),
     radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 26%),
-    linear-gradient(135deg, rgba(239, 246, 255, 0.96) 0%, rgba(248, 250, 252, 0.98) 52%, rgba(241, 245, 249, 0.98) 100%);
+    linear-gradient(135deg, var(--bg-card-2) 0%, var(--bg-card) 52%, var(--bg-card-2) 100%);
 }
 
 .mission-page__container,
@@ -731,7 +747,41 @@
 }
 
 .donation-requests-page__actionBtn {
-  background: rgba(255, 255, 255, 0.06);
+  width: auto;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  color: var(--pro-text-main);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.donation-requests-page__actionBtn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.donation-requests-page__actionBtn .donation-requests-page__actionLabel {
+  display: none;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .donation-requests-page__actionBtn {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 12px 14px;
+  }
+
+  .donation-requests-page__actionBtn .donation-requests-page__actionLabel {
+    display: inline-block;
+  }
 }
 
 .donation-requests-page__actionBtn.is-info {
@@ -944,4 +994,147 @@
   .donation-modal__heroTitle {
     font-size: 1.8rem;
   }
+}
+
+/* ── Dark Mode Overrides ── */
+[data-theme="dark"] {
+  --pro-surface: rgba(30, 41, 59, 0.75);
+  --pro-surface-strong: rgba(15, 23, 42, 0.9);
+  --pro-border-soft: rgba(255, 255, 255, 0.12);
+  --pro-border-strong: rgba(96, 165, 250, 0.25);
+  --pro-text-main: #f1f5f9;
+  --pro-text-soft: #cbd5e1;
+  --pro-text-muted: #94a3b8;
+  --pro-brand: #3b82f6;
+  --pro-brand-soft: rgba(59, 130, 246, 0.18);
+  --pro-success-soft: rgba(34, 197, 94, 0.18);
+  --pro-warning-soft: rgba(234, 179, 8, 0.18);
+  --pro-danger-soft: rgba(239, 68, 68, 0.18);
+  --pro-shadow-lg: 0 28px 70px rgba(0, 0, 0, 0.4);
+  --pro-shadow-md: 0 18px 40px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .mission-page__card,
+[data-theme="dark"] .donation-requests-page__card,
+[data-theme="dark"] .available-missions-page__card {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.88), rgba(15, 23, 42, 0.8)) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="dark"] .mission-page__rewardItem,
+[data-theme="dark"] .available-missions-page__rewardItem {
+  background: rgba(15, 23, 42, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .mission-page__pill,
+[data-theme="dark"] .available-missions-page__pill {
+  background: rgba(15, 23, 42, 0.4) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .mission-page__searchInput {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="dark"] .mission-page__hero,
+[data-theme="dark"] .donation-requests-page__hero,
+[data-theme="dark"] .create-donation-page__hero {
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+[data-theme="dark"] .donation-modal__card {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.95)) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="dark"] .donor-donation-orders-page .pro-card,
+[data-theme="dark"] .donor-donation-orders-page table,
+[data-theme="dark"] .donor-donation-orders-page th,
+[data-theme="dark"] .donor-donation-orders-page td,
+[data-theme="dark"] .volunteer-requests-page .app-card,
+[data-theme="dark"] .volunteer-orders-page .app-card,
+[data-theme="dark"] .user-donation-requests-page .app-card,
+[data-theme="dark"] .my-children-page .child-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .donor-donation-orders-page__loadingCard {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(10, 15, 25, 0.98)) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .donor-donation-orders-page__loadingCard {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(10, 15, 25, 0.98)) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .donor-donation-orders-page table th,
+[data-theme="dark"] .donor-donation-orders-page table td,
+[data-theme="dark"] .volunteer-requests-page .app-card,
+[data-theme="dark"] .volunteer-orders-page .app-card,
+[data-theme="dark"] .user-donation-requests-page .app-card {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .volunteer-requests-page .app-form-select,
+[data-theme="dark"] .user-donation-requests-page .app-form-select,
+[data-theme="dark"] .volunteer-orders-page .app-form-select {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .volunteer-orders-page,
+[data-theme="dark"] .volunteer-requests-page {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .volunteer-orders-page .volunteer-orders-page__hero,
+[data-theme="dark"] .volunteer-orders-page .volunteer-orders-page__orderCard,
+[data-theme="dark"] .volunteer-orders-page .volunteer-orders-page__detailsModal,
+[data-theme="dark"] .volunteer-orders-page .app-card,
+[data-theme="dark"] .volunteer-orders-page .pro-card,
+[data-theme="dark"] .volunteer-requests-page .volunteer-requests-page__hero,
+[data-theme="dark"] .volunteer-requests-page .volunteer-requests-page__panel,
+[data-theme="dark"] .volunteer-requests-page .app-card,
+[data-theme="dark"] .volunteer-requests-page .pro-card {
+  background: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur);
+  border-color: var(--glass-border) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .volunteer-orders-page .volunteer-orders-page__hero,
+[data-theme="dark"] .volunteer-orders-page .volunteer-orders-page__orderCard,
+[data-theme="dark"] .volunteer-orders-page .volunteer-orders-page__detailsModal,
+[data-theme="dark"] .volunteer-requests-page .volunteer-requests-page__hero,
+[data-theme="dark"] .volunteer-requests-page .volunteer-requests-page__panel {
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .volunteer-orders-page .volunteer-orders-page__acceptedCard,
+[data-theme="dark"] .volunteer-requests-page .volunteer-requests-page__statCard {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .volunteer-orders-page input,
+[data-theme="dark"] .volunteer-orders-page select,
+[data-theme="dark"] .volunteer-orders-page textarea,
+[data-theme="dark"] .volunteer-requests-page input,
+[data-theme="dark"] .volunteer-requests-page select,
+[data-theme="dark"] .volunteer-requests-page textarea {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
 }

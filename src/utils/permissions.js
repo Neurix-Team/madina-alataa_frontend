@@ -35,6 +35,7 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.VIEW_NOTIFICATIONS,
     PERMISSIONS.VIEW_GEO_QUESTS,
     PERMISSIONS.VIEW_CHILDREN,
+    PERMISSIONS.VIEW_DONOR_FEATURES, // Added donor features to regular users as well
   ],
   donor: [
     PERMISSIONS.VIEW_CASES,
@@ -80,12 +81,7 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.REVIEW_CASES,
     PERMISSIONS.VIEW_GEO_QUESTS,
   ],
-  admin: Object.values(PERMISSIONS).filter(p => 
-    p !== PERMISSIONS.VIEW_CHILDREN && 
-    p !== PERMISSIONS.VIEW_VOLUNTEER_FEATURES && 
-    p !== PERMISSIONS.VIEW_DONOR_FEATURES &&
-    p !== PERMISSIONS.VIEW_MY_DONATIONS
-  ), // All permissions except user-specific features not supported for admin account
+  admin: Object.values(PERMISSIONS), // Admin has all permissions including donor and volunteer features
 };
 
 // Get all permissions for an array of roles

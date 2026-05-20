@@ -287,7 +287,7 @@ const DT_CSS = `
     margin: 0 auto;
     direction: rtl;
     font-family: 'Cairo', sans-serif;
-    color: #0f172a;
+    color: var(--text-primary);
     display: grid;
     gap: 16px;
   }
@@ -296,11 +296,11 @@ const DT_CSS = `
     position: relative;
     overflow: hidden;
     border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.92) 100%);
-    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     padding: 28px 32px;
-    box-shadow: rgba(15, 23, 42, 0.4) 0px 20px 50px -20px, rgba(255, 255, 255, 0.4) 0px 0px 0px 1px inset;
+    box-shadow: var(--shadow-lg);
     text-align: center;
   }
 
@@ -312,21 +312,21 @@ const DT_CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
-    color: #2563eb;
+    background: linear-gradient(135deg, var(--bg-card-2), var(--bg-card));
+    color: var(--primary);
     font-size: 24px;
-    box-shadow: 0 12px 24px rgba(59,130,246,0.08);
+    box-shadow: var(--shadow-sm);
   }
 
   .dt-header__title {
     font-size: 24px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 4px;
   }
 
   .dt-header__subtitle {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 13px;
     font-weight: 700;
   }
@@ -337,7 +337,7 @@ const DT_CSS = `
     gap: 10px;
     font-size: 16px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-top: 2px;
   }
 
@@ -348,9 +348,9 @@ const DT_CSS = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
-    color: #2563eb;
-    border: 1px solid rgba(186,230,253,0.9);
+    background: var(--bg-card-2);
+    color: var(--primary);
+    border: 1px solid var(--border);
     font-size: 14px;
   }
 
@@ -358,10 +358,11 @@ const DT_CSS = `
   .dt-progress-card,
   .dt-tips-card,
   .dt-reminder-card {
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     border-radius: 22px;
-    border: 1.5px solid rgba(226,232,240,0.9);
-    box-shadow: 0 14px 30px rgba(15,23,42,0.05);
+    border: 1.5px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
   }
 
   .dt-chain-card {
@@ -380,7 +381,7 @@ const DT_CSS = `
   .dt-chain-card__title {
     font-size: 18px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 4px;
     display: flex;
     align-items: center;
@@ -389,21 +390,21 @@ const DT_CSS = `
 
   .dt-chain-card__subtitle {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 700;
   }
 
   .dt-chain-card__badge {
     padding: 8px 12px;
     border-radius: 999px;
-    background: linear-gradient(135deg, #fff7cc, #fef3c7);
-    color: #92400e;
+    background: var(--success-light);
+    color: var(--success);
     font-size: 11px;
     font-weight: 900;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    border: 1px solid rgba(245,158,11,0.18);
+    border: 1px solid var(--success);
   }
 
   .dt-streak-row {
@@ -424,13 +425,13 @@ const DT_CSS = `
     font-size: 38px;
     line-height: 1;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
   }
 
   .dt-streak-label {
     font-size: 12px;
     font-weight: 800;
-    color: #64748b;
+    color: var(--text-secondary);
     margin-top: 4px;
   }
 
@@ -451,7 +452,7 @@ const DT_CSS = `
   }
 
   .dt-chain-connector--future {
-    background: #e2e8f0;
+    background: var(--border);
   }
 
   .dt-chain-link {
@@ -463,8 +464,10 @@ const DT_CSS = `
     justify-content: center;
     font-size: 13px;
     font-weight: 900;
-    border: 1.5px solid rgba(226,232,240,0.9);
+    border: 1.5px solid var(--border);
     transition: all 0.2s ease;
+    background: var(--bg-card-2);
+    color: var(--text-secondary);
   }
 
   .dt-chain-link--done {
@@ -475,15 +478,16 @@ const DT_CSS = `
   }
 
   .dt-chain-link--today {
-    background: #eff6ff;
-    color: #1d4ed8;
-    border-color: rgba(147,197,253,0.9);
-    box-shadow: 0 8px 18px rgba(59,130,246,0.10);
+    background: var(--primary-hover);
+    color: #fff;
+    border-color: var(--primary);
+    box-shadow: var(--shadow-sm);
   }
 
   .dt-chain-link--future {
-    background: #f8fafc;
-    color: #94a3b8;
+    background: var(--bg-card-2);
+    color: var(--text-muted);
+    opacity: 0.6;
   }
 
   .dt-chain-stats {
@@ -495,8 +499,8 @@ const DT_CSS = `
   .dt-chain-stat {
     padding: 14px 12px;
     border-radius: 18px;
-    background: #f8fafc;
-    border: 1px solid rgba(226,232,240,0.9);
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
     text-align: center;
   }
 
@@ -504,7 +508,7 @@ const DT_CSS = `
     font-size: 22px;
     line-height: 1;
     font-weight: 900;
-    color: #2563eb;
+    color: var(--primary);
     display: block;
     margin-bottom: 4px;
   }
@@ -512,7 +516,7 @@ const DT_CSS = `
   .dt-chain-stat__lbl {
     font-size: 11px;
     font-weight: 800;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   .dt-progress-card {
@@ -530,7 +534,7 @@ const DT_CSS = `
   .dt-progress-card__title {
     font-size: 15px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -539,12 +543,12 @@ const DT_CSS = `
   .dt-progress-card__count {
     font-size: 12px;
     font-weight: 900;
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   .dt-progress-bar {
     height: 10px;
-    background: rgba(226,232,240,0.9);
+    background: var(--border);
     border-radius: 999px;
     overflow: hidden;
   }
@@ -561,7 +565,7 @@ const DT_CSS = `
     margin-top: 10px;
     font-size: 12px;
     font-weight: 800;
-    color: #2563eb;
+    color: var(--primary);
   }
 
   .dt-reward-panel {
@@ -570,9 +574,10 @@ const DT_CSS = `
     margin-bottom: 4px;
     padding: 18px;
     border-radius: 24px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    border: 1.5px solid rgba(226,232,240,0.9);
-    box-shadow: 0 14px 30px rgba(15,23,42,0.05);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1.5px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
   }
 
   .dt-reward-panel__title {
@@ -581,7 +586,7 @@ const DT_CSS = `
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #0f172a;
+    color: var(--text-primary);
   }
 
   .dt-reward-cards {
@@ -593,13 +598,13 @@ const DT_CSS = `
   .dt-reward-mini {
     padding: 14px;
     border-radius: 18px;
-    background: #fff;
-    border: 1px solid rgba(226,232,240,0.9);
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
   }
 
   .dt-reward-mini__label {
     font-size: 12px;
-    color: #475569;
+    color: var(--text-secondary);
     font-weight: 800;
   }
 
@@ -607,18 +612,19 @@ const DT_CSS = `
     margin-top: 8px;
     font-size: 22px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     display: inline-flex;
     align-items: center;
     gap: 6px;
   }
 
   .dt-task-card {
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
     border-radius: 20px;
     padding: 18px 16px;
-    border: 1.5px solid rgba(226,232,240,0.9);
-    box-shadow: 0 12px 28px rgba(15,23,42,0.05);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-sm);
     display: flex;
     gap: 14px;
     align-items: flex-start;
@@ -629,12 +635,15 @@ const DT_CSS = `
 
   .dt-task-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 18px 34px rgba(15,23,42,0.08);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
   }
 
   .dt-task-card--done {
-    background: linear-gradient(180deg, #f0fdf4 0%, #f7fff9 100%);
-    border-color: rgba(134,239,172,0.9);
+    background: var(--success-light);
+    border-color: var(--success);
+    opacity: 0.95;
+    backdrop-filter: none;
   }
 
   .dt-task-card__icon-wrap {
@@ -645,20 +654,21 @@ const DT_CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid rgba(226,232,240,0.9);
-    box-shadow: 0 8px 18px rgba(15,23,42,0.04);
+    border: 1px solid var(--border);
+    background: var(--bg-card-2);
+    box-shadow: var(--shadow-sm);
     font-size: 24px;
   }
 
   .dt-task-card__icon-wrap--pending {
-    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
-    color: #2563eb;
+    background: var(--bg-card);
+    color: var(--primary);
   }
 
   .dt-task-card__icon-wrap--done {
-    background: linear-gradient(135deg, #dcfce7, #ecfdf5);
-    color: #16a34a;
-    border-color: rgba(134,239,172,0.9);
+    background: var(--success-light);
+    color: var(--success);
+    border-color: var(--success);
   }
 
   .dt-task-card__body {
@@ -669,17 +679,17 @@ const DT_CSS = `
   .dt-task-card__title {
     font-size: 15px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 6px;
   }
 
   .dt-task-card__title--done {
-    color: #166534;
+    color: var(--success);
   }
 
   .dt-task-card__desc {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 700;
     line-height: 1.75;
     margin-bottom: 12px;
@@ -702,23 +712,23 @@ const DT_CSS = `
   }
 
   .dt-task-chip--kp {
-    background: #fff7cc;
-    color: #92400e;
+    background: var(--success-light);
+    color: var(--success);
   }
 
   .dt-task-chip--xp {
-    background: #eff6ff;
-    color: #1d4ed8;
+    background: var(--primary-hover);
+    color: #fff;
   }
 
   .dt-task-chip--time {
-    background: #f8fafc;
-    color: #475569;
+    background: var(--bg-card);
+    color: var(--text-secondary);
   }
 
   .dt-task-chip--cat {
-    background: #f5f3ff;
-    color: #7c3aed;
+    background: var(--bg-card-2);
+    color: var(--primary);
   }
 
   .dt-task-card__check {
@@ -726,21 +736,21 @@ const DT_CSS = `
     width: 34px;
     height: 34px;
     border-radius: 12px;
-    border: 2px solid rgba(226,232,240,0.9);
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #94a3b8;
+    color: var(--text-secondary);
     font-size: 16px;
     font-weight: 900;
-    background: #fff;
+    background: var(--bg-card-2);
   }
 
   .dt-task-card__check--done {
-    background: #16a34a;
+    background: var(--success);
     color: #fff;
-    border-color: #16a34a;
-    box-shadow: 0 10px 20px rgba(22,163,74,0.18);
+    border-color: var(--success);
+    box-shadow: var(--shadow-glow);
   }
 
   .dt-task-progress {
@@ -748,7 +758,7 @@ const DT_CSS = `
     margin-top: 12px;
     border-radius: 999px;
     overflow: hidden;
-    background: rgba(226,232,240,0.9);
+    background: var(--border);
   }
 
   .dt-task-progress__fill {
@@ -775,22 +785,22 @@ const DT_CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #eef8ff, #f5f3ff);
-    color: #2563eb;
+    background: var(--bg-card-2);
+    color: var(--primary);
     font-size: 20px;
-    box-shadow: 0 8px 18px rgba(15,23,42,0.04);
+    box-shadow: var(--shadow-sm);
   }
 
   .dt-tips-card__title {
     font-size: 16px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 3px;
   }
 
   .dt-tips-card__subtitle {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 700;
   }
 
@@ -805,8 +815,8 @@ const DT_CSS = `
     gap: 12px;
     padding: 12px 14px;
     border-radius: 16px;
-    background: #f8fafc;
-    border: 1px solid rgba(226,232,240,0.9);
+    background: var(--bg-card-2);
+    border: 1px solid var(--border);
   }
 
   .dt-tip-item__icon {
@@ -817,22 +827,22 @@ const DT_CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #fff;
-    color: #7c3aed;
-    border: 1px solid rgba(221,214,254,0.9);
+    background: var(--bg-card);
+    color: var(--primary);
+    border: 1px solid var(--border);
     font-size: 16px;
   }
 
   .dt-tip-item__title {
     font-size: 13px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 3px;
   }
 
   .dt-tip-item__desc {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 700;
     line-height: 1.7;
   }
@@ -855,22 +865,22 @@ const DT_CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #fff7cc, #fef3c7);
-    color: #b45309;
+    background: var(--bg-card-2);
+    color: var(--primary);
     font-size: 20px;
-    box-shadow: 0 8px 18px rgba(15,23,42,0.04);
+    box-shadow: var(--shadow-sm);
   }
 
   .dt-reminder-card__title {
     font-size: 16px;
     font-weight: 900;
-    color: #0f172a;
+    color: var(--text-primary);
     margin-bottom: 3px;
   }
 
   .dt-reminder-card__subtitle {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 700;
   }
 
@@ -897,33 +907,33 @@ const DT_CSS = `
     gap: 8px;
     font-size: 12px;
     font-weight: 900;
-    color: #334155;
+    color: var(--text-secondary);
     margin-bottom: 8px;
   }
 
   .dt-form-input {
     width: 100%;
     padding: 12px 14px;
-    border: 1.5px solid rgba(226,232,240,0.9);
+    border: 1.5px solid var(--border);
     border-radius: 14px;
     font-family: 'Cairo', sans-serif;
     font-size: 14px;
     font-weight: 800;
-    color: #0f172a;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    color: var(--text-primary);
+    background: var(--input-bg);
     outline: none;
-    box-shadow: 0 8px 18px rgba(15,23,42,0.03);
+    box-shadow: var(--shadow-sm);
   }
 
   .dt-form-input:focus {
-    border-color: #93c5fd;
+    border-color: var(--primary);
     box-shadow: 0 0 0 4px rgba(59,130,246,0.10);
   }
 
   .dt-sound-btn {
-    border: 1.5px solid rgba(226,232,240,0.9);
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-    color: #334155;
+    border: 1.5px solid var(--border);
+    background: var(--bg-card-2);
+    color: var(--text-secondary);
     border-radius: 16px;
     padding: 12px 14px;
     font-size: 12px;
@@ -935,35 +945,37 @@ const DT_CSS = `
     min-width: 140px;
     justify-content: center;
     transition: all 0.2s ease;
-    box-shadow: 0 10px 20px rgba(15,23,42,0.04);
+    box-shadow: var(--shadow-sm);
   }
 
   .dt-sound-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 26px rgba(15,23,42,0.07);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
   }
 
   .dt-sound-btn--active {
-    background: linear-gradient(135deg, #eff6ff, #f5f3ff);
-    border-color: #93c5fd;
-    color: #1d4ed8;
+    background: var(--primary-hover);
+    border-color: var(--primary);
+    color: #fff;
   }
 
   .dt-sound-btn__play {
     width: 26px;
     height: 26px;
     border-radius: 10px;
-    background: #f8fafc;
+    background: var(--bg-card);
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    color: var(--primary);
   }
 
   .dt-save-btn {
     border: none;
     border-radius: 16px;
     padding: 14px 16px;
-    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
     color: #fff;
     font-size: 13px;
     font-weight: 900;
@@ -972,17 +984,17 @@ const DT_CSS = `
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 12px 24px rgba(37,99,235,0.18);
+    box-shadow: var(--shadow-glow);
   }
 
   .dt-save-btn--saved {
-    background: linear-gradient(135deg, #10b981, #22c55e);
+    background: linear-gradient(135deg, var(--success), #22c55e);
     box-shadow: 0 12px 24px rgba(16,185,129,0.18);
   }
 
   .dt-saved-msg {
-    background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
-    border: 1.5px solid rgba(134,239,172,0.9);
+    background: var(--success-light);
+    border: 1.5px solid var(--success);
     border-radius: 14px;
     padding: 10px 14px;
     display: flex;
@@ -990,7 +1002,7 @@ const DT_CSS = `
     align-items: center;
     font-size: 12px;
     font-weight: 800;
-    color: #166534;
+    color: var(--success);
   }
 
   .dt-celebration {

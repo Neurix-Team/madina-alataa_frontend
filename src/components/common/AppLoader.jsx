@@ -52,7 +52,7 @@ const AppLoader = ({
               position: 'absolute',
               top: '50%',
               left: '50%',
-              color: '#fbbf24',
+              color: 'var(--warning)',
               fontSize: 10 + Math.random() * 15,
             }}
           >
@@ -62,34 +62,43 @@ const AppLoader = ({
       </div>
 
       <motion.div
-        animate={{ y: [0, -15, 0] }}
-        transition={{
-          duration: 1.5,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        style={{
-          fontSize: '64px',
-          color: '#3b82f6',
-          zIndex: 1,
-          marginBottom: '24px',
-          animation: 'rocketShake 0.1s infinite',
-          filter: 'drop-shadow(0 10px 15px rgba(59,130,246,0.3))',
-        }}
-      >
-        <FaRocket style={{ transform: 'rotate(-45deg)' }} />
-      </motion.div>
-
-      <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        style={{ zIndex: 1, textAlign: 'center' }}
+        style={{
+          zIndex: 1,
+          textAlign: 'center',
+          width: 'min(420px, 100%)',
+          padding: '32px 28px',
+          borderRadius: '28px',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'var(--glass-blur)',
+          border: '1px solid var(--glass-border)',
+          boxShadow: 'var(--shadow-md)',
+        }}
       >
+        <motion.div
+          animate={{ y: [0, -15, 0] }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          style={{
+            fontSize: '64px',
+            color: 'var(--primary)',
+            marginBottom: '24px',
+            animation: 'rocketShake 0.1s infinite',
+            filter: 'drop-shadow(0 10px 15px rgba(59,130,246,0.3))',
+          }}
+        >
+          <FaRocket style={{ transform: 'rotate(-45deg)' }} />
+        </motion.div>
+
         <h3
           style={{
             fontSize: '22px',
             fontWeight: 900,
-            color: '#1e293b',
+            color: 'var(--text-primary)',
             margin: '0 0 8px 0',
           }}
         >
@@ -105,7 +114,7 @@ const AppLoader = ({
                 width: '8px',
                 height: '8px',
                 borderRadius: '50%',
-                background: '#3b82f6',
+                background: 'var(--primary)',
               }}
             />
           ))}

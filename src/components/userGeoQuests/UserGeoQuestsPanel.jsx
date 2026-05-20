@@ -22,16 +22,19 @@ import { showAppConfirm } from '../../utils/appAlerts';
 
 const panelStyles = {
   card: {
-    borderRadius: 18,
-    border: '1px solid rgba(255,255,255,0.12)',
-    background: 'rgba(255,255,255,0.04)',
-    padding: 16,
+    borderRadius: 20,
+    border: '1px solid var(--glass-border)',
+    background: 'var(--glass-bg)',
+    backdropFilter: 'var(--glass-blur)',
+    padding: 20,
+    boxShadow: 'var(--shadow-md)',
   },
   lightCard: {
-    borderRadius: 18,
-    border: '1px solid #e2e8f0',
-    background: '#ffffff',
-    padding: 16,
+    borderRadius: 20,
+    border: '1px solid var(--border)',
+    background: 'var(--bg-card-2)',
+    padding: 20,
+    boxShadow: 'var(--shadow-sm)',
   },
   btn: {
     border: 'none',
@@ -41,6 +44,7 @@ const panelStyles = {
     display: 'grid',
     placeItems: 'center',
     cursor: 'pointer',
+    transition: 'all 0.2s ease',
   },
 };
 
@@ -143,17 +147,19 @@ function Field({ label, value, mono = false, light = false }) {
       style={{
         padding: 12,
         borderRadius: 12,
-        background: light ? '#f8fafc' : 'rgba(255,255,255,0.05)',
-        border: light ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)',
+        background: 'var(--bg-card-2)',
+        border: '1px solid var(--border)',
+        color: 'var(--text-primary)',
       }}
     >
-      <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 11, color: 'var(--text-secondary)', opacity: 0.7, marginBottom: 4 }}>{label}</div>
       <div
         style={{
           fontSize: 13,
           fontWeight: 700,
           wordBreak: 'break-word',
           fontFamily: mono ? 'monospace' : 'inherit',
+          color: 'var(--text-primary)',
         }}
       >
         {toText(value)}
@@ -169,10 +175,11 @@ function Modal({ title, onClose, children, light = false, maxWidth = 760 }) {
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        background: 'rgba(0,0,0,0.76)',
+        background: 'rgba(0,0,0,0.75)',
         display: 'grid',
         placeItems: 'center',
         padding: 16,
+        backdropFilter: 'blur(8px)',
       }}
     >
       <div
@@ -181,14 +188,13 @@ function Modal({ title, onClose, children, light = false, maxWidth = 760 }) {
           maxWidth,
           maxHeight: '90vh',
           overflowY: 'auto',
-          borderRadius: 20,
-          border: light ? '1px solid #dbeafe' : '1px solid rgba(255,255,255,0.14)',
-          background: light
-            ? 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98))'
-            : 'linear-gradient(180deg, rgba(8,20,42,0.98), rgba(10,26,58,0.98))',
-          color: light ? '#0f172a' : '#fff',
-          boxShadow: '0 18px 40px rgba(0,0,0,.5)',
-          padding: 20,
+          borderRadius: 24,
+          border: '1px solid var(--glass-border)',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'var(--glass-blur)',
+          color: 'var(--text-primary)',
+          boxShadow: 'var(--shadow-lg)',
+          padding: 24,
           direction: 'rtl',
         }}
       >
@@ -197,22 +203,23 @@ function Modal({ title, onClose, children, light = false, maxWidth = 760 }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: 16,
+            marginBottom: 20,
           }}
         >
-          <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900 }}>{title}</h3>
+          <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: 'var(--text-primary)' }}>{title}</h3>
           <button
             type="button"
             onClick={onClose}
             style={{
               ...panelStyles.btn,
-              width: 34,
-              height: 34,
-              background: light ? '#e2e8f0' : 'rgba(255,255,255,0.12)',
-              color: light ? '#0f172a' : '#fff',
+              width: 38,
+              height: 38,
+              background: 'var(--bg-card-2)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border)',
             }}
           >
-            x
+            ✕
           </button>
         </div>
         {children}
@@ -766,7 +773,7 @@ useEffect(() => {
   const verifyCoordinates = resolveCoordinates(verifyForm);
 
   return (
-    <div style={cardStyle}>
+    <div style={{ ...cardStyle, direction: 'rtl', color: 'var(--text-primary)', fontFamily: "'Cairo', sans-serif" }}>
       <div
         style={{
           display: 'flex',
@@ -778,11 +785,11 @@ useEffect(() => {
         }}
       >
         <div>
-          <div style={{ fontSize: 18, fontWeight: 900 }}>{activeTitle}</div>
-          <div style={{ fontSize: 12, opacity: 0.75 }}>
+          <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-primary)' }}>{activeTitle}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', opacity: 0.75 }}>
             {disableFilter ? 'عرض جميع المهام من الريسبونس (بدون فلترة)' : 'يتم عرض المهام الخاصة بهذا المستخدم فقط.'}
           </div>
-          <div style={{ fontSize: 11, opacity: 0.6, marginTop: 4 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-secondary)', opacity: 0.6, marginTop: 4 }}>
             API: /api/UserGeoQuests?PageNumber={pageNumber}&PageSize={pageSize}
           </div>
         </div>
@@ -796,8 +803,9 @@ useEffect(() => {
                 ...panelStyles.btn,
                 width: 'auto',
                 padding: '0 16px',
-                background: light ? '#10b981' : 'rgba(16,185,129,0.18)',
-                color: light ? '#fff' : '#6ee7b7',
+                background: 'rgba(16, 185, 129, 0.12)',
+                color: 'var(--success)',
+                border: '1px solid rgba(16, 185, 129, 0.2)',
                 fontWeight: 800,
                 fontSize: 13,
               }}
@@ -815,9 +823,10 @@ useEffect(() => {
             style={{
               padding: '8px 10px',
               borderRadius: 10,
-              border: light ? '1px solid #cbd5e1' : '1px solid rgba(255,255,255,0.18)',
-              background: light ? '#fff' : 'rgba(255,255,255,0.06)',
-              color: light ? '#0f172a' : '#fff',
+              border: '1px solid var(--border)',
+              background: 'var(--bg-card-2)',
+              color: 'var(--text-primary)',
+              fontFamily: "'Cairo', sans-serif",
             }}
           >
             {[10, 20, 50, 100].map((value) => (
@@ -834,8 +843,9 @@ useEffect(() => {
             style={{
               ...panelStyles.btn,
               width: 40,
-              background: light ? '#dbeafe' : 'rgba(59,130,246,0.18)',
-              color: light ? '#1d4ed8' : '#93c5fd',
+              background: 'rgba(59, 130, 246, 0.12)',
+              color: 'var(--primary)',
+              border: '1px solid rgba(59, 130, 246, 0.2)',
             }}
           >
             <FaRedo size={13} />
@@ -849,8 +859,9 @@ useEffect(() => {
             marginBottom: 12,
             padding: 12,
             borderRadius: 12,
-            background: light ? '#fee2e2' : 'rgba(239,68,68,0.16)',
-            color: light ? '#b91c1c' : '#fca5a5',
+            background: 'var(--error-light)',
+            color: 'var(--error)',
+            border: '1px solid var(--error)',
             fontSize: 13,
             fontWeight: 800,
           }}
@@ -860,9 +871,9 @@ useEffect(() => {
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 28, opacity: 0.8 }}>جاري تحميل العناصر...</div>
+        <div style={{ textAlign: 'center', padding: 28, color: 'var(--text-secondary)', opacity: 0.8 }}>جاري تحميل العناصر...</div>
       ) : items.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 28, opacity: 0.7 }}>لا توجد عناصر لعرضها في هذه الصفحة.</div>
+        <div style={{ textAlign: 'center', padding: 28, color: 'var(--text-secondary)', opacity: 0.7 }}>لا توجد عناصر لعرضها في هذه الصفحة.</div>
       ) : (
         <div style={{ display: 'grid', gap: 12 }}>
           {items.map((item) => {
@@ -875,15 +886,15 @@ useEffect(() => {
                 style={{
                   padding: 14,
                   borderRadius: 14,
-                  background: light ? '#f8fafc' : 'rgba(255,255,255,0.05)',
-                  border: light ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.08)',
+                  background: 'var(--bg-card-2)',
+                  border: '1px solid var(--border)',
                   display: 'grid',
                   gridTemplateColumns: '1fr auto',
                   gap: 12,
                 }}
               >
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 900, marginBottom: 8 }}>
+                  <div style={{ fontSize: 15, fontWeight: 900, marginBottom: 8, color: 'var(--text-primary)' }}>
                     {toText(normalized.title, 'بدون عنوان')}
                   </div>
 
@@ -894,7 +905,7 @@ useEffect(() => {
                   </div>
 
                   {(normalized.userName || normalized.geoQuestTitle || normalized.createdAt) && (
-                    <div style={{ marginTop: 10, display: 'grid', gap: 4, fontSize: 12, opacity: 0.8 }}>
+                    <div style={{ marginTop: 10, display: 'grid', gap: 4, fontSize: 12, color: 'var(--text-secondary)', opacity: 0.8 }}>
                       {normalized.userName && <div>المستخدم: {toText(normalized.userName)}</div>}
                       {normalized.geoQuestTitle && <div>اسم المهمة: {toText(normalized.geoQuestTitle)}</div>}
                       {normalized.createdAt && <div>تاريخ الإنشاء: {formatDate(normalized.createdAt)}</div>}
@@ -902,7 +913,7 @@ useEffect(() => {
                   )}
 
                   {coords && (
-                    <div style={{ marginTop: 8, fontSize: 12, fontWeight: 700, opacity: 0.85 }}>
+                    <div style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: 'var(--primary)', opacity: 0.85 }}>
                       <FaMapMarkerAlt style={{ marginLeft: 6 }} />
                       {coords.latitude}, {coords.longitude}
                     </div>
@@ -916,8 +927,9 @@ useEffect(() => {
                     title="تفاصيل"
                     style={{
                       ...panelStyles.btn,
-                      background: light ? '#dbeafe' : 'rgba(59,130,246,0.18)',
-                      color: light ? '#1d4ed8' : '#93c5fd',
+                      background: 'rgba(59, 130, 246, 0.12)',
+                      color: 'var(--primary)',
+                      border: '1px solid rgba(59, 130, 246, 0.2)',
                     }}
                   >
                     <FaEye size={13} />
@@ -930,8 +942,9 @@ useEffect(() => {
                       title="توثيق الموقع"
                       style={{
                         ...panelStyles.btn,
-                        background: light ? '#dcfce7' : 'rgba(16,185,129,0.18)',
-                        color: light ? '#16a34a' : '#6ee7b7',
+                        background: 'rgba(16, 185, 129, 0.12)',
+                        color: 'var(--success)',
+                        border: '1px solid rgba(16, 185, 129, 0.2)',
                       }}
                     >
                       <FaLocationArrow size={13} />
@@ -946,8 +959,9 @@ useEffect(() => {
                         title="تعديل"
                         style={{
                           ...panelStyles.btn,
-                          background: light ? '#fef3c7' : 'rgba(245,158,11,0.18)',
-                          color: light ? '#b45309' : '#fcd34d',
+                          background: 'rgba(245, 158, 11, 0.12)',
+                          color: '#f59e0b',
+                          border: '1px solid rgba(245, 158, 11, 0.2)',
                         }}
                       >
                         <FaEdit size={13} />
@@ -959,8 +973,9 @@ useEffect(() => {
                         title="حذف"
                         style={{
                           ...panelStyles.btn,
-                          background: light ? '#fee2e2' : 'rgba(239,68,68,0.18)',
-                          color: light ? '#b91c1c' : '#fca5a5',
+                          background: 'rgba(239, 68, 68, 0.12)',
+                          color: 'var(--error)',
+                          border: '1px solid rgba(239, 68, 68, 0.2)',
                         }}
                       >
                         <FaTrash size={13} />
@@ -984,7 +999,7 @@ useEffect(() => {
           flexWrap: 'wrap',
         }}
       >
-        <div style={{ fontSize: 12, opacity: 0.75 }}>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', opacity: 0.75 }}>
           صفحة {pagination.currentPage} من {pagination.totalPages} - إجمالي {pagination.totalItems}
         </div>
 
@@ -996,8 +1011,9 @@ useEffect(() => {
             style={{
               ...panelStyles.btn,
               width: 40,
-              background: light ? '#e2e8f0' : 'rgba(255,255,255,0.08)',
-              color: light ? '#0f172a' : '#fff',
+              background: 'var(--bg-card-2)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border)',
               opacity: pageNumber <= 1 ? 0.45 : 1,
               cursor: pageNumber <= 1 ? 'not-allowed' : 'pointer',
             }}
@@ -1012,8 +1028,9 @@ useEffect(() => {
             style={{
               ...panelStyles.btn,
               width: 40,
-              background: light ? '#e2e8f0' : 'rgba(255,255,255,0.08)',
-              color: light ? '#0f172a' : '#fff',
+              background: 'var(--bg-card-2)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border)',
               opacity: pageNumber >= pagination.totalPages ? 0.45 : 1,
               cursor: pageNumber >= pagination.totalPages ? 'not-allowed' : 'pointer',
             }}

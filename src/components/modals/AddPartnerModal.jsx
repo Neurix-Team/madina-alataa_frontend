@@ -72,11 +72,6 @@ const AddPartnerModal = ({ isOpen, onClose, onSubmit }) => {
 
   if (!isOpen) return null;
 
-  const fieldClass =
-    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-base font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-blue-50/30 focus:ring-4 focus:ring-blue-100/50';
-
-  const labelClass = 'block text-sm font-bold text-slate-700 mb-2 mr-1';
-
   return (
     <AnimatePresence>
       <motion.div
@@ -97,7 +92,14 @@ const AddPartnerModal = ({ isOpen, onClose, onSubmit }) => {
           {/* Header */}
           <div className="app-modal-header">
             <div className="flex items-center gap-4">
-              <div className="w-[52px] h-[52px] rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+              <div
+                className="w-[52px] h-[52px] rounded-2xl flex items-center justify-center shadow-sm"
+                style={{
+                  background: 'var(--bg-card-2)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--primary)',
+                }}
+              >
                 <FaBuilding className="text-xl" />
               </div>
               <div>
@@ -199,7 +201,7 @@ const AddPartnerModal = ({ isOpen, onClose, onSubmit }) => {
               </div>
 
               {/* Footer Buttons */}
-              <div className="app-form-actions pt-4 border-t border-slate-100">
+              <div className="app-form-actions pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
                 <button
                   type="button"
                   onClick={onClose}
