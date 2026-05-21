@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { beginGlobalLoading, endGlobalLoading } from '../utils/globalLoading';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://champapi.neurix.uk';
 
 const getStoredAuthToken = () => {
   let token = null;

@@ -11,6 +11,8 @@ import axios from 'axios';
 
 
 const STORAGE_KEY = 'madeena_login_user_response';
+const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'https://champapi.neurix.uk';
+const getAuthApiUrl = (path) => `${AUTH_API_BASE_URL.replace(/\/$/, '')}${path}`;
 
 // Create AuthContext so it can be used by `useAuthContext` and consumers
 const AuthContext = createContext();
@@ -131,7 +133,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setAuthError(null);
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://champapi.neurix.uk';
       const loginUrl = `${apiBase.replace(/\/$/, '')}/api/auth/login`;
 
       const response = await axios.post(loginUrl, payload);
@@ -360,11 +362,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setAuthError(null);
 
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
-      const callbackUrl = `${window.location.origin}/auth/callback`; // بدل /signin-google
-      const loginUrl = `${apiBase.replace(/\/$/, '')}/api/auth/google/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
-
-      window.location.href = loginUrl;
+      window.location.assign(getAuthApiUrl('/api/auth/google/login'));
       return null;
     } catch (error) {
       console.error('Google Login Error:', error);
@@ -376,7 +374,7 @@ export const AuthProvider = ({ children }) => {
 
   //continue registration fetching
 
-  const continueRegistration = async (userId, newPassword, extra = null) => {
+  const continueRegistration = async (userId, newPassword, birthDate, extra = null) => {
     try {
       setAuthError(null);
 
@@ -385,40 +383,19 @@ export const AuthProvider = ({ children }) => {
         return null;
       }
 
-      const token =
-        localStorage.getItem('madina_access_token') ||
-        localStorage.getItem('auth_token') ||
-        localStorage.getItem('accessToken') ||
-        localStorage.getItem('google_temp_token') ||
-        extra?.token ||
-        extra?.accessToken ||
-        extra?.tempToken;
-
-      if (!token) {
-        setAuthError('التوكن غير موجود، لازم تعملي تسجيل بجوجل مرة تانية');
-        return null;
-      }
-
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
-      const url = `${apiBase.replace(/\/$/, '')}/api/auth/continue-registration`;
+      const url = getAuthApiUrl('/api/auth/continue-registration');
 
       const payload = {
-        // backend expects lowercase keys
         userid: userId,
         newpassword: newPassword,
-        // Request backend to convert external/social user to a local account
-        // so the new password will be accepted. Backend must handle this flag.
-        convertExternal: true,
-        provider: 'Local',
+        birthDate,
       };
 
       console.log('Continue Registration URL:', url);
       console.log('Continue Registration PAYLOAD:', payload);
-      console.log('Continue Registration TOKEN:', token);
 
       const response = await axios.post(url, payload, {
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -431,21 +408,29 @@ export const AuthProvider = ({ children }) => {
         response.data?.token ||
         response.data?.accessToken ||
         userData?.token ||
-        token;
+        extra?.token ||
+        extra?.accessToken ||
+        extra?.tempToken ||
+        localStorage.getItem('madina_access_token') ||
+        localStorage.getItem('auth_token') ||
+        localStorage.getItem('accessToken');
 
-      localStorage.setItem('madina_access_token', finalToken);
-      localStorage.setItem('auth_token', finalToken);
-      localStorage.setItem('accessToken', finalToken);
+      if (finalToken) {
+        localStorage.setItem('madina_access_token', finalToken);
+        localStorage.setItem('auth_token', finalToken);
+        localStorage.setItem('accessToken', finalToken);
+      }
 
       const normalizedUser = {
         id: userData?.id || userData?.userId || userId,
         name: userData?.fullname || userData?.fullName || userData?.name || 'Unknown',
         email: userData?.email || extra?.email || extra?.Email || 'No Email',
-        roles: userData?.roles || ['User'],
+        roles: normalizeRoles(userData?.roles || userData?.role || ['user']),
         token: finalToken,
       };
 
       setUser(normalizedUser);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedUser));
       await secureStorage.setItem(STORAGE_KEY, normalizedUser);
 
       return normalizedUser;
@@ -480,7 +465,7 @@ export const AuthProvider = ({ children }) => {
 
   //     const apiBase =
   //       import.meta.env.VITE_API_BASE_URL ||
-  //       'http://champapi.neurix.uk:5001';
+  //       'https://champapi.neurix.uk';
 
   //     const url = `${apiBase.replace(/\/$/, '')}/api/auth/continue-registration`;
 

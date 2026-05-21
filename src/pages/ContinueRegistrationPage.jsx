@@ -1,30 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { FaLock, FaCheckCircle, FaRocket } from 'react-icons/fa';
+import { FaLock, FaCheckCircle, FaRocket, FaCalendarAlt } from 'react-icons/fa';
 import AnimatedBackground from '../components/common/AnimatedBackground';
 import AudioManager from '../services/AudioManager';
+
+const getPendingGoogleRegistration = () => {
+  try {
+    const raw = sessionStorage.getItem('pending_google_registration');
+    return raw ? JSON.parse(raw) : {};
+  } catch (error) {
+    console.warn('Failed to read pending Google registration:', error);
+    return {};
+  }
+};
 
 const ContinueRegistrationPage = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [birthDate, setBirthDate] = useState('');
   const [loading, setLoading] = useState(false);
   const { user, continueRegistration, setAuthError, authError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const pendingGoogleRegistration = getPendingGoogleRegistration();
 
   // Get user info from location state or current user context
   // Handle Google OAuth response structure
-  const googleResponseData = location.state;
-  const userId = location.state?.userId || 
-                location.state?.UserId || 
-                location.state?.user?.id || 
-                location.state?.data?.user?.id ||
+  const googleResponseData = location.state || pendingGoogleRegistration;
+  const userId = googleResponseData?.userId ||
+                googleResponseData?.UserId ||
+                googleResponseData?.user?.id ||
+                googleResponseData?.data?.user?.id ||
+                searchParams.get('userId') ||
                 user?.id;
-  const email = location.state?.email || 
-               location.state?.Email || 
-               location.state?.user?.email || 
-               location.state?.data?.user?.email ||
+  const email = googleResponseData?.email ||
+               googleResponseData?.Email ||
+               googleResponseData?.user?.email ||
+               googleResponseData?.data?.user?.email ||
+               searchParams.get('email') ||
                user?.email;
   
   // Log the received data for debugging
@@ -35,6 +50,19 @@ const ContinueRegistrationPage = () => {
   React.useEffect(() => {
     return () => setAuthError(null);
   }, [setAuthError]);
+
+  useEffect(() => {
+    const initialBirthDate =
+      googleResponseData?.birthDate ||
+      googleResponseData?.BirthDate ||
+      googleResponseData?.user?.birthDate ||
+      googleResponseData?.data?.user?.birthDate ||
+      '';
+
+    if (initialBirthDate && !birthDate) {
+      setBirthDate(String(initialBirthDate).slice(0, 10));
+    }
+  }, [googleResponseData, birthDate]);
 
   // حفظ userId في localStorage لتسهيل الوصول لاحقًا
   useEffect(() => {
@@ -63,10 +91,16 @@ const ContinueRegistrationPage = () => {
       return;
     }
 
+    if (!birthDate) {
+      setAuthError('Birth date is required');
+      return;
+    }
+
     try {
       setLoading(true);
-      const updatedUser = await continueRegistration(userId, newPassword, googleResponseData);
+      const updatedUser = await continueRegistration(userId, newPassword, birthDate, googleResponseData);
       if (updatedUser) {
+        sessionStorage.removeItem('pending_google_registration');
         AudioManager.getInstance().play('win');
         navigate('/profile-v2');
       }
@@ -113,6 +147,19 @@ const ContinueRegistrationPage = () => {
               className="app-form-input"
               style={{ backgroundColor: 'var(--bg-card-2)', cursor: 'not-allowed', opacity: 0.7 }} 
             />
+          </div>
+
+          <div className="app-form-group">
+            <label className="app-form-label">Birth date</label>
+            <div style={{ position: 'relative' }}>
+              <FaCalendarAlt style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+              <input
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                className="app-form-input w-full pr-10"
+              />
+            </div>
           </div>
 
           <div className="app-form-group">

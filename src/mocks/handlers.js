@@ -51,7 +51,7 @@ export const handlers = [
     return notification ? HttpResponse.json(notification) : HttpResponse.json({ error: 'Notification not found' }, { status: 404 })
   }),
 
-  http.post('http://champapi.neurix.uk:5001/api/auth/register', () => {
+  http.post('https://champapi.neurix.uk/api/auth/register', () => {
     return passthrough()
   }),
 

@@ -1,13 +1,109 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import secureStorage from '../../utils/secureStorage';
 
+const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'https://champapi.neurix.uk';
+const LOGIN_STORAGE_KEY = 'madeena_login_user_response';
+
+const getAuthApiUrl = (path) => `${AUTH_API_BASE_URL.replace(/\/$/, '')}${path}`;
+
+const getCallbackParams = () => {
+  const params = new URLSearchParams(window.location.search);
+  const hashQueryIndex = window.location.hash.indexOf('?');
+
+  if (hashQueryIndex !== -1) {
+    const hashParams = new URLSearchParams(window.location.hash.slice(hashQueryIndex + 1));
+    hashParams.forEach((value, key) => {
+      if (!params.has(key)) {
+        params.set(key, value);
+      }
+    });
+  }
+
+  return params;
+};
+
+const parseBool = (value) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value === 1;
+  if (typeof value === 'string') {
+    return ['true', '1', 'yes'].includes(value.trim().toLowerCase());
+  }
+  return false;
+};
+
+const normalizeRoles = (roles) => {
+  if (!roles) return [];
+  return Array.isArray(roles)
+    ? roles.map((role) => String(role).toLowerCase())
+    : [String(roles).toLowerCase()];
+};
+
+const pickToken = (data) => (
+  data?.token ||
+  data?.accessToken ||
+  data?.tempToken ||
+  data?.AccessToken ||
+  data?.TempToken ||
+  data?.data?.token ||
+  data?.data?.accessToken ||
+  data?.data?.tempToken ||
+  null
+);
+
+const normalizeExchangeResponse = (rawData, code, urlNeedsRegistration) => {
+  const data = rawData || {};
+  const nestedData = data?.data || {};
+  const user = data?.user || nestedData?.user || {};
+  const token = pickToken(data);
+
+  const apiNeedsRegistration = parseBool(
+    data?.needsRegistration ??
+    data?.needsregistration ??
+    data?.needs_registration ??
+    nestedData?.needsRegistration ??
+    nestedData?.needsregistration ??
+    user?.needsRegistration ??
+    user?.needsregistration
+  );
+
+  const needsRegistration = parseBool(urlNeedsRegistration) || apiNeedsRegistration;
+
+  return {
+    ...data,
+    code,
+    token,
+    accessToken: data?.accessToken || nestedData?.accessToken || token,
+    tempToken: data?.tempToken || nestedData?.tempToken || token,
+    needsRegistration,
+    needsregistration: needsRegistration,
+    userId: data?.userId || data?.UserId || nestedData?.userId || user?.id || user?.userId,
+    email: data?.email || data?.Email || nestedData?.email || user?.email,
+    fullname: data?.fullname || data?.fullName || data?.name || user?.fullname || user?.fullName || user?.name,
+    roles: normalizeRoles(data?.roles || data?.Roles || nestedData?.roles || user?.roles || user?.role),
+  };
+};
+
+const persistToken = (token) => {
+  if (!token) return;
+  localStorage.setItem('madina_access_token', token);
+  localStorage.setItem('auth_token', token);
+  localStorage.setItem('accessToken', token);
+  localStorage.setItem('google_temp_token', token);
+};
+
+const getDefaultRoute = (user) => {
+  if (user.roles.includes('admin')) return '/admin';
+  if (user.roles.includes('parent')) return '/parents';
+  if (user.roles.includes('volunteer')) return '/map';
+  return '/profile-v2';
+};
+
 const AuthCallback = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [responseData, setResponseData] = useState(null);
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const hasCalled = useRef(false);
@@ -18,55 +114,13 @@ const AuthCallback = () => {
       hasCalled.current = true;
 
       try {
-        const urlParams = new URLSearchParams(window.location.search);
+        const urlParams = getCallbackParams();
         const code = urlParams.get('code');
-        console.log('AUTHORIZATION CODE (from URL):', code);
-
-        // Read needsregistration from URL, log it, and persist to localStorage
-        // const needsParam = urlParams.get('needsregistration');
-        // const urlNeeds = needsParam === 'true';
-        // console.log('NEEDSREGISTRATION (from URL):', needsParam, urlNeeds);
-        // try {
-        //   if (typeof window !== 'undefined' && window.localStorage) {
-        //     window.localStorage.setItem('madina_needs_registration', urlNeeds ? 'true' : 'false');
-        //     console.log('Saved madina_needs_registration:', window.localStorage.getItem('madina_needs_registration'));
-        //   }
-        // } catch (e) {
-        //   console.warn('Failed to save madina_needs_registration to localStorage', e);
-        // }
-        // Read needsRegistration from URL with all possible names
-const needsParam =
-  urlParams.get('needsRegistration') ??
-  urlParams.get('needsregistration') ??
-  urlParams.get('needs_registration');
-
-const urlNeeds =
-  typeof needsParam === 'string' &&
-  needsParam.toLowerCase() === 'true';
-
-console.log('NEEDS REGISTRATION PARAM FROM URL:', needsParam);
-console.log('NEEDS REGISTRATION BOOLEAN FROM URL:', urlNeeds);
-
-try {
-  if (typeof window !== 'undefined' && window.localStorage) {
-    // خزني القيمة بس لو الباراميتر موجود فعلًا في URL
-    if (needsParam !== null && needsParam !== undefined) {
-      window.localStorage.setItem(
-        'madina_needs_registration',
-        urlNeeds ? 'true' : 'false'
-      );
-    }
-
-    console.log(
-      'Saved madina_needs_registration:',
-      window.localStorage.getItem('madina_needs_registration')
-    );
-  }
-} catch (e) {
-  console.warn('Failed to save madina_needs_registration to localStorage', e);
-}
-
         const remoteError = urlParams.get('remoteError');
+        const urlNeedsRegistration =
+          urlParams.get('needsregistration') ??
+          urlParams.get('needsRegistration') ??
+          urlParams.get('needs_registration');
 
         if (remoteError) {
           setError(`Authentication error: ${remoteError}`);
@@ -78,182 +132,64 @@ try {
           return;
         }
 
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://champapi.neurix.uk:5001';
-        const exchangeUrl = `${apiBase.replace(/\/$/, '')}/api/auth/google/exchange`;
+        const response = await axios.post(
+          getAuthApiUrl('/api/auth/google/exchange'),
+          { code },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
 
-        const redirectUri = `${window.location.origin}/auth/callback`;
-        const payload = { code };
-        console.log('CALLBACK EXCHANGE REQUEST:', exchangeUrl, payload);
-      
-        const response = await axios.post(exchangeUrl, payload, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const exchangeData = normalizeExchangeResponse(response.data, code, urlNeedsRegistration);
+        localStorage.setItem('madina_needs_registration', exchangeData.needsRegistration ? 'true' : 'false');
 
-        // Log full axios response and the response data for debugging
-        console.log('CALLBACK API RESPONSE (axios):', response);
-        console.log('CALLBACK API RESPONSE DATA:', response.data);
+        if (exchangeData.needsRegistration) {
+          persistToken(exchangeData.token || exchangeData.accessToken || exchangeData.tempToken);
+          sessionStorage.setItem('pending_google_registration', JSON.stringify(exchangeData));
 
-        // Store the raw API response in a local variable for processing
-        const responseData = response.data || {};
-        // Ensure the original authorization code is preserved in the response view
-        responseData.code = responseData.code ?? code;
+          const nextUrl = new URL('/continue-registration', window.location.origin);
+          if (exchangeData.userId) nextUrl.searchParams.set('userId', exchangeData.userId);
+          if (exchangeData.email) nextUrl.searchParams.set('email', exchangeData.email);
+          nextUrl.searchParams.set('code', code);
 
-        // Prefer the persisted `madina_needs_registration` value from localStorage
-        let storedNeeds = false;
-        try {
-          if (typeof window !== 'undefined' && window.localStorage) {
-            storedNeeds = window.localStorage.getItem('madina_needs_registration') === 'true';
-          }
-        } catch (e) {
-          console.warn('Failed to read madina_needs_registration from localStorage', e);
-        }
-
-        // Check if needsregistration should apply (localStorage takes precedence)
-        // const needsRegistration = storedNeeds || Boolean(responseData?.needsRegistration ?? responseData?.needsregistration);
-        const parseBool = (value) => {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'string') return value.toLowerCase() === 'true';
-  return false;
-};
-
-const apiNeeds = parseBool(
-  responseData?.needsRegistration ?? responseData?.needsregistration
-);
-
-const needsRegistration = storedNeeds || apiNeeds || urlNeeds;
-
-window.localStorage.setItem(
-  'madina_needs_registration',
-  needsRegistration ? 'true' : 'false'
-);
-
-responseData.needsRegistration = needsRegistration;
-responseData.needsregistration = needsRegistration;
-
-console.log('FINAL NEEDS REGISTRATION:', needsRegistration);
-console.log(
-  'FINAL LOCAL STORAGE:',
-  window.localStorage.getItem('madina_needs_registration')
-);
-
-        // Expose a normalized `needsregistration` flag on the response data and log it
-        responseData.needsregistration = responseData.needsregistration ?? responseData.needsRegistration ?? needsRegistration;
-        console.log('NEEDS REGISTRATION:', needsRegistration, 'responseData.needsregistration:', responseData.needsregistration);
-        // Update component state with the enriched response data
-        setResponseData(responseData);
-
-        if (needsRegistration) {
-          // include the original code when saving pending registration
-          const pending = { ...responseData, code };
-          sessionStorage.setItem(
-            'pending_google_registration',
-            JSON.stringify(pending)
-          );
-
-          // Persist token temporarily so `continueRegistration` can read it
-          try {
-            if (typeof window !== 'undefined' && window.localStorage && (responseData?.accessToken || responseData?.token || responseData?.tempToken)) {
-              const pendingToken = responseData?.token || responseData?.accessToken || responseData?.tempToken || responseData?.AccessToken;
-              window.localStorage.setItem('google_temp_token', pendingToken);
-              window.localStorage.setItem('madina_access_token', pendingToken);
-              window.localStorage.setItem('auth_token', pendingToken);
-              window.localStorage.setItem('accessToken', pendingToken);
-            }
-          } catch (e) {
-            console.warn('Failed to save temporary google token to localStorage', e);
-          }
-
-          navigate('/continue-registration', {
+          navigate(`${nextUrl.pathname}${nextUrl.search}`, {
             replace: true,
-            state: responseData,
+            state: exchangeData,
           });
           return;
         }
 
-        // Backend may return TokenResponse with several possible token fields
-        // Prefer stable names but accept tempToken variations for the Google flow
-        const token =
-          responseData?.token ||
-          responseData?.accessToken ||
-          responseData?.tempToken ||
-          responseData?.AccessToken ||
-          responseData?.TempToken;
-        const userId = responseData?.userId || responseData?.UserId;
-        const email = responseData?.email || responseData?.Email;
-        const roles = responseData?.roles || responseData?.Roles || [];
-
+        const token = exchangeData.token || exchangeData.accessToken || exchangeData.tempToken;
         if (!token) {
           setError('Google exchange did not return an access token.');
           return;
         }
 
+        persistToken(token);
+
         const normalizedUser = {
-          id: userId,
-          name: responseData?.fullname || responseData?.name || email || '',
-          email: email || '',
-          roles: roles,
+          id: exchangeData.userId,
+          name: exchangeData.fullname || exchangeData.email || 'User',
+          email: exchangeData.email || '',
+          roles: exchangeData.roles,
           token,
         };
 
         setUser(normalizedUser);
-        await secureStorage.setItem('madina_auth_user', normalizedUser);
-        
-        // Log and persist access token for inspection (include google_temp_token)
-        console.log('CALLBACK ACCESS TOKEN:', token);
-        try {
-          if (typeof window !== 'undefined' && window.localStorage && token) {
-            // store using several keys for compatibility
-            window.localStorage.setItem('madina_access_token', token);
-            window.localStorage.setItem('auth_token', token);
-            window.localStorage.setItem('accessToken', token);
-            // keep a temp key for flows that expect it
-            window.localStorage.setItem('google_temp_token', token);
-          }
-        } catch (e) {
-          console.warn('Failed to save access token to localStorage', e);
-        }
+        localStorage.setItem(LOGIN_STORAGE_KEY, JSON.stringify(normalizedUser));
+        await secureStorage.setItem(LOGIN_STORAGE_KEY, normalizedUser);
 
-        if (normalizedUser.roles.includes('admin')) {
-          navigate('/admin', { replace: true });
-        } else if (normalizedUser.roles.includes('parent')) {
-          navigate('/parents', { replace: true });
-        } else {
-          navigate('/profile-v2', { replace: true });
-        }
-        return;
+        navigate(getDefaultRoute(normalizedUser), { replace: true });
       } catch (err) {
-        // Detailed error logging for easier debugging of 400/500 responses from exchange API
-        console.error('CALLBACK ERROR (full):', err);
-        const resp = err?.response;
-        console.error('CALLBACK ERROR RESPONSE DATA:', resp?.data);
-        console.error('CALLBACK ERROR STATUS:', resp?.status);
-        console.error('CALLBACK ERROR HEADERS:', resp?.headers);
+        console.error('Google callback error:', err);
+        console.error('Google callback response:', err?.response?.data);
 
-        // Persist error details to localStorage for inspection
-        try {
-          if (typeof window !== 'undefined' && window.localStorage) {
-            window.localStorage.setItem('madina_google_exchange_error', JSON.stringify({
-              message: err?.message,
-              status: resp?.status,
-              data: resp?.data,
-              headers: resp?.headers,
-            }));
-          }
-        } catch (e) {
-          console.warn('Failed to save exchange error to localStorage', e);
-        }
+        const responseData = err?.response?.data;
+        const message =
+          responseData?.message ||
+          responseData?.title ||
+          err?.message ||
+          'Authentication failed';
 
-        // Try to get a more descriptive error message from the backend response
-        let backendErrorMessage = '';
-        if (resp?.data?.errors && Array.isArray(resp.data.errors)) {
-          backendErrorMessage = resp.data.errors.map(e => e.description || e.message || e).join(', ');
-        } else if (resp?.data?.message) {
-          backendErrorMessage = resp.data.message;
-        }
-
-        setError(backendErrorMessage || err.message || 'Authentication failed');
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -264,59 +200,74 @@ console.log(
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        flexDirection: 'column',
-        fontFamily: "'Cairo', sans-serif"
-      }}>
-        <div>Processing authentication...</div>
-        <div style={{ marginTop: '20px', fontSize: '14px', color: '#666' }}>
-          Please wait while we verify your identity
-        </div>
+      <div style={styles.centered}>
+        <div>Processing Google login...</div>
+        <div style={styles.subText}>Please wait while we verify your account.</div>
       </div>
     );
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      height: '100vh',
-      flexDirection: 'column',
-      fontFamily: "'Cairo', sans-serif",
-      padding: '20px'
-    }}>
+    <div style={styles.centered}>
       {error ? (
-        <div style={{ textAlign: 'center', maxWidth: '400px' }}>
-          <h3 style={{ color: '#e74c3c', marginBottom: '20px' }}>Authentication Error</h3>
-          <p style={{ color: '#666', marginBottom: '20px' }}>{error}</p>
-          <button 
-            onClick={() => navigate('/auth')}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#3498db',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
+        <div style={styles.card}>
+          <h3 style={styles.errorTitle}>Authentication Error</h3>
+          <p style={styles.message}>{error}</p>
+          <button onClick={() => navigate('/login')} style={styles.button}>
             Back to Login
           </button>
         </div>
       ) : (
-        <div style={{ textAlign: 'center' }}>
-          <h3 style={{ color: '#27ae60', marginBottom: '20px' }}>Authentication Successful!</h3>
-          {responseData && <p style={{ color: '#475569', fontWeight: 700 }}>Your account is ready.</p>}
-          <p>Redirecting you to your dashboard...</p>
+        <div style={styles.card}>
+          <h3 style={styles.successTitle}>Authentication Successful</h3>
+          <p style={styles.message}>Redirecting you now...</p>
         </div>
       )}
     </div>
   );
+};
+
+const styles = {
+  centered: {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    gap: 12,
+    padding: 24,
+    fontFamily: "'Cairo', sans-serif",
+  },
+  subText: {
+    color: '#64748b',
+    fontSize: 14,
+  },
+  card: {
+    maxWidth: 420,
+    textAlign: 'center',
+  },
+  errorTitle: {
+    color: '#dc2626',
+    marginBottom: 16,
+  },
+  successTitle: {
+    color: '#16a34a',
+    marginBottom: 16,
+  },
+  message: {
+    color: '#475569',
+    marginBottom: 20,
+  },
+  button: {
+    padding: '10px 20px',
+    backgroundColor: '#2563eb',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 8,
+    cursor: 'pointer',
+    fontFamily: "'Cairo', sans-serif",
+    fontWeight: 700,
+  },
 };
 
 export default AuthCallback;
