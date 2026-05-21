@@ -1,7 +1,10 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import AppLoader from '../../components/common/AppLoader';
 import { useAuth } from '../../hooks/useAuth';
-import { needsRegistrationCompletion } from '../../utils/authRoutes.js';
+import {
+  getPostLoginRoute,
+  needsRegistrationCompletion,
+} from '../../utils/authRoutes.js';
 
 const normalizeRole = (role) => String(role || '').trim().toLowerCase();
 
@@ -22,7 +25,7 @@ export const RoleGuard = ({ allowedRoles = [], allowAdmin = true }) => {
     const returnUrl = `${location.pathname}${location.search}${location.hash}`;
     return (
       <Navigate
-        to="/auth/social/continue-registration"
+        to="/continue-registration"
         replace
         state={{
           userId: user?.id,
@@ -45,7 +48,7 @@ export const RoleGuard = ({ allowedRoles = [], allowAdmin = true }) => {
 
   const isAllowed = allowedRoles.some((role) => userRoles.includes(normalizeRole(role)));
   if (!isAllowed) {
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to={getPostLoginRoute(user)} replace />;
   }
 
   return <Outlet />;

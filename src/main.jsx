@@ -27,7 +27,7 @@ const restoreHashRouteFromPath = () => {
 
 // ✅ إلغاء تسجيل أي Service Worker قديم (مثل MSW) ومسح الكاش في وضع التطوير
 // ده بيحل مشكلة إن التعديلات في الملفات مش بتظهر في البراوزر
-if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+if (false && import.meta.env.DEV && 'serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then((registrations) => {
     registrations.forEach((registration) => {
       registration.unregister().then((success) => {

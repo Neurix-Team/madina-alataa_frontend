@@ -26,6 +26,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import AudioManager from '../../services/AudioManager';
 import { userLevelsService } from '../../services/userLevelsService';
 import { availableMissionsService } from '../../services/availableMissionsService';
+import { getPostLoginRoute } from '../../utils/authRoutes';
 import bgImage from '../../assets/ChatGPT Image 19 مايو 2026، 12_04_35 م.png';
 
 const loginSchema = Yup.object({
@@ -131,18 +132,9 @@ const AuthScreen = () => {
     fetchStats();
   }, []);
 
-  const goByRole = (user) => {
+  const goByRole = (user, requestedRoute = null) => {
     if (!user) return;
-    const roles = (user.roles || []).map(r => String(r).toLowerCase());
-    if (roles.includes('admin')) {
-      navigate('/admin');
-    } else if (roles.includes('parent')) {
-      navigate('/parents');
-    } else if (roles.includes('volunteer')) {
-      navigate('/map');
-    } else {
-      navigate('/cases');
-    }
+    navigate(getPostLoginRoute(user, requestedRoute), { replace: true });
   };
 
   const loginFormik = useFormik({
@@ -152,12 +144,7 @@ const AuthScreen = () => {
       try {
         const user = await login(values);
         AudioManager.getInstance().play('win');
-        const from = location.state?.from;
-        if (from && from !== '/login') {
-          navigate(from, { replace: true });
-        } else {
-          goByRole(user);
-        }
+        goByRole(user, location.state?.from);
       } catch (error) {
         AudioManager.getInstance().play('error');
       }

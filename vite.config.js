@@ -18,8 +18,8 @@ export default defineConfig(({ mode }) => {
       // ✅ تتبع تغييرات الملفات على Windows باستخدام polling
       // ده بيحل مشكلة إن التعديلات مش بتظهر في البراوزر
       watch: {
-        usePolling: true,
-        interval: 100,
+        usePolling: false,
+        ignored: ['**/node_modules/**', '**/dist/**', '**/.git/**'],
       },
       // ✅ منع البراوزر من كاش الملفات في وضع التطوير
       headers: {

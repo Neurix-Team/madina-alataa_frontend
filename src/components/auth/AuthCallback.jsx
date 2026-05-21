@@ -41,21 +41,34 @@ const normalizeRoles = (roles) => {
     : [String(roles).toLowerCase()];
 };
 
-const pickToken = (data) => (
-  data?.token ||
-  data?.accessToken ||
-  data?.tempToken ||
-  data?.AccessToken ||
-  data?.TempToken ||
-  data?.data?.token ||
-  data?.data?.accessToken ||
-  data?.data?.tempToken ||
-  null
-);
+const pickToken = (source) => {
+  if (!source) return null;
+  if (typeof source === 'string') return source;
+
+  return (
+    source.token ||
+    source.accessToken ||
+    source.tempToken ||
+    source.AccessToken ||
+    source.TempToken ||
+    source.exchangeToken ||
+    source.googleExchangeToken ||
+    source.access_token ||
+    source.jwt ||
+    source.jwtToken ||
+    source.bearerToken ||
+    pickToken(source.data) ||
+    pickToken(source.value) ||
+    pickToken(source.result) ||
+    pickToken(source.item) ||
+    pickToken(source.user) ||
+    null
+  );
+};
 
 const normalizeExchangeResponse = (rawData, code, urlNeedsRegistration) => {
   const data = rawData || {};
-  const nestedData = data?.data || {};
+  const nestedData = data?.data || data?.value || data?.result || data?.item || {};
   const user = data?.user || nestedData?.user || {};
   const token = pickToken(data);
 
@@ -74,8 +87,10 @@ const normalizeExchangeResponse = (rawData, code, urlNeedsRegistration) => {
   return {
     ...data,
     code,
+    exchangeToken: token,
+    googleExchangeToken: token,
     token,
-    accessToken: data?.accessToken || nestedData?.accessToken || token,
+    accessToken: data?.accessToken || data?.access_token || nestedData?.accessToken || nestedData?.access_token || token,
     tempToken: data?.tempToken || nestedData?.tempToken || token,
     needsRegistration,
     needsregistration: needsRegistration,
@@ -138,12 +153,32 @@ const AuthCallback = () => {
           { headers: { 'Content-Type': 'application/json' } }
         );
 
+        console.log('Google exchange response:', response.data);
         const exchangeData = normalizeExchangeResponse(response.data, code, urlNeedsRegistration);
+        const exchangeToken =
+          exchangeData.accessToken ||
+          exchangeData.token ||
+          exchangeData.tempToken ||
+          exchangeData.jwt ||
+          exchangeData.bearerToken ||
+          exchangeData.googleExchangeToken ||
+          null;
+
+        console.log('Google exchange token:', exchangeToken);
+        if (exchangeToken) {
+          localStorage.setItem('google_temp_token', exchangeToken);
+          sessionStorage.setItem('pending_google_exchange_token', exchangeToken);
+        }
+
         localStorage.setItem('madina_needs_registration', exchangeData.needsRegistration ? 'true' : 'false');
+        const pendingRegistrationData = {
+          ...exchangeData,
+          exchangeToken,
+        };
+        sessionStorage.setItem('pending_google_registration', JSON.stringify(pendingRegistrationData));
 
         if (exchangeData.needsRegistration) {
-          persistToken(exchangeData.token || exchangeData.accessToken || exchangeData.tempToken);
-          sessionStorage.setItem('pending_google_registration', JSON.stringify(exchangeData));
+          persistToken(exchangeToken || exchangeData.token || exchangeData.accessToken || exchangeData.tempToken);
 
           const nextUrl = new URL('/continue-registration', window.location.origin);
           if (exchangeData.userId) nextUrl.searchParams.set('userId', exchangeData.userId);

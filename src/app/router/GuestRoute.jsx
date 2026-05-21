@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import AppLoader from '../../components/common/AppLoader';
 import { useAuth } from '../../hooks/useAuth';
 import {
-  getDefaultRouteByUser,
+  getPostLoginRoute,
   needsRegistrationCompletion,
 } from '../../utils/authRoutes.js';
 
@@ -18,7 +18,7 @@ export const GuestRoute = () => {
     const returnUrl = `${location.pathname}${location.search}${location.hash}`;
     return (
       <Navigate
-        to="/auth/social/continue-registration"
+        to="/continue-registration"
         replace
         state={{
           userId: user?.id,
@@ -33,8 +33,7 @@ export const GuestRoute = () => {
 
   if (isAuthenticated) {
     const state = location.state;
-    const from = state?.from || getDefaultRouteByUser(user);
-    return <Navigate to={from} replace />;
+    return <Navigate to={getPostLoginRoute(user, state?.from)} replace />;
   }
 
   return <Outlet />;

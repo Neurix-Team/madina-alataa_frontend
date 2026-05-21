@@ -15,6 +15,7 @@ import { userLevelsService } from '../../services/userLevelsService';
 import { profilesService } from '../../services/profilesService';
 import { useAuth } from '../../hooks/useAuth';
 import GameEngine from '../../services/GameEngine';
+import { rememberLastRouteForUser } from '../../utils/authRoutes';
 
 const TAB_TO_PATH = {
   map: '/map',
@@ -80,6 +81,10 @@ const Layout = () => {
   } = actions;
 
   const { user } = useAuth();
+
+  useEffect(() => {
+    rememberLastRouteForUser(user, location.pathname);
+  }, [user, location.pathname]);
 
   // Initial name sync from auth - ensure it updates when user changes
   useEffect(() => {

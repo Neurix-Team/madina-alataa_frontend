@@ -20,7 +20,7 @@ export const ProtectedRoute = () => {
   if (needsRegistrationCompletion(user)) {
     return (
       <Navigate
-        to="/auth/social/continue-registration"
+        to="/continue-registration"
         replace
         state={{
           userId: user?.id,

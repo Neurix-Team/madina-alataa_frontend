@@ -6,7 +6,7 @@ import { RoleGuard } from '../app/router/RoleGuard';
 import { GuestRoute } from '../app/router/GuestRoute';
 import { CompleteRegistrationRoute } from '../app/router/CompleteRegistrationRoute';
 import { useAuth } from '../hooks/useAuth';
-import { getDefaultRouteByUser } from '../utils/authRoutes';
+import { getPostLoginRoute } from '../utils/authRoutes';
 import AppLoader from '../components/common/AppLoader';
 
 // Auth
@@ -72,8 +72,17 @@ const LoadingFallback = () => (
 const RouteLoadingFallback = () => <AppLoader message="جاري تحميل الصفحة..." fullPage />;
 
 const HomeRedirect = () => {
-  const { user } = useAuth();
-  return <Navigate to={getDefaultRouteByUser(user)} replace />;
+  const { user, isAuthenticated, isInitialized } = useAuth();
+
+  if (!isInitialized) {
+    return <RouteLoadingFallback />;
+  }
+
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Navigate to={getPostLoginRoute(user)} replace />;
 };
 
 export const AppRouter = () => {

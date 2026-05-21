@@ -28,7 +28,10 @@ const ContinueRegistrationPage = () => {
 
   // Get user info from location state or current user context
   // Handle Google OAuth response structure
-  const googleResponseData = location.state || pendingGoogleRegistration;
+  const googleResponseData = {
+    ...pendingGoogleRegistration,
+    ...(location.state || {}),
+  };
   const userId = googleResponseData?.userId ||
                 googleResponseData?.UserId ||
                 googleResponseData?.user?.id ||
@@ -96,13 +99,35 @@ const ContinueRegistrationPage = () => {
       return;
     }
 
+    const exchangeToken =
+      googleResponseData?.accessToken ||
+      googleResponseData?.token ||
+      googleResponseData?.tempToken ||
+      googleResponseData?.exchangeToken ||
+      googleResponseData?.googleExchangeToken ||
+      window.sessionStorage.getItem('pending_google_exchange_token') ||
+      localStorage.getItem('google_temp_token');
+
+    if (!exchangeToken) {
+      setAuthError('Google exchange token is missing. Please sign in with Google again.');
+      return;
+    }
+
     try {
       setLoading(true);
-      const updatedUser = await continueRegistration(userId, newPassword, birthDate, googleResponseData);
+      const updatedUser = await continueRegistration(userId, newPassword, birthDate, {
+        ...googleResponseData,
+        exchangeToken,
+      });
       if (updatedUser) {
         sessionStorage.removeItem('pending_google_registration');
+        sessionStorage.removeItem('pending_google_exchange_token');
+        localStorage.removeItem('madina_access_token');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('google_temp_token');
         AudioManager.getInstance().play('win');
-        navigate('/profile-v2');
+        navigate('/login', { replace: true });
       }
     } catch (error) {
       AudioManager.getInstance().play('error');

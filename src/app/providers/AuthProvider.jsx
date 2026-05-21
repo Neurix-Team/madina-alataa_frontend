@@ -14,6 +14,58 @@ const STORAGE_KEY = 'madeena_login_user_response';
 const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'https://champapi.neurix.uk';
 const getAuthApiUrl = (path) => `${AUTH_API_BASE_URL.replace(/\/$/, '')}${path}`;
 
+const getTokenFromResponse = (source) => {
+  if (!source) return null;
+  if (typeof source === 'string') return source;
+
+  return (
+    source.token ||
+    source.accessToken ||
+    source.tempToken ||
+    source.AccessToken ||
+    source.TempToken ||
+    source.exchangeToken ||
+    source.googleExchangeToken ||
+    source.access_token ||
+    source.jwt ||
+    source.jwtToken ||
+    source.bearerToken ||
+    getTokenFromResponse(source.data) ||
+    getTokenFromResponse(source.value) ||
+    getTokenFromResponse(source.result) ||
+    getTokenFromResponse(source.item) ||
+    getTokenFromResponse(source.user) ||
+    null
+  );
+};
+
+const getStoredGoogleExchangeToken = () => {
+  const token =
+    localStorage.getItem('google_temp_token') ||
+    localStorage.getItem('madina_access_token') ||
+    localStorage.getItem('auth_token') ||
+    localStorage.getItem('accessToken');
+
+  if (token) return token;
+
+  if (typeof window !== 'undefined' && window.sessionStorage) {
+    try {
+      const pending = window.sessionStorage.getItem('pending_google_registration');
+      const parsed = pending ? JSON.parse(pending) : null;
+      return getTokenFromResponse(parsed);
+    } catch (error) {
+      console.warn('Failed to parse pending_google_registration from sessionStorage', error);
+    }
+  }
+
+  return null;
+};
+
+const getTokenPreview = (token) => {
+  if (!token) return null;
+  return `${String(token).slice(0, 8)}...${String(token).slice(-8)} (${String(token).length})`;
+};
+
 // Create AuthContext so it can be used by `useAuthContext` and consumers
 const AuthContext = createContext();
 
@@ -77,6 +129,24 @@ export const AuthProvider = ({ children }) => {
         if (loadCalled.current) return;
         loadCalled.current = true;
 
+        const currentRoute = `${window.location.pathname}${window.location.hash}`;
+        const isOAuthFlow =
+          currentRoute.includes('/auth/callback') ||
+          currentRoute.includes('/continue-registration');
+
+        if (!isOAuthFlow) {
+          localStorage.removeItem('madina_access_token');
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('google_temp_token');
+          localStorage.removeItem('madina_auth_user');
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem('user_data');
+          await secureStorage.removeItem(STORAGE_KEY);
+          setUser(null);
+          return;
+        }
+
         const rawData = localStorage.getItem(STORAGE_KEY);
         let storedUser = null;
 
@@ -104,17 +174,17 @@ export const AuthProvider = ({ children }) => {
             const freshUser = await fetchMe();
             if (freshUser) {
               setUser(freshUser);
-            } else if (storedUser) {
-              setUser(storedUser);
+            } else {
+              await logout();
             }
           } catch (fetchError) {
             console.error('Error fetching fresh user data:', fetchError);
-            if (storedUser) {
-              setUser(storedUser);
-            }
+            await logout();
           }
         } else if (storedUser) {
-          setUser(storedUser);
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem('user_data');
+          await secureStorage.removeItem(STORAGE_KEY);
         }
       } catch (error) {
         console.error('AuthProvider loadUser error:', error);
@@ -384,6 +454,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       const url = getAuthApiUrl('/api/auth/continue-registration');
+      const exchangeToken =
+        typeof extra === 'string'
+          ? extra
+          : getTokenFromResponse(extra) || getStoredGoogleExchangeToken();
 
       const payload = {
         userid: userId,
@@ -391,49 +465,36 @@ export const AuthProvider = ({ children }) => {
         birthDate,
       };
 
+      console.log('Continue Registration EXTRA:', extra);
       console.log('Continue Registration URL:', url);
       console.log('Continue Registration PAYLOAD:', payload);
+      console.log('Continue Registration EXCHANGE TOKEN EXISTS:', Boolean(exchangeToken));
+      console.log('Continue Registration EXCHANGE TOKEN PREVIEW:', getTokenPreview(exchangeToken));
+
+      if (!exchangeToken) {
+        setAuthError('Google exchange token is missing. Please sign in with Google again.');
+        return null;
+      }
 
       const response = await axios.post(url, payload, {
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${exchangeToken}`,
         },
       });
 
       console.log('Continue Registration Successful:', response.data);
 
-      const userData = response.data?.user ?? response.data;
+      setUser(null);
+      localStorage.removeItem('madina_access_token');
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('google_temp_token');
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('user_data');
+      await secureStorage.removeItem(STORAGE_KEY);
 
-      const finalToken =
-        response.data?.token ||
-        response.data?.accessToken ||
-        userData?.token ||
-        extra?.token ||
-        extra?.accessToken ||
-        extra?.tempToken ||
-        localStorage.getItem('madina_access_token') ||
-        localStorage.getItem('auth_token') ||
-        localStorage.getItem('accessToken');
-
-      if (finalToken) {
-        localStorage.setItem('madina_access_token', finalToken);
-        localStorage.setItem('auth_token', finalToken);
-        localStorage.setItem('accessToken', finalToken);
-      }
-
-      const normalizedUser = {
-        id: userData?.id || userData?.userId || userId,
-        name: userData?.fullname || userData?.fullName || userData?.name || 'Unknown',
-        email: userData?.email || extra?.email || extra?.Email || 'No Email',
-        roles: normalizeRoles(userData?.roles || userData?.role || ['user']),
-        token: finalToken,
-      };
-
-      setUser(normalizedUser);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedUser));
-      await secureStorage.setItem(STORAGE_KEY, normalizedUser);
-
-      return normalizedUser;
+      return response.data || { success: true };
     } catch (error) {
       console.error('Continue Registration Error:', error);
       console.error('Status:', error?.response?.status);
