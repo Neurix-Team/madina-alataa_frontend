@@ -303,11 +303,13 @@ const SIDEBAR_CSS = `
     width: 100%;
     padding: 8px;
     border-radius: 16px;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
+    background: rgb(255 255 255);
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-lg);
     z-index: 20;
+  }
+  [data-theme="dark"] .sb-lang-menu {
+    background: rgb(20 33 51);
   }
   .sb-lang-item {
     width: 100%;

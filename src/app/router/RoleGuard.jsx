@@ -48,7 +48,19 @@ export const RoleGuard = ({ allowedRoles = [], allowAdmin = true }) => {
 
   const isAllowed = allowedRoles.some((role) => userRoles.includes(normalizeRole(role)));
   if (!isAllowed) {
-    return <Navigate to={getPostLoginRoute(user)} replace />;
+    const returnUrl = `${location.pathname}${location.search}${location.hash}`;
+    return (
+      <Navigate
+        to="/unauthorized"
+        replace
+        state={{
+          from: returnUrl,
+          allowedRoles,
+          userRoles,
+          fallback: getPostLoginRoute(user),
+        }}
+      />
+    );
   }
 
   return <Outlet />;

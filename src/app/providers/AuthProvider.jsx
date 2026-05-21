@@ -485,14 +485,7 @@ export const AuthProvider = ({ children }) => {
 
       console.log('Continue Registration Successful:', response.data);
 
-      setUser(null);
-      localStorage.removeItem('madina_access_token');
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('google_temp_token');
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem('user_data');
-      await secureStorage.removeItem(STORAGE_KEY);
+      await logout();
 
       return response.data || { success: true };
     } catch (error) {
@@ -596,9 +589,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('madina_access_token');
       localStorage.removeItem('auth_token');
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('google_temp_token');
       localStorage.removeItem('madina_auth_user');
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem('user_data');
+      sessionStorage.removeItem('pending_google_registration');
+      sessionStorage.removeItem('pending_google_exchange_token');
       await secureStorage.removeItem(STORAGE_KEY);
 
       // Clear game state if necessary (handled by components listening to user=null)

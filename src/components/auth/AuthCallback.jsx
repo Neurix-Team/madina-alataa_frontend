@@ -3,6 +3,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import secureStorage from '../../utils/secureStorage';
+import {
+  FaGoogle,
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaSpinner,
+  FaLock,
+} from 'react-icons/fa';
 
 const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'https://champapi.neurix.uk';
 const LOGIN_STORAGE_KEY = 'madeena_login_user_response';
@@ -235,27 +242,68 @@ const AuthCallback = () => {
 
   if (loading) {
     return (
-      <div style={styles.centered}>
-        <div>Processing Google login...</div>
-        <div style={styles.subText}>Please wait while we verify your account.</div>
+      <div style={styles.pageShell}>
+        <div style={styles.glowOne} />
+        <div style={styles.glowTwo} />
+
+        <div style={styles.card}>
+          <div style={styles.badge}>
+            <FaGoogle size={20} />
+          </div>
+
+          <div style={styles.iconRing}>
+            <FaSpinner style={styles.spinnerIcon} />
+          </div>
+
+          <h1 style={styles.title}>جاري الاتصال بحسابك على Google</h1>
+          <p style={styles.message}>
+            نتحقق من كود التفويض وتحضير الجلسة الخاصة بك
+          </p>
+
+          <div style={styles.steps}>
+            <div style={styles.stepItem}>
+              <FaCheckCircle color="#16a34a" size={18} />
+              <span>تم الرد من Google بنجاح</span>
+            </div>
+            <div style={styles.stepItem}>
+              <FaSpinner style={styles.inlineSpinner} size={18} />
+              <span>جاري مبادلة الكود مع الخادم</span>
+            </div>
+            <div style={styles.stepItem}>
+              <FaLock color="#64748b" size={18} />
+              <span>تأمين الجلسة الخاصة بك</span>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={styles.centered}>
+    <div style={styles.pageShell}>
+      <div style={styles.glowOne} />
+      <div style={styles.glowTwo} />
+
       {error ? (
         <div style={styles.card}>
-          <h3 style={styles.errorTitle}>Authentication Error</h3>
+          <div style={{ ...styles.badge, background: 'rgba(239, 68, 68, 0.14)', color: '#dc2626' }}>
+            <FaExclamationTriangle size={18} />
+          </div>
+          <h1 style={styles.title}>فشل المصادقة</h1>
           <p style={styles.message}>{error}</p>
-          <button onClick={() => navigate('/login')} style={styles.button}>
-            Back to Login
-          </button>
+          <div style={styles.actions}>
+            <button onClick={() => navigate('/login')} style={styles.primaryButton}>
+              العودة لصفحة تسجيل الدخول
+            </button>
+          </div>
         </div>
       ) : (
         <div style={styles.card}>
-          <h3 style={styles.successTitle}>Authentication Successful</h3>
-          <p style={styles.message}>Redirecting you now...</p>
+          <div style={{ ...styles.badge, background: 'rgba(22, 163, 74, 0.14)', color: '#16a34a' }}>
+            <FaCheckCircle size={18} />
+          </div>
+          <h1 style={styles.title}>المصادقة نجحت بنجاح</h1>
+          <p style={styles.message}>جاري إعادة التوجيه...</p>
         </div>
       )}
     </div>
@@ -263,46 +311,136 @@ const AuthCallback = () => {
 };
 
 const styles = {
-  centered: {
+  pageShell: {
     minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'column',
-    gap: 12,
     padding: 24,
+    position: 'relative',
+    overflow: 'hidden',
+    background:
+      'radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 28%), radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.10), transparent 24%), linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)',
     fontFamily: "'Cairo', sans-serif",
   },
-  subText: {
-    color: '#64748b',
-    fontSize: 14,
+  glowOne: {
+    position: 'absolute',
+    width: 260,
+    height: 260,
+    borderRadius: '50%',
+    background: 'rgba(59, 130, 246, 0.14)',
+    filter: 'blur(24px)',
+    top: '-80px',
+    left: '-60px',
+  },
+  glowTwo: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    borderRadius: '50%',
+    background: 'rgba(34, 197, 94, 0.10)',
+    filter: 'blur(24px)',
+    bottom: '-60px',
+    right: '-40px',
   },
   card: {
-    maxWidth: 420,
+    position: 'relative',
+    zIndex: 1,
+    width: '100%',
+    maxWidth: 560,
+    padding: '32px 28px',
+    borderRadius: 28,
+    background: 'rgba(255, 255, 255, 0.82)',
+    backdropFilter: 'blur(16px)',
+    border: '1px solid rgba(148, 163, 184, 0.2)',
+    boxShadow: '0 24px 80px rgba(15, 23, 42, 0.12)',
     textAlign: 'center',
   },
-  errorTitle: {
-    color: '#dc2626',
-    marginBottom: 16,
+  badge: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'rgba(37, 99, 235, 0.10)',
+    color: '#2563eb',
+    marginBottom: 18,
   },
-  successTitle: {
-    color: '#16a34a',
-    marginBottom: 16,
+  iconRing: {
+    width: 76,
+    height: 76,
+    borderRadius: '50%',
+    display: 'grid',
+    placeItems: 'center',
+    margin: '0 auto 18px',
+    background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(16, 185, 129, 0.12))',
+    boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.6)',
+  },
+  spinnerIcon: {
+    fontSize: 28,
+    color: '#2563eb',
+    animation: 'spin 0.9s linear infinite',
+  },
+  inlineSpinner: {
+    animation: 'spin 0.9s linear infinite',
+    color: '#2563eb',
+  },
+  title: {
+    margin: 0,
+    color: '#0f172a',
+    fontSize: '1.75rem',
+    fontWeight: 800,
+    lineHeight: 1.2,
   },
   message: {
     color: '#475569',
-    marginBottom: 20,
+    margin: '12px auto 0',
+    lineHeight: 1.8,
+    maxWidth: 420,
+    fontSize: '0.98rem',
   },
-  button: {
-    padding: '10px 20px',
+  steps: {
+    display: 'grid',
+    gap: 12,
+    marginTop: 24,
+    padding: 18,
+    borderRadius: 18,
+    background: 'rgba(248, 250, 252, 0.9)',
+    border: '1px solid rgba(148, 163, 184, 0.18)',
+    textAlign: 'right',
+  },
+  stepItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    color: '#334155',
+    fontSize: '0.95rem',
+  },
+  actions: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: 12,
+    marginTop: 22,
+  },
+  primaryButton: {
+    padding: '12px 20px',
     backgroundColor: '#2563eb',
     color: '#fff',
     border: 'none',
-    borderRadius: 8,
+    borderRadius: 14,
     cursor: 'pointer',
     fontFamily: "'Cairo', sans-serif",
     fontWeight: 700,
+    boxShadow: '0 10px 24px rgba(37, 99, 235, 0.24)',
   },
 };
+
+if (typeof document !== 'undefined' && !document.getElementById('auth-callback-spin-keyframes')) {
+  const style = document.createElement('style');
+  style.id = 'auth-callback-spin-keyframes';
+  style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+  document.head.appendChild(style);
+}
 
 export default AuthCallback;

@@ -97,9 +97,7 @@ const HEADER_CSS = `
     min-width: 180px;
     padding: 8px;
     border-radius: 18px;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
+    background: var(--bg-card);
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-lg);
     z-index: 1000;
